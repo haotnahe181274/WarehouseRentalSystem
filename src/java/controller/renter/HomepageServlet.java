@@ -69,93 +69,96 @@ public class HomepageServlet extends HttpServlet {
         WarehouseTypeDAO typeDAO = new WarehouseTypeDAO();
         WarehouseImageDAO imageDAO = new WarehouseImageDAO();
 
-    // ================== 1. LẤY PARAM ==================
-    String location = request.getParameter("location");
-    String typeIdRaw = request.getParameter("typeId");
+        // ================== 1. LẤY PARAM ==================
+        String location = request.getParameter("location");
+        String typeIdRaw = request.getParameter("typeId");
 
-    String minPriceRaw = request.getParameter("minPrice");
-    String maxPriceRaw = request.getParameter("maxPrice");
-    String minAreaRaw = request.getParameter("minArea");
-    String maxAreaRaw = request.getParameter("maxArea");
-    String pageRaw = request.getParameter("page");
+        String minPriceRaw = request.getParameter("minPrice");
+        String maxPriceRaw = request.getParameter("maxPrice");
+        String minAreaRaw = request.getParameter("minArea");
+        String maxAreaRaw = request.getParameter("maxArea");
+        String pageRaw = request.getParameter("page");
+        String keyword = request.getParameter("keyword");
 
-    // ================== 2. PARSE AN TOÀN ==================
-    Integer typeId = null;
-    Double minPrice = null, maxPrice = null;
-    Double minArea = null, maxArea = null;
-    int page = 1;
+        // ================== 2. PARSE AN TOÀN ==================
+        Integer typeId = null;
+        Double minPrice = null, maxPrice = null;
+        Double minArea = null, maxArea = null;
+        int page = 1;
 
-    try {
-        if (typeIdRaw != null && !typeIdRaw.isEmpty()) {
-            typeId = Integer.parseInt(typeIdRaw);
+        try {
+            if (typeIdRaw != null && !typeIdRaw.isEmpty()) {
+                typeId = Integer.parseInt(typeIdRaw);
+            }
+
+            if (minPriceRaw != null && !minPriceRaw.isEmpty()) {
+                minPrice = Double.parseDouble(minPriceRaw);
+            }
+
+            if (maxPriceRaw != null && !maxPriceRaw.isEmpty()) {
+                maxPrice = Double.parseDouble(maxPriceRaw);
+            }
+
+            if (minAreaRaw != null && !minAreaRaw.isEmpty()) {
+                minArea = Double.parseDouble(minAreaRaw);
+            }
+
+            if (maxAreaRaw != null && !maxAreaRaw.isEmpty()) {
+                maxArea = Double.parseDouble(maxAreaRaw);
+            }
+
+            if (pageRaw != null && !pageRaw.isEmpty()) {
+                page = Integer.parseInt(pageRaw);
+            }
+
+            if (page < 1) {
+                page = 1;
+            }
+
+        } catch (Exception e) {
+            page = 1;
         }
 
-        if (minPriceRaw != null && !minPriceRaw.isEmpty()) {
-            minPrice = Double.parseDouble(minPriceRaw);
+        // ================== 3. PHÂN TRANG ==================
+        int pageSize = 6;
+        int offset = (page - 1) * pageSize;
+
+        // ================== 4. QUERY DB ==================
+        List<Warehouse> list = warehouseDAO.getFilteredWarehouses(
+                keyword, location,
+                typeId,
+                minPrice, maxPrice,
+                minArea, maxArea,
+                offset, pageSize
+        );
+
+        Map<Integer, String> imageMap = new HashMap<>();
+        for (Warehouse w : list) {
+            String img = imageDAO.getPrimaryImage(w.getWarehouseId());
+            imageMap.put(w.getWarehouseId(), img);
         }
 
-        if (maxPriceRaw != null && !maxPriceRaw.isEmpty()) {
-            maxPrice = Double.parseDouble(maxPriceRaw);
-        }
+        int totalRecords = warehouseDAO.getTotalRecords(
+                keyword, location,
+                typeId,
+                minPrice, maxPrice,
+                minArea, maxArea
+        );
 
-        if (minAreaRaw != null && !minAreaRaw.isEmpty()) {
-            minArea = Double.parseDouble(minAreaRaw);
-        }
+        int totalPages = (int) Math.ceil(totalRecords * 1.0 / pageSize);
 
-        if (maxAreaRaw != null && !maxAreaRaw.isEmpty()) {
-            maxArea = Double.parseDouble(maxAreaRaw);
-        }
+        // ================== 5. SET ATTRIBUTE ==================
+        request.setAttribute("warehouses", list);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalItems", totalRecords);
+        request.setAttribute("imageMap", imageMap);
 
-        if (pageRaw != null && !pageRaw.isEmpty()) {
-            page = Integer.parseInt(pageRaw);
-        }
+        request.setAttribute("locations", warehouseDAO.getAllLocations());
+        request.setAttribute("warehouseTypes", typeDAO.getAllTypes());
 
-        if (page < 1) page = 1;
-
-    } catch (Exception e) {
-        page = 1;
-    }
-    
-    
-
-    // ================== 3. PHÂN TRANG ==================
-    int pageSize = 6;
-    int offset = (page - 1) * pageSize;
-
-    // ================== 4. QUERY DB ==================
-    List<Warehouse> list = warehouseDAO.getFilteredWarehouses(
-            location, 
-            minPrice, maxPrice,
-            minArea, maxArea,
-            offset, pageSize
-    );
-    
-    Map<Integer, String> imageMap = new HashMap<>();
-for (Warehouse w : list) {
-    String img = imageDAO.getPrimaryImage(w.getWarehouseId());
-    imageMap.put(w.getWarehouseId(), img);
-}
-
-    int totalRecords = warehouseDAO.getTotalRecords(
-            location, 
-            minPrice, maxPrice,
-            minArea, maxArea
-    );
-
-    int totalPages = (int) Math.ceil(totalRecords * 1.0 / pageSize);
-
-    // ================== 5. SET ATTRIBUTE ==================
-    request.setAttribute("warehouses", list);
-    request.setAttribute("currentPage", page);
-    request.setAttribute("totalPages", totalPages);
-    request.setAttribute("totalItems", totalRecords);
-    request.setAttribute("imageMap", imageMap);
-
-    request.setAttribute("locations", warehouseDAO.getAllLocations());
-    request.setAttribute("warehouseTypes", typeDAO.getAllTypes());
-
-    // ================== 6. FORWARD ==================
-    request.getRequestDispatcher("/Renter/homepage/show.jsp").forward(request, response);
+        // ================== 6. FORWARD ==================
+        request.getRequestDispatcher("/Renter/homepage/show.jsp").forward(request, response);
 
     }
 
