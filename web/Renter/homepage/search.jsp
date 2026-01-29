@@ -14,50 +14,68 @@
     </div>
 
     <form action="homepage" id="sideFilterForm" method="GET">
-        <input type="hidden" name="location" value="${param.location}">
-        <input type="hidden" name="maxPrice" value="${param.maxPrice}">
 
+        <!-- ========== LOCATION ========== -->
         <div class="mb-4">
-            <h6 class="fw-bold mb-3">Warehouse Type</h6>
-            <c:forEach items="${warehouseTypes}" var="t">
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" name="typeId" 
-                           value="${t.warehouseTypeId}" id="type${t.warehouseTypeId}" 
-                           onchange="this.form.submit()"
-                           ${param.typeId == t.warehouseTypeId ? 'checked' : ''}>
-                    <label class="form-check-label d-flex justify-content-between w-100" for="type${t.warehouseTypeId}">
-                        ${t.typeName}
-                    </label>
-                </div>
-            </c:forEach>
-        </div>
-
-        <hr class="my-4">
-
-        <div class="mb-4">
-            <h6 class="fw-bold mb-3">Availability</h6>
-            <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" name="status" value="1" id="statusActive" 
-                       onchange="this.form.submit()" ${param.status == '1' ? 'checked' : ''}>
-                <label class="form-check-label" for="statusActive">Available Now</label>
-            </div>
-            <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" name="status" value="2" id="statusFull" 
-                       onchange="this.form.submit()" ${param.status == '2' ? 'checked' : ''}>
-                <label class="form-check-label" for="statusFull">Currently Full</label>
-            </div>
-        </div>
-
-        <hr class="my-4">
-
-        <div class="mb-4">
-            <h6 class="fw-bold mb-3">Area Size</h6>
-            <select name="maxArea" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="">Any Size</option>
-                <option value="50" ${param.maxArea == '50' ? 'selected' : ''}>Under 50 sq ft</option>
-                <option value="100" ${param.maxArea == '100' ? 'selected' : ''}>Under 100 sq ft</option>
-                <option value="500" ${param.maxArea == '500' ? 'selected' : ''}>Under 500 sq ft</option>
+            <h6 class="fw-bold mb-3">Location</h6>
+            <select name="location" class="form-select form-select-sm">
+                <option value="">All locations</option>
+                <c:forEach items="${locations}" var="l">
+                    <option value="${l}" ${param.location == l ? 'selected' : ''}>
+                        ${l}
+                    </option>
+                </c:forEach>
             </select>
         </div>
+
+        <hr class="my-4">
+
+        <!-- ========== TYPE ========== -->
+        <div class="mb-4">
+            <h6 class="fw-bold mb-3">Warehouse Type</h6>
+            <select name="typeId" class="form-select form-select-sm">
+                <option value="">All types</option>
+                <c:forEach items="${warehouseTypes}" var="t">
+                    <option value="${t.warehouseTypeId}" 
+                        ${param.typeId == t.warehouseTypeId ? 'selected' : ''}>
+                        ${t.typeName}
+                    </option>
+                </c:forEach>
+            </select>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- ========== AREA ========== -->
+        <div class="mb-4">
+            <h6 class="fw-bold mb-3">Area (m²)</h6>
+            <div class="d-flex gap-2">
+                <input type="number" step="0.01" class="form-control form-control-sm"
+                       name="minArea" placeholder="Min" value="${param.minArea}">
+                <input type="number" step="0.01" class="form-control form-control-sm"
+                       name="maxArea" placeholder="Max" value="${param.maxArea}">
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- ========== PRICE ========== -->
+        <div class="mb-4">
+            <h6 class="fw-bold mb-3">Price (VND)</h6>
+            <div class="d-flex gap-2">
+                <input type="number" step="1000" class="form-control form-control-sm"
+                       name="minPrice" placeholder="Min" value="${param.minPrice}">
+                <input type="number" step="1000" class="form-control form-control-sm"
+                       name="maxPrice" placeholder="Max" value="${param.maxPrice}">
+            </div>
+        </div>
+
+        <!-- ========== APPLY BUTTON ========== -->
+        <div class="d-grid mt-3">
+            <button type="submit" class="btn btn-dark btn-sm">
+                Apply filters
+            </button>
+        </div>
+
     </form>
 </div>

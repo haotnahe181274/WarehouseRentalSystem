@@ -17,7 +17,7 @@
         <title>WareSpace - Warehouse Rental</title>
     </head>
     <body>
-        
+
 
         <%-- 2. THÊM BANNER Ở ĐÂY (Phần tiêu đề và search bar lớn) --%>
         <jsp:include page="banner.jsp" />
@@ -33,19 +33,16 @@
                 <div class="col-lg-9">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="fw-bold">Available Warehouses 
-                            <span class="text-muted fw-normal">(${result} results)</span>
+                            <span class="text-muted fw-normal">(${totalItems} results)</span>
                         </h4>
                         <%-- Dropdown Sort By có thể để ở đây --%>
                     </div>
 
-                    <div class="row g-4">
-                        <c:forEach items="${products}" var="product">
-                            <div class="col-md-6 col-lg-4">
-                                <%-- 5. File Card con hiển thị từng kho bãi --%>
-                                <jsp:include page="card.jsp" />
-                            </div>
-                        </c:forEach>
-                    </div>
+
+
+                    <%-- 5. Gọi file Card. File này sẽ tự lo vòng lặp c:forEach bên trong nó --%>
+                    <jsp:include page="card.jsp" /> 
+
 
                     <%-- 6. Phân trang --%>
                     <jsp:include page="pagination.jsp" />
@@ -53,12 +50,12 @@
             </div>
         </div>
 
-        
+
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
 
-    
-    </body>
+
+</body>
 </html>

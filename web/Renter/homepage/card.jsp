@@ -4,42 +4,79 @@
     Author     : ad
 --%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<div class="card h-100 shadow-sm border-0 position-relative">
-    <span class="position-absolute top-0 end-0 m-3 badge ${product.status == 1 ? 'bg-success' : 'bg-secondary'}">
-        ${product.status == 1 ? 'Available' : 'Full'}
-    </span>
+<style>
+    /* Ép tất cả card trong danh sách có cùng chiều cao */
+    .warehouse-card {
+        height: 380px; /* Bạn có thể tăng giảm con số này cho vừa mắt */
+        display: flex;
+        flex-direction: column;
+    }
+    /* Ép ảnh không bị méo và cùng cỡ */
+    .card-img-container {
+        height: 200px;
+        overflow: hidden;
+    }
+    .card-img-container img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+    }
+    /* Khống chế tên kho chỉ hiện trên 1 dòng, tránh đẩy hàng */
+    .card-title-fixed {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
 
-    <div class="fruite-img" style="height: 200px; overflow: hidden;">
-        <img src="${pageContext.request.contextPath}/resources/renter/image/${product.warehouseImage.image_url != null ? product.warehouseImage.image_url : 'default.jpg'}" 
-             class="card-img-top w-100 h-100 object-fit-cover" alt="${product.name}">
-    </div>
+<div class="row g-4">
+    <c:forEach items="${warehouses}" var="w">
+        <div class="col-lg-4 col-md-6">
+            <div class="card warehouse-card shadow-sm border-0 rounded-4">
+                
+                <div class="position-relative card-img-container">
+                    <img src="${pageContext.request.contextPath}/images/warehouse/${imageMap[w.warehouseId]}"
+                         class="rounded-top-4"
+                         alt="warehouse image"
+                         onerror="this.src='${pageContext.request.contextPath}/resources/renter/image/default.jpg';">
 
-    <div class="card-body">
-        <h5 class="card-title fw-bold text-dark">${product.name}</h5>
-        <p class="text-muted small mb-2">
-            <i class="fas fa-map-marker-alt me-1"></i> ${product.address}
-        </p>
-        
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="h5 fw-bold text-primary mb-0">
-                $<fmt:formatNumber value="${product.minPrice}" type="number"/> 
-                <small class="text-muted fw-normal">/month</small>
-            </span>
-        </div>
+                    <c:if test="${w.status == 1}">
+                        <span class="badge position-absolute top-0 start-0 m-2 bg-success">Active</span>
+                    </c:if>
+                </div>
 
-        <div class="row g-2 mb-3 text-muted small">
-            <div class="col-6">
-                <i class="fas fa-ruler-combined me-1"></i> ${product.totalArea} sq ft
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h6 class="fw-bold mb-1 card-title-fixed" title="${w.name}">${w.name}</h6>
+                        <p class="text-muted small mb-2 card-title-fixed">
+                            <i class="fa-solid fa-location-dot"></i> ${w.address}
+                        </p>
+                    </div>
+
+                    <div class="mt-2">
+                        <c:choose>
+                            <c:when test="${w.status == 1}">
+                                <a href="warehouse-detail?id=${w.warehouseId}" 
+                                   class="btn btn-dark w-100 rounded-pill">View Details</a>
+                            </c:when>
+                            <c:otherwise>
+                                <button class="btn btn-secondary w-100 rounded-pill" disabled>Not Available</button>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
+
             </div>
-            <div class="col-6 text-end">
-                <i class="fas fa-warehouse me-1"></i> ${product.warehouseType.typeName}
-            </div>
         </div>
-
-        <a href="detail?id=${product.warehouseId}" class="btn btn-dark w-100 py-2 fw-bold">View Details</a>
-    </div>
+    </c:forEach>
 </div>
+
+<c:if test="${empty warehouses}">
+    <div class="text-center text-muted mt-5 py-5 w-100">
+        <h5>No warehouse found.</h5>
+    </div>
+</c:if>
