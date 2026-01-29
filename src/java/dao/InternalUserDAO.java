@@ -67,4 +67,42 @@ public class InternalUserDAO extends DBContext{
             e.printStackTrace();
         }
     }
+    
+    public void insertInternalUser(String username, String password, String email, String fullName, String phone, String image, int roleId){
+        String sql = """
+                     insert into internal_user(user_name, password, email, full_name, phone, role_id, status, image, created_at)
+                     values (?, ?, ?, ?, ?, ?, 1, ?, NOw())
+                     """;
+        try(PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, email);
+            ps.setString(4, fullName);
+            ps.setString(5, phone);
+            ps.setInt(6, roleId);
+            ps.setString(7, image);
+            ps.executeUpdate();
+        }catch(Exception e){
+            e.printStackTrace();    
+        }
+    }
+    
+    public void updateInternalUser(int id, String email, String fullName, String phone, String image, int roleId){
+        String sql = """
+                     update internal_user
+                     set email = ?, full_name = ?, phone = ?, image = ?, role_id = ? 
+                     where internal_user_id = ?
+                     """;
+        try(PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setString(1, email);
+            ps.setString(2, fullName);
+            ps.setString(3, phone);
+            ps.setString(4, image);
+            ps.setInt(5, roleId);
+            ps.setInt(6, id);
+            ps.executeUpdate();
+        }catch(Exception e){
+            e.printStackTrace();
+        }     
+    }
 }
