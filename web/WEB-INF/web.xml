@@ -16,4 +16,7 @@
         <servlet-name>UserController</servlet-name>
         <url-pattern>/user</url-pattern>
     </servlet-mapping>
+    <welcome-file-list>
+        <welcome-file>homepage</welcome-file>
+    </welcome-file-list>
 </web-app>

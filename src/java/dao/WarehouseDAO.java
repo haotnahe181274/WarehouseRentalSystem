@@ -71,7 +71,7 @@ public class WarehouseDAO extends DBContext {
         StringBuilder sql = new StringBuilder(
                 "SELECT DISTINCT w.* "
                 + "FROM Warehouse w "
-                + "JOIN Storage_unit s ON w.warehouse_id = s.warehouse_id "
+                + "LEFT JOIN Storage_unit s ON w.warehouse_id = s.warehouse_id "
                 + "WHERE w.status = 1 "
         );
         if (keyword != null && !keyword.trim().isEmpty()) {

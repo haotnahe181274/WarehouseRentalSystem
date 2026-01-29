@@ -271,26 +271,168 @@ VALUES
 ('renter02', '123456', 'Tran Thi B', 'b@gmail.com', '091000002', 1, NOW(), 'b.png'),
 ('renter03', '123456', 'Le Van C', 'c@gmail.com', '091000003', 1, NOW(), 'c.png');
 
-INSERT INTO Warehouse
-(name, address, description, status, warehouse_type_id)
-VALUES
-('Warehouse A', 'Ha Noi', 'Kho trung tâm', 1, 1),
-('Warehouse B', 'HCM', 'Kho miền nam', 1, 2),
-('Warehouse C', 'Da Nang', 'Kho an ninh', 1, 3);
+INSERT INTO Warehouse (name, address, description, status, warehouse_type_id) VALUES
+('Northern Logistics Hub', 'Hà Nội', 'Kho trung tâm miền Bắc', 1, 1),
+('Vinh Phuc Distribution Center', 'Vĩnh Phúc', 'Kho vệ tinh khu công nghiệp', 1, 2),
+('Bac Ninh Smart Warehouse', 'Bắc Ninh', 'Kho công nghệ cao', 1, 2),
+('Hai Phong Port Warehouse', 'Hải Phòng', 'Kho gần cảng biển', 1, 3),
+('Quang Ninh Security Depot', 'Quảng Ninh', 'Kho an ninh cao', 2, 3),
+('Thanh Hoa Storage Complex', 'Thanh Hóa', 'Kho tổng hợp', 1, 2),
+('Nghe An Logistics Center', 'Nghệ An', 'Kho trung chuyển', 1, 2),
+('Ha Tinh Supply Warehouse', 'Hà Tĩnh', 'Kho cung ứng', 0, 1),
+('Da Nang Logistics Hub', 'Đà Nẵng', 'Kho miền Trung', 1, 1),
+('Quang Nam Storage', 'Quảng Nam', 'Kho lưu trữ hàng tổng hợp', 1, 2),
+('Quang Ngai Industrial Warehouse', 'Quảng Ngãi', 'Kho khu công nghiệp', 1, 2),
+('Binh Dinh Port Depot', 'Bình Định', 'Kho cảng biển', 1, 3),
+('Khanh Hoa Cold Storage', 'Khánh Hòa', 'Kho lạnh thủy sản', 1, 1),
+('Dak Lak Agricultural Warehouse', 'Đắk Lắk', 'Kho nông sản', 2, 2),
+('Gia Lai Logistics Base', 'Gia Lai', 'Kho trung chuyển Tây Nguyên', 1, 2),
+('Lam Dong Cold Chain Center', 'Lâm Đồng', 'Kho lạnh rau củ', 1, 1),
+('Binh Duong Smart Warehouse', 'Bình Dương', 'Kho tự động hóa', 1, 2),
+('Dong Nai Industrial Storage', 'Đồng Nai', 'Kho công nghiệp', 1, 2),
+('Ho Chi Minh Logistics Hub', 'TP Hồ Chí Minh', 'Kho trung tâm miền Nam', 1, 1),
+('Long An Distribution Center', 'Long An', 'Kho phân phối', 1, 2),
+('Tien Giang Storage', 'Tiền Giang', 'Kho khu vực ĐBSCL', 1, 2),
+('Can Tho Logistics Hub', 'Cần Thơ', 'Kho trung tâm miền Tây', 1, 1),
+('Vinh Long Warehouse', 'Vĩnh Long', 'Kho tổng hợp', 0, 2),
+('An Giang Border Depot', 'An Giang', 'Kho khu vực biên giới', 1, 3),
+('Kien Giang Marine Warehouse', 'Kiên Giang', 'Kho hàng hải sản', 1, 1),
+('Ca Mau Cold Storage', 'Cà Mau', 'Kho lạnh thủy sản', 2, 1);
 
-INSERT INTO Warehouse_image
-(image_url, image_type, is_primary, status, created_at, warehouse_id)
-VALUES
-('wa1.jpg', 'EXTERIOR', 1, 1, NOW(), 1),
-('wb1.jpg', 'INTERIOR', 1, 1, NOW(), 2),
-('wc1.jpg', 'EXTERIOR', 1, 1, NOW(), 3);
 
-INSERT INTO Storage_unit
-(unit_code, status, area, price_per_unit, description, warehouse_id)
-VALUES
-('U-A1', 1, 50, 2000000, 'ô nhỏ', 1),
-('U-A2', 1, 100, 3500000, 'ô vừa', 1),
-('U-B1', 1, 80, 3000000, 'ô tiêu chuẩn', 2);
+INSERT INTO Warehouse_image (image_url, image_type, is_primary, status, created_at, warehouse_id) VALUES
+-- Warehouse 1
+('w1_ext.jpg','EXTERIOR',1,1,NOW(),1),
+('w1_int.jpg','INTERIOR',0,1,NOW(),1),
+
+-- Warehouse 2
+('w2_ext.jpg','EXTERIOR',1,1,NOW(),2),
+('w2_int.jpg','INTERIOR',0,1,NOW(),2),
+
+-- Warehouse 3
+('w3_ext.jpg','EXTERIOR',1,1,NOW(),3),
+('w3_int.jpg','INTERIOR',0,1,NOW(),3),
+
+-- Warehouse 4
+('w4_ext.jpg','EXTERIOR',1,1,NOW(),4),
+('w4_int.jpg','INTERIOR',0,1,NOW(),4),
+
+-- Warehouse 5
+('w5_ext.jpg','EXTERIOR',1,1,NOW(),5),
+('w5_int.jpg','INTERIOR',0,1,NOW(),5),
+
+-- Warehouse 6
+('w6_ext.jpg','EXTERIOR',1,1,NOW(),6),
+('w6_int.jpg','INTERIOR',0,1,NOW(),6),
+
+-- Warehouse 7
+('w7_ext.jpg','EXTERIOR',1,1,NOW(),7),
+('w7_int.jpg','INTERIOR',0,1,NOW(),7),
+
+-- Warehouse 8
+('w8_ext.jpg','EXTERIOR',1,0,NOW(),8),
+('w8_int.jpg','INTERIOR',0,0,NOW(),8),
+
+-- Warehouse 9
+('w9_ext.jpg','EXTERIOR',1,1,NOW(),9),
+('w9_int.jpg','INTERIOR',0,1,NOW(),9),
+
+-- Warehouse 10
+('w10_ext.jpg','EXTERIOR',1,1,NOW(),10),
+('w10_int.jpg','INTERIOR',0,1,NOW(),10),
+
+-- Warehouse 11
+('w11_ext.jpg','EXTERIOR',1,1,NOW(),11),
+('w11_int.jpg','INTERIOR',0,1,NOW(),11),
+
+-- Warehouse 12
+('w12_ext.jpg','EXTERIOR',1,1,NOW(),12),
+('w12_int.jpg','INTERIOR',0,1,NOW(),12),
+
+-- Warehouse 13
+('w13_ext.jpg','EXTERIOR',1,1,NOW(),13),
+('w13_int.jpg','INTERIOR',0,1,NOW(),13),
+
+-- Warehouse 14
+('w14_ext.jpg','EXTERIOR',1,1,NOW(),14),
+('w14_int.jpg','INTERIOR',0,1,NOW(),14),
+
+-- Warehouse 15
+('w15_ext.jpg','EXTERIOR',1,1,NOW(),15),
+('w15_int.jpg','INTERIOR',0,1,NOW(),15),
+
+-- Warehouse 16
+('w16_ext.jpg','EXTERIOR',1,1,NOW(),16),
+('w16_int.jpg','INTERIOR',0,1,NOW(),16),
+
+-- Warehouse 17
+('w17_ext.jpg','EXTERIOR',1,1,NOW(),17),
+('w17_int.jpg','INTERIOR',0,1,NOW(),17),
+
+-- Warehouse 18
+('w18_ext.jpg','EXTERIOR',1,1,NOW(),18),
+('w18_int.jpg','INTERIOR',0,1,NOW(),18),
+
+-- Warehouse 19
+('w19_ext.jpg','EXTERIOR',1,1,NOW(),19),
+('w19_int.jpg','INTERIOR',0,1,NOW(),19),
+
+-- Warehouse 20
+('w20_ext.jpg','EXTERIOR',1,1,NOW(),20),
+('w20_int.jpg','INTERIOR',0,1,NOW(),20),
+
+-- Warehouse 21
+('w21_ext.jpg','EXTERIOR',1,1,NOW(),21),
+('w21_int.jpg','INTERIOR',0,1,NOW(),21),
+
+-- Warehouse 22
+('w22_ext.jpg','EXTERIOR',1,1,NOW(),22),
+('w22_int.jpg','INTERIOR',0,1,NOW(),22),
+
+-- Warehouse 23
+('w23_ext.jpg','EXTERIOR',1,0,NOW(),23),
+('w23_int.jpg','INTERIOR',0,0,NOW(),23),
+
+-- Warehouse 24
+('w24_ext.jpg','EXTERIOR',1,1,NOW(),24),
+('w24_int.jpg','INTERIOR',0,1,NOW(),24),
+
+-- Warehouse 25
+('w25_ext.jpg','EXTERIOR',1,1,NOW(),25),
+('w25_int.jpg','INTERIOR',0,1,NOW(),25),
+
+-- Warehouse 26
+('w26_ext.jpg','EXTERIOR',1,1,NOW(),26),
+('w26_int.jpg','INTERIOR',0,1,NOW(),26);
+
+
+INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, warehouse_id) VALUES
+('HN-A1',1,50,2000000,'Ô nhỏ',1),
+('VP-A1',1,70,2500000,'Ô tiêu chuẩn',2),
+('BN-A1',1,100,3500000,'Ô lớn',3),
+('HP-A1',1,80,3000000,'Ô tiêu chuẩn',4),
+('QN-A1',1,120,5000000,'Ô an ninh cao',5),
+('TH-A1',1,90,3200000,'Ô trung bình',6),
+('NA-A1',1,60,2200000,'Ô nhỏ',7),
+('HT-A1',1,70,2400000,'Ô tiêu chuẩn',8),
+('DN-A1',1,110,3800000,'Ô lớn',9),
+('QM-A1',1,85,2900000,'Ô tiêu chuẩn',10),
+('QG-A1',1,75,2700000,'Ô trung bình',11),
+('BD-A1',1,95,3400000,'Ô cảng',12),
+('KH-A1',1,130,5200000,'Kho lạnh',13),
+('DL-A1',1,90,3100000,'Kho nông sản',14),
+('GL-A1',1,85,3000000,'Kho trung chuyển',15),
+('LD-A1',1,140,5500000,'Kho lạnh cao cấp',16),
+('BDU-A1',1,100,3600000,'Kho thông minh',17),
+('DNA-A1',1,110,3900000,'Kho công nghiệp',18),
+('HCM-A1',1,150,6000000,'Kho trung tâm',19),
+('LA-A1',1,80,2800000,'Kho phân phối',20),
+('TG-A1',1,70,2600000,'Kho miền Tây',21),
+('CT-A1',1,130,5000000,'Kho trung tâm',22),
+('VL-A1',1,60,2300000,'Kho tổng hợp',23),
+('AG-A1',1,100,4000000,'Kho an ninh',24),
+('KG-A1',1,120,4800000,'Kho hải sản',25),
+('CM-A1',1,140,5500000,'Kho lạnh thủy sản',26);
 
 INSERT INTO Item (item_name, description) VALUES
 ('Electronics', 'Thiết bị điện tử'),
@@ -372,4 +514,3 @@ VALUES
 ('Fire Alarm', 'Báo cháy giả', NOW(), 1, 1, 3),
 ('Water Leak', 'Rò rỉ nước', NOW(), 2, 2, 4),
 ('Power Outage', 'Mất điện', NOW(), 3, 3, 2);
-

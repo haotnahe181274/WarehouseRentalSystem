@@ -39,7 +39,7 @@
             <div class="card warehouse-card shadow-sm border-0 rounded-4">
                 
                 <div class="position-relative card-img-container">
-                    <img src="${pageContext.request.contextPath}/images/warehouse/${imageMap[w.warehouseId]}"
+                    <img src="${pageContext.request.contextPath}/resources/renter/image/${imageMap[w.warehouseId]}"
                          class="rounded-top-4"
                          alt="warehouse image"
                          onerror="this.src='${pageContext.request.contextPath}/resources/renter/image/default.jpg';">
