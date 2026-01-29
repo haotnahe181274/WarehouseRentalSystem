@@ -11,7 +11,7 @@ public class WarehouseImageDAO extends DBContext {
 
     // Lấy ảnh chính (is_primary = 1) của một kho bãi
     public String getPrimaryImage(int warehouseId) {
-        String sql = "SELECT image_url FROM Warehouse_image WHERE warehouse_id = ? AND is_primary = 1 LIMIT 1";
+        String sql = "SELECT image_url FROM warehouse_image WHERE warehouse_id = ? AND is_primary = 1 LIMIT 1";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, warehouseId);

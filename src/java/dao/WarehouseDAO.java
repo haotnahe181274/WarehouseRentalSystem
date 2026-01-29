@@ -30,7 +30,7 @@ public class WarehouseDAO extends DBContext {
                 w.setWarehouseId(rs.getInt("warehouse_id"));
                 w.setName(rs.getString("name"));
                 w.setAddress(rs.getString("address"));
-                
+                w.setDescription(rs.getString("description"));
                 // ĐÂY LÀ DÒNG CODE "CHỒNG" NHƯ BẠN NÓI:
                 // Lấy ID từ RS của Warehouse, sau đó dùng DAO của Type để lấy nguyên Object Type
                 w.setWarehouseType(typeDAO.getTypeById(rs.getInt("warehouse_type_id")));
