@@ -5,9 +5,9 @@ import java.sql.*;
 import java.util.*;
 
 public class UserDAO extends DBContext {
-    
+
     public List<UserView> getAllUserViews() {
-        
+
         List<UserView> list = new ArrayList<>();
         String sql = """
             SELECT 
@@ -97,10 +97,10 @@ public class UserDAO extends DBContext {
                 where renter_id = ?
                 """;
         }
-        try(PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 return new UserView(
                         rs.getInt("id"),
                         rs.getString("user_name"),
@@ -114,9 +114,84 @@ public class UserDAO extends DBContext {
                         rs.getTimestamp("created_at")
                 );
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    public void updateStatus(int id, String type, int status) {
+        String sql;
+
+        if ("INTERNAL".equalsIgnoreCase(type)) {
+            sql = "UPDATE internal_user SET status = ? WHERE internal_user_id = ?";
+        } else {
+            sql = "UPDATE renter SET status = ? WHERE renter_id = ?";
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, status);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void insertInternalUser(
+            String username,
+            String password,
+            String email,
+            String fullName,
+            String phone,
+            String image,
+            int roleId) {
+
+        String sql = """
+        INSERT INTO internal_user
+        (user_name, password, email, full_name, phone, role_id, status, image, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 1, ?, NOW())
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, email);
+            ps.setString(4, fullName);
+            ps.setString(5, phone);
+            ps.setInt(6, roleId);
+            ps.setString(7, image);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateInternalUser(
+            int id,
+            String email,
+            String fullName,
+            String phone,
+            String image,
+            int roleId) {
+
+        String sql = """
+        UPDATE internal_user
+        SET email = ?, full_name = ?, phone = ?, image = ?, role_id = ?
+        WHERE internal_user_id = ?
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, fullName);
+            ps.setString(3, phone);
+            ps.setString(4, image);
+            ps.setInt(5, roleId);
+            ps.setInt(6, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

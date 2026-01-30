@@ -12,7 +12,7 @@ public class WarehouseTypeDAO extends DBContext {
     
     public List<WarehouseType> getAllTypes() {
         List<WarehouseType> list = new ArrayList<>();
-        String sql = "SELECT * FROM Warehouse_Type";
+        String sql = "SELECT * FROM warehouse_type";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -20,6 +20,7 @@ public class WarehouseTypeDAO extends DBContext {
                 WarehouseType t = new WarehouseType();
                 t.setWarehouseTypeId(rs.getInt("warehouse_type_id"));
                 t.setTypeName(rs.getString("type_name"));
+                t.setDescription(rs.getString("description"));
                 list.add(t);
             }
         } catch (SQLException e) {
@@ -29,7 +30,7 @@ public class WarehouseTypeDAO extends DBContext {
     }
     
     public WarehouseType getTypeById(int id) {
-    String sql = "SELECT * FROM Warehouse_Type WHERE warehouse_type_id = ?";
+    String sql = "SELECT * FROM warehouse_type WHERE warehouse_type_id = ?";
     try {
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setInt(1, id);
@@ -38,9 +39,33 @@ public class WarehouseTypeDAO extends DBContext {
             WarehouseType t = new WarehouseType();
             t.setWarehouseTypeId(rs.getInt("warehouse_type_id"));
             t.setTypeName(rs.getString("type_name"));
+            t.setDescription(rs.getString("description"));
             return t;
         }
-    } catch (SQLException e) { e.printStackTrace(); }
+    } catch (SQLException e) { 
+        e.printStackTrace(); 
+    }
     return null;
+}
+    public static void main(String[] args) {
+    WarehouseTypeDAO dao = new WarehouseTypeDAO();
+
+    System.out.println("=== TEST GET ALL TYPES ===");
+    List<WarehouseType> list = dao.getAllTypes();
+    for (WarehouseType t : list) {
+        System.out.println(
+            t.getWarehouseTypeId() + " | " +
+            t.getTypeName() + " | " +
+            t.getDescription()
+        );
+    }
+
+    System.out.println("\n=== TEST GET TYPE BY ID ===");
+    WarehouseType type = dao.getTypeById(1);
+    if (type != null) {
+        System.out.println(type.getTypeName());
+    } else {
+        System.out.println("KHÔNG TÌM THẤY ID = 1");
+    }
 }
 }

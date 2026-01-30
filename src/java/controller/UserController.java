@@ -4,8 +4,6 @@
  */
 package controller;
 
-import dao.InternalUserDAO;
-import dao.RenterDAO;
 import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -68,8 +66,6 @@ public class UserController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    InternalUserDAO internalDAO = new InternalUserDAO();
-    RenterDAO renterDAO = new RenterDAO();
     UserDAO userDAO = new UserDAO();
 
     @Override
@@ -77,36 +73,31 @@ public class UserController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
+        String rawId = request.getParameter("id");
+        String type = request.getParameter("type");
+
         //View user detail
-        if ("view".equalsIgnoreCase(action)) {
-            String rawId = request.getParameter("id");
-            String type = request.getParameter("type");
-            if (rawId == null || rawId.isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing user id");
-                return;
-            }
+        if ("view".equals(action)) {
             int id = Integer.parseInt(rawId);
             UserView user = userDAO.getUserById(id, type);
-            if (user == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
             request.setAttribute("user", user);
-            request.getRequestDispatcher("/user/viewdetails.jsp").forward(request, response);
+            request.setAttribute("mode", "view");
+            request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
         }
 
-        if ("add".equalsIgnoreCase(action)) {
-            request.getRequestDispatcher("/user/userform.jsp").forward(request, response);
+        if ("add".equals(action)) {
+            request.setAttribute("mode", "add");
+            request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
         }
 
-        if ("edit".equalsIgnoreCase(action)) {
-            int id = Integer.parseInt(request.getParameter("id"));
-            String type = request.getParameter("type");
+        if ("edit".equals(action)) {
+            int id = Integer.parseInt(rawId);
             UserView user = userDAO.getUserById(id, type);
             request.setAttribute("user", user);
-            request.getRequestDispatcher("/user/userform.jsp").forward(request, response);
+            request.setAttribute("mode", "edit");
+            request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
         }
 
@@ -127,61 +118,75 @@ public class UserController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
 
-                String action = request.getParameter("action");
+        String action = request.getParameter("action");
+        String mode = request.getParameter("mode");
+        if ("block".equals(action) || "unblock".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            String type = request.getParameter("type");
+            int status = action.equals("block") ? 0 : 1;
+            userDAO.updateStatus(id, type, status);
+            response.sendRedirect(request.getContextPath() + "/user/list");
+            return;
+        }
 
-                String email = request.getParameter("email");
-                String fullName = request.getParameter("fullName");
-                String phone = request.getParameter("phone");
-                int roleId = Integer.parseInt(request.getParameter("roleId"));
+        if ("save".equals(action)) {
 
-                // upload image
-                Part imagePart = request.getPart("image");
-                String imageName = null;
+            String email = request.getParameter("email");
+            String fullName = request.getParameter("fullName");
+            String phone = request.getParameter("phone");
+            String role = request.getParameter("roleId");
 
-                if (imagePart != null && imagePart.getSize() > 0) {
-                    imageName = System.currentTimeMillis() + "_" + imagePart.getSubmittedFileName();
-                    String path = request.getServletContext().getRealPath("/image/user");
-                    imagePart.write(path + File.separator + imageName);
-                }
+            // upload image
+            Part avatar = request.getPart("image");
+            String fileName = null;
 
-                // ===== ADD =====
-                if ("add".equals(action)) {
-                    String username = request.getParameter("username");
-                    String password = request.getParameter("password");
-                    internalDAO.insertInternalUser(username, password, email, fullName, phone, imageName, roleId);
-                }
-
-                // ===== UPDATE =====
-                if ("update".equals(action)) {
-                    int id = Integer.parseInt(request.getParameter("id"));
-                    internalDAO.updateInternalUser(id, email, fullName, phone, imageName, roleId);
-                }
-
-                if ("block".equalsIgnoreCase(action) || "unblock".equalsIgnoreCase(action)) {
-                    int id = Integer.parseInt(request.getParameter("id"));
-                    String type = request.getParameter("type");
-                    int status = action.equals("block") ? 0 : 1;
-
-                    if ("INTERNAL".equalsIgnoreCase(type)) {
-                        internalDAO.updateStatus(id, status);
-                    } else {
-                        renterDAO.updateStatus(id, status);
-                    }
-
-                }
-                response.sendRedirect(request.getContextPath() + "/user/list");
+            if (avatar != null && avatar.getSize() > 0) {
+                fileName = System.currentTimeMillis() + "_" + avatar.getSubmittedFileName();
+                String uploadPath = request.getServletContext().getRealPath("/resources/user");
+                new File(uploadPath).mkdirs();
+                avatar.write(uploadPath + File.separator + fileName);
             }
 
-            /**
-             * Returns a short description of the servlet.
-             *
-             * @return a String containing servlet description
-             */
-            @Override
-            public String getServletInfo() {
-                return "Short description";
-            }// </editor-fold>
+            // ===== ADD =====
+            if ("add".equals(mode)) {
+                int roleId = Integer.parseInt(role);
+                String username = request.getParameter("username");
+                String password = request.getParameter("password");
 
+                userDAO.insertInternalUser(
+                        username, password, email, fullName, phone, fileName, roleId
+                );
+            }
+
+            // ===== UPDATE =====
+            if ("edit".equals(mode)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                int roleId = Integer.parseInt(role);
+
+                // nếu không upload ảnh mới → giữ ảnh cũ
+                if (fileName == null) {
+                    UserView old = userDAO.getUserById(id, "INTERNAL");
+                    fileName = old.getImage();
+                }
+
+                userDAO.updateInternalUser(
+                        id, email, fullName, phone, fileName, roleId
+                );
+            }
         }
+
+        response.sendRedirect(request.getContextPath() + "/user/list");
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

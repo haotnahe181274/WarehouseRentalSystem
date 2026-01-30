@@ -23,7 +23,28 @@ public class DBContext {
             connection = DriverManager.getConnection(url, user, password);
             System.out.println("Kết nối MySQL thành công!");
         } catch (Exception e) {
+            System.out.println("Lỗi kết nối DB: " );
             e.printStackTrace();
         }
     }
+    
+    public static void main(String[] args) {
+    DBContext testContext = new DBContext();
+    if (testContext.connection != null) {
+        try {
+            // Kiểm tra thông tin database đang kết nối
+            String catalog = testContext.connection.getCatalog();
+            System.out.println("Đã kết nối tới Schema: " + catalog);
+            System.out.println("Trạng thái: Sẵn sàng hoạt động!");
+            
+            // Đóng kết nối sau khi test xong
+            testContext.connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    } else {
+        System.out.println("Kết nối thất bại (biến connection bị null).");
+    }
+}
+    
 }

@@ -35,7 +35,7 @@
                 <tr>
                     <td>
                         <c:if test="${not empty u.image}">
-                            <img src="${pageContext.request.contextPath}/image/user/${u.image}"
+                            <img src="${pageContext.request.contextPath}/resources/user/${u.image}"
                                  width="40" height="40" style="border-radius:50%">
                         </c:if>
                     </td>
