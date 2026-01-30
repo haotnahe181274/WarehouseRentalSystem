@@ -1,4 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -34,50 +36,55 @@
         <div class="card">
             <h3>Expected Check-Ins</h3>
 
-            <div class="task">
-                <div>
-                    <strong>09:00 AM - Michael Chen</strong><br>
-                    <small>Room 204 • 3 nights</small>
-                </div>
-                <button class="btn">Start Check-In</button>
-            </div>
 
-            <div class="task">
-                <div>
-                    <strong>09:30 AM - Emma Rodriguez</strong><br>
-                    <small>Room 156 • 2 nights</small>
-                </div>
-                <button class="btn">Start Check-In</button>
-            </div>
+            <c:if test="${empty checkInList}">
+                <p>No expected check-ins.</p>
+            </c:if>
 
-            <div class="task">
-                <div>
-                    <strong>10:00 AM - James Wilson</strong><br>
-                    <small>Room 312 • 1 night</small>
+            <c:forEach items="${checkInList}" var="t">
+                <div class="task">
+                    <div>
+                        <strong>
+                            ${t.renterName}
+                        </strong><br>
+                        <small>
+                            Unit ${t.unitCode}
+                            • ${t.startDate} 
+                        </small>
+                    </div>
+
+                    <form action="startCheckIn" method="post">
+                        <input type="hidden" name="unitCode" value="${t.unitCode}">
+                        <button class="btn">Start Check-In</button>
+                    </form>
                 </div>
-                <button class="btn btn-danger">Urgent</button>
-            </div>
-        </div>
+            </c:forEach>
+
+
+    </div>
 
         <!-- Check-outs -->
         <div class="card">
             <h3>Expected Check-Outs</h3>
 
-            <div class="task">
-                <div>
-                    <strong>11:00 AM - Lisa Anderson</strong><br>
-                    <small>Room 108 • In progress</small>
-                </div>
-                <button class="btn btn-success">Complete</button>
-            </div>
+            <c:forEach items="${checkInList}" var="t">
+                <div class="task">
+                    <div>
+                        <strong>
+                            ${t.renterName}
+                        </strong><br>
+                        <small>
+                            Unit ${t.unitCode}
+                            • ${t.endDate}
+                        </small>
+                    </div>
 
-            <div class="task">
-                <div>
-                    <strong>12:00 PM - Anna Petrov</strong><br>
-                    <small>Room 167 • 2 nights</small>
+                    <form action="startCheckIn" method="post">
+                        <input type="hidden" name="unitCode" value="${t.unitCode}">
+                        <button class="btn">Start Check-out</button>
+                    </form>
                 </div>
-                <button class="btn">Start Check-Out</button>
-            </div>
+            </c:forEach>
         </div>
     </div>
 </div>
