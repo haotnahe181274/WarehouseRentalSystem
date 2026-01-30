@@ -12,19 +12,18 @@
     <body>
 
         <h2>User List</h2>
-        
+
         <div class="top-bar">
             <div></div>
             <!-- Chỉ admin / internal mới dùng -->
-            <a href="user?action=add" class="btn btn-add">+ Add New User</a>
+            <a href="${pageContext.request.contextPath}/user/list?action=add&id=${u.id}&type=${u.type}" class="btn btn-add">+ Add New Staff</a>
         </div>
 
         <table>
             <tr>
+                <th>Avatar</th>
                 <th>Username</th>
-                <th>Email</th>
-                <th>Full Name</th>
-                <th>Phone</th>
+
                 <th>Role</th>
                 <th>Type</th>
                 <th>Status</th>
@@ -34,10 +33,15 @@
 
             <c:forEach var="u" items="${users}">
                 <tr>
+                    <td>
+                        <c:if test="${not empty u.image}">
+                            <img src="${pageContext.request.contextPath}/resources/user/${u.image}"
+                                 width="40" height="40" style="border-radius:50%">
+                        </c:if>
+                    </td>
+
                     <td>${u.name}</td>
-                    <td>${u.email}</td>
-                    <td>${u.fullName}</td>
-                    <td>${u.phone}</td>
+
 
                     <!-- Role -->
                     <td>
@@ -73,13 +77,13 @@
 
                     <!-- Actions -->
                     <td>
-                        <a href="user?action=view&id=${u.id}&type=${u.type}">View</a>
+                        <a href="${pageContext.request.contextPath}/user/list?action=view&id=${u.id}&type=${u.type}">View</a>
 
                         <c:if test="${u.type == 'INTERNAL'}">
-                            | <a href="user?action=edit&id=${u.id}&type=INTERNAL">Update</a>
+                            | <a href="${pageContext.request.contextPath}/user/list?action=edit&id=${u.id}&type=${u.type}">Update</a>
                         </c:if>
 
-                        <form action="user" method="post" style="display:inline">
+                        <form action="list" method="post" style="display:inline">
                             <input type="hidden" name="id" value="${u.id}">
                             <input type="hidden" name="type" value="${u.type}">
 
