@@ -1,43 +1,129 @@
 package dao;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import model.CheckInTask;
 
 public class StaffTaskDAO extends DBContext {
 
-    public List<CheckInTask> getExpectedCheckIns() {
-        List<CheckInTask> list = new ArrayList<>();
+    // =========================
+    // CHECK IN TASKS
+    // =========================
+    public List<CheckInTask> getCheckInTasks() {
+
+    List<CheckInTask> list = new ArrayList<>();
+
+    String sql = """
+        SELECT 
+            sa.assignment_id,
+            sa.status,
+            r.full_name,
+            csu.start_date,
+            csu.end_date,
+            su.unit_code
+        FROM Staff_assignment sa
+        JOIN Storage_unit su 
+            ON su.warehouse_id = sa.warehouse_id
+        JOIN Contract_Storage_unit csu 
+            ON csu.unit_id = su.unit_id
+        JOIN Contract c 
+            ON c.contract_id = csu.contract_id
+        JOIN Renter r 
+            ON r.renter_id = c.renter_id
+        WHERE sa.status IN (1,2)
+    """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            list.add(new CheckInTask(
+                rs.getInt("assignment_id"),
+                rs.getString("full_name"),
+                rs.getTimestamp("start_date"),
+                rs.getTimestamp("end_date"),
+                rs.getString("unit_code"),
+                rs.getInt("status")
+            ));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
+
+
+    // =========================
+    // CHECK OUT TASKS
+    // =========================
+    public List<CheckInTask> getCheckOutTasks() {
+
+    List<CheckInTask> list = new ArrayList<>();
+
+    String sql = """
+        SELECT 
+                    sa.assignment_id,
+                    sa.status,
+                    r.full_name,
+                    csu.start_date,
+                    csu.end_date,
+                    su.unit_code
+                FROM Staff_assignment sa
+                JOIN Storage_unit su 
+                    ON su.warehouse_id = sa.warehouse_id
+                JOIN Contract_Storage_unit csu 
+                    ON csu.unit_id = su.unit_id
+                JOIN Contract c 
+                    ON c.contract_id = csu.contract_id
+                JOIN Renter r 
+                    ON r.renter_id = c.renter_id
+    """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            list.add(new CheckInTask(
+                rs.getInt("assignment_id"),
+                rs.getString("full_name"),
+                rs.getTimestamp("start_date"),
+                rs.getTimestamp("end_date"),
+                rs.getString("unit_code"),
+                rs.getInt("status")
+            ));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
+
+    // =========================
+    // COMPLETED COUNT
+    // =========================
+    public int countCompleted() {
 
         String sql = """
-            SELECT 
-                r.full_name AS renter_name,
-                csu.start_date AS rent_start_date,
-                csu.end_date AS rent_end_date,
-                su.unit_code AS unit_code
-            FROM Contract c
-            JOIN Renter r ON c.renter_id = r.renter_id
-            JOIN Contract_Storage_unit csu ON c.contract_id = csu.contract_id
-            JOIN Storage_unit su ON csu.unit_id = su.unit_id
+            SELECT COUNT(*) 
+            FROM Staff_assignment
+            WHERE status = 2
         """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                list.add(new CheckInTask(
-                        rs.getString("renter_name"),
-                        rs.getTimestamp("rent_start_date"),
-                        rs.getTimestamp("rent_end_date"),
-                        rs.getString("unit_code")
-                ));
-            }
+            if (rs.next()) return rs.getInt(1);
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return list;
+        return 0;
     }
 }

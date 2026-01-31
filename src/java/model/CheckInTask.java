@@ -3,18 +3,33 @@ package model;
 import java.sql.Timestamp;
 
 public class CheckInTask {
+
+    private int assignmentId;
     private String renterName;
     private Timestamp startDate;
     private Timestamp endDate;
     private String unitCode;
+    private int status;   // ✅ thêm
 
-    public CheckInTask() {}
+    public CheckInTask(int assignmentId,
+                       String renterName,
+                       Timestamp startDate,
+                       Timestamp endDate,
+                       String unitCode,
+                       int status) {
 
-    public CheckInTask(String renterName, Timestamp startDate, Timestamp endDate, String unitCode) {
+        this.assignmentId = assignmentId;
         this.renterName = renterName;
         this.startDate = startDate;
         this.endDate = endDate;
         this.unitCode = unitCode;
+        this.status = status;
+    }
+
+    // ===== getters =====
+
+    public int getAssignmentId() {
+        return assignmentId;
     }
 
     public String getRenterName() {
@@ -31,5 +46,9 @@ public class CheckInTask {
 
     public String getUnitCode() {
         return unitCode;
+    }
+
+    public int getStatus() {          // ✅ thêm
+        return status;
     }
 }

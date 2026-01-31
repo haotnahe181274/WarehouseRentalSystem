@@ -9,12 +9,32 @@ package model;
  * @author hao23
  */
 public class Warehouse {
+
     private int warehouseId;
     private String name;
     private String address;
     private String description;
     private int status;
     private WarehouseType warehouseType;
+
+    private Double minPrice;
+    private Double minArea;
+
+    public Double getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(Double minPrice) {
+        this.minPrice = minPrice;
+    }
+
+    public Double getMinArea() {
+        return minArea;
+    }
+
+    public void setMinArea(Double minArea) {
+        this.minArea = minArea;
+    }
 
     public Warehouse() {
     }
@@ -76,7 +96,4 @@ public class Warehouse {
         this.warehouseType = warehouseType;
     }
 
-    
-    
-    
 }
