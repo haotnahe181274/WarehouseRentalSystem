@@ -6,7 +6,72 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>User</title>
+        <style>
+            body{
+                font-family: Arial, sans-serif;
+                background: #f5f6fa;
+                padding: 30px;
+            }
+            h2{
+                margin-bottom: 20px;
+            }
+            .user-form{
+                max-width: 600px;
+                background: #fff;
+                padding: 25px;
+                border-radius: 8px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            }
+            .form-group{
+                margin-bottom: 15px;
+            }
+            label{
+                display: block;
+                font-weight: bold;
+                margin-bottom: 6px;
+            }
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            select{
+                width: 100%;
+                padding: 8px 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            input[type="file"]{
+                margin-top: 5px;
+            }
+            .avatar-preview{
+                width: 120px;
+                height: 120px;
+                object-fit: cover;
+                border-radius: 50%;
+                border : 1px solid #ddd;
+                margin-bottom: 15px;
+            }
+            .btn{
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                text-decoration: none;
+                font-size: 14px;
+            }
+            .btn-primary{
+                background: #ddd;
+                color: #333;
+            }
+            .btn-secondary{
+                background: #ddd;
+                color: #333;
+            }
+            .form-actions{
+                display: flex;
+                gap: 10px;
+                margin-top: 20px;
+            }
+        </style>
     </head>
     <body>
 
@@ -18,7 +83,7 @@
             </c:choose>
         </h2>
 
-        <form 
+        <form class="user-form"
             action="${pageContext.request.contextPath}/user/list"
             method="post"
             enctype="multipart/form-data">
@@ -33,11 +98,11 @@
 
             <!-- AVATAR -->
             <c:if test="${not empty user.image}">
-                <img src="${pageContext.request.contextPath}/image/user/${user.image}" width="120"><br>
+                <img src="${pageContext.request.contextPath}/resources/user/${user.image}" width="120" class="avatar-preview"><br>
             </c:if>
 
             <!-- USERNAME -->
-            <div>
+            <div class="form-group">
                 <label>Username:</label>
                 <c:choose>
                     <c:when test="${mode == 'view'}">${user.name}</c:when>
@@ -50,14 +115,14 @@
 
             <!-- PASSWORD (CHỈ ADD) -->
             <c:if test="${mode == 'add'}">
-                <div>
+                <div class="form-group">
                     <label>Password:</label>
                     <input type="password" name="password" required>
                 </div>
             </c:if>
 
             <!-- EMAIL -->
-            <div>
+            <div class="form-group">
                 <label>Email:</label>
                 <c:choose>
                     <c:when test="${mode == 'view'}">${user.email}</c:when>
@@ -68,7 +133,7 @@
             </div>
 
             <!-- FULL NAME -->
-            <div>
+            <div class="form-group">
                 <label>Full Name:</label>
                 <c:choose>
                     <c:when test="${mode == 'view'}">${user.fullName}</c:when>
@@ -79,7 +144,7 @@
             </div>
 
             <!-- PHONE -->
-            <div>
+            <div class="form-group">
                 <label>Phone:</label>
                 <c:choose>
                     <c:when test="${mode == 'view'}">${user.phone}</c:when>
@@ -91,7 +156,7 @@
 
             <!-- ROLE -->
             <c:if test="${user.type == 'INTERNAL' || mode == 'add'}">
-                <div>
+                <div class="form-group">
                     <label>Role:</label>
                     <c:choose>
                         <c:when test="${mode == 'view'}">${user.role}</c:when>
@@ -109,7 +174,7 @@
 
             <!-- STATUS -->
             <c:if test="${mode == 'view'}">
-                <div>
+                <div class="form-group">
                     <label>Status:</label>
                     <c:choose>
                         <c:when test="${user.status == 1}">Active</c:when>
@@ -125,7 +190,7 @@
 
             <!-- IMAGE -->
             <c:if test="${mode != 'view'}">
-                <div>
+                <div class="form-group">
                     <label>Avatar:</label>
                     <input type="file" name="image">
                 </div>
@@ -134,13 +199,17 @@
             <br>
 
             <!-- BUTTON -->
-            <c:if test="${mode != 'view'}">
-                <button type="submit">
-                    ${mode == 'add' ? 'Add' : 'Update'}
-                </button>
-            </c:if>
-
-            <a href="${pageContext.request.contextPath}/user/list">Back</a>
+            <div class="form-actions">
+                <c:if test="${mode != 'view'}">
+                    <button class="btn btn-primary" type="submit">
+                        ${mode == 'add' ? 'Add User' : 'Update User'}
+                    </button>
+                </c:if>
+                <a class="btn btn-secondary" 
+                   href="${pageContext.request.contextPath}/user/list">
+                    Back
+                </a>
+            </div>
 
         </form>
 
