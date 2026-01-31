@@ -4,23 +4,31 @@
  */
 package controller;
 
-import dao.InternalUserDAO;
-import dao.RenterDAO;
+import dao.UserDAO;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import model.UserView;
 
-
 /**
  *
  * @author hao23
  */
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 5 * 1024 * 1024,
+        maxRequestSize = 10 * 1024 * 1024
+)
+@WebServlet("/user/list")
 public class UserController extends HttpServlet {
 
     /**
@@ -40,7 +48,7 @@ public class UserController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet UserController</title>");            
+            out.println("<title>Servlet UserController</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet UserController at " + request.getContextPath() + "</h1>");
@@ -58,21 +66,45 @@ public class UserController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    InternalUserDAO internalDAO = new InternalUserDAO();
-    RenterDAO renterDAO = new RenterDAO();
+    UserDAO userDAO = new UserDAO();
+
     @Override
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<UserView> users = new ArrayList<>();
-        users.addAll(internalDAO.getUserViews());
-        users.addAll(renterDAO.getUserViews());
-        
+        String action = request.getParameter("action");
+        String rawId = request.getParameter("id");
+        String type = request.getParameter("type");
 
+        //View user detail
+        if ("view".equals(action)) {
+            int id = Integer.parseInt(rawId);
+            UserView user = userDAO.getUserById(id, type);
+            request.setAttribute("user", user);
+            request.setAttribute("mode", "view");
+            request.getRequestDispatcher("/user/users.jsp").forward(request, response);
+            return;
+        }
+
+        if ("add".equals(action)) {
+            request.setAttribute("mode", "add");
+            request.getRequestDispatcher("/user/users.jsp").forward(request, response);
+            return;
+        }
+
+        if ("edit".equals(action)) {
+            int id = Integer.parseInt(rawId);
+            UserView user = userDAO.getUserById(id, type);
+            request.setAttribute("user", user);
+            request.setAttribute("mode", "edit");
+            request.getRequestDispatcher("/user/users.jsp").forward(request, response);
+            return;
+        }
+
+        List<UserView> users = userDAO.getAllUserViews();
         request.setAttribute("users", users);
-        
-        
+        request.getRequestDispatcher("/user/userlist.jsp").forward(request, response);
 
-        request.getRequestDispatcher("userlist.jsp").forward(request, response);
     }
 
     /**
@@ -86,16 +118,65 @@ public class UserController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String type = request.getParameter("type");
-        int id = Integer.parseInt(request.getParameter("id"));
+
         String action = request.getParameter("action");
-        int status = action.equals("block") ? 0 : 1;
-        if("internal".equalsIgnoreCase(type)){
-            internalDAO.updateStatus(id, status);
-        }else{
-            renterDAO.updateStatus(id, status);
+        String mode = request.getParameter("mode");
+        if ("block".equals(action) || "unblock".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            String type = request.getParameter("type");
+            int status = action.equals("block") ? 0 : 1;
+            userDAO.updateStatus(id, type, status);
+            response.sendRedirect(request.getContextPath() + "/user/list");
+            return;
         }
-        response.sendRedirect("user");
+
+        if ("save".equals(action)) {
+
+            String email = request.getParameter("email");
+            String fullName = request.getParameter("fullName");
+            String phone = request.getParameter("phone");
+            String role = request.getParameter("roleId");
+
+            // upload image
+            Part avatar = request.getPart("image");
+            String fileName = null;
+
+            if (avatar != null && avatar.getSize() > 0) {
+                fileName = System.currentTimeMillis() + "_" + avatar.getSubmittedFileName();
+                String uploadPath = request.getServletContext().getRealPath("/resources/user");
+                new File(uploadPath).mkdirs();
+                avatar.write(uploadPath + File.separator + fileName);
+            }
+
+            // ===== ADD =====
+            if ("add".equals(mode)) {
+                int roleId = Integer.parseInt(role);
+                String username = request.getParameter("username");
+                String password = request.getParameter("password");
+
+                userDAO.insertInternalUser(
+                        username, password, email, fullName, phone, fileName, roleId
+                );
+            }
+
+            // ===== UPDATE =====
+            if ("edit".equals(mode)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                int roleId = Integer.parseInt(role);
+
+                // nếu không upload ảnh mới → giữ ảnh cũ
+                if (fileName == null) {
+                    UserView old = userDAO.getUserById(id, "INTERNAL");
+                    fileName = old.getImage();
+                }
+
+                userDAO.updateInternalUser(
+                        id, email, fullName, phone, fileName, roleId
+                );
+            }
+        }
+
+        response.sendRedirect(request.getContextPath() + "/user/list");
     }
 
     /**
