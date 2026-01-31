@@ -60,16 +60,18 @@ public class WarehouseDAO extends DBContext {
     }
 
     public List<Warehouse> getFilteredWarehouses(String keyword, String location,
-        Integer typeId,
-        Double minPrice, Double maxPrice,
-        Double minArea, Double maxArea,
-        int offset, int limit) {
+            Integer typeId,
+            Double minPrice, Double maxPrice,
+            Double minArea, Double maxArea,
+            int offset, int limit) {
 
         WarehouseTypeDAO typeDAO = new WarehouseTypeDAO();
         List<Warehouse> list = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder(
-                "SELECT DISTINCT w.* "
+                "SELECT w.*, "
+                + "MIN(s.price_per_unit) AS min_price, "
+                + "MIN(s.area) AS min_area "
                 + "FROM Warehouse w "
                 + "LEFT JOIN Storage_unit s ON w.warehouse_id = s.warehouse_id "
                 + "WHERE w.status = 1 "
@@ -82,8 +84,8 @@ public class WarehouseDAO extends DBContext {
             sql.append("AND w.address LIKE ? ");
         }
         if (typeId != null) {
-    sql.append("AND w.warehouse_type_id = ? ");
-}
+            sql.append("AND w.warehouse_type_id = ? ");
+        }
 
         if (minPrice != null) {
             sql.append("AND s.price_per_unit >= ? ");
@@ -102,6 +104,7 @@ public class WarehouseDAO extends DBContext {
             sql.append("AND s.area <= ? ");
         }
 
+        sql.append("GROUP BY w.warehouse_id ");
         sql.append("ORDER BY w.warehouse_id DESC LIMIT ? OFFSET ?");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
@@ -115,10 +118,10 @@ public class WarehouseDAO extends DBContext {
             if (location != null && !location.isEmpty()) {
                 ps.setString(index++, "%" + location + "%");
             }
-            
+
             if (typeId != null) {
-    ps.setInt(index++, typeId);
-}
+                ps.setInt(index++, typeId);
+            }
 
             if (minPrice != null) {
                 ps.setDouble(index++, minPrice);
@@ -148,6 +151,8 @@ public class WarehouseDAO extends DBContext {
                 w.setAddress(rs.getString("address"));
                 w.setDescription(rs.getString("description"));
                 w.setStatus(rs.getInt("status"));
+                w.setMinPrice(rs.getDouble("min_price"));
+                w.setMinArea(rs.getDouble("min_area"));
 
                 w.setWarehouseType(
                         typeDAO.getTypeById(rs.getInt("warehouse_type_id"))
@@ -165,9 +170,9 @@ public class WarehouseDAO extends DBContext {
 
     // Đếm tổng số lượng kết quả để tính totalPages
     public int getTotalRecords(String keyword, String location,
-        Integer typeId,
-        Double minPrice, Double maxPrice,
-        Double minArea, Double maxArea){
+            Integer typeId,
+            Double minPrice, Double maxPrice,
+            Double minArea, Double maxArea) {
 
         StringBuilder sql = new StringBuilder(
                 "SELECT COUNT(DISTINCT w.warehouse_id) "
@@ -183,10 +188,10 @@ public class WarehouseDAO extends DBContext {
         if (location != null && !location.isEmpty()) {
             sql.append("AND w.address LIKE ? ");
         }
-        
+
         if (typeId != null) {
-    sql.append("AND w.warehouse_type_id = ? ");
-}
+            sql.append("AND w.warehouse_type_id = ? ");
+        }
 
         if (minPrice != null) {
             sql.append("AND s.price_per_unit >= ? ");
@@ -216,10 +221,10 @@ public class WarehouseDAO extends DBContext {
             if (location != null && !location.isEmpty()) {
                 ps.setString(idx++, "%" + location + "%");
             }
-            
+
             if (typeId != null) {
-    ps.setInt(idx++, typeId);
-}
+                ps.setInt(idx++, typeId);
+            }
 
             if (minPrice != null) {
                 ps.setDouble(idx++, minPrice);
@@ -299,5 +304,4 @@ public class WarehouseDAO extends DBContext {
 //        int totalPages = (int) Math.ceil((double) total / pageSize);
 //        System.out.println("Tổng số trang: " + totalPages);
 //    }
-
 }
