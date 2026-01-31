@@ -6,13 +6,28 @@ import java.util.*;
 
 public class UserDAO extends DBContext {
 
+    private UserView mapUserView(ResultSet rs) throws SQLException {
+        UserView u = new UserView();
+        u.setId(rs.getInt("id"));
+        u.setName(rs.getString("name"));
+        u.setEmail(rs.getString("email"));
+        u.setFullName(rs.getString("full_name"));
+        u.setPhone(rs.getString("phone"));
+        u.setImage(rs.getString("image"));
+        u.setRole(rs.getString("role"));
+        u.setType(rs.getString("type"));
+        u.setStatus(rs.getInt("status"));
+        u.setCreatedAt(rs.getTimestamp("createdAt"));
+        return u;
+    }
+
     public List<UserView> getAllUserViews() {
 
         List<UserView> list = new ArrayList<>();
         String sql = """
             SELECT 
                 iu.internal_user_id as id,
-                iu.user_name,
+                iu.user_name as name,
                 iu.email,
                 iu.full_name,
                 iu.phone,
@@ -20,7 +35,7 @@ public class UserDAO extends DBContext {
                 'INTERNAL' as type,
                 iu.status,
                 iu.image,
-                iu.created_at
+                iu.created_at as createdAt
             FROM internal_user iu
             JOIN role r ON iu.role_id = r.role_id
 
@@ -28,7 +43,7 @@ public class UserDAO extends DBContext {
 
             SELECT 
                 re.renter_id as id,
-                re.user_name,
+                re.user_name as name,
                 re.email,
                 re.full_name,
                 re.phone,
@@ -36,26 +51,15 @@ public class UserDAO extends DBContext {
                 'RENTER' as type,
                 re.status,
                 re.image,
-                re.created_at
+                re.created_at as createdAt
             FROM renter re
         """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                UserView u = new UserView(
-                        rs.getInt("id"),
-                        rs.getString("user_name"),
-                        rs.getString("email"),
-                        rs.getString("full_name"),
-                        rs.getString("phone"),
-                        rs.getString("role"),
-                        rs.getString("type"),
-                        rs.getInt("status"),
-                        rs.getString("image"),
-                        rs.getTimestamp("created_at")
-                );
-                list.add(u);
+
+                list.add(mapUserView(rs));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,7 +72,7 @@ public class UserDAO extends DBContext {
         if ("internal".equalsIgnoreCase(type)) {
             sql = """
                 select iu.internal_user_id as id,
-                iu.user_name,
+                iu.user_name as name,
                 iu.email,
                 iu.full_name,
                 iu.phone,
@@ -76,7 +80,7 @@ public class UserDAO extends DBContext {
                 'INTERNAL' as type,
                 iu.status,
                 iu.image,
-                iu.created_at
+                iu.created_at createdAt
                 from internal_user iu
                 join role r on iu.role_id = r.role_id
                 where iu.internal_user_id = ? 
@@ -84,7 +88,7 @@ public class UserDAO extends DBContext {
         } else {
             sql = """
                 select renter_id as id,
-                user_name,
+                user_name as name,
                 email,
                 full_name,
                 phone,
@@ -92,7 +96,7 @@ public class UserDAO extends DBContext {
                 'Renter' as type,
                 status,
                 image,
-                created_at
+                created_at as createdAt
                 from renter
                 where renter_id = ?
                 """;
@@ -101,18 +105,7 @@ public class UserDAO extends DBContext {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new UserView(
-                        rs.getInt("id"),
-                        rs.getString("user_name"),
-                        rs.getString("email"),
-                        rs.getString("full_name"),
-                        rs.getString("phone"),
-                        rs.getString("role"),
-                        rs.getString("type"),
-                        rs.getInt("status"),
-                        rs.getString("image"),
-                        rs.getTimestamp("created_at")
-                );
+                return mapUserView(rs);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -194,4 +187,59 @@ public class UserDAO extends DBContext {
         }
     }
 
+    public List<UserView> filterUsers(
+            String keyword,
+            String status,
+            String type,
+            String sort) {
+        List<UserView> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "select * from ( "
+                + "select iu.internal_user_id as id, iu.user_name as name, iu.email, "
+                + "iu.full_name, iu.phone, iu.image, r.role_name as role, "
+                + "'INTERNAL' as type, iu.status, iu.created_at as createdAt "
+                + "from internal_user iu "
+                + "join role r on iu.role_id = r.role_id "
+                + "union all "
+                + "select re.renter_id as id, re.user_name as name, re.email, "
+                + "re.full_name, re.phone, re.image, null as role, "
+                + "'RENTER' as type, re.status, re.created_at as createdAt "
+                + "from renter re "
+                + ") u where 1=1 "
+        );
+
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" and u.name like ?");
+        }
+        if (status != null && !status.isEmpty()) {
+            sql.append(" and u.status = ?");
+        }
+        if (type != null && !type.isEmpty()) {
+            sql.append(" and u.type = ?");
+        }
+        if ("asc".equalsIgnoreCase(sort)) {
+            sql.append(" order by u.name asc");
+        } else if ("desc".equalsIgnoreCase(sort)) {
+            sql.append(" order by u.name desc");
+        }
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int i = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(i++, "%" + keyword + "%");
+            }
+            if (status != null && !status.isEmpty()) {
+                ps.setInt(i++, Integer.parseInt(status));
+            }
+            if (type != null && !type.isEmpty()) {
+                ps.setString(i++, type);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapUserView(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

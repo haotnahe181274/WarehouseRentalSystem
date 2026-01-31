@@ -101,8 +101,24 @@ public class UserController extends HttpServlet {
             return;
         }
 
-        List<UserView> users = userDAO.getAllUserViews();
+        List<UserView> users;
+        String keyword = request.getParameter("keyword");
+        String status = request.getParameter("status");
+        String filterType = request.getParameter("filterType");
+        String sort = request.getParameter("sort");
+        if(keyword != null) keyword = keyword.trim();
+        if((keyword == null || keyword.isEmpty())
+                && (status == null || status.isEmpty())
+                && (filterType == null || filterType.isEmpty())
+                && (sort ==  null || sort.isEmpty())) users = userDAO.getAllUserViews();
+        else users = userDAO.filterUsers(keyword, status, filterType, sort);
+        
         request.setAttribute("users", users);
+        
+        request.setAttribute("keyword", keyword);
+        request.setAttribute("status", status);
+        request.setAttribute("filterType", filterType);
+        request.setAttribute("sort", sort);
         request.getRequestDispatcher("/user/userlist.jsp").forward(request, response);
 
     }
@@ -175,7 +191,7 @@ public class UserController extends HttpServlet {
                 );
             }
         }
-
+        
         response.sendRedirect(request.getContextPath() + "/user/list");
     }
 
