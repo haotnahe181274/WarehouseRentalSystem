@@ -9,39 +9,61 @@
 
 
 <style>
-    /* Tổng thể thanh phân trang */
-    .pagination .page-item .page-link {
-        color: #000;              /* Chữ màu đen */
-        background-color: #fff;   /* Nền màu trắng */
-        border: 1px solid #dee2e6; /* Viền xám nhạt */
-        transition: all 0.3s ease;
+
+    .pagination {
+        list-style: none;
+        padding-left: 0;
+        display: flex;
     }
 
-    /* Hiệu ứng khi di chuột qua (Hover) */
-    .pagination .page-item .page-link:hover {
-        background-color: #000;   /* Nền chuyển sang đen */
-        color: #fff;              /* Chữ chuyển sang trắng */
+    .pagination .page-item {
+        margin-left: -1px; /* ghép viền sát nhau */
+    }
+
+    .pagination .page-link {
+        display: block;
+        padding: 8px 14px;
+        color: #000;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    /* hover */
+    .pagination .page-link:hover {
+        background-color: #000;
+        color: #fff;
         border-color: #000;
     }
 
-    /* Trạng thái trang đang chọn (Active) */
+    /* active */
     .pagination .page-item.active .page-link {
-        background-color: #000;   /* Nền đen */
-        border-color: #000;       /* Viền đen */
-        color: #fff;              /* Chữ trắng */
+        background-color: #000;
+        color: #fff;
+        border-color: #000;
+        cursor: default;
     }
 
-    /* Trạng thái bị vô hiệu hóa (Disabled) */
+    /* disabled */
     .pagination .page-item.disabled .page-link {
-        color: #6c757d;           /* Chữ xám */
+        color: #adb5bd;
+        pointer-events: none;
         background-color: #fff;
         border-color: #dee2e6;
     }
 
-    /* Loại bỏ viền xanh mặc định khi click (Focus) */
-    .page-link:focus {
-        box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25);
+    /* bo tròn 2 đầu */
+    .pagination .page-item:first-child .page-link {
+        border-top-left-radius: 6px;
+        border-bottom-left-radius: 6px;
     }
+
+    .pagination .page-item:last-child .page-link {
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+    }
+
 </style>
 
 <c:if test="${totalPages > 1}">
@@ -51,7 +73,7 @@
             <!-- PREVIOUS -->
             <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                 <a class="page-link"
-                   href="homepage?page=${currentPage - 1}&${pageContext.request.queryString}">
+                   href="${paginationUrl}?page=${currentPage - 1}${queryString}">
                     &laquo;
                 </a>
             </li>
@@ -60,7 +82,7 @@
             <c:forEach begin="1" end="${totalPages}" var="i">
                 <li class="page-item ${i == currentPage ? 'active' : ''}">
                     <a class="page-link"
-                       href="homepage?page=${i}&${pageContext.request.queryString}">
+                       href="${paginationUrl}?page=${i}${queryString}">
                         ${i}
                     </a>
                 </li>
@@ -69,7 +91,7 @@
             <!-- NEXT -->
             <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
                 <a class="page-link"
-                   href="homepage?page=${currentPage + 1}&${pageContext.request.queryString}">
+                   href="${paginationUrl}?page=${currentPage + 1}${queryString}">
                     &raquo;
                 </a>
             </li>
@@ -77,5 +99,6 @@
         </ul>
     </nav>
 </c:if>
+
 
 

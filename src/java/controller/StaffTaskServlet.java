@@ -1,13 +1,10 @@
 package controller;
 
 import dao.StaffTaskDAO;
-import model.CheckInTask;
-
-import jakarta.servlet.*;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.util.List;
 
 @WebServlet("/staffTask")
 public class StaffTaskServlet extends HttpServlet {
@@ -17,12 +14,13 @@ public class StaffTaskServlet extends HttpServlet {
             throws ServletException, IOException {
 
         StaffTaskDAO dao = new StaffTaskDAO();
-        List<CheckInTask> checkInList = dao.getExpectedCheckIns();
 
-        // DEBUG CỰC QUAN TRỌNG
-        System.out.println("Check-in size = " + checkInList.size());
+        // ✅ LẤY ĐÚNG METHOD ĐANG TỒN TẠI
+        request.setAttribute("checkInList", dao.getCheckInList());
+        request.setAttribute("checkOutList", dao.getCheckOutList());
+        request.setAttribute("completedCount", dao.countCompleted());
 
-        request.setAttribute("checkInList", checkInList);
-        request.getRequestDispatcher("staff_task.jsp").forward(request, response);
+        request.getRequestDispatcher("staff_task.jsp")
+               .forward(request, response);
     }
 }
