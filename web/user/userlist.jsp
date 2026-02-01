@@ -2,8 +2,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+
 <!DOCTYPE html>
 <html>
+    
     <head>
         <title>User Management</title>
         <style>
@@ -69,11 +71,25 @@
             th{
                 background: #fafafa;
             }
+            .btn-reset{
+                padding: 6px 12px;
+                background: black;
+                color: white;
+                border-radius: 4px;
+                text-decoration: none;
+                border: 1px solid #ccc;
+            }
+            .btn-reset:hover{
+                background: #e0e0e0;
+            }
+            .btn-add:hover{
+                background: #e0e0e0;
+            }
         </style>
     </head>
     <script>
         let timer;
-        function delaySubmit(input){
+        function delaySubmit(input) {
             clearTimeout(timer);
             timer = setTimeout(() => {
                 input.form.submit();
@@ -107,13 +123,21 @@
                     <option value="asc" ${param.sort == 'asc' ? 'selected' : ''}>A -> Z</option>
                     <option value="desc" ${param.sort == 'desc' ? 'selected' : ''}>Z -> A</option>
                 </select>
-                
+                <c:if test="${not empty param.keyword
+                              or not empty param.status
+                              or not empty param.filterType
+                              or not empty param.sort}">
+                      
+                    <a href="${pageContext.request.contextPath}/user/list" class="btn btn-reset">Reset</a>
+                </c:if>
+
             </form>
-                <!-- Add new user -->
-                        
-                    <a href="${pageContext.request.contextPath}/user/list?action=add&type=INTERNAL" class="btn btn-add">Add New User</a>
-                
+            <!-- Add new user -->
+
+            <a href="${pageContext.request.contextPath}/user/list?action=add&type=INTERNAL" class="btn btn-add">Add New User</a>
+
         </div>
+
 
         <table>
             <tr>
@@ -129,13 +153,13 @@
 
             <c:forEach var="u" items="${users}">
                 <tr>
+                    <!-- Avatar -->
                     <td>
-                        <c:if test="${not empty u.image}">
-                            <img src="${pageContext.request.contextPath}/resources/user/${u.image}"
-                                 width="40" height="40" style="border-radius:50%">
-                        </c:if>
+                        <img src="${pageContext.request.contextPath}/resources/user/image/${u.image}"
+                             width="40" height="40"
+                             style="border-radius:50%; object-fit: cover;">
                     </td>
-
+                    <!-- Username -->
                     <td>${u.name}</td>
 
 
@@ -179,7 +203,7 @@
                             | <a href="${pageContext.request.contextPath}/user/list?action=edit&id=${u.id}&type=${u.type}">Update</a>
                         </c:if>
 
-                        <form action="list" method="post" style="display:inline">
+                        <form action="${pageContext.request.contextPath}/user/list" method="post" style="display:inline">
                             <input type="hidden" name="id" value="${u.id}">
                             <input type="hidden" name="type" value="${u.type}">
 
@@ -196,7 +220,9 @@
                     </td>
                 </tr>
             </c:forEach>
+                
         </table>
-
+            <div><jsp:include page="/Renter/homepage/pagination.jsp"/></div>
+            
     </body>
 </html>
