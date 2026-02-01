@@ -5,11 +5,9 @@ import java.sql.DriverManager;
 
 public class DBContext {
 
-<<<<<<< Updated upstream
-    protected Connection connection;
-=======
-    public Connection connection; // cho lớp con dùng
->>>>>>> Stashed changes
+   
+
+    public Connection connection; 
 
     public DBContext() {
         try {
@@ -19,18 +17,8 @@ public class DBContext {
 
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url, user, password);
-
-<<<<<<< Updated upstream
             System.out.println("Connected DB = " + connection.getCatalog());
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-
-=======
             System.out.println("Kết nối MySQL thành công!");
         } catch (Exception e) {
             System.out.println("Lỗi kết nối DB:");
@@ -57,4 +45,3 @@ public class DBContext {
         }
     }
 }
->>>>>>> Stashed changes
