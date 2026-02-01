@@ -120,11 +120,6 @@
                             </div>
                         </c:if>
 
-                        <c:if test="${w.minPrice <= 0 && w.minArea <= 0}">
-                            <div class="text-muted small">
-                                Contact for details
-                            </div>
-                        </c:if>
                         
                         <!-- WAREHOUSE TYPE (BOTTOM RIGHT) -->
                     <c:if test="${w.warehouseType != null}">
