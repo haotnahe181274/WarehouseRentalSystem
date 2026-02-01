@@ -8,46 +8,57 @@
     <title>Check Detail</title>
     <link rel="stylesheet" href="css/Staff-check.css">
 </head>
-
 <body>
 
 <div class="container">
-
     <h1>Check Detail</h1>
 
-    <c:if test="${empty list}">
-        No data found
+    <c:if test="${empty detail}">
+        <p>No data found</p>
     </c:if>
 
-    <c:set var="first" value="${list[0]}"/>
+    <c:forEach var="u" items="${detail}">
+        <div class="card">
+            <h3>Unit ${u.unitCode}</h3>
 
-    <!-- BOOKING INFO -->
-    <div class="card">
-        <h3>Booking Info</h3>
-        Customer: ${first.renterName} <br>
-        Unit: ${first.unitCode} <br>
-        Start: ${first.checkInDate} <br>
-        End: ${first.checkOutDate}
-    </div>
+            <p>
+                <strong>Customer:</strong> ${u.renterName}<br>
+                <strong>Start:</strong> ${u.checkInDate}<br>
+                <strong>End:</strong> ${u.checkOutDate}
+            </p>
 
-    <!-- ITEMS -->
-    <div class="card">
-        <h3>Items in Unit</h3>
+            <c:if test="${not empty u.itemName}">
+                <div class="item">
+                    <strong>${u.itemName}</strong><br>
+                    <small>${u.description}</small>
+                </div>
+            </c:if>
 
-        <c:forEach var="u" items="${list}">
-            <div class="item">
-                <strong>${u.itemName}</strong><br>
-                <small>${u.description}</small>
+            <div class="action">
+                <c:choose>
+                    <c:when test="${u.unitStatusCode == 0}">
+                        <form method="post" action="staffCheck">
+                            <input type="hidden" name="csuId" value="${u.csuId}">
+                            <input type="hidden" name="action" value="checkin">
+                            <button class="btn">Check-In</button>
+                        </form>
+                    </c:when>
+
+                    <c:when test="${u.unitStatusCode == 1}">
+                        <form method="post" action="staffCheck">
+                            <input type="hidden" name="csuId" value="${u.csuId}">
+                            <input type="hidden" name="action" value="checkout">
+                            <button class="btn">Check-Out</button>
+                        </form>
+                    </c:when>
+
+                    <c:otherwise>
+                        <span class="btn done">Completed</span>
+                    </c:otherwise>
+                </c:choose>
             </div>
-        </c:forEach>
-    </div>
-
-    <!-- COMPLETE -->
-    <form method="post" action="staffCheck">
-        <input type="hidden" name="assignmentId" value="${assignmentId}">
-        <button class="btn">Complete Task</button>
-    </form>
-
+        </div>
+    </c:forEach>
 </div>
 
 </body>

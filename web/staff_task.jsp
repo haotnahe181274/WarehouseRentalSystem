@@ -12,7 +12,7 @@
 <body>
 <div class="container">
 
-    <!-- Header -->
+    <!-- ================= HEADER ================= -->
     <div class="header">
         <div>
             <h1>Today's Tasks</h1>
@@ -60,7 +60,6 @@
 
             <c:forEach var="t" items="${checkInList}">
                 <div class="task">
-
                     <div>
                         <strong>${t.renterName}</strong><br>
                         <small>
@@ -69,55 +68,52 @@
                         </small>
                     </div>
 
-                    <!-- nếu completed -->
                     <c:choose>
-                        <c:when test="${t.status == 2}">
-                            <span class="btn done">Completed</span>
+                        <c:when test="${t.status == 0}">
+                            <a href="staffCheck?action=checkin&csuId=${t.csuId}"
+                               class="btn">
+                                Check-In
+                            </a>
                         </c:when>
 
                         <c:otherwise>
-                            <a href="staffCheck?assignmentId=${t.assignmentId}" class="btn">
-                                Check-In
-                            </a>
+                            <span class="btn done">Completed</span>
                         </c:otherwise>
                     </c:choose>
-
                 </div>
             </c:forEach>
         </div>
 
         <!-- ================= CHECK OUT ================= -->
         <div class="card">
-            <h3>Expected Check-out</h3>
+            <h3>Expected Check-Outs</h3>
 
             <c:if test="${empty checkOutList}">
-                <p>No expected check-ins.</p>
+                <p>No expected check-outs.</p>
             </c:if>
 
             <c:forEach var="t" items="${checkOutList}">
                 <div class="task">
-
                     <div>
                         <strong>${t.renterName}</strong><br>
                         <small>
                             Unit ${t.unitCode}
-                            • finish: ${t.endDate}
+                            • End: ${t.endDate}
                         </small>
                     </div>
 
-                    <!-- nếu completed -->
                     <c:choose>
-                        <c:when test="${t.status == 2}">
-                            <span class="btn done">Completed</span>
+                        <c:when test="${t.status == 1}">
+                            <a href="staffCheck?action=checkout&csuId=${t.csuId}"
+                               class="btn">
+                                Check-Out
+                            </a>
                         </c:when>
 
                         <c:otherwise>
-                            <a href="staffCheck?assignmentId=${t.assignmentId}" class="btn">
-                                Check-out
-                            </a>
+                            <span class="btn done">Completed</span>
                         </c:otherwise>
                     </c:choose>
-
                 </div>
             </c:forEach>
         </div>
