@@ -21,51 +21,7 @@ public class UserDAO extends DBContext {
         return u;
     }
 
-    public List<UserView> getAllUserViews() {
-
-        List<UserView> list = new ArrayList<>();
-        String sql = """
-            SELECT 
-                iu.internal_user_id as id,
-                iu.user_name as name,
-                iu.email,
-                iu.full_name,
-                iu.phone,
-                r.role_name as role,
-                'INTERNAL' as type,
-                iu.status,
-                iu.image,
-                iu.created_at as createdAt
-            FROM internal_user iu
-            JOIN role r ON iu.role_id = r.role_id
-
-            UNION ALL
-
-            SELECT 
-                re.renter_id as id,
-                re.user_name as name,
-                re.email,
-                re.full_name,
-                re.phone,
-                null as role,
-                'RENTER' as type,
-                re.status,
-                re.image,
-                re.created_at as createdAt
-            FROM renter re
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-
-                list.add(mapUserView(rs));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
+    
 
     public UserView getUserById(int id, String type) {
         String sql;
@@ -187,11 +143,14 @@ public class UserDAO extends DBContext {
         }
     }
 
-    public List<UserView> filterUsers(
+    
+    public List<UserView> filterUsersPaging(
             String keyword,
             String status,
             String type,
-            String sort) {
+            String sort,
+            int offset,
+            int pageSize) {
         List<UserView> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "select * from ( "
@@ -222,6 +181,7 @@ public class UserDAO extends DBContext {
         } else if ("desc".equalsIgnoreCase(sort)) {
             sql.append(" order by u.name desc");
         }
+        sql.append(" LIMIT ? OFFSET ? ");
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int i = 1;
             if (keyword != null && !keyword.isEmpty()) {
@@ -233,6 +193,8 @@ public class UserDAO extends DBContext {
             if (type != null && !type.isEmpty()) {
                 ps.setString(i++, type);
             }
+            ps.setInt(i++, pageSize);
+            ps.setInt(i++, offset);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapUserView(rs));
@@ -241,5 +203,44 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+    public int countFilterUsers(
+            String keyword,
+            String status,
+            String type){
+        StringBuilder sql = new StringBuilder(
+                "select count(*) from ( " +
+                        "select iu.internal_user_id as id, iu.user_name as name, iu.status, 'INTERNAL' as type " +
+                        "from internal_user iu " + 
+                        "union all " + 
+                        "select re.renter_id as id, re.user_name as name, re.status, 'RENTER' as type " + 
+                        "from renter re " +
+                        ") u where 1 = 1 "
+        );
+        if(keyword != null && !keyword.isEmpty()) sql.append(" and u.name like ? ");
+        if(status != null && !status.isEmpty()) sql.append(" and u.status = ? ");
+        if(type != null && !type.isEmpty()) sql.append(" and u.type = ? ");
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())){
+            int i = 1;
+            if(keyword != null && !keyword.isEmpty()) ps.setString(i++, "%" + keyword + "%");
+            if(status != null && !status.isEmpty()) ps.setInt(i++, Integer.parseInt(status));
+            if(type != null && !type.isEmpty()) ps.setString(i++, type);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()) return rs.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    public boolean isUsernameExists(String username){
+        String sql = "select 1 from internal_user where user_name= ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
