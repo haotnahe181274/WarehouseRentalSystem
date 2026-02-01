@@ -4,6 +4,12 @@ import java.util.Date;
 
 public class UnitContractView {
 
+    // 🔥 QUAN TRỌNG NHẤT
+    private int csuId;        // Contract_Storage_unit.id
+
+    private int contractId;
+    private int status;
+
     private String renterName;
     private String unitCode;
 
@@ -13,13 +19,34 @@ public class UnitContractView {
     private String itemName;
     private String description;
 
-    public UnitContractView() {
+    // ===== csuId =====
+    public int getCsuId() {
+        return csuId;
     }
 
-    // =====================
-    // GETTER / SETTER
-    // =====================
+    public void setCsuId(int csuId) {
+        this.csuId = csuId;
+    }
 
+    // ===== contractId =====
+    public int getContractId() {
+        return contractId;
+    }
+
+    public void setContractId(int contractId) {
+        this.contractId = contractId;
+    }
+
+    // ===== status =====
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    // ===== renter =====
     public String getRenterName() {
         return renterName;
     }
@@ -28,6 +55,7 @@ public class UnitContractView {
         this.renterName = renterName;
     }
 
+    // ===== unit =====
     public String getUnitCode() {
         return unitCode;
     }
@@ -36,6 +64,7 @@ public class UnitContractView {
         this.unitCode = unitCode;
     }
 
+    // ===== dates =====
     public Date getCheckInDate() {
         return checkInDate;
     }
@@ -52,6 +81,7 @@ public class UnitContractView {
         this.checkOutDate = checkOutDate;
     }
 
+    // ===== items =====
     public String getItemName() {
         return itemName;
     }
@@ -67,5 +97,7 @@ public class UnitContractView {
     public void setDescription(String description) {
         this.description = description;
     }
-
+    public int getUnitStatusCode() {
+        return status;
+    }
 }
