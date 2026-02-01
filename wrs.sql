@@ -259,17 +259,17 @@ INSERT INTO Warehouse_Type (type_name, description) VALUES
 INSERT INTO Internal_user
 (user_name, password, full_name, email, phone, status, created_at, role_id, image)
 VALUES
-('admin01', '123456', 'Admin System', 'admin@mail.com', '090000001', 1, NOW(), 1, 'admin.png'),
-('manager01', '123456', 'Manager A', 'manager@mail.com', '090000002', 1, NOW(), 2, 'manager.png'),
-('staff01', '123456', 'Staff A', 'staff1@mail.com', '090000003', 1, NOW(), 3, 'staff1.png'),
-('staff02', '123456', 'Staff B', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'staff2.png');
+('admin01', '123456', 'Admin System', 'admin@mail.com', '090000001', 1, NOW(), 1, 'default.jpg'),
+('manager01', '123456', 'Manager A', 'manager@mail.com', '090000002', 1, NOW(), 2, 'default.jpg'),
+('staff01', '123456', 'Staff A', 'staff1@mail.com', '090000003', 1, NOW(), 3, 'default.jpg'),
+('staff02', '123456', 'Staff B', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg');
 
 INSERT INTO Renter
 (user_name, password, full_name, email, phone, status, created_at, image)
 VALUES
-('renter01', '123456', 'Nguyen Van A', 'a@gmail.com', '091000001', 1, NOW(), 'a.png'),
-('renter02', '123456', 'Tran Thi B', 'b@gmail.com', '091000002', 1, NOW(), 'b.png'),
-('renter03', '123456', 'Le Van C', 'c@gmail.com', '091000003', 1, NOW(), 'c.png');
+('renter01', '123456', 'Nguyen Van A', 'a@gmail.com', '091000001', 1, NOW(), 'default.jpg'),
+('renter02', '123456', 'Tran Thi B', 'b@gmail.com', '091000002', 1, NOW(), 'default.jpg'),
+('renter03', '123456', 'Le Van C', 'c@gmail.com', '091000003', 1, NOW(), 'default.jpg');
 
 INSERT INTO Warehouse (name, address, description, status, warehouse_type_id) VALUES
 ('Northern Logistics Hub', 'Hà Nội', 'Kho trung tâm miền Bắc', 1, 1),
