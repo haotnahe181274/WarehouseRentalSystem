@@ -18,6 +18,7 @@ public class UserValidation {
         Map<String, String> errors = new HashMap<>();
         if (dao.isUsernameExists(username))
             errors.put("username", "Username already exists");
+        if(!isValidName(username) || username.contains(" ")) errors.put("username", "Username must not have space");
         validateCommon(password, email, fullName, phone, errors);
         return errors;
     }
@@ -27,30 +28,30 @@ public class UserValidation {
             errors.put("password", "Password must be at least 6 characters");
         if (!isValidEmail(email))
             errors.put("email", "Invalid email format");
-        if(!isValidFullName(fullName)) errors.put("fullName",
+        if(!isValidName(fullName)) errors.put("fullName",
                             "Full name must not have leading/trailing spaces or multiple consecutive spaces");
         if (!UserValidation.isValidPhone(phone)) {
                     errors.put("phone", "Phone must start with 0, contain only digits, max 10 characters");
                 }
     }
-
+     
     public static boolean isValidEmail(String email) {
         String regex = "^[A-Za-z0-9+-._]+@[A-Za-z0-9.-]+$";
         return email != null && email.matches(regex);
     }
 
-    // Validate fullName: không có space ở đầu, cuối và không có nhiều space liên
+    // Validate fullName and username: không có space ở đầu, cuối và không có nhiều space liên
     // tiếp
-    public static boolean isValidFullName(String fullName) {
-        if (fullName == null || fullName.isEmpty()) {
+    public static boolean isValidName(String name) {
+        if (name == null || name.isEmpty()) {
             return false;
         }
         // Không có space ở đầu hoặc cuối
-        if (fullName.startsWith(" ") || fullName.endsWith(" ")) {
+        if (name.startsWith(" ") || name.endsWith(" ")) {
             return false;
         }
         // Không có nhiều space liên tiếp (2 space trở lên)
-        if (fullName.contains("  ")) {
+        if (name.contains("  ")) {
             return false;
         }
         return true;

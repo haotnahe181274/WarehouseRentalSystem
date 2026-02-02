@@ -255,7 +255,7 @@ public class UserController extends HttpServlet {
                 }
 
                 // Validate fullName
-                if (!UserValidation.isValidFullName(fullName)) {
+                if (!UserValidation.isValidName(fullName)) {
                     errors.put("fullName",
                             "Full name must not have leading/trailing spaces or multiple consecutive spaces");
                 }
