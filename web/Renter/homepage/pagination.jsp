@@ -73,13 +73,14 @@
             <!-- PREVIOUS -->
             <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                 <a class="page-link"
+                   
                    href="${paginationUrl}?page=${currentPage - 1}${queryString}">
                     &laquo;
                 </a>
             </li>
 
             <!-- PAGE NUMBERS -->
-            <c:forEach begin="1" end="${totalPages}" var="i">
+            <c:forEach begin="1" end="${totalPages}" var="i" step="1">
                 <li class="page-item ${i == currentPage ? 'active' : ''}">
                     <a class="page-link"
                        href="${paginationUrl}?page=${i}${queryString}">

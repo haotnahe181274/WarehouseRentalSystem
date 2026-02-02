@@ -116,7 +116,7 @@ public class HomepageServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
-            page = 1;
+            page =1;
         }
 
         // ================== 3. PHÂN TRANG ==================
@@ -147,7 +147,33 @@ public class HomepageServlet extends HttpServlet {
 
         int totalPages = (int) Math.ceil(totalRecords * 1.0 / pageSize);
 
+        StringBuilder qs = new StringBuilder();
+        if (keyword != null && !keyword.isEmpty()) {
+            qs.append("&keyword=").append(keyword);
+        }
+        if (location != null && !location.isEmpty()) {
+            qs.append("&location=").append(location);
+        }
+        if (typeId != null) {
+            qs.append("&typeId=").append(typeId);
+        }
+        if (minPrice != null) {
+            qs.append("&minPrice=").append(minPrice);
+        }
+        if (maxPrice != null) {
+            qs.append("&maxPrice=").append(maxPrice);
+        }
+        if (minArea != null) {
+            qs.append("&minArea=").append(minArea);
+        }
+        if (maxArea != null) {
+            qs.append("&maxArea=").append(maxArea);
+        }
+
+        
+
         // ================== 5. SET ATTRIBUTE ==================
+        request.setAttribute("queryString", qs.toString());
         request.setAttribute("warehouses", list);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
@@ -156,6 +182,7 @@ public class HomepageServlet extends HttpServlet {
 
         request.setAttribute("locations", warehouseDAO.getAllLocations());
         request.setAttribute("warehouseTypes", typeDAO.getAllTypes());
+        request.setAttribute("paginationUrl", "homepage");
 
         // ================== 6. FORWARD ==================
         request.getRequestDispatcher("/Renter/homepage/show.jsp").forward(request, response);

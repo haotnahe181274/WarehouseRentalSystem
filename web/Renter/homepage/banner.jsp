@@ -6,7 +6,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<div class="container-fluid py-5 mb-5 hero-header" 
+<div class="container-fluid hero-header" 
      style="background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
             url('${pageContext.request.contextPath}/resources/renter/image/banner_new.jpg'); 
             background-size: cover; background-position: center; min-height: 550px;">
@@ -41,8 +41,9 @@
                                 </label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text bg-transparent border">
-                                        <i class="fa fa-warehouse text-dark"></i>
-                                    </span>
+                                        <i class="fa fa-warehouse text-dark"></i><!--
+-->                                    </span>
+                                    
                                     <input type="text" 
                                            name="keyword" 
                                            class="form-control"
@@ -57,8 +58,8 @@
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" 
-                                        class="btn btn-dark w-100 py-3 rounded-2 fw-bold"
-                                        style="background-color:#111;">
+                                        class="btn btn-dark w-100 py-3 rounded-2 fw-bold bg-dark"
+                                        >
                                     <i class="fa fa-search me-2"></i> Search Warehouses
                                 </button>
                             </div>

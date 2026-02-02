@@ -18,7 +18,7 @@
     <body>
 
 
-        <%-- 2. THÊM BANNER Ở ĐÂY (Phần tiêu đề và search bar lớn) --%>
+        <%-- 2. THÊM BANNER  --%>
         <jsp:include page="banner.jsp" />
 
         <div class="container py-5">
@@ -39,7 +39,7 @@
 
 
 
-                    <%-- 5. Gọi file Card. File này sẽ tự lo vòng lặp c:forEach bên trong nó --%>
+                    <%-- 5. Gọi file Card --%>
                     <jsp:include page="card.jsp" /> 
 
 

@@ -14,13 +14,13 @@
         display: flex;
         flex-direction: column;
         border-radius: 16px;
-        overflow: hidden;
+        
     }
 
     .card-img-container {
         position: relative;
         height: 210px;
-        overflow: hidden;
+        
     }
 
     .card-img-container img {
@@ -29,11 +29,7 @@
         object-fit: cover;
     }
 
-    .card-title-fixed {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+    
 
     .price-text {
         font-size: 22px;
@@ -93,12 +89,12 @@
 
                     <div>
                         <!-- NAME -->
-                        <h6 class="fw-bold mb-1 card-title-fixed" title="${w.name}">
+                        <h6 class="fw-bold mb-1 " title="${w.name}">
                             ${w.name}
                         </h6>
 
                         <!-- ADDRESS -->
-                        <p class="text-muted small mb-2 card-title-fixed">
+                        <p class="text-muted small mb-2">
                             <i class="fa-solid fa-location-dot me-1"></i>
                             ${w.address}
                         </p>
