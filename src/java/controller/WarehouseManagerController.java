@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Warehouse;
 
 @WebServlet(name = "WarehouseController", urlPatterns = {"/warehouse"})
-public class WarehouseController extends HttpServlet {
+public class WarehouseManagerController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
