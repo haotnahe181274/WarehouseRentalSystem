@@ -21,8 +21,6 @@ public class UserDAO extends DBContext {
         return u;
     }
 
-    
-
     public UserView getUserById(int id, String type) {
         String sql;
         if ("internal".equalsIgnoreCase(type)) {
@@ -143,7 +141,6 @@ public class UserDAO extends DBContext {
         }
     }
 
-    
     public List<UserView> filterUsersPaging(
             String keyword,
             String status,
@@ -204,37 +201,53 @@ public class UserDAO extends DBContext {
         }
         return list;
     }
+
     public int countFilterUsers(
             String keyword,
             String status,
-            String type){
+            String type) {
         StringBuilder sql = new StringBuilder(
-                "select count(*) from ( " +
-                        "select iu.internal_user_id as id, iu.user_name as name, iu.status, 'INTERNAL' as type " +
-                        "from internal_user iu " + 
-                        "union all " + 
-                        "select re.renter_id as id, re.user_name as name, re.status, 'RENTER' as type " + 
-                        "from renter re " +
-                        ") u where 1 = 1 "
+                "select count(*) from ( "
+                + "select iu.internal_user_id as id, iu.user_name as name, iu.status, 'INTERNAL' as type "
+                + "from internal_user iu "
+                + "union all "
+                + "select re.renter_id as id, re.user_name as name, re.status, 'RENTER' as type "
+                + "from renter re "
+                + ") u where 1 = 1 "
         );
-        if(keyword != null && !keyword.isEmpty()) sql.append(" and u.name like ? ");
-        if(status != null && !status.isEmpty()) sql.append(" and u.status = ? ");
-        if(type != null && !type.isEmpty()) sql.append(" and u.type = ? ");
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())){
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" and u.name like ? ");
+        }
+        if (status != null && !status.isEmpty()) {
+            sql.append(" and u.status = ? ");
+        }
+        if (type != null && !type.isEmpty()) {
+            sql.append(" and u.type = ? ");
+        }
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int i = 1;
-            if(keyword != null && !keyword.isEmpty()) ps.setString(i++, "%" + keyword + "%");
-            if(status != null && !status.isEmpty()) ps.setInt(i++, Integer.parseInt(status));
-            if(type != null && !type.isEmpty()) ps.setString(i++, type);
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(i++, "%" + keyword + "%");
+            }
+            if (status != null && !status.isEmpty()) {
+                ps.setInt(i++, Integer.parseInt(status));
+            }
+            if (type != null && !type.isEmpty()) {
+                ps.setString(i++, type);
+            }
             ResultSet rs = ps.executeQuery();
-            if(rs.next()) return rs.getInt(1);
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
     }
-    public boolean isUsernameExists(String username){
+
+    public boolean isUsernameExists(String username) {
         String sql = "select 1 from internal_user where user_name= ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
             return rs.next();

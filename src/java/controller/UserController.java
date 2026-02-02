@@ -138,6 +138,7 @@ public class UserController extends HttpServlet {
         List<UserView> users = userDAO.filterUsersPaging(keyword, status, filterType, sort, offset, pageSize);
         int totalItem = userDAO.countFilterUsers(keyword, status, filterType);
         int totalPages = (int) Math.ceil((double) totalItem / pageSize);
+        // Query String
         StringBuilder qs = new StringBuilder();
 
         if (keyword != null && !keyword.isEmpty()) {
@@ -156,6 +157,9 @@ public class UserController extends HttpServlet {
         String queryString = qs.toString();
         if (queryString.endsWith("&")) {
             queryString = queryString.substring(0, queryString.length() - 1);
+        }
+        if (!queryString.isEmpty()) {
+            queryString = "&" + queryString;
         }
         for (UserView u : users) {
             setDefaultImageIfNeeded(u);
@@ -209,10 +213,16 @@ public class UserController extends HttpServlet {
             String fileName = null;
 
             if (avatar != null && avatar.getSize() > 0) {
-                fileName = System.currentTimeMillis() + "_" + avatar.getSubmittedFileName();
-                String uploadPath = request.getServletContext().getRealPath("/resources/user/image");
-                new File(uploadPath).mkdirs();
-                avatar.write(uploadPath + File.separator + fileName);
+                String submittedFileName = avatar.getSubmittedFileName();
+                String ext = submittedFileName.substring(submittedFileName.lastIndexOf(".") + 1).toLowerCase();
+                if (!ext.equals("jpg") && !ext.equals("jpeg") && !ext.equals("png")) {
+                    errors.put("image", "Just support .png .jpg");
+                } else {
+                    fileName = System.currentTimeMillis() + "_" + submittedFileName;
+                    String uploadPath = request.getServletContext().getRealPath("/resources/user/image");
+                    new File(uploadPath).mkdirs();
+                    avatar.write(uploadPath + File.separator + fileName);
+                }
             }
 
             // ===== ADD =====
@@ -221,11 +231,6 @@ public class UserController extends HttpServlet {
                 String username = request.getParameter("username");
                 String password = request.getParameter("password");
                 errors = UserValidation.validateCreate(username, password, email, fullName, phone, userDAO);
-
-                
-
-                
-                
 
                 if (!errors.isEmpty()) {
                     request.setAttribute("errors", errors);
