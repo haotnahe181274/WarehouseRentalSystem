@@ -1,4 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,80 +8,118 @@
     <title>Staff Tasks</title>
     <link rel="stylesheet" href="css/Staff-tasks.css">
 </head>
+
 <body>
 <div class="container">
-    <!-- Header -->
+
+    <!-- ================= HEADER ================= -->
     <div class="header">
         <div>
             <h1>Today's Tasks</h1>
-            <span>Monday, January 22, 2024</span>
+            <span>Staff Task Board</span>
         </div>
+
         <div class="user-info">
-            <strong>Sarah Johnson</strong><br>
-            <span>Staff Member</span>
+            <strong>Staff</strong><br>
+            <span>Task View</span>
         </div>
     </div>
 
-    <!-- Stats -->
+    <!-- ================= STATS ================= -->
     <div class="stats">
-        <div class="stat-card"><p>Total Tasks</p><h2>24</h2></div>
-        <div class="stat-card"><p>Check-Ins</p><h2>12</h2></div>
-        <div class="stat-card"><p>Check-Outs</p><h2>12</h2></div>
-        <div class="stat-card"><p>Completed</p><h2>8</h2></div>
+        <div class="stat-card">
+            <p>Total Tasks</p>
+            <h2>${checkInList.size() + checkOutList.size()}</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>Check-Ins</p>
+            <h2>${checkInList.size()}</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>Check-Outs</p>
+            <h2>${checkOutList.size()}</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>Completed</p>
+            <h2>${completedCount}</h2>
+        </div>
     </div>
 
-    <!-- Main -->
     <div class="main">
-        <!-- Check-ins -->
+
+        <!-- ================= CHECK IN ================= -->
         <div class="card">
             <h3>Expected Check-Ins</h3>
 
-            <div class="task">
-                <div>
-                    <strong>09:00 AM - Michael Chen</strong><br>
-                    <small>Room 204 • 3 nights</small>
-                </div>
-                <button class="btn">Start Check-In</button>
-            </div>
+            <c:if test="${empty checkInList}">
+                <p>No expected check-ins.</p>
+            </c:if>
 
-            <div class="task">
-                <div>
-                    <strong>09:30 AM - Emma Rodriguez</strong><br>
-                    <small>Room 156 • 2 nights</small>
-                </div>
-                <button class="btn">Start Check-In</button>
-            </div>
+            <c:forEach var="t" items="${checkInList}">
+                <div class="task">
+                    <div>
+                        <strong>${t.renterName}</strong><br>
+                        <small>
+                            Unit ${t.unitCode}
+                            • Start: ${t.startDate}
+                        </small>
+                    </div>
 
-            <div class="task">
-                <div>
-                    <strong>10:00 AM - James Wilson</strong><br>
-                    <small>Room 312 • 1 night</small>
+                    <c:choose>
+                        <c:when test="${t.status == 0}">
+                            <a href="staffCheck?action=checkin&csuId=${t.csuId}"
+                               class="btn">
+                                Check-In
+                            </a>
+                        </c:when>
+
+                        <c:otherwise>
+                            <span class="btn done">Completed</span>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
-                <button class="btn btn-danger">Urgent</button>
-            </div>
+            </c:forEach>
         </div>
 
-        <!-- Check-outs -->
+        <!-- ================= CHECK OUT ================= -->
         <div class="card">
             <h3>Expected Check-Outs</h3>
 
-            <div class="task">
-                <div>
-                    <strong>11:00 AM - Lisa Anderson</strong><br>
-                    <small>Room 108 • In progress</small>
-                </div>
-                <button class="btn btn-success">Complete</button>
-            </div>
+            <c:if test="${empty checkOutList}">
+                <p>No expected check-outs.</p>
+            </c:if>
 
-            <div class="task">
-                <div>
-                    <strong>12:00 PM - Anna Petrov</strong><br>
-                    <small>Room 167 • 2 nights</small>
+            <c:forEach var="t" items="${checkOutList}">
+                <div class="task">
+                    <div>
+                        <strong>${t.renterName}</strong><br>
+                        <small>
+                            Unit ${t.unitCode}
+                            • End: ${t.endDate}
+                        </small>
+                    </div>
+
+                    <c:choose>
+                        <c:when test="${t.status == 1}">
+                            <a href="staffCheck?action=checkout&csuId=${t.csuId}"
+                               class="btn">
+                                Check-Out
+                            </a>
+                        </c:when>
+
+                        <c:otherwise>
+                            <span class="btn done">Completed</span>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
-                <button class="btn">Start Check-Out</button>
-            </div>
+            </c:forEach>
         </div>
+
     </div>
 </div>
+
 </body>
 </html>

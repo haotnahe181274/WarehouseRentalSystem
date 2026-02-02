@@ -1,6 +1,6 @@
 <%-- 
-    Document   : homepage
-    Created on : Jan 20, 2026, 11:01:15 PM
+    Document   : warehouse-detail
+    Created on : Jan 31, 2026, 11:20:42 PM
     Author     : ad
 --%>
 
@@ -9,9 +9,9 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Homepage</title>
+        <title>JSP Page</title>
     </head>
     <body>
-        <h1>Homepage</h1>
+        <h1>Hello World!</h1>
     </body>
 </html>
