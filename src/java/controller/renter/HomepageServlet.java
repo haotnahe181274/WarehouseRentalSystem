@@ -185,7 +185,7 @@ public class HomepageServlet extends HttpServlet {
         request.setAttribute("paginationUrl", "homepage");
 
         // ================== 6. FORWARD ==================
-        request.getRequestDispatcher("/Renter/homepage/show.jsp").forward(request, response);
+        request.getRequestDispatcher("/common/homepage/show.jsp").forward(request, response);
 
     }
 

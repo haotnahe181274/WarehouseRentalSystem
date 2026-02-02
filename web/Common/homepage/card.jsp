@@ -69,8 +69,8 @@
                 <!-- ===== IMAGE ===== -->
                 <div class="card-img-container">
 
-                    <img src="${pageContext.request.contextPath}/resources/renter/image/${imageMap[w.warehouseId]}"
-                         onerror="this.src='${pageContext.request.contextPath}/resources/renter/image/default.jpg';"
+                    <img src="${pageContext.request.contextPath}/resources/warehouse/image/${imageMap[w.warehouseId]}"
+                         onerror="this.src='${pageContext.request.contextPath}/resources/warehouse/image/default.jpg';"
                          alt="warehouse image">
 
                     <!-- STATUS -->
@@ -128,7 +128,7 @@
 
                     <!-- BUTTON -->
                     <div class="mt-3">
-                        <a href="warehouse-detail?id=${w.warehouseId}"
+                        <a href="warehouse-detail.jsp"
                            class="btn btn-dark w-100 rounded-pill">
                             View Details
                         </a>

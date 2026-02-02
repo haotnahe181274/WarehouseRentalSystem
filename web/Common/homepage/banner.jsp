@@ -8,7 +8,7 @@
 
 <div class="container-fluid hero-header" 
      style="background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
-            url('${pageContext.request.contextPath}/resources/renter/image/banner_new.jpg'); 
+            url('${pageContext.request.contextPath}/resources/warehouse/image/banner_new.jpg'); 
             background-size: cover; background-position: center; min-height: 550px;">
 
     <div class="container py-5">

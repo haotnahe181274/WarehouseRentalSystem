@@ -1,6 +1,6 @@
 <%-- 
-    Document   : warehouse-detail
-    Created on : Jan 31, 2026, 11:20:42 PM
+    Document   : footer
+    Created on : Feb 2, 2026, 2:41:06 PM
     Author     : ad
 --%>
 
