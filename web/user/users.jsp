@@ -255,7 +255,10 @@
                     <c:if test="${mode != 'view'}">
                         <div class="form-group">
                             <label>Avatar:</label>
-                            <input type="file" name="image">
+                            <input type="file" name="image" accept=".jpg, .jpeg, .png">
+                            <c:if test="${not empty errors.image}">
+                                <div class="error-msg">${errors.image}</div>
+                            </c:if>
                         </div>
                     </c:if>
 
