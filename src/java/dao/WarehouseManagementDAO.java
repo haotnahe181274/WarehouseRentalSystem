@@ -341,6 +341,21 @@ public class WarehouseManagementDAO extends DBContext {
         return null; // Không tìm thấy
     }
 
+    public void update(Warehouse w) {
+    String sql = "UPDATE Warehouse SET name=?, address=?, description=?, status=? WHERE warehouse_id=?";
+    try {
+        PreparedStatement st = connection.prepareStatement(sql);
+        st.setString(1, w.getName());
+        st.setString(2, w.getAddress());
+        st.setString(3, w.getDescription());
+        st.setInt(4, w.getStatus());
+        st.setInt(5, w.getWarehouseId()); // ID để biết sửa kho nào
+        
+        st.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
 //    public static void main(String[] args) {
 //
 //        WarehouseDAO dao = new WarehouseDAO();
