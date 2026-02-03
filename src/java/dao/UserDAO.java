@@ -25,35 +25,35 @@ public class UserDAO extends DBContext {
         String sql;
         if ("internal".equalsIgnoreCase(type)) {
             sql = """
-                select iu.internal_user_id as id,
-                iu.user_name as name,
-                iu.email,
-                iu.full_name,
-                iu.phone,
-                r.role_name as role,
-                'INTERNAL' as type,
-                iu.status,
-                iu.image,
-                iu.created_at createdAt
-                from internal_user iu
-                join role r on iu.role_id = r.role_id
-                where iu.internal_user_id = ? 
-                """;
+                    select iu.internal_user_id as id,
+                    iu.user_name as name,
+                    iu.email,
+                    iu.full_name,
+                    iu.phone,
+                    r.role_name as role,
+                    'INTERNAL' as type,
+                    iu.status,
+                    iu.image,
+                    iu.created_at createdAt
+                    from internal_user iu
+                    join role r on iu.role_id = r.role_id
+                    where iu.internal_user_id = ?
+                    """;
         } else {
             sql = """
-                select renter_id as id,
-                user_name as name,
-                email,
-                full_name,
-                phone,
-                null as role,
-                'Renter' as type,
-                status,
-                image,
-                created_at as createdAt
-                from renter
-                where renter_id = ?
-                """;
+                    select renter_id as id,
+                    user_name as name,
+                    email,
+                    full_name,
+                    phone,
+                    null as role,
+                    'Renter' as type,
+                    status,
+                    image,
+                    created_at as createdAt
+                    from renter
+                    where renter_id = ?
+                    """;
         }
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -95,10 +95,10 @@ public class UserDAO extends DBContext {
             int roleId) {
 
         String sql = """
-        INSERT INTO internal_user
-        (user_name, password, email, full_name, phone, role_id, status, image, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, 1, ?, NOW())
-    """;
+                    INSERT INTO internal_user
+                    (user_name, password, email, full_name, phone, role_id, status, image, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, 1, ?, NOW())
+                """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, username);
@@ -123,10 +123,10 @@ public class UserDAO extends DBContext {
             int roleId) {
 
         String sql = """
-        UPDATE internal_user
-        SET email = ?, full_name = ?, phone = ?, image = ?, role_id = ?
-        WHERE internal_user_id = ?
-    """;
+                    UPDATE internal_user
+                    SET email = ?, full_name = ?, phone = ?, image = ?, role_id = ?
+                    WHERE internal_user_id = ?
+                """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, email);
@@ -147,22 +147,22 @@ public class UserDAO extends DBContext {
             String type,
             String sort,
             int offset,
-            int pageSize) {
+            int pageSize,
+            String viewerRole) {
         List<UserView> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "select * from ( "
-                + "select iu.internal_user_id as id, iu.user_name as name, iu.email, "
-                + "iu.full_name, iu.phone, iu.image, r.role_name as role, "
-                + "'INTERNAL' as type, iu.status, iu.created_at as createdAt "
-                + "from internal_user iu "
-                + "join role r on iu.role_id = r.role_id "
-                + "union all "
-                + "select re.renter_id as id, re.user_name as name, re.email, "
-                + "re.full_name, re.phone, re.image, null as role, "
-                + "'RENTER' as type, re.status, re.created_at as createdAt "
-                + "from renter re "
-                + ") u where 1=1 "
-        );
+                        + "select iu.internal_user_id as id, iu.user_name as name, iu.email, "
+                        + "iu.full_name, iu.phone, iu.image, r.role_name as role, "
+                        + "'INTERNAL' as type, iu.status, iu.created_at as createdAt "
+                        + "from internal_user iu "
+                        + "join role r on iu.role_id = r.role_id "
+                        + "union all "
+                        + "select re.renter_id as id, re.user_name as name, re.email, "
+                        + "re.full_name, re.phone, re.image, null as role, "
+                        + "'RENTER' as type, re.status, re.created_at as createdAt "
+                        + "from renter re "
+                        + ") u where 1=1 ");
 
         if (keyword != null && !keyword.isEmpty()) {
             sql.append(" and u.name like ?");
@@ -178,6 +178,14 @@ public class UserDAO extends DBContext {
         } else if ("desc".equalsIgnoreCase(sort)) {
             sql.append(" order by u.name desc");
         }
+
+        // --- Added Role Filter Logic ---
+        if ("Manager".equals(viewerRole)) {
+            // Manager only sees Staff and Renter
+            sql.append(" AND (u.role = 'Staff' OR u.type = 'RENTER') ");
+        }
+        // -------------------------------
+
         sql.append(" LIMIT ? OFFSET ? ");
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int i = 1;
@@ -205,16 +213,16 @@ public class UserDAO extends DBContext {
     public int countFilterUsers(
             String keyword,
             String status,
-            String type) {
+            String type,
+            String viewerRole) {
         StringBuilder sql = new StringBuilder(
                 "select count(*) from ( "
-                + "select iu.internal_user_id as id, iu.user_name as name, iu.status, 'INTERNAL' as type "
-                + "from internal_user iu "
-                + "union all "
-                + "select re.renter_id as id, re.user_name as name, re.status, 'RENTER' as type "
-                + "from renter re "
-                + ") u where 1 = 1 "
-        );
+                        + "select iu.internal_user_id as id, iu.user_name as name, iu.status, 'INTERNAL' as type "
+                        + "from internal_user iu "
+                        + "union all "
+                        + "select re.renter_id as id, re.user_name as name, re.status, 'RENTER' as type "
+                        + "from renter re "
+                        + ") u where 1 = 1 ");
         if (keyword != null && !keyword.isEmpty()) {
             sql.append(" and u.name like ? ");
         }
@@ -224,6 +232,13 @@ public class UserDAO extends DBContext {
         if (type != null && !type.isEmpty()) {
             sql.append(" and u.type = ? ");
         }
+
+        // --- Added Role Filter Logic ---
+        if ("Manager".equals(viewerRole)) {
+            sql.append(" AND (u.role = 'Staff' OR u.type = 'RENTER') ");
+        }
+        // -------------------------------
+
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int i = 1;
             if (keyword != null && !keyword.isEmpty()) {

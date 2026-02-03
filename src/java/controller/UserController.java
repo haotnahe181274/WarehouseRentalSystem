@@ -11,6 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
@@ -87,10 +88,58 @@ public class UserController extends HttpServlet {
         String rawId = request.getParameter("id");
         String type = request.getParameter("type");
 
+        HttpSession session = request.getSession();
+        UserView currentUser = (UserView) session.getAttribute("user");
+        String userRole = (String) session.getAttribute("role");
+
+        if (currentUser == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        boolean isAdmin = "Admin".equals(userRole);
+        boolean isManager = "Manager".equals(userRole);
+        boolean isStaff = "Staff".equals(userRole);
+        boolean isRenter = "RENTER".equals(currentUser.getType());
+
+        // --- STAFF & RENTER Redirect Logic ---
+        if (isStaff || isRenter) {
+            boolean isViewOwn = "view".equals(action)
+                    && rawId != null && Integer.parseInt(rawId) == currentUser.getId()
+                    && (type == null || type.equalsIgnoreCase(currentUser.getType()));
+
+            if (!isViewOwn) {
+                // Always redirect to view own profile
+                response.sendRedirect(request.getContextPath() + "/user/list?action=view&id=" + currentUser.getId()
+                        + "&type=" + currentUser.getType());
+                return;
+            }
+        }
+
+        // --- MANAGER Access Control ---
+        if (isManager) {
+            if ("add".equals(action) || "edit".equals(action)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+                return;
+            }
+        }
+
         // VIEW ADD UPDATE
+
         if ("view".equals(action)) {
             int id = Integer.parseInt(rawId);
             UserView user = userDAO.getUserById(id, type);
+
+            // Manager: Check if target is Admin
+            if (isManager && user != null && "INTERNAL".equalsIgnoreCase(user.getType())) {
+                boolean isSelf = (user.getId() == currentUser.getId());
+                boolean isTargetAllowed = "Staff".equalsIgnoreCase(user.getRole());
+                if (!isSelf && !isTargetAllowed) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+                    return;
+                }
+            }
+
             setDefaultImageIfNeeded(user);
 
             request.setAttribute("user", user);
@@ -135,8 +184,10 @@ public class UserController extends HttpServlet {
         if (keyword != null) {
             keyword = keyword.trim();
         }
-        List<UserView> users = userDAO.filterUsersPaging(keyword, status, filterType, sort, offset, pageSize);
-        int totalItem = userDAO.countFilterUsers(keyword, status, filterType);
+
+        List<UserView> users = userDAO.filterUsersPaging(keyword, status, filterType, sort, offset, pageSize, userRole);
+        int totalItem = userDAO.countFilterUsers(keyword, status, filterType, userRole);
+
         int totalPages = (int) Math.ceil((double) totalItem / pageSize);
         // Query String
         StringBuilder qs = new StringBuilder();
@@ -189,6 +240,15 @@ public class UserController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        String userRole = (String) session.getAttribute("role");
+
+        // Only Admin can perform POST actions (save, block, unblock)
+        if (!"Admin".equals(userRole)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+            return;
+        }
 
         String action = request.getParameter("action");
         String mode = request.getParameter("mode");
