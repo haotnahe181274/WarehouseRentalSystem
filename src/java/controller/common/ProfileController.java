@@ -94,6 +94,8 @@ public class ProfileController extends HttpServlet {
             return;
         }
         request.setAttribute("targetUser", targetUser);
+        request.setAttribute("mode", mode);
+
         request.getRequestDispatcher("user/users.jsp").forward(request, response);
     }
 

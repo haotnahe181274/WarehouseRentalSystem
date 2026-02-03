@@ -272,6 +272,7 @@ public class UserDAO extends DBContext {
         return false;
     }
 
+
     public void updateProfile(UserView u) {
         String sql;
         if ("INTERNAL".equals(u.getType())) {
@@ -298,6 +299,7 @@ public class UserDAO extends DBContext {
         }
 
     }
+
 
     public UserView checkAuthen(String username, String password) {
         String sql = """

@@ -10,34 +10,17 @@
 
     /* ===== SIDEBAR ===== */
     .sidebar {
-        width: 250px;
-        height: 100vh;
-        background: black; /* dark */
+        width: 220px;
+        background: black;
         color: white;
-        position: fixed;
-        top: 68px;
-        left: 0;
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
+
+        min-height: 80vh;
+        flex-shrink: 0; /* không bị co */
+
     }
 
     /* ===== LOGO ===== */
-    .sidebar-logo {
-        padding: 20px;
-        font-size: 18px;
-        font-weight: 600;
-        border-bottom: 1px solid #1e293b;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .sidebar-logo span {
-        background: #111827;
-        padding: 6px 8px;
-        border-radius: 6px;
-    }
+   
 
     /* ===== MENU ===== */
     .sidebar-menu {
@@ -90,25 +73,17 @@
         color: white;
     }
 
-    .layout {
-        display: flex;
-        align-items: flex-start;
-    }
 
-    .main-content {
-        flex: 1;
-        padding: 24px;
-        background: #f5f7fb;
-    }
+    /* ===== CONTENT FIX ===== */
+
+
 </style>
 
 <!-- ===== SIDEBAR ===== -->
 <div class="sidebar">
 
     <!-- LOGO -->
-    <div class="sidebar-logo">
-        <span></span> WRS SYSTEM
-    </div>
+
 
     <!-- MENU -->
     <ul class="sidebar-menu">
@@ -131,6 +106,8 @@
         <!-- MANAGER -->
         <c:if test="${sessionScope.role == 'Manager'}">
             <div class="menu-title">Manager</div>
+            <li><a href="${pageContext.request.contextPath}/user/list">Users</a></li>
+            <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses</a></li>
             <li><a href="${pageContext.request.contextPath}/rentRequest">📩 Rental Requests</a></li>
             <li><a href="${pageContext.request.contextPath}/contract"> Contracts</a></li>
             <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment</a></li>

@@ -1,8 +1,11 @@
-<%-- Document : header Created on : Feb 2, 2026, 2:40:52 PM Author : ad --%>
+<%-- 
+    Document   : header
+    Created on : Feb 2, 2026, 2:40:52 PM
+    Author     : ad
+--%>
 
-    <%@page contentType="text/html" pageEncoding="UTF-8" %>
-        <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 
 <nav class="app-header">
@@ -79,8 +82,10 @@
             </c:otherwise>
         </c:choose>
     </ul>
+<!-- RENTER ONLY -->
+                            
+            </nav>
 
-</nav>
 
 
 
@@ -213,3 +218,6 @@
 
 
 </style>
+
+
+                            

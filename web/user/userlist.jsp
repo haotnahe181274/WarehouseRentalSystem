@@ -11,6 +11,16 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <style>
+            .layout {
+    display: flex;
+    align-items: flex-start;
+}
+
+.main-content {
+    flex: 1;
+    padding: 24px;
+    background: #f5f7fb;
+}
             body {
                 font-family: Arial, sans-serif;
 
@@ -102,12 +112,7 @@
             .btn-add:hover {
                 background: #e0e0e0;
             }
-            .container {
-                margin-left: 250px !important;
-                margin-right: 0 !important;
-                max-width: calc(100% - 250px) !important;
-                padding-top: 20px;
-            }
+            
         </style>
     </head>
     <script>
@@ -122,10 +127,12 @@
 
     <body>
         <jsp:include page="/Common/Layout/header.jsp" />
-        
-        <jsp:include page="/Common/Layout/sidebar.jsp" />
-        <div class="container">
 
+        <div class="layout">
+
+        <jsp:include page="/Common/Layout/sidebar.jsp" />
+         <div class="main-content">
+ 
             <div class="top-bar">
                 <!-- Filter -->
                 <form class="filters" action="${pageContext.request.contextPath}/user/list" method="get">
@@ -267,9 +274,15 @@
             <div>
                 <jsp:include page="/Common/homepage/pagination.jsp" />
             </div>
+
             
         </div>
-            <jsp:include page="/Common/Layout/footer.jsp" />
+            
+           
+        </div>
+<jsp:include page="/Common/Layout/footer.jsp" />
+
+
     </body>
 
 </html>
