@@ -12,8 +12,8 @@
     .sidebar {
         width: 250px;
         height: 100vh;
-        background: white; /* dark */
-        color: black;
+        background: black; /* dark */
+        color: white;
         position: fixed;
         top: 64px;
         left: 0;
@@ -50,7 +50,7 @@
 
     .menu-title {
         font-size: 11px;
-        color: black;
+        color: white;
         margin: 16px 0 6px 8px;
         text-transform: uppercase;
     }
@@ -60,7 +60,7 @@
     }
 
     .sidebar-menu li a {
-        color: black;
+        color: white;
         text-decoration: none;
         display: flex;
         align-items: center;
@@ -88,7 +88,7 @@
     }
 
     .logout a {
-        color: black;
+        color: white;
     }
 
     /* ===== CONTENT FIX ===== */
@@ -136,7 +136,7 @@
         <c:if test="${sessionScope.role == 'Staff'}">
             <div class="menu-title">Staff</div>
             <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
-            <li><a href="${pageContext.request.contextPath}/inventory">Inventory Check</a></li>
+            <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
             <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>
         </c:if>
 
