@@ -225,10 +225,10 @@ public class WarehouseManagementDAO extends DBContext {
    public List<Warehouse> getAll() {
         List<Warehouse> list = new ArrayList<>();
         // Câu lệnh SQL Join 2 bảng
-        String sql = "SELECT w.warehouse_id, w.name, w.address, w.description, w.status, " +
-                     "wt.warehouse_type_id, wt.type_name " +
-                     "FROM Warehouse w " +
-                     "JOIN Warehouse_Type wt ON w.warehouse_type_id = wt.warehouse_type_id";
+       String sql = "SELECT w.warehouse_id, w.name, w.address, w.description, w.status, " +
+             "wt.warehouse_type_id, wt.type_name " +
+             "FROM Warehouse w " +
+             "LEFT JOIN Warehouse_Type wt ON w.warehouse_type_id = wt.warehouse_type_id"; // Sửa JOIN thành LEFT JOIN
         
         try {
             PreparedStatement st = connection.prepareStatement(sql);

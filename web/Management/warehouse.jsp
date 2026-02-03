@@ -1,68 +1,113 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Quản lý Kho</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Warehouse List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .layout { display: flex; align-items: flex-start; }
+        .main-content { flex: 1; padding: 24px; background: #f5f7fb; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 15px; border-radius: 6px; margin-bottom: 15px; }
+        .filters { display: flex; gap: 10px; align-items: center; }
+        .filters input, .filters select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-add { background: black; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; }
+        table { width: 100%; background: #fff; border-collapse: collapse; border-radius: 6px; overflow: hidden; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; }
+        th { background: #fafafa; }
+        .container-custom { margin-left: 250px; max-width: calc(100% - 250px); }
+        .btn-reset { padding: 6px 12px; background: #6c757d; color: white; border-radius: 4px; text-decoration: none; border: none; }
+    </style>
 </head>
-<body class="container mt-5">
-    <h2>Thêm Kho Mới</h2>
-    <form action="warehouse" method="post" class="mb-5">
-        <div class="row">
-            <div class="col"><input type="text" name="name" class="form-control" placeholder="Tên kho" required></div>
-            <div class="col"><input type="text" name="address" class="form-control" placeholder="Địa chỉ" required></div>
-            <div class="col">
-                <select name="status" class="form-control">
-                    <option value="1">Hoạt động</option>
-                    <option value="0">Ngừng hoạt động</option>
+
+<body>
+
+<jsp:include page="/Common/Layout/header.jsp"/>
+<div class="layout">
+    <jsp:include page="/Common/Layout/sidebar.jsp"/>
+
+    <div class="main-content container-custom">
+
+        <div class="top-bar">
+            <form class="filters" action="${pageContext.request.contextPath}/warehouse" method="get">
+                <input type="text" name="keyword" placeholder="Search warehouse name"
+                       value="${param.keyword}" onkeyup="delaySubmit(this)">
+
+                <select name="status" onchange="this.form.submit()">
+                    <option value="">All Status</option>
+                    <option value="1" ${param.status=='1'?'selected':''}>Active</option>
+                    <option value="0" ${param.status=='0'?'selected':''}>Inactive</option>
                 </select>
-            </div>
-            <div class="col"><button type="submit" class="btn btn-primary">Thêm</button></div>
+
+                <select name="sort" onchange="this.form.submit()">
+                    <option value="">Sort By Name</option>
+                    <option value="asc" ${param.sort=='asc'?'selected':''}>A → Z</option>
+                    <option value="desc" ${param.sort=='desc'?'selected':''}>Z → A</option>
+                </select>
+
+                <c:if test="${not empty param.keyword or not empty param.status or not empty param.sort}">
+                    <a href="${pageContext.request.contextPath}/warehouse" class="btn-reset">Reset</a>
+                </c:if>
+            </form>
+
+            <c:if test="${sessionScope.role == 'Admin'}">
+                <a href="${pageContext.request.contextPath}/warehouse?action=add" class="btn-add">
+                    Add Warehouse
+                </a>
+            </c:if>
         </div>
-    </form>
 
-    <hr>
+        <h3>Warehouse List</h3>
 
-    <h2>Danh sách Kho</h2>
-    <table class="table table-bordered table-striped">
-        <thead>
+        <table>
             <tr>
                 <th>ID</th>
-                <th>Tên</th>
-                <th>Địa chỉ</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
-        </thead>
-        <tbody>
-         <c:forEach items="${data}" var="w">
-    <tr>
-        <td>${w.warehouseId}</td>
-        <td>${w.name}</td>
-        <td>${w.address}</td>
-        <td>${w.warehouseType.typeName}</td> 
-        <td>
-            <c:choose>
-                <c:when test="${w.status == 1}">
-                    <span class="badge bg-success">Hoạt động</span>
-                </c:when>
-                <c:otherwise>
-                    <span class="badge bg-secondary">Tạm dừng</span>
-                </c:otherwise>
-            </c:choose>
-        </td>
-        <td>
-            <a href="warehouse?action=edit&id=${w.warehouseId}" 
-               class="btn btn-warning btn-sm">Sửa</a>
 
-            <a href="warehouse?action=delete&id=${w.warehouseId}" 
-               onclick="return confirm('Bạn có chắc muốn xóa kho ${w.name}?')" 
-               class="btn btn-danger btn-sm">Xóa</a>
-        </td>
-    </tr>
-</c:forEach>
-        </tbody>
-    </table>
+            <c:forEach var="w" items="${warehouseList}">
+                <tr>
+                    <td>${w.warehouseId}</td>
+                    <td>${w.name}</td>
+                    <td>${w.address}</td>
+                    <td>
+                        <span class="badge ${w.status == 1 ? 'bg-success' : 'bg-secondary'}">
+                            ${w.status == 1 ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="${pageContext.request.contextPath}/warehouse?action=view&id=${w.warehouseId}" class="text-primary text-decoration-none">View</a>
+
+                        <c:if test="${sessionScope.role == 'Admin'}">
+                            | <a href="${pageContext.request.contextPath}/warehouse?action=edit&id=${w.warehouseId}" class="text-warning text-decoration-none">Edit</a>
+                        </c:if>
+                    </td>
+                </tr>
+            </c:forEach>
+        </table>
+
+        <div class="mt-3">
+             <jsp:include page="/Common/homepage/pagination.jsp" />
+        </div>
+
+    </div>
+</div>
+
+<jsp:include page="/Common/Layout/footer.jsp"/>
+
+<script>
+    let timer;
+    function delaySubmit(input){
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            input.form.submit();
+        }, 500);
+    }
+</script>
+
 </body>
 </html>
