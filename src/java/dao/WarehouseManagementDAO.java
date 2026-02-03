@@ -10,7 +10,7 @@ import model.Warehouse;
 import model.WarehouseType; 
 import dao.WarehouseTypeDAO; 
 
-public class WarehouseDAO extends DBContext {
+public class WarehouseManagementDAO extends DBContext {
 
     public List<String> getAllLocations() {
         List<String> list = new ArrayList<>();
@@ -222,38 +222,54 @@ public class WarehouseDAO extends DBContext {
         return 0;
     }
     
-    public List<Warehouse> getAll() {
+   public List<Warehouse> getAll() {
         List<Warehouse> list = new ArrayList<>();
-        String sql = "SELECT * FROM warehouse";
-
+        // Câu lệnh SQL Join 2 bảng
+        String sql = "SELECT w.warehouse_id, w.name, w.address, w.description, w.status, " +
+                     "wt.warehouse_type_id, wt.type_name " +
+                     "FROM Warehouse w " +
+                     "JOIN Warehouse_Type wt ON w.warehouse_type_id = wt.warehouse_type_id";
+        
         try {
-            System.out.println("=== DAO TEST ===");
-            System.out.println("Connection = " + connection);
-
-            if (connection == null) {
-                System.out.println("❌ CONNECTION NULL");
-                return list;
-            }
-
             PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
-
             while (rs.next()) {
+                // 1. Tạo đối tượng WarehouseType trước
+                WarehouseType wt = new WarehouseType();
+                wt.setWarehouseTypeId(rs.getInt("warehouse_type_id"));
+                wt.setTypeName(rs.getString("type_name"));
+
+                // 2. Tạo đối tượng Warehouse
                 Warehouse w = new Warehouse();
-                w.setWarehouseId(rs.getInt("warehouseId"));
+                w.setWarehouseId(rs.getInt("warehouse_id"));
                 w.setName(rs.getString("name"));
+                w.setAddress(rs.getString("address"));
+                w.setDescription(rs.getString("description"));
+                w.setStatus(rs.getInt("status"));
+                
+                // 3. Gắn Type vào Warehouse
+                w.setWarehouseType(wt);
+
                 list.add(w);
             }
-
-            System.out.println("✅ DAO size = " + list.size());
-
         } catch (Exception e) {
-          System.out.println("Lỗi kết nối hoặc truy vấn: " + e.getMessage()); // Thêm dòng này
-    e.printStackTrace();
+            System.out.println("Lỗi lấy danh sách kho: " + e.getMessage());
         }
-
         return list;
     }
+    
+    // Hàm xóa cần cập nhật tên cột ID
+    public void delete(int id) {
+        String sql = "DELETE FROM Warehouse WHERE warehouse_id = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, id);
+            st.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
         public void insert(Warehouse w) {
@@ -273,19 +289,6 @@ public class WarehouseDAO extends DBContext {
             }
         }
 
-        public void delete(int id) {
-            String sql = "DELETE FROM warehouse WHERE warehouseId = ?";
-
-            try {
-                PreparedStatement st = connection.prepareStatement(sql);
-                st.setInt(1, id);
-                st.executeUpdate();
-                st.close();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     
 
 //    public static void main(String[] args) {

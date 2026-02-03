@@ -1,6 +1,6 @@
 package controller;
 
-import dao.WarehouseDAO;
+import dao.WarehouseManagementDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -16,7 +16,7 @@ public class WarehouseManagerController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        WarehouseDAO dao = new WarehouseDAO();
+        WarehouseManagementDAO dao = new WarehouseManagementDAO();
         String action = request.getParameter("action");
 
         // Xử lý xóa
@@ -41,7 +41,7 @@ public class WarehouseManagerController extends HttpServlet {
         int status = Integer.parseInt(request.getParameter("status"));
 
         Warehouse w = new Warehouse(0, name, address, desc, status, null);
-        WarehouseDAO dao = new WarehouseDAO();
+        WarehouseManagementDAO dao = new WarehouseManagementDAO();
         dao.insert(w);
 
         response.sendRedirect("warehouse");

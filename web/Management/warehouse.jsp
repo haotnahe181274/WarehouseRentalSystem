@@ -36,19 +36,32 @@
             </tr>
         </thead>
         <tbody>
-            <c:forEach items="${data}" var="w">
-                <tr>
-                    <td>${w.warehouseId}</td>
-                    <td>${w.name}</td>
-                    <td>${w.address}</td>
-                    <td>${w.status == 1 ? "Hoạt động" : "Tạm dừng"}</td>
-                    <td>
-                        <a href="warehouse?action=delete&id=${w.warehouseId}" 
-                           onclick="return confirm('Bạn có chắc muốn xóa?')" 
-                           class="btn btn-danger btn-sm">Xóa</a>
-                    </td>
-                </tr>
-            </c:forEach>
+         <c:forEach items="${data}" var="w">
+    <tr>
+        <td>${w.warehouseId}</td>
+        <td>${w.name}</td>
+        <td>${w.address}</td>
+        <td>${w.warehouseType.typeName}</td> 
+        <td>
+            <c:choose>
+                <c:when test="${w.status == 1}">
+                    <span class="badge bg-success">Hoạt động</span>
+                </c:when>
+                <c:otherwise>
+                    <span class="badge bg-secondary">Tạm dừng</span>
+                </c:otherwise>
+            </c:choose>
+        </td>
+        <td>
+            <a href="warehouse?action=edit&id=${w.warehouseId}" 
+               class="btn btn-warning btn-sm">Sửa</a>
+
+            <a href="warehouse?action=delete&id=${w.warehouseId}" 
+               onclick="return confirm('Bạn có chắc muốn xóa kho ${w.name}?')" 
+               class="btn btn-danger btn-sm">Xóa</a>
+        </td>
+    </tr>
+</c:forEach>
         </tbody>
     </table>
 </body>
