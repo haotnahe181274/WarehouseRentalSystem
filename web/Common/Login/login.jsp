@@ -23,9 +23,11 @@
     <body>
 
         <!-- HEADER -->
-        <div class="login-header">
+        <a class="login-header"
+           href="${pageContext.request.contextPath}/homepage">
             WareSpace
-        </div>
+        </a>
+
 
         <!-- LOGIN -->
         <div class="login-wrapper">
@@ -110,7 +112,10 @@
             .login-header {
                 padding: 24px 32px;
                 font-size: 20px;
-                font-weight: 600;
+                font-weight: 700;
+                color: #000;
+                text-decoration: none;
+                margin-right: 40px;
             }
 
             /* ===== CENTER ===== */
