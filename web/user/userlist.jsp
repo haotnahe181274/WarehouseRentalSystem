@@ -112,12 +112,7 @@
             .btn-add:hover {
                 background: #e0e0e0;
             }
-            .container {
-                margin-left: 250px !important;
-                margin-right: 0 !important;
-                max-width: calc(100% - 250px) !important;
-                padding-top: 20px;
-            }
+            
         </style>
     </head>
     <script>
@@ -132,7 +127,9 @@
 
     <body>
         <jsp:include page="/Common/Layout/header.jsp" />
+
         <div class="layout">
+
         <jsp:include page="/Common/Layout/sidebar.jsp" />
          <div class="main-content">
  
@@ -277,10 +274,15 @@
             <div>
                 <jsp:include page="/Common/homepage/pagination.jsp" />
             </div>
+
+            
+        </div>
+            
            
         </div>
-        </div>
-             <jsp:include page="/Common/Layout/footer.jsp" />
+<jsp:include page="/Common/Layout/footer.jsp" />
+
+
     </body>
 
 </html>
