@@ -16,13 +16,16 @@
         </a>
 
         <div class="collapse navbar-collapse">
+
+            <!-- LEFT MENU -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-                <!-- HOME -->
+                <!-- HOME (ALL ROLE) -->
                 <li class="nav-item">
                     <a class="nav-link" href="homepage">Home</a>
                 </li>
 
+                <!-- RENTER ONLY -->
                 <c:if test="${sessionScope.userType == 'RENTER'}">
                     <li class="nav-item">
                         <a class="nav-link" href="my-rentals">My Rentals</a>
@@ -34,47 +37,81 @@
                         <a class="nav-link" href="payments">Payments</a>
                     </li>
                 </c:if>
-
-                <c:if test="${sessionScope.userType == 'INTERNAL'}">
-
-                    <c:if test="${sessionScope.role == 'ADMIN'}">
-                        <li class="nav-item">
+                <c:if test="${sessionScope.userType == 'INTERNAL'}"> 
+                    <c:if test="${sessionScope.role == 'Admin'}"> 
+                        <li class="nav-item"> 
                             <a class="nav-link" href="dashboard">Demo</a>
-                        </li>
+                        </li> 
                     </c:if>
-
-                    <c:if test="${sessionScope.role == 'STAFF'}">
-                        <li class="nav-item">
-                            <a class="nav-link" href="manage-warehouses">Demo</a>
-                        </li>
-                    </c:if>
-
+                    <c:if test="${sessionScope.role == 'Staff'}"> 
+                        <li class="nav-item"> 
+                            <a class="nav-link" href="manage-warehouses">Demo</a> 
+                        </li> 
+                    </c:if> 
+                    <c:if test="${sessionScope.role == 'Manager'}"> 
+                        <li class="nav-item"> 
+                            <a class="nav-link" href="manage-warehouses">Demo</a> 
+                        </li> 
+                    </c:if> 
                 </c:if>
-
-
-
-                <!-- ABOUT -->
-                <li class="nav-item">
-                    <a class="nav-link" href="aboutUs">About us</a>
-                </li>
 
             </ul>
 
-            <!-- AUTH -->
+            <!-- RIGHT USER -->
             <ul class="navbar-nav ms-auto">
+
                 <c:choose>
+
+
                     <c:when test="${not empty sessionScope.user}">
-                        
-                        <li class="nav-item">
-                            <a class="nav-link" href="logout">Logout</a>
+                        <li class="nav-item dropdown">
+
+                            <a class="nav-link dropdown-toggle d-flex align-items-center"
+                               href="#"
+                               role="button"
+                               data-bs-toggle="dropdown">
+
+                                <!-- AVATAR -->
+                                <img src="${pageContext.request.contextPath}/resources/images/${sessionScope.user.image}"
+                                     class="rounded-circle me-2"
+                                     width="32"
+                                     height="32"
+                                     onerror="this.src='${pageContext.request.contextPath}/resources/user/image/default.jpg'">
+
+                                <!-- NAME -->
+                                <span>${sessionScope.user.name}</span>
+                            </a>
+
+                            <!-- DROPDOWN MENU -->
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+
+                                <li>
+                                    <a class="dropdown-item" href="profile">
+                                        My Profile
+                                    </a>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <li>
+                                    <a class="dropdown-item text-danger" href="logout">
+                                        Logout
+                                    </a>
+                                </li>
+
+                            </ul>
                         </li>
                     </c:when>
+
+
                     <c:otherwise>
                         <li class="nav-item">
                             <a class="nav-link" href="login">Login</a>
                         </li>
                     </c:otherwise>
+
                 </c:choose>
+
             </ul>
 
         </div>
