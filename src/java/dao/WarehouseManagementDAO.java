@@ -225,10 +225,10 @@ public class WarehouseManagementDAO extends DBContext {
    public List<Warehouse> getAll() {
         List<Warehouse> list = new ArrayList<>();
         // Câu lệnh SQL Join 2 bảng
-        String sql = "SELECT w.warehouse_id, w.name, w.address, w.description, w.status, " +
-                     "wt.warehouse_type_id, wt.type_name " +
-                     "FROM Warehouse w " +
-                     "JOIN Warehouse_Type wt ON w.warehouse_type_id = wt.warehouse_type_id";
+       String sql = "SELECT w.warehouse_id, w.name, w.address, w.description, w.status, " +
+             "wt.warehouse_type_id, wt.type_name " +
+             "FROM Warehouse w " +
+             "LEFT JOIN Warehouse_Type wt ON w.warehouse_type_id = wt.warehouse_type_id"; // Sửa JOIN thành LEFT JOIN
         
         try {
             PreparedStatement st = connection.prepareStatement(sql);
@@ -289,7 +289,57 @@ public class WarehouseManagementDAO extends DBContext {
             }
         }
 
+        public int insertReturnId(Warehouse w) {
+    String sql = "INSERT INTO Warehouse (name, address, description, status) VALUES (?, ?, ?, ?)";
+    int generatedId = 0;
     
+    try {
+        // Thêm tham số RETURN_GENERATED_KEYS
+        PreparedStatement st = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        st.setString(1, w.getName());
+        st.setString(2, w.getAddress());
+        st.setString(3, w.getDescription());
+        st.setInt(4, w.getStatus());
+        
+        int affectedRows = st.executeUpdate();
+        
+        if (affectedRows > 0) {
+            // Lấy ID vừa sinh ra
+            ResultSet rs = st.getGeneratedKeys();
+            if (rs.next()) {
+                generatedId = rs.getInt(1);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return generatedId; // Trả về ID (hoặc 0 nếu lỗi)
+    
+}
+    // Lấy thông tin chi tiết 1 Warehouse theo ID
+    public Warehouse getWarehouseById(int id) {
+        String sql = "SELECT * FROM Warehouse WHERE warehouse_id = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, id);
+            ResultSet rs = st.executeQuery();
+            
+            if (rs.next()) {
+                Warehouse w = new Warehouse();
+                w.setWarehouseId(rs.getInt("warehouse_id"));
+                w.setName(rs.getString("name"));
+                w.setAddress(rs.getString("address"));
+                w.setDescription(rs.getString("description"));
+                w.setStatus(rs.getInt("status"));
+                // Các thuộc tính khác nếu có (ví dụ warehouse_type_id)
+                
+                return w;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Không tìm thấy
+    }
 
 //    public static void main(String[] args) {
 //
