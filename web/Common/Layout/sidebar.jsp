@@ -15,9 +15,8 @@
         background: black; /* dark */
         color: white;
         position: fixed;
-        top: 64px;
-        left: 0;
-      
+        top: 68px;
+        left: 0;      
         z-index: 1000;
         display: flex;
         flex-direction: column;
