@@ -22,20 +22,48 @@ public class WarehouseImageDAO extends DBContext {
         }
         return "default-warehouse.jpg"; // Trả về ảnh mặc định nếu không tìm thấy
     }
-    public void insertImage(WarehouseImage img) {
-    String sql = "INSERT INTO warehouse_image (image_url, image_type, is_primary, status, create_at, warehouse_id) VALUES (?, ?, ?, ?, GETDATE(), ?)";
-    try {
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, img.getImageUrl());
-        ps.setString(2, img.getImageType());
-        ps.setBoolean(3, img.isPrimary());
-        ps.setInt(4, img.getStatus());
-        // GETDATE() tự lấy giờ hiện tại của SQL Server, hoặc dùng tham số
-        ps.setInt(5, img.getWarehouse().getWarehouseId());
+  public void insertImage(WarehouseImage img) {
+        // Lưu ý: Kiểm tra kỹ tên cột trong Database của Hiếu
+        // Ví dụ: image_path, image_url, link... phải khớp đúng từng chữ
+        String sql = "INSERT INTO Warehouse_Image (warehouse_id, image_url, image_type, is_primary, status) VALUES (?, ?, ?, ?, ?)";
         
-        ps.executeUpdate();
-    } catch (SQLException e) {
-        e.printStackTrace();
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            
+            // 1. Warehouse ID (Lấy từ object cha)
+            st.setInt(1, img.getWarehouse().getWarehouseId());
+            
+            // 2. Tên file ảnh
+            st.setString(2, img.getImageUrl());
+            
+            // 3. Loại ảnh (jpg/png)
+            st.setString(3, img.getImageType());
+            
+            // 4. Có phải ảnh chính không? (boolean -> int)
+            st.setBoolean(4, img.isPrimary()); 
+            
+            // 5. Status
+            st.setInt(5, img.getStatus());
+
+            st.executeUpdate();
+            
+            System.out.println("DEBUG DAO: Đã Insert ảnh " + img.getImageUrl() + " vào DB thành công!");
+            
+        } catch (SQLException e) {
+            System.out.println("LỖI SQL INSERT ẢNH: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-}
+    
+    // Hàm xóa ảnh cũ (Dùng khi Edit)
+    public void deleteImagesByWarehouseId(int warehouseId) {
+        String sql = "DELETE FROM Warehouse_Image WHERE warehouse_id = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, warehouseId);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

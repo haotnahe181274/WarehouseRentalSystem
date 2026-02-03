@@ -1,8 +1,6 @@
 package controller;
 
-import jakarta.servlet.annotation.MultipartConfig; // <-- PHẢI IMPORT CÁI NÀY
-import java.util.Map;
-import java.util.HashMap;
+import jakarta.servlet.annotation.MultipartConfig;
 import dao.WarehouseImageDAO;
 import dao.WarehouseManagementDAO;
 import java.io.IOException;
@@ -13,6 +11,8 @@ import jakarta.servlet.http.*;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import model.Warehouse;
 import model.WarehouseImage;
 
@@ -26,159 +26,121 @@ public class WarehouseManagerController extends HttpServlet {
 
     private static final int PAGE_SIZE = 5;
 
-@Override
-protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+    // ================== PHẦN GET (HIỂN THỊ DANH SÁCH) ==================
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-    WarehouseManagementDAO dao = new WarehouseManagementDAO();
-    String action = request.getParameter("action");
-   
-    
-    // --- [MỚI] 2. Xử lý ADD (Chuyển sang trang Form) ---
-    if ("add".equals(action)) {
-        // Chuyển hướng sang file JSP nhập liệu (sẽ tạo ở bước 2)
-        request.getRequestDispatcher("Management/warehouse-form.jsp").forward(request, response);
-        return; // Dừng code tại đây, không chạy xuống phần lấy danh sách nữa
-    }
-
-    // --- [MỚI] 3. Xử lý EDIT (Chuyển sang trang Form và đẩy dữ liệu cũ lên) ---
-    if ("edit".equals(action)) {
-        String idStr = request.getParameter("id");
-        if (idStr != null) {
-            int id = Integer.parseInt(idStr);
-            Warehouse w = dao.getWarehouseById(id); // Bạn cần có hàm này trong DAO
-            request.setAttribute("warehouse", w);
-        }
-        request.getRequestDispatcher("Management/warehouse-form.jsp").forward(request, response);
-        return;
-    }
+        // 1. Kiểm tra Login (Quan trọng: Key phải khớp với bên LoginController)
+        HttpSession session = request.getSession();
         
-    
-    // --- GET DATA ---
-    List<Warehouse> list = dao.getAll();
-
-    // --- FILTER ---
-    String keyword = request.getParameter("keyword");
-    String statusStr = request.getParameter("status");
-
-    if (keyword != null && !keyword.trim().isEmpty()) {
-        String key = keyword.toLowerCase();
-        list = list.stream()
-                   .filter(w -> w.getName().toLowerCase().contains(key))
-                   .toList(); 
-    }
-    
-    if (statusStr != null && !statusStr.isEmpty()) {
-        int status = Integer.parseInt(statusStr);
-        list = list.stream()
-                   .filter(w -> w.getStatus() == status)
-                   .toList();
-    }
-
-    // --- SORT ---
-    String sort = request.getParameter("sort");
-    if (sort != null) {
-        if (sort.equals("asc")) {
-            list.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
-        } else if (sort.equals("desc")) {
-            list.sort((o1, o2) -> o2.getName().compareToIgnoreCase(o1.getName()));
+        if (session.getAttribute("user") == null) { // Lưu ý: Check kỹ xem bạn lưu là "account" hay "user"
+            response.sendRedirect("login"); 
+            return; 
         }
-    }
 
-    // --- PAGING CALCULATION ---
-    int totalRecords = list.size();
-    int page = 1;
-    try {
-        page = Integer.parseInt(request.getParameter("page"));
-    } catch (NumberFormatException e) {
-        page = 1;
-    }
+        WarehouseManagementDAO dao = new WarehouseManagementDAO();
+        String action = request.getParameter("action");
 
-    int totalPage = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
-    if (page > totalPage && totalPage > 0) page = totalPage;
-    
-    int offset = (page - 1) * PAGE_SIZE;
-    
-    List<Warehouse> pageList;
-    if (totalRecords == 0) {
-        pageList = new ArrayList<>();
-    } else {
-        int toIndex = Math.min(offset + PAGE_SIZE, totalRecords);
-        pageList = list.subList(offset, toIndex);
-    }
+        // --- Xử lý chuyển trang sang Form ADD ---
+        if ("add".equals(action)) {
+            request.getRequestDispatcher("/Management/warehouse-form.jsp").forward(request, response);
+            return;
+        }
 
+        // --- Xử lý chuyển trang sang Form EDIT ---
+        if ("edit".equals(action)) {
+            String idStr = request.getParameter("id");
+            if (idStr != null) {
+                int id = Integer.parseInt(idStr);
+                Warehouse w = dao.getWarehouseById(id);
+                request.setAttribute("warehouse", w);
+            }
+            request.getRequestDispatcher("/Management/warehouse-form.jsp").forward(request, response);
+            return;
+        }
 
-    // --- BUILD QUERY STRING (Quan trọng cho Pagination tái sử dụng) ---
-    StringBuilder qs = new StringBuilder();
-    try {
-        if (keyword != null && !keyword.isEmpty()) {
-            qs.append("&keyword=").append(java.net.URLEncoder.encode(keyword, "UTF-8"));
+        // --- LẤY DANH SÁCH VÀ PHÂN TRANG (Logic cũ của Hiếu giữ nguyên) ---
+        List<Warehouse> list = dao.getAll();
+        
+        // Filter logic...
+        String keyword = request.getParameter("keyword");
+        String statusStr = request.getParameter("status");
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String key = keyword.toLowerCase();
+            list = list.stream().filter(w -> w.getName().toLowerCase().contains(key)).toList();
         }
         if (statusStr != null && !statusStr.isEmpty()) {
-            qs.append("&status=").append(statusStr);
+            int status = Integer.parseInt(statusStr);
+            list = list.stream().filter(w -> w.getStatus() == status).toList();
         }
-        if (sort != null && !sort.isEmpty()) {
-            qs.append("&sort=").append(sort);
+
+        // Sort logic...
+        String sort = request.getParameter("sort");
+        if (sort != null) {
+            if (sort.equals("asc")) list.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+            else if (sort.equals("desc")) list.sort((o1, o2) -> o2.getName().compareToIgnoreCase(o1.getName()));
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+
+        // Pagination logic...
+        int totalRecords = list.size();
+        int page = 1;
+        try { page = Integer.parseInt(request.getParameter("page")); } catch (Exception e) {}
+        
+        int totalPage = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
+        if (page > totalPage && totalPage > 0) page = totalPage;
+        int offset = (page - 1) * PAGE_SIZE;
+        
+        List<Warehouse> pageList = (totalRecords == 0) ? new ArrayList<>() 
+                                   : list.subList(offset, Math.min(offset + PAGE_SIZE, totalRecords));
+
+        // --- TẠO MAP ẢNH ĐỂ HIỂN THỊ ---
+        Map<Integer, String> imageMap = new HashMap<>();
+        WarehouseImageDAO imgDao = new WarehouseImageDAO();
+
+        for (Warehouse w : pageList) {
+            String imgUrl = imgDao.getPrimaryImage(w.getWarehouseId());
+            // Nếu không có ảnh trong DB thì gán tên ảnh mặc định
+            imageMap.put(w.getWarehouseId(), imgUrl);
+        }
+
+        request.setAttribute("warehouseImages", imageMap);
+        request.setAttribute("warehouseList", pageList);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPage);
+        
+        // Build Query String cho phân trang giữ filter
+        StringBuilder qs = new StringBuilder();
+        if (keyword != null) qs.append("&keyword=").append(keyword);
+        if (statusStr != null) qs.append("&status=").append(statusStr);
+        if (sort != null) qs.append("&sort=").append(sort);
+        request.setAttribute("queryString", qs.toString());
+
+        request.getRequestDispatcher("Management/warehouse.jsp").forward(request, response);
     }
 
-    // Cắt list an toàn (Code cũ)
-   
-    // === [CODE MỚI: TẠO MAP ẢNH] ===
-    // Map này sẽ lưu: Key = ID kho, Value = URL ảnh
-    Map<Integer, String> imageMap = new HashMap<>();
-    WarehouseImageDAO imgDao = new WarehouseImageDAO();
-
-    for (Warehouse w : pageList) {
-        String imgUrl = imgDao.getPrimaryImage(w.getWarehouseId());
-        
-        if (imgUrl == null || imgUrl.trim().isEmpty()) {
-            imgUrl = "default-warehouse.jpg";
-        }
-        
-        // Lưu vào Map thay vì set vào Model
-        imageMap.put(w.getWarehouseId(), imgUrl);
-    }
-
-    // Gửi Map sang JSP với tên là "warehouseImages"
-    request.setAttribute("warehouseImages", imageMap);
-    // ===============================
-
-    request.setAttribute("warehouseList", pageList);
-    
-    // --- SEND ATTRIBUTES ---
-    request.setAttribute("warehouseList", pageList);
-    
-    // Các biến cần thiết cho component pagination.jsp
-    request.setAttribute("currentPage", page);
-    request.setAttribute("totalPages", totalPage); // Lưu ý: pagination.jsp bên User dùng 'totalPages' (có 's')
-    request.setAttribute("paginationUrl", request.getContextPath() + "/warehouse");
-    request.setAttribute("queryString", qs.toString());
-
-    request.getRequestDispatcher("Management/warehouse.jsp").forward(request, response);
-}
-
-
-    // ... (Giữ nguyên hàm doGet của bạn ở đây) ...
-
+    // ================== PHẦN POST (XỬ LÝ THÊM/SỬA) ==================
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // 1. Check Login
+        HttpSession session = request.getSession();
+        if (session.getAttribute("user") == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
         try {
-            // 1. Lấy thông tin text
+            // 2. Lấy dữ liệu Text
+            String idStr = request.getParameter("id"); 
             String name = request.getParameter("name");
             String address = request.getParameter("address");
             String desc = request.getParameter("description");
-            // Xử lý status an toàn hơn
             int status = 1;
-            try {
-                status = Integer.parseInt(request.getParameter("status"));
-            } catch (Exception e) {}
+            try { status = Integer.parseInt(request.getParameter("status")); } catch (Exception e) {}
 
-            // 2. Insert Warehouse
             Warehouse w = new Warehouse();
             w.setName(name);
             w.setAddress(address);
@@ -186,66 +148,64 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
             w.setStatus(status);
 
             WarehouseManagementDAO dao = new WarehouseManagementDAO();
-            
-            // --- DEBUG LOG 1 ---
-            System.out.println("DEBUG: Bắt đầu insert Warehouse...");
-            
-            int newWarehouseId = dao.insertReturnId(w); 
-            
-            // --- DEBUG LOG 2 ---
-            System.out.println("DEBUG: ID vừa tạo là: " + newWarehouseId);
+            int currentWarehouseId = 0; 
 
-            // 3. Xử lý Upload Ảnh
-            Part filePart = request.getPart("image");
-            
-            if (newWarehouseId > 0 && filePart != null && filePart.getSize() > 0) {
-                
-                String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                String uniqueFileName = newWarehouseId + "_" + System.currentTimeMillis() + "_" + fileName;
-
-                // Đường dẫn lưu file
-                String uploadPath = request.getServletContext().getRealPath("/resources/warehouse/image");
-                
-                // --- DEBUG LOG 3 ---
-                System.out.println("DEBUG: Đường dẫn lưu ảnh: " + uploadPath);
-                
-                // SỬA LỖI: Dùng mkdirs() thay vì mkdir()
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    boolean created = uploadDir.mkdirs(); 
-                    System.out.println("DEBUG: Đã tạo thư mục mới? " + created);
-                }
-
-                // Lưu file
-                filePart.write(uploadPath + File.separator + uniqueFileName);
-                System.out.println("DEBUG: Ghi file thành công!");
-
-                // 4. Lưu vào Database
-                WarehouseImageDAO imgDao = new WarehouseImageDAO();
-                WarehouseImage img = new WarehouseImage();
-                img.setImageUrl(uniqueFileName);
-                img.setPrimary(true);
-                img.setStatus(1);
-                
-                // Lấy đuôi file làm imageType (ví dụ: jpg, png)
-                String ext = "jpg";
-                if(fileName.contains(".")) ext = fileName.substring(fileName.lastIndexOf(".") + 1);
-                img.setImageType(ext);
-                
-                Warehouse linkW = new Warehouse();
-                linkW.setWarehouseId(newWarehouseId);
-                img.setWarehouse(linkW);
-
-                imgDao.insertImage(img);
-                System.out.println("DEBUG: Đã insert ảnh vào DB");
+            // 3. Logic: ADD hay EDIT?
+            if (idStr != null && !idStr.trim().isEmpty()) {
+                // --- CASE EDIT ---
+                currentWarehouseId = Integer.parseInt(idStr);
+                w.setWarehouseId(currentWarehouseId);
+                dao.update(w); // Cần có hàm update trong DAO
+                System.out.println("DEBUG: Đã UPDATE kho ID: " + currentWarehouseId);
             } else {
-                System.out.println("DEBUG: Không lưu ảnh vì: ID=" + newWarehouseId + ", FilePart=" + (filePart==null?"null":"ok") + ", Size=" + (filePart!=null?filePart.getSize():0));
+                // --- CASE ADD ---
+                currentWarehouseId = dao.insertReturnId(w);
+                System.out.println("DEBUG: Đã ADD kho mới ID: " + currentWarehouseId);
             }
 
-            response.sendRedirect("warehouse");
+            // 4. Xử lý Ảnh (Chỉ chạy khi User chọn file)
+            Part filePart = request.getPart("image");
             
+            if (currentWarehouseId > 0 && filePart != null && filePart.getSize() > 0) {
+                String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                
+                if (fileName != null && !fileName.isEmpty()) {
+                    // Tạo tên file unique
+                    String uniqueFileName = currentWarehouseId + "_" + System.currentTimeMillis() + "_" + fileName;
+                    
+                    // Lưu file vào thư mục server
+                    String uploadPath = request.getServletContext().getRealPath("/resources/warehouse/image");
+                    File uploadDir = new File(uploadPath);
+                    if (!uploadDir.exists()) uploadDir.mkdirs();
+                    
+                    filePart.write(uploadPath + File.separator + uniqueFileName);
+                    
+                    // Lưu vào DB
+                    WarehouseImageDAO imgDao = new WarehouseImageDAO();
+                    WarehouseImage img = new WarehouseImage();
+                    
+                    img.setImageUrl(uniqueFileName);
+                    img.setPrimary(true); // Ảnh mới nhất luôn là ảnh chính
+                    img.setStatus(1);
+                    
+                    String ext = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".") + 1) : "jpg";
+                    img.setImageType(ext);
+                    
+                    Warehouse linkW = new Warehouse();
+                    linkW.setWarehouseId(currentWarehouseId);
+                    img.setWarehouse(linkW); // Gắn ID kho vào ảnh
+                    
+                    imgDao.insertImage(img);
+                    System.out.println("DEBUG: Đã lưu ảnh mới cho ID: " + currentWarehouseId);
+                }
+            } else {
+                System.out.println("DEBUG: Không có ảnh mới được upload. Giữ nguyên ảnh cũ (nếu có).");
+            }
+
+            response.sendRedirect(request.getContextPath() + "/warehouse");
+
         } catch (Exception e) {
-            e.printStackTrace(); // In lỗi ra màn hình console nếu có
+            e.printStackTrace();
             response.getWriter().println("LỖI: " + e.getMessage());
         }
     }
