@@ -82,8 +82,10 @@
             </c:otherwise>
         </c:choose>
     </ul>
+<!-- RENTER ONLY -->
+                            
+            </nav>
 
-</nav>
 
 
 
@@ -226,3 +228,4 @@
 </style>
 
 
+                            

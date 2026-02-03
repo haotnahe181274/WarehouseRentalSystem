@@ -1,3 +1,4 @@
+
 <%-- 
     Document   : footer
     Created on : Feb 2, 2026, 2:41:06 PM
@@ -6,7 +7,6 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
-%>
 
 <style>
     .footer {
@@ -108,6 +108,3 @@
 
     </div>
 </div>
-
-
-

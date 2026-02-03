@@ -3,6 +3,7 @@
 
 <!DOCTYPE html>
 <html>
+
     <head>
         <meta charset="UTF-8">
         <title>Staff Tasks</title>
@@ -14,11 +15,12 @@
 
     <body>
         <jsp:include page="/Common/Layout/header.jsp" />
+         <div class="layout">   
         <jsp:include page="/Common/Layout/sidebar.jsp" />
-        <div class="container">
-            
-
+        
+        <div class="main-content">            
             <!-- ================= HEADER ================= -->
+            <div class="content-wrapper">
             <div class="header">
                 <div>
                     <h1>Today's Tasks</h1>
@@ -125,6 +127,8 @@
 
             </div>
         </div>
-
+   </div>
+                <jsp:include page="/Common/Layout/footer.jsp" />
     </body>
+
 </html>

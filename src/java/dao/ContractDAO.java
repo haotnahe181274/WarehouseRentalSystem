@@ -1,0 +1,93 @@
+    package dao;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import model.Contract;
+
+public class ContractDAO extends DBContext {
+
+     
+
+    public List<Contract> getAllContracts() {
+        List<Contract> list = new ArrayList<>();
+        String sql = "SELECT * FROM Contract";
+        
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            
+            while (rs.next()) {
+                Contract c = new Contract();
+                
+                // --- PHẦN QUAN TRỌNG NHẤT: SỬA TÊN CỘT CHO KHỚP VỚI ẢNH DB ---
+                
+                // DB là "contract_id" -> Code phải gọi "contract_id"
+                c.setContractId(rs.getInt("contract_id")); 
+                
+                // DB là "start_date"
+                c.setStartDate(rs.getDate("start_date")); 
+                
+                // DB là "end_date"
+                c.setEndDate(rs.getDate("end_date")); 
+                
+                // DB là "status" (giống nhau nên giữ nguyên)
+                c.setStatus(rs.getInt("status"));
+                
+                // Nếu muốn lấy cả renter_id và warehouse_id (tạm thời mình set ID giả để tránh null pointer)
+                // c.setRenterId(rs.getInt("renter_id"));
+                // c.setWarehouseId(rs.getInt("warehouse_id"));
+                
+                list.add(c);
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi tại getAllContracts: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+
+    public void addContract(Contract c) {
+        String sql = "INSERT INTO Contract (startDate, endDate, status) VALUES (?, ?, ?)";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setDate(1, new java.sql.Date(c.getStartDate().getTime()));
+            st.setDate(2, new java.sql.Date(c.getEndDate().getTime()));
+            st.setInt(3, c.getStatus());
+            st.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateContract(Contract c) {
+        String sql = "UPDATE Contract SET startDate=?, endDate=?, status=? WHERE contractId=?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setDate(1, new java.sql.Date(c.getStartDate().getTime()));
+            st.setDate(2, new java.sql.Date(c.getEndDate().getTime()));
+            st.setInt(3, c.getStatus());
+            st.setInt(4, c.getContractId());
+            st.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Contract getContractById(int id) {
+        String sql = "SELECT * FROM Contract WHERE contractId = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, id);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return new Contract(rs.getInt(1), rs.getDate(2), rs.getDate(3), rs.getInt(4), null, null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
