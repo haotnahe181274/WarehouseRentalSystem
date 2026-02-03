@@ -54,6 +54,10 @@
                         </li> 
                     </c:if> 
                 </c:if>
+                <!-- ABOUT -->
+                <li class="nav-item">
+                    <a class="nav-link" href="aboutUs">About us</a>
+                </li>
 
             </ul>
 
