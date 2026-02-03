@@ -7,7 +7,7 @@
 
     <head>
         <meta charset="UTF-8">
-        
+
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -15,7 +15,7 @@
             body {
                 font-family: Arial, sans-serif;
                 background: #f5f6fa;
-                padding: 30px;
+               
             }
 
             h2 {
@@ -111,10 +111,11 @@
                 color: #ff4d4f;
             }
         </style>
+        
     </head>
 
     <body>
-
+        <jsp:include page="/Common/Layout/header.jsp" />
         <h2>
             <c:choose>
                 <c:when test="${mode == 'add'}">Add User</c:when>
@@ -272,7 +273,7 @@
             <div class="form-actions">
                 <c:if test="${mode != 'view'}">
                     <button class="btn btn-primary" type="submit">
-                        ${mode == 'add' ? 'Add User' : 'Update User'}
+                        ${mode == 'add' ? 'Add' : 'Update'}
                     </button>
                 </c:if>
                 <a class="btn btn-secondary" href="${pageContext.request.contextPath}/user/list">
@@ -281,7 +282,7 @@
             </div>
 
         </form>
-
+        <jsp:include page="/Common/Layout/footer.jsp" />
     </body>
 
 </html>

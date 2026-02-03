@@ -147,7 +147,8 @@ public class UserDAO extends DBContext {
             String type,
             String sort,
             int offset,
-            int pageSize) {
+            int pageSize,
+            String viewerRole) {
         List<UserView> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "select * from ( "
@@ -177,6 +178,14 @@ public class UserDAO extends DBContext {
         } else if ("desc".equalsIgnoreCase(sort)) {
             sql.append(" order by u.name desc");
         }
+
+        // --- Added Role Filter Logic ---
+        if ("Manager".equals(viewerRole)) {
+            // Manager only sees Staff and Renter
+            sql.append(" AND (u.role = 'Staff' OR u.type = 'RENTER') ");
+        }
+        // -------------------------------
+
         sql.append(" LIMIT ? OFFSET ? ");
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int i = 1;
@@ -204,7 +213,8 @@ public class UserDAO extends DBContext {
     public int countFilterUsers(
             String keyword,
             String status,
-            String type) {
+            String type,
+            String viewerRole) {
         StringBuilder sql = new StringBuilder(
                 "select count(*) from ( "
                         + "select iu.internal_user_id as id, iu.user_name as name, iu.status, 'INTERNAL' as type "
@@ -222,6 +232,13 @@ public class UserDAO extends DBContext {
         if (type != null && !type.isEmpty()) {
             sql.append(" and u.type = ? ");
         }
+
+        // --- Added Role Filter Logic ---
+        if ("Manager".equals(viewerRole)) {
+            sql.append(" AND (u.role = 'Staff' OR u.type = 'RENTER') ");
+        }
+        // -------------------------------
+
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int i = 1;
             if (keyword != null && !keyword.isEmpty()) {
