@@ -93,6 +93,7 @@
 
     /* ===== HEADER ===== */
     .app-header {
+        width: 100%;
         display: flex;
         align-items: center;
         padding: 12px 24px;
@@ -169,7 +170,8 @@
 
     /* username */
     .app-header__username {
-        font-size: 14px;
+        font-size: 15px;
+        font-weight: 500;
         white-space: nowrap;
     }
 
@@ -178,6 +180,7 @@
         position: absolute;
         top: 100%;     
         right: 0;
+        list-style: none;
 
         display: none;
         flex-direction: column;
@@ -197,6 +200,12 @@
         color: #000;
         text-decoration: none;
     }
+    
+
+
+.app-header__dropdown-item {
+    list-style: none;
+}
 
     .app-header__dropdown-link:hover {
         background-color: #f2f2f2;

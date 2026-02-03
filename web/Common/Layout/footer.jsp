@@ -10,6 +10,7 @@
 
 <style>
     .footer {
+        width: 100%;
         background-color: #1f2428;
         color: #e5e5e5;
         padding: 70px 20px 50px;
