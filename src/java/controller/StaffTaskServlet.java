@@ -13,14 +13,29 @@ public class StaffTaskServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // 1. CHECK LOGIN + ROLE
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("role") == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        String role = session.getAttribute("role").toString();
+        if (!"Staff".equals(role)) {
+            response.sendRedirect("403.jsp");
+            return;
+        }
+
+        // 2. NGHIỆP VỤ STAFF
         StaffTaskDAO dao = new StaffTaskDAO();
 
-        // ✅ LẤY ĐÚNG METHOD ĐANG TỒN TẠI
         request.setAttribute("checkInList", dao.getCheckInList());
         request.setAttribute("checkOutList", dao.getCheckOutList());
         request.setAttribute("completedCount", dao.countCompleted());
 
-        request.getRequestDispatcher("staff_task.jsp")
+        // 3. FORWARD VIEW
+        request.getRequestDispatcher("/staff_task.jsp")
                .forward(request, response);
     }
 }

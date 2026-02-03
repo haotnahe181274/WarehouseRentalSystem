@@ -16,6 +16,7 @@
 
     <body>
         <jsp:include page="/Common/Layout/header.jsp" />
+        <jsp:include page="/Common/Layout/sidebar.jsp" />
         <div class="container">
             
 
@@ -27,8 +28,7 @@
                 </div>
 
                 <div class="user-info">
-                    <strong>Staff</strong><br>
-                    <span>Task View</span>
+                   
                 </div>
             </div>
 
