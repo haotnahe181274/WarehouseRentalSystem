@@ -167,57 +167,86 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Lấy thông tin text
-        String name = request.getParameter("name");
-        String address = request.getParameter("address");
-        String desc = request.getParameter("description");
-        int status = Integer.parseInt(request.getParameter("status"));
+        try {
+            // 1. Lấy thông tin text
+            String name = request.getParameter("name");
+            String address = request.getParameter("address");
+            String desc = request.getParameter("description");
+            // Xử lý status an toàn hơn
+            int status = 1;
+            try {
+                status = Integer.parseInt(request.getParameter("status"));
+            } catch (Exception e) {}
 
-        // 2. Tạo đối tượng Warehouse
-        Warehouse w = new Warehouse();
-        w.setName(name);
-        w.setAddress(address);
-        w.setDescription(desc);
-        w.setStatus(status);
+            // 2. Insert Warehouse
+            Warehouse w = new Warehouse();
+            w.setName(name);
+            w.setAddress(address);
+            w.setDescription(desc);
+            w.setStatus(status);
 
-        // 3. Insert Warehouse và LẤY VỀ ID VỪA TẠO (Cần sửa DAO bước 2)
-        WarehouseManagementDAO dao = new WarehouseManagementDAO();
-        int newWarehouseId = dao.insertReturnId(w); // Hàm mới chúng ta sẽ viết
-
-        // 4. Xử lý Upload Ảnh (Nếu insert kho thành công và có file ảnh)
-        Part filePart = request.getPart("image"); // "image" là name của input file bên JSP
-        
-        if (newWarehouseId > 0 && filePart != null && filePart.getSize() > 0) {
-            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-            // Đổi tên file để tránh trùng: ID_Time_TenFile
-            String uniqueFileName = newWarehouseId + "_" + System.currentTimeMillis() + "_" + fileName;
-
-            // Đường dẫn lưu file (Dựa vào thư mục bạn cung cấp)
-            String uploadPath = request.getServletContext().getRealPath("/resources/warehouse/image");
+            WarehouseManagementDAO dao = new WarehouseManagementDAO();
             
-            // Tạo thư mục nếu chưa có
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) uploadDir.mkdir();
-
-            // Lưu file vào ổ cứng
-            filePart.write(uploadPath + File.separator + uniqueFileName);
-
-            // 5. Lưu thông tin ảnh vào Database
-            WarehouseImageDAO imgDao = new WarehouseImageDAO();
-            WarehouseImage img = new WarehouseImage();
-            img.setImageUrl(uniqueFileName);
-            img.setPrimary(true); // Ảnh đầu tiên mặc định là ảnh chính
-            img.setStatus(1);
-            img.setImageType("jpg"); // Hoặc lấy đuôi file thật
+            // --- DEBUG LOG 1 ---
+            System.out.println("DEBUG: Bắt đầu insert Warehouse...");
             
-            // Tạo đối tượng Warehouse giả chỉ chứa ID để link
-            Warehouse linkW = new Warehouse();
-            linkW.setWarehouseId(newWarehouseId);
-            img.setWarehouse(linkW);
+            int newWarehouseId = dao.insertReturnId(w); 
+            
+            // --- DEBUG LOG 2 ---
+            System.out.println("DEBUG: ID vừa tạo là: " + newWarehouseId);
 
-            imgDao.insertImage(img); // Hàm mới chúng ta sẽ viết ở Bước 3
+            // 3. Xử lý Upload Ảnh
+            Part filePart = request.getPart("image");
+            
+            if (newWarehouseId > 0 && filePart != null && filePart.getSize() > 0) {
+                
+                String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                String uniqueFileName = newWarehouseId + "_" + System.currentTimeMillis() + "_" + fileName;
+
+                // Đường dẫn lưu file
+                String uploadPath = request.getServletContext().getRealPath("/resources/warehouse/image");
+                
+                // --- DEBUG LOG 3 ---
+                System.out.println("DEBUG: Đường dẫn lưu ảnh: " + uploadPath);
+                
+                // SỬA LỖI: Dùng mkdirs() thay vì mkdir()
+                File uploadDir = new File(uploadPath);
+                if (!uploadDir.exists()) {
+                    boolean created = uploadDir.mkdirs(); 
+                    System.out.println("DEBUG: Đã tạo thư mục mới? " + created);
+                }
+
+                // Lưu file
+                filePart.write(uploadPath + File.separator + uniqueFileName);
+                System.out.println("DEBUG: Ghi file thành công!");
+
+                // 4. Lưu vào Database
+                WarehouseImageDAO imgDao = new WarehouseImageDAO();
+                WarehouseImage img = new WarehouseImage();
+                img.setImageUrl(uniqueFileName);
+                img.setPrimary(true);
+                img.setStatus(1);
+                
+                // Lấy đuôi file làm imageType (ví dụ: jpg, png)
+                String ext = "jpg";
+                if(fileName.contains(".")) ext = fileName.substring(fileName.lastIndexOf(".") + 1);
+                img.setImageType(ext);
+                
+                Warehouse linkW = new Warehouse();
+                linkW.setWarehouseId(newWarehouseId);
+                img.setWarehouse(linkW);
+
+                imgDao.insertImage(img);
+                System.out.println("DEBUG: Đã insert ảnh vào DB");
+            } else {
+                System.out.println("DEBUG: Không lưu ảnh vì: ID=" + newWarehouseId + ", FilePart=" + (filePart==null?"null":"ok") + ", Size=" + (filePart!=null?filePart.getSize():0));
+            }
+
+            response.sendRedirect("warehouse");
+            
+        } catch (Exception e) {
+            e.printStackTrace(); // In lỗi ra màn hình console nếu có
+            response.getWriter().println("LỖI: " + e.getMessage());
         }
-
-        response.sendRedirect("warehouse");
     }
 }

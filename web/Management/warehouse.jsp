@@ -65,7 +65,7 @@
                 </c:if>
             </form>
 
-            <c:if test="${sessionScope.role == 'Admin'}">
+            <c:if test="${sessionScope.role == 'Manager'}">
                 <a href="${pageContext.request.contextPath}/warehouse?action=add" class="btn-add">
                     Add Warehouse
                 </a>
@@ -105,7 +105,7 @@
                     <td>
                         <a href="${pageContext.request.contextPath}/warehouse?action=view&id=${w.warehouseId}" class="text-primary text-decoration-none">View</a>
 
-                        <c:if test="${sessionScope.role == 'Admin'}">
+                        <c:if test="${sessionScope.role == 'Manager'}">
                             | <a href="${pageContext.request.contextPath}/warehouse?action=edit&id=${w.warehouseId}" class="text-warning text-decoration-none">Edit</a>
                         </c:if>
                     </td>
