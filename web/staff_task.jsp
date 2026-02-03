@@ -15,9 +15,8 @@
     <body>
         <jsp:include page="/Common/Layout/header.jsp" />
         <jsp:include page="/Common/Layout/sidebar.jsp" />
-        <div class="container">
-            
-
+        
+        <div class="main-content">            
             <!-- ================= HEADER ================= -->
             <div class="header">
                 <div>
@@ -125,6 +124,6 @@
 
             </div>
         </div>
-
+   
     </body>
 </html>
