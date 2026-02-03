@@ -68,7 +68,6 @@
 
         text-decoration: none;
         font-size: 14px;
-        font-weight: 600;
 
         color: #111;
         background: #fff;

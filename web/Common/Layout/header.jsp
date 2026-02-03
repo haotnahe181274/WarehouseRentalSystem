@@ -34,7 +34,7 @@
                 <a class="app-header__menu-link" href="${pageContext.request.contextPath}/payments">Payment</a>
             </li>
             <li class="app-header__menu-item">
-                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/aboutUs">About us</a>
+                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/Common/homepage/about.jsp">About us</a>
             </li>
         </c:if>
     </ul>

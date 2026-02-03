@@ -77,13 +77,9 @@ public class LoginServlet extends HttpServlet {
 
         UserDAO dao = new UserDAO();
 
-        
-
-        
-        
-                String username = request.getParameter("username");
-String password = request.getParameter("password");
-UserView user = dao.checkAuthen(username, password);
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        UserView user = dao.checkAuthen(username, password);
 
         if (user == null) {
             request.setAttribute("username", username);
@@ -96,8 +92,6 @@ UserView user = dao.checkAuthen(username, password);
 
         HttpSession session = request.getSession();
         session.setAttribute("user", user);
-
-        // ⭐⭐ BỔ SUNG QUAN TRỌNG ⭐⭐
         session.setAttribute("userType", user.getType());
 
         if ("INTERNAL".equals(user.getType())) {
