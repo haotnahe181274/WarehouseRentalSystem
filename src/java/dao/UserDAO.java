@@ -256,59 +256,58 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
-    
-    
-    public UserView checkAuthen(String email, String password) {
-    String sql = """
-        select * from (
-            select 
-                iu.internal_user_id as id,
-                iu.user_name as name,
-                iu.email,
-                iu.full_name,
-                iu.phone,
-                r.role_name as role,
-                'INTERNAL' as type,
-                iu.status,
-                iu.image,
-                iu.created_at as createdAt
-            from internal_user iu
-            join role r on iu.role_id = r.role_id
-            where iu.email = ? and iu.password = ?
 
-            union all
+    public UserView checkAuthen(String username, String password) {
+        String sql = """
+    select * from (
+        select 
+            iu.internal_user_id as id,
+            iu.user_name as name,
+            iu.email,
+            iu.full_name,
+            iu.phone,
+            r.role_name as role,
+            'INTERNAL' as type,
+            iu.status,
+            iu.image,
+            iu.created_at as createdAt
+        from internal_user iu
+        join role r on iu.role_id = r.role_id
+        where iu.user_name = ? and iu.password = ?
 
-            select 
-                re.renter_id as id,
-                re.user_name as name,
-                re.email,
-                re.full_name,
-                re.phone,
-                null as role,
-                'RENTER' as type,
-                re.status,
-                re.image,
-                re.created_at as createdAt
-            from renter re
-            where re.email = ? and re.password = ?
-        ) u
-        where u.status = 1
-        """;
+        union all
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setString(1, email);
-        ps.setString(2, password);
-        ps.setString(3, email);
-        ps.setString(4, password);
+        select 
+            re.renter_id as id,
+            re.user_name as name,
+            re.email,
+            re.full_name,
+            re.phone,
+            null as role,
+            'RENTER' as type,
+            re.status,
+            re.image,
+            re.created_at as createdAt
+        from renter re
+        where re.user_name = ? and re.password = ?
+    ) u
+    where u.status = 1
+    """;
 
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return mapUserView(rs);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, username);
+            ps.setString(4, password);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapUserView(rs);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return null;
     }
-    return null;
-}
 
 }

@@ -77,13 +77,16 @@ public class LoginServlet extends HttpServlet {
 
         UserDAO dao = new UserDAO();
 
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        
 
-        UserView user = dao.checkAuthen(email, password);
+        
+        
+                String username = request.getParameter("username");
+String password = request.getParameter("password");
+UserView user = dao.checkAuthen(username, password);
 
         if (user == null) {
-            request.setAttribute("email", email);
+            request.setAttribute("username", username);
             request.setAttribute("password", password);
             request.setAttribute("error", "Invalid email or password");
             request.getRequestDispatcher("/Common/Login/login.jsp")
