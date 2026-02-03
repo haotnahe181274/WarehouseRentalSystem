@@ -22,4 +22,20 @@ public class WarehouseImageDAO extends DBContext {
         }
         return "default-warehouse.jpg"; // Trả về ảnh mặc định nếu không tìm thấy
     }
+    public void insertImage(WarehouseImage img) {
+    String sql = "INSERT INTO warehouse_image (image_url, image_type, is_primary, status, create_at, warehouse_id) VALUES (?, ?, ?, ?, GETDATE(), ?)";
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, img.getImageUrl());
+        ps.setString(2, img.getImageType());
+        ps.setBoolean(3, img.isPrimary());
+        ps.setInt(4, img.getStatus());
+        // GETDATE() tự lấy giờ hiện tại của SQL Server, hoặc dùng tham số
+        ps.setInt(5, img.getWarehouse().getWarehouseId());
+        
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
 }

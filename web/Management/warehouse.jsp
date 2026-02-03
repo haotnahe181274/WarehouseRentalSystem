@@ -16,8 +16,22 @@
         table { width: 100%; background: #fff; border-collapse: collapse; border-radius: 6px; overflow: hidden; }
         th, td { padding: 10px; border-bottom: 1px solid #eee; }
         th { background: #fafafa; }
-        .container-custom { margin-left: 250px; max-width: calc(100% - 250px); }
+       .container-custom {
+    width: 100%;
+}
         .btn-reset { padding: 6px 12px; background: #6c757d; color: white; border-radius: 4px; text-decoration: none; border: none; }
+        .warehouse-thumbnail {
+        width: 100px;         /* Chiều rộng cố định */
+        height: 70px;         /* Chiều cao cố định */
+        object-fit: cover;    /* QUAN TRỌNG: Cắt ảnh vừa khung, không bị méo/dẹt */
+        border-radius: 5px;   /* Bo góc nhẹ cho đẹp */
+        border: 1px solid #e0e0e0; /* Viền mỏng */
+    }
+    
+    /* Căn giữa ảnh trong ô bảng */
+    td {
+        vertical-align: middle;
+    }
     </style>
 </head>
 
@@ -60,9 +74,10 @@
 
         <h3>Warehouse List</h3>
 
-        <table>
+       <table>
             <tr>
                 <th>ID</th>
+                <th>Image</th>
                 <th>Name</th>
                 <th>Address</th>
                 <th>Status</th>
@@ -72,6 +87,14 @@
             <c:forEach var="w" items="${warehouseList}">
                 <tr>
                     <td>${w.warehouseId}</td>
+                    
+                    <td>
+                        <img src="${pageContext.request.contextPath}/resources/warehouse/image/${warehouseImages[w.warehouseId]}" 
+                             alt="Warehouse" 
+                             class="warehouse-thumbnail"
+                             onerror="this.src='${pageContext.request.contextPath}/resources/warehouse/image/default-warehouse.jpg'">
+                    </td>
+
                     <td>${w.name}</td>
                     <td>${w.address}</td>
                     <td>
