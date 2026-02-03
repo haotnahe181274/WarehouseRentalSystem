@@ -10,16 +10,11 @@
 
     /* ===== SIDEBAR ===== */
     .sidebar {
-        width: 250px;
-        height: 100vh;
-        background: black; /* dark */
+        width: 220px;
+        background: black;
         color: white;
-        position: fixed;
-        top: 68px;
-        left: 0;      
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
+        min-height: 100vh;
+        flex-shrink: 0; /* không bị co */
     }
 
     /* ===== LOGO ===== */
@@ -91,10 +86,7 @@
     }
 
     /* ===== CONTENT FIX ===== */
-    .main-content {
-        margin-left: 250px;
-        padding: 24px;
-    }
+
 </style>
 
 <!-- ===== SIDEBAR ===== -->
