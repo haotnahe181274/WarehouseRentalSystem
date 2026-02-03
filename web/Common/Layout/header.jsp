@@ -23,22 +23,35 @@
                     <a class="nav-link" href="homepage">Home</a>
                 </li>
 
-                <!-- RENTER MENU -->
-                <c:if test="${sessionScope.role == 'RENTER'}">
-
+                <c:if test="${sessionScope.userType == 'RENTER'}">
                     <li class="nav-item">
                         <a class="nav-link" href="my-rentals">My Rentals</a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="contracts">Contracts</a>
                     </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="payments">Payments</a>
                     </li>
+                </c:if>
+
+                <c:if test="${sessionScope.userType == 'INTERNAL'}">
+
+                    <c:if test="${sessionScope.role == 'ADMIN'}">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard">Demo</a>
+                        </li>
+                    </c:if>
+
+                    <c:if test="${sessionScope.role == 'STAFF'}">
+                        <li class="nav-item">
+                            <a class="nav-link" href="manage-warehouses">Demo</a>
+                        </li>
+                    </c:if>
 
                 </c:if>
+
+
 
                 <!-- ABOUT -->
                 <li class="nav-item">
@@ -51,11 +64,7 @@
             <ul class="navbar-nav ms-auto">
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
-                        <li class="nav-item">
-                            <span class="nav-link">
-                                Hi, ${sessionScope.user.name}
-                            </span>
-                        </li>
+                        
                         <li class="nav-item">
                             <a class="nav-link" href="logout">Logout</a>
                         </li>

@@ -15,6 +15,7 @@ public class UserView {
     private String name;
     private String email;
     private String fullName;
+    private String password;
     private String phone;
     private String role;
     private String type;
@@ -116,6 +117,14 @@ public class UserView {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     
