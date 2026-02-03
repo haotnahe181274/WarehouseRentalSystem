@@ -142,7 +142,7 @@ public class UserController extends HttpServlet {
 
             setDefaultImageIfNeeded(user);
 
-            request.setAttribute("user", user);
+            request.setAttribute("targetUser", user);
             request.setAttribute("mode", "view");
             request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
@@ -158,7 +158,7 @@ public class UserController extends HttpServlet {
             int id = Integer.parseInt(rawId);
             UserView user = userDAO.getUserById(id, type);
             setDefaultImageIfNeeded(user);
-            request.setAttribute("user", user);
+            request.setAttribute("targetUser", user);
             request.setAttribute("mode", "edit");
             request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
@@ -338,7 +338,7 @@ public class UserController extends HttpServlet {
                     user.setFullName(fullName);
                     user.setPhone(phone);
                     request.setAttribute("errors", errors);
-                    request.setAttribute("user", user);
+                    request.setAttribute("targetUser", user);
                     request.setAttribute("mode", "edit");
                     request.setAttribute("roleId", role);
                     request.getRequestDispatcher("/user/users.jsp").forward(request, response);

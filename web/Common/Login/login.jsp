@@ -13,98 +13,21 @@
         <meta charset="UTF-8">
         <title>Login | WarehouseHub</title>
 
-        <!-- Bootstrap (nếu bạn đã có thì bỏ dòng này) -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- Bootstrap Icons -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
         <style>
-            body {
-                background: #f5f6f8;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-            }
 
-            /* ===== HEADER ===== */
-            .login-header {
-                padding: 20px 30px;
-                font-weight: 600;
-                font-size: 20px;
-            }
-
-            /* ===== LOGIN CARD ===== */
-            .login-wrapper {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .login-card {
-                width: 100%;
-                max-width: 420px;
-                background: #fff;
-                border-radius: 6px;
-                padding: 35px 30px;
-                box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
-            }
-
-            .login-card h3 {
-                font-weight: 600;
-                margin-bottom: 5px;
-            }
-
-            .login-subtitle {
-                color: #6c757d;
-                font-size: 14px;
-                margin-bottom: 25px;
-            }
-
-            .form-control {
-                height: 45px;
-            }
-
-            .input-group-text {
-                background: #fff;
-            }
-
-            .btn-login {
-                background: #111;
-                color: #fff;
-                height: 45px;
-                border-radius: 3px;
-            }
-
-            .btn-login:hover {
-                background: #000;
-            }
-
-            .login-footer {
-                text-align: center;
-                font-size: 14px;
-                margin-top: 15px;
-            }
-
-            /* ===== PAGE FOOTER ===== */
-            .page-footer {
-                text-align: center;
-                font-size: 13px;
-                color: #888;
-                padding: 15px;
-            }
         </style>
     </head>
 
     <body>
 
-        <!-- ===== HEADER ===== -->
+        <!-- HEADER -->
         <div class="login-header">
-            <i class="bi bi-box-seam"></i> WareSpace
+            WareSpace
         </div>
 
-        <!-- ===== LOGIN FORM ===== -->
+        <!-- LOGIN -->
         <div class="login-wrapper">
             <div class="login-card">
 
@@ -114,81 +37,204 @@
                 </div>
 
                 <c:if test="${not empty error}">
-                    <div class="alert alert-danger py-2 mb-3">
-                        <i class="bi bi-exclamation-circle"></i>
+                    <div class="error-box">
                         ${error}
                     </div>
                 </c:if>
 
                 <form action="login" method="post">
 
-                    <!-- EMAIL -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Email Address</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-envelope"></i>
-                            </span>
-                            <input type="email"
-                                   name="email"
-                                   class="form-control"
-                                   placeholder="Enter your email"
-                                   required>
-                        </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="username"
+                               name="username"
+                               class="form-control"
+                               placeholder="Enter your username"
+                               required>
                     </div>
 
-                    <!-- PASSWORD -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-lock"></i>
-                            </span>
-                            <input type="password"
-                                   name="password"
-                                   class="form-control"
-                                   placeholder="Enter your password"
-                                   required>
-                        </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="Enter your password"
+                               required>
                     </div>
 
-                    <!-- OPTIONS -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="remember">
-                            <label class="form-check-label">
-                                Remember me
-                            </label>
-                        </div>
+                    <div class="options">
+                        <label>
+                            <input type="checkbox" name="remember">
+                            Remember me
+                        </label>
 
-                        <a href="forgot-password" class="text-decoration-none">
-                            Forgot Password?
-                        </a>
+                        <a href="forgot-password">Forgot Password?</a>
                     </div>
 
-                    <!-- SUBMIT -->
-                    <button type="submit" class="btn btn-login w-100">
+                    <button type="submit" class="btn-login">
                         Sign In
                     </button>
 
                 </form>
 
-                <!-- SIGN UP -->
                 <div class="login-footer">
                     <hr>
-                    Don't have an account?
-                    <a href="register" class="fw-semibold text-decoration-none">
-                        Sign Up
-                    </a>
+                    Don’t have an account?
+                    <a href="register">Sign Up</a>
                 </div>
 
             </div>
         </div>
 
-        <!-- ===== FOOTER ===== -->
         <div class="page-footer">
-            © 2024 WarehouseHub. All rights reserved.
+            © 2024 WareSpace. All rights reserved.
         </div>
+
+
+        <style>
+            * {
+                box-sizing: border-box;
+                font-family: -apple-system, BlinkMacSystemFont,
+                    "Segoe UI", Roboto, Arial, sans-serif;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                background: #f3f4f6;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* ===== HEADER ===== */
+            .login-header {
+                padding: 24px 32px;
+                font-size: 20px;
+                font-weight: 600;
+            }
+
+            /* ===== CENTER ===== */
+            .login-wrapper {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* ===== CARD ===== */
+            .login-card {
+                width: 100%;
+                max-width: 420px;
+                background: #fff;
+                padding: 32px;
+                border-radius: 10px;
+                border: 1px solid #e5e7eb;
+            }
+
+            .login-card h3 {
+                margin: 0 0 6px;
+                font-size: 24px;
+                font-weight: 600;
+            }
+
+            .login-subtitle {
+                font-size: 14px;
+                color: #6b7280;
+                margin-bottom: 24px;
+            }
+
+            /* ===== FORM ===== */
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            label {
+                display: block;
+                font-size: 14px;
+                font-weight: 500;
+                margin-bottom: 6px;
+            }
+
+            .form-control {
+                width: 100%;
+                height: 44px;
+                padding: 0 12px;
+                border-radius: 6px;
+                border: 1px solid #d1d5db;
+                font-size: 14px;
+                background: #f9fafb;
+            }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #111;
+                background: #fff;
+            }
+
+            /* ===== OPTIONS ===== */
+            .options {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 14px;
+                margin: 8px 0 22px;
+            }
+
+            .options a {
+                color: #111;
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+            /* ===== BUTTON ===== */
+            .btn-login {
+                width: 100%;
+                height: 46px;
+                background: #111;
+                color: #fff;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 15px;
+                font-weight: 600;
+            }
+
+            .btn-login:hover {
+                background: #000;
+            }
+
+            /* ===== ERROR ===== */
+            .error-box {
+                background: #fee2e2;
+                color: #991b1b;
+                padding: 10px;
+                border-radius: 6px;
+                font-size: 14px;
+                margin-bottom: 16px;
+            }
+
+            /* ===== FOOTER ===== */
+            .login-footer {
+                text-align: center;
+                font-size: 14px;
+                margin-top: 22px;
+            }
+
+            .login-footer a {
+                color: #111;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+            .page-footer {
+                text-align: center;
+                font-size: 13px;
+                color: #9ca3af;
+                padding: 18px;
+            }
+        </style>
+
+
 
     </body>
 </html>

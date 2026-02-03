@@ -12,12 +12,11 @@
     .sidebar {
         width: 250px;
         height: 100vh;
-        background: white; /* dark */
-        color: black;
+        background: black; /* dark */
+        color: white;
         position: fixed;
-        top: 64px;
+        top: 68px;
         left: 0;
-      
         z-index: 1000;
         display: flex;
         flex-direction: column;
@@ -50,7 +49,7 @@
 
     .menu-title {
         font-size: 11px;
-        color: black;
+        color: white;
         margin: 16px 0 6px 8px;
         text-transform: uppercase;
     }
@@ -60,7 +59,7 @@
     }
 
     .sidebar-menu li a {
-        color: black;
+        color: white;
         text-decoration: none;
         display: flex;
         align-items: center;
@@ -88,13 +87,18 @@
     }
 
     .logout a {
-        color: black;
+        color: white;
     }
 
-    /* ===== CONTENT FIX ===== */
+    .layout {
+        display: flex;
+        align-items: flex-start;
+    }
+
     .main-content {
-        margin-left: 250px;
+        flex: 1;
         padding: 24px;
+        background: #f5f7fb;
     }
 </style>
 
@@ -118,11 +122,11 @@
         <!-- ADMIN -->
         <c:if test="${sessionScope.role == 'Admin'}">
             <div class="menu-title">Admin</div>
-            <li><a href="${pageContext.request.contextPath}/manageUser">Users</a></li>
+            <li><a href="${pageContext.request.contextPath}/user/list">Users</a></li>
             <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses</a></li>
-            <li><a href="${pageContext.request.contextPath}/warehouseType">Warehouse Types</a></li>
+
             <li><a href="${pageContext.request.contextPath}/report">Reports</a></li>
-        </c:if>
+            </c:if>
 
         <!-- MANAGER -->
         <c:if test="${sessionScope.role == 'Manager'}">
@@ -130,18 +134,18 @@
             <li><a href="${pageContext.request.contextPath}/rentRequest">📩 Rental Requests</a></li>
             <li><a href="${pageContext.request.contextPath}/contract"> Contracts</a></li>
             <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment</a></li>
-        </c:if>
+            </c:if>
 
         <!-- STAFF -->
         <c:if test="${sessionScope.role == 'Staff'}">
             <div class="menu-title">Staff</div>
             <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
-            <li><a href="${pageContext.request.contextPath}/inventory">Inventory Check</a></li>
+            <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
             <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>
-        </c:if>
+            </c:if>
 
     </ul>
 
-   
+
 
 </div>

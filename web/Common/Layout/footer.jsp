@@ -6,74 +6,106 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
+
+
 <style>
     .footer {
-        background: #1f2428;
-        color: #fff;
-        padding: 40px 20px;
+        background-color: #1f2428;
+        color: #e5e5e5;
+        padding: 70px 20px 50px;
+        font-family: "Times New Roman", Georgia, serif;
     }
 
     .footer-content {
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
         text-align: center;
     }
 
-    .footer h5 {
-        margin-bottom: 15px;
-    }
-
-    .footer p {
-        margin: 6px 0;
-        opacity: 0.85;
-    }
-
+    /* Title */
     .footer-title {
-        margin-top: 25px;
-        margin-bottom: 25px;
-        font-size: 22px;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 32px;
+        color: #ffffff;
+    }
+
+    /* Text lines */
+    .footer-text {
+        margin: 10px 0;
+        font-size: 17px;
+        line-height: 1.6;
+    }
+
+    /* About */
+    .footer-about {
+        margin-top: 28px;
+    }
+
+    .footer-about-link {
+        font-size: 16px;
         font-weight: 600;
-    }
-
-    .footer hr {
-        width: 60%;
-        margin: 25px auto;
-        border: none;
-        border-top: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .footer-link {
-        color: #fff;
+        color: #ffffff;
         text-decoration: none;
-        opacity: 0.9;
     }
 
-    .footer-link:hover {
-        opacity: 1;
+    .footer-about-link:hover {
         text-decoration: underline;
     }
+
+    /* Divider */
+    .footer-divider {
+        width: 70%;
+        height: 1px;
+        background-color: rgba(255,255,255,0.3);
+        margin: 40px auto 30px;
+    }
+
+    /* Bottom */
+    .footer-bottom-text {
+        font-size: 16px;
+        margin: 6px 0;
+        color: #dcdcdc;
+    }
+
 </style>
 
 <div class="footer">
     <div class="footer-content">
-        <h3 class="footer-title">Warehouse Rental System</h3>
 
-        <p>Email: warehouse_system@gmail.com</p>
-        <p>Hotline: +84 123 456 789</p>
-        <p>
+        <div class="footer-title">
+            Warehouse Rental System
+        </div>
+
+        <div class="footer-text">
+            Email: warehouse_system@gmail.com
+        </div>
+
+        <div class="footer-text">
+            Hotline: +84 123 456 789
+        </div>
+
+        <div class="footer-text">
             Trường Đại Học FPT, khu công nghệ cao Hòa Lạc, Thạch Thất, Hà Nội
-        </p>
+        </div>
 
-        <h5>
-            <a href="${pageContext.request.contextPath}/about" class="footer-link">
+        <div class="footer-about">
+            <a href="${pageContext.request.contextPath}/about"
+               class="footer-about-link">
                 About us
             </a>
-        </h5>
+        </div>
 
-        <hr>
+        <div class="footer-divider"></div>
 
-        <p>© 2026 Warehouse Rental System</p>
-        <p>All rights reserved</p>
+        <div class="footer-bottom-text">
+            © 2026 Warehouse Rental System
+        </div>
+
+        <div class="footer-bottom-text">
+            All rights reserved
+        </div>
+
     </div>
 </div>
 

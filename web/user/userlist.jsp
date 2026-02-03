@@ -122,6 +122,7 @@
 
     <body>
         <jsp:include page="/Common/Layout/header.jsp" />
+        
         <jsp:include page="/Common/Layout/sidebar.jsp" />
         <div class="container">
 
@@ -266,8 +267,9 @@
             <div>
                 <jsp:include page="/Common/homepage/pagination.jsp" />
             </div>
-            <jsp:include page="/Common/Layout/footer.jsp" />
+            
         </div>
+            <jsp:include page="/Common/Layout/footer.jsp" />
     </body>
 
 </html>
