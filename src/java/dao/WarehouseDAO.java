@@ -7,8 +7,8 @@ package dao;
 import java.sql.*;
 import java.util.*;
 import model.Warehouse;
-import model.WarehouseType; 
-import dao.WarehouseTypeDAO; 
+import model.WarehouseType;
+import dao.WarehouseTypeDAO;
 
 public class WarehouseDAO extends DBContext {
 
@@ -27,11 +27,14 @@ public class WarehouseDAO extends DBContext {
         return list;
     }
 
-    public List<Warehouse> getFilteredWarehouses(String keyword, String location,
+    public List<Warehouse> getFilteredWarehouses(
+            String keyword, String location,
             Integer typeId,
             Double minPrice, Double maxPrice,
             Double minArea, Double maxArea,
-            int offset, int limit) {
+            String sort,
+            int offset, int limit
+    ) {
 
         WarehouseTypeDAO typeDAO = new WarehouseTypeDAO();
         List<Warehouse> list = new ArrayList<>();
@@ -73,7 +76,20 @@ public class WarehouseDAO extends DBContext {
         }
 
         sql.append("GROUP BY w.warehouse_id ");
-        sql.append("ORDER BY w.warehouse_id DESC LIMIT ? OFFSET ?");
+
+        if ("price_asc".equals(sort)) {
+            sql.append("ORDER BY min_price ASC ");
+        } else if ("price_desc".equals(sort)) {
+            sql.append("ORDER BY min_price DESC ");
+        } else if ("area_asc".equals(sort)) {
+            sql.append("ORDER BY min_area ASC ");
+        } else if ("area_desc".equals(sort)) {
+            sql.append("ORDER BY min_area DESC ");
+        } else {
+            sql.append("ORDER BY w.warehouse_id DESC ");
+        }
+
+        sql.append("LIMIT ? OFFSET ?");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
 
@@ -221,7 +237,7 @@ public class WarehouseDAO extends DBContext {
 
         return 0;
     }
-    
+
     public List<Warehouse> getAll() {
         List<Warehouse> list = new ArrayList<>();
         String sql = "SELECT * FROM warehouse";
@@ -254,38 +270,36 @@ public class WarehouseDAO extends DBContext {
         return list;
     }
 
+    public void insert(Warehouse w) {
+        String sql = "INSERT INTO warehouse (name, address, description, status) VALUES (?, ?, ?, ?)";
 
-        public void insert(Warehouse w) {
-            String sql = "INSERT INTO warehouse (name, address, description, status) VALUES (?, ?, ?, ?)";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, w.getName());
+            st.setString(2, w.getAddress());
+            st.setString(3, w.getDescription());
+            st.setInt(4, w.getStatus());
+            st.executeUpdate();
+            st.close();
 
-            try {
-                PreparedStatement st = connection.prepareStatement(sql);
-                st.setString(1, w.getName());
-                st.setString(2, w.getAddress());
-                st.setString(3, w.getDescription());
-                st.setInt(4, w.getStatus());
-                st.executeUpdate();
-                st.close();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
-        public void delete(int id) {
-            String sql = "DELETE FROM warehouse WHERE warehouseId = ?";
+    public void delete(int id) {
+        String sql = "DELETE FROM warehouse WHERE warehouseId = ?";
 
-            try {
-                PreparedStatement st = connection.prepareStatement(sql);
-                st.setInt(1, id);
-                st.executeUpdate();
-                st.close();
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, id);
+            st.executeUpdate();
+            st.close();
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    
+    }
 
 //    public static void main(String[] args) {
 //

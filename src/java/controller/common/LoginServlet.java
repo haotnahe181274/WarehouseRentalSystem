@@ -3,9 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.renter;
+package controller.common;
 
-import dao.WarehouseDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -13,15 +12,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import model.Warehouse;
 
 /**
  *
  * @author ad
  */
-@WebServlet(name="WarehouseDetail", urlPatterns={"/warehouse-detail"})
-public class WarehouseDetail extends HttpServlet {
+@WebServlet(name="LoginServlet", urlPatterns={"/login"})
+public class LoginServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,10 +35,10 @@ public class WarehouseDetail extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet WarehouseDetail</title>");  
+            out.println("<title>Servlet LoginServlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet WarehouseDetail at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet LoginServlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -58,18 +55,8 @@ public class WarehouseDetail extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-
-        WarehouseDAO dao = new WarehouseDAO();
-
-        
-
-        
-
-        request.getRequestDispatcher("/views/warehouse-detail.jsp")
-               .forward(request, response);
-    }
-    
+        processRequest(request, response);
+    } 
 
     /** 
      * Handles the HTTP <code>POST</code> method.

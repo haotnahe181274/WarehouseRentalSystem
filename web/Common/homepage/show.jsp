@@ -16,6 +16,7 @@
         <title>WareSpace - Warehouse Rental</title>
     </head>
     <body>
+        <jsp:include page="/Common/Layout/header.jsp" />
 
 
         <%-- 2. THÊM BANNER  --%>
@@ -31,10 +32,50 @@
                 <%-- 4. Cột bên phải: Danh sách sản phẩm --%>
                 <div class="col-lg-9">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="fw-bold">Available Warehouses 
+                        <h4 class="fw-bold">
+                            Available Warehouses
                             <span class="text-muted fw-normal">(${totalItems} results)</span>
                         </h4>
-                        <%-- Dropdown Sort By có thể để ở đây --%>
+
+                        <form method="get" action="homepage">
+
+                            <!-- giữ lại filter -->
+                            <input type="hidden" name="keyword" value="${param.keyword}">
+                            <input type="hidden" name="location" value="${param.location}">
+                            <input type="hidden" name="typeId" value="${param.typeId}">
+                            <input type="hidden" name="minPrice" value="${param.minPrice}">
+                            <input type="hidden" name="maxPrice" value="${param.maxPrice}">
+                            <input type="hidden" name="minArea" value="${param.minArea}">
+                            <input type="hidden" name="maxArea" value="${param.maxArea}">
+                            <input type="hidden" name="page" value="1"> <!-- reset page -->
+
+                            <select name="sort" class="form-select"
+                                    style="width: 220px;"
+                                    onchange="this.form.submit()">
+
+                                <option value="">Sort by</option>
+
+                                <option value="price_asc"
+                                        ${param.sort == 'price_asc' ? 'selected' : ''}>
+                                    Price: Low → High
+                                </option>
+
+                                <option value="price_desc"
+                                        ${param.sort == 'price_desc' ? 'selected' : ''}>
+                                    Price: High → Low
+                                </option>
+
+                                <option value="area_asc"
+                                        ${param.sort == 'area_asc' ? 'selected' : ''}>
+                                    Area: Small → Large
+                                </option>
+
+                                <option value="area_desc"
+                                        ${param.sort == 'area_desc' ? 'selected' : ''}>
+                                    Area: Large → Small
+                                </option>
+                            </select>
+                        </form>
                     </div>
 
 
@@ -48,6 +89,7 @@
                 </div>
             </div>
         </div>
+                <jsp:include page="/Common/Layout/footer.jsp" />
 
 
 

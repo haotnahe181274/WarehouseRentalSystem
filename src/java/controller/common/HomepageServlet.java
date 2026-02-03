@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.renter;
+package controller.common;
 
 import dao.WarehouseDAO;
 import dao.WarehouseImageDAO;
@@ -79,6 +79,7 @@ public class HomepageServlet extends HttpServlet {
         String maxAreaRaw = request.getParameter("maxArea");
         String pageRaw = request.getParameter("page");
         String keyword = request.getParameter("keyword");
+        String sort = request.getParameter("sort");
 
         // ================== 2. PARSE AN TOÀN ==================
         Integer typeId = null;
@@ -116,7 +117,7 @@ public class HomepageServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
-            page =1;
+            page = 1;
         }
 
         // ================== 3. PHÂN TRANG ==================
@@ -125,10 +126,10 @@ public class HomepageServlet extends HttpServlet {
 
         // ================== 4. QUERY DB ==================
         List<Warehouse> list = warehouseDAO.getFilteredWarehouses(
-                keyword, location,
-                typeId,
+                keyword, location, typeId,
                 minPrice, maxPrice,
                 minArea, maxArea,
+                sort,
                 offset, pageSize
         );
 
@@ -148,6 +149,9 @@ public class HomepageServlet extends HttpServlet {
         int totalPages = (int) Math.ceil(totalRecords * 1.0 / pageSize);
 
         StringBuilder qs = new StringBuilder();
+        if (sort != null && !sort.isEmpty()) {
+            qs.append("&sort=").append(sort);
+        }
         if (keyword != null && !keyword.isEmpty()) {
             qs.append("&keyword=").append(keyword);
         }
@@ -170,8 +174,6 @@ public class HomepageServlet extends HttpServlet {
             qs.append("&maxArea=").append(maxArea);
         }
 
-        
-
         // ================== 5. SET ATTRIBUTE ==================
         request.setAttribute("queryString", qs.toString());
         request.setAttribute("warehouses", list);
@@ -185,7 +187,7 @@ public class HomepageServlet extends HttpServlet {
         request.setAttribute("paginationUrl", "homepage");
 
         // ================== 6. FORWARD ==================
-        request.getRequestDispatcher("/common/homepage/show.jsp").forward(request, response);
+        request.getRequestDispatcher("/Common/homepage/show.jsp").forward(request, response);
 
     }
 
