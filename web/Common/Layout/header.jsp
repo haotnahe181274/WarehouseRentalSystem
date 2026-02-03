@@ -11,7 +11,7 @@
     <div class="container-fluid">
 
         <!-- LOGO -->
-        <a class="navbar-brand fw-bold" href="homepage">
+        <a class="navbar-brand fw-bold" href="${pageContext.request.contextPath}/homepage">
             WareSpace
         </a>
 
@@ -36,6 +36,10 @@
                     <li class="nav-item">
                         <a class="nav-link" href="payments">Payments</a>
                     </li>
+                    <!-- ABOUT -->
+                <li class="nav-item">
+                    <a class="nav-link" href="aboutUs">About us</a>
+                </li>
                 </c:if>
                 <c:if test="${sessionScope.userType == 'INTERNAL'}"> 
                     <c:if test="${sessionScope.role == 'Admin'}"> 
@@ -54,10 +58,7 @@
                         </li> 
                     </c:if> 
                 </c:if>
-                <!-- ABOUT -->
-                <li class="nav-item">
-                    <a class="nav-link" href="aboutUs">About us</a>
-                </li>
+                
 
             </ul>
 
