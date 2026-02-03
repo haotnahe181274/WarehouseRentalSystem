@@ -13,26 +13,12 @@
         width: 220px;
         background: black;
         color: white;
-        min-height: 100vh;
+        min-height: 80vh;
         flex-shrink: 0; /* không bị co */
     }
 
     /* ===== LOGO ===== */
-    .sidebar-logo {
-        padding: 20px;
-        font-size: 18px;
-        font-weight: 600;
-        border-bottom: 1px solid #1e293b;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .sidebar-logo span {
-        background: #111827;
-        padding: 6px 8px;
-        border-radius: 6px;
-    }
+   
 
     /* ===== MENU ===== */
     .sidebar-menu {
@@ -93,9 +79,7 @@
 <div class="sidebar">
 
     <!-- LOGO -->
-    <div class="sidebar-logo">
-        <span></span> WRS SYSTEM
-    </div>
+
 
     <!-- MENU -->
     <ul class="sidebar-menu">
