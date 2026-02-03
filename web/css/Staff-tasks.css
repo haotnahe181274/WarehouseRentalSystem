@@ -7,10 +7,18 @@ body {
     margin: 0;
     background: #f5f7fb;
 }
-
-.container {
-    padding: 24px;
+.layout {
+    display: flex;
+    align-items: flex-start;
 }
+
+.main-content {
+    flex: 1;
+    padding: 24px;
+    background: #f5f7fb;
+}
+
+
 
 /* Header */
 .header {
