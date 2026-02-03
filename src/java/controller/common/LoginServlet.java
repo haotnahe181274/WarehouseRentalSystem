@@ -105,13 +105,13 @@ UserView user = dao.checkAuthen(username, password);
 
             switch (user.getRole()) {
                 case "Admin":
-                    response.sendRedirect("user/list");
+                    response.sendRedirect("Common/Layout/dashboard.jsp");
                     break;
                 case "Manager":
-                    response.sendRedirect("warehouse");
+                    response.sendRedirect("Common/Layout/dashboard.jsp");
                     break;
                 case "Staff":
-                    response.sendRedirect("staffTask");
+                    response.sendRedirect("Common/Layout/dashboard.jsp");
                     break;
                 default:
                     response.sendRedirect("homepage");

@@ -13,8 +13,10 @@
         width: 220px;
         background: black;
         color: white;
+
         min-height: 80vh;
         flex-shrink: 0; /* không bị co */
+
     }
 
     /* ===== LOGO ===== */
@@ -71,7 +73,9 @@
         color: white;
     }
 
+
     /* ===== CONTENT FIX ===== */
+
 
 </style>
 
@@ -93,19 +97,21 @@
         <!-- ADMIN -->
         <c:if test="${sessionScope.role == 'Admin'}">
             <div class="menu-title">Admin</div>
-            <li><a href="${pageContext.request.contextPath}/manageUser">Users</a></li>
+            <li><a href="${pageContext.request.contextPath}/user/list">Users</a></li>
             <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses</a></li>
-            <li><a href="${pageContext.request.contextPath}/warehouseType">Warehouse Types</a></li>
+
             <li><a href="${pageContext.request.contextPath}/report">Reports</a></li>
-        </c:if>
+            </c:if>
 
         <!-- MANAGER -->
         <c:if test="${sessionScope.role == 'Manager'}">
             <div class="menu-title">Manager</div>
+            <li><a href="${pageContext.request.contextPath}/user/list">Users</a></li>
+            <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses</a></li>
             <li><a href="${pageContext.request.contextPath}/rentRequest">📩 Rental Requests</a></li>
             <li><a href="${pageContext.request.contextPath}/contract"> Contracts</a></li>
             <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment</a></li>
-        </c:if>
+            </c:if>
 
         <!-- STAFF -->
         <c:if test="${sessionScope.role == 'Staff'}">
@@ -113,10 +119,10 @@
             <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
             <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
             <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>
-        </c:if>
+            </c:if>
 
     </ul>
 
-   
+
 
 </div>

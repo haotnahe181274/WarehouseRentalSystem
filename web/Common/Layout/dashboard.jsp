@@ -27,7 +27,7 @@
         </style>
         <jsp:include page="/Common/Layout/header.jsp" />
         <jsp:include page="/Common/Layout/sidebar.jsp" />
-
+        <jsp:include page="/Common/Layout/footer.jsp" />
         <div class="container">
             <h1>Dashboard</h1>
         </div>
