@@ -47,43 +47,85 @@
                             <span>(${totalItems} results)</span>
                         </h2>
 
-                        <!-- SORT -->
-                        <form method="get" action="homepage" class="sort-form">
+                        <div class="sort-box">
 
-                            <!-- filter -->
-                            <input type="hidden" name="keyword" value="${param.keyword}">
-                            <input type="hidden" name="location" value="${param.location}">
-                            <input type="hidden" name="typeId" value="${param.typeId}">
-                            <input type="hidden" name="minPrice" value="${param.minPrice}">
-                            <input type="hidden" name="maxPrice" value="${param.maxPrice}">
-                            <input type="hidden" name="minArea" value="${param.minArea}">
-                            <input type="hidden" name="maxArea" value="${param.maxArea}">
-                            <input type="hidden" name="page" value="1">
+                            <form method="get" action="homepage" class="sort-form">
+                                <!-- giữ filter -->
+                                <input type="hidden" name="keyword" value="${param.keyword}">
+                                <input type="hidden" name="location" value="${param.location}">
+                                <input type="hidden" name="typeId" value="${param.typeId}">
+                                <input type="hidden" name="minPrice" value="${param.minPrice}">
+                                <input type="hidden" name="maxPrice" value="${param.maxPrice}">
+                                <input type="hidden" name="minArea" value="${param.minArea}">
+                                <input type="hidden" name="maxArea" value="${param.maxArea}">
+                                <input type="hidden" name="page" value="1">
 
-                            <select name="sort" onchange="this.form.submit()">
-                                <option value="">Sort by</option>
+                                <select name="sort" onchange="this.form.submit()">
+                                    <option value="">Sort by Price</option>
+                                    <option value="price_asc"
+                                            ${param.sort == 'price_asc' ? 'selected' : ''}>
+                                        Low → High
+                                    </option>
+                                    <option value="price_desc"
+                                            ${param.sort == 'price_desc' ? 'selected' : ''}>
+                                        High → Low
+                                    </option>
+                                </select>
+                            </form>
 
-                                <option value="price_asc"
-                                        ${param.sort == 'price_asc' ? 'selected' : ''}>
-                                    Price: Low → High
-                                </option>
 
-                                <option value="price_desc"
-                                        ${param.sort == 'price_desc' ? 'selected' : ''}>
-                                    Price: High → Low
-                                </option>
+                            <form method="get" action="homepage" class="sort-form">
+                                <!-- giữ filter -->
+                                <input type="hidden" name="keyword" value="${param.keyword}">
+                                <input type="hidden" name="location" value="${param.location}">
+                                <input type="hidden" name="typeId" value="${param.typeId}">
+                                <input type="hidden" name="minPrice" value="${param.minPrice}">
+                                <input type="hidden" name="maxPrice" value="${param.maxPrice}">
+                                <input type="hidden" name="minArea" value="${param.minArea}">
+                                <input type="hidden" name="maxArea" value="${param.maxArea}">
+                                <input type="hidden" name="page" value="1">
 
-                                <option value="area_asc"
-                                        ${param.sort == 'area_asc' ? 'selected' : ''}>
-                                    Area: Small → Large
-                                </option>
+                                <select name="sort" onchange="this.form.submit()">
+                                    <option value="">Sort by Area</option>
+                                    <option value="area_asc"
+                                            ${param.sort == 'area_asc' ? 'selected' : ''}>
+                                        Small → Large
+                                    </option>
+                                    <option value="area_desc"
+                                            ${param.sort == 'area_desc' ? 'selected' : ''}>
+                                        Large → Small
+                                    </option>
+                                </select>
+                            </form>
 
-                                <option value="area_desc"
-                                        ${param.sort == 'area_desc' ? 'selected' : ''}>
-                                    Area: Large → Small
-                                </option>
-                            </select>
-                        </form>
+                            <form method="get" action="homepage" class="sort-form">
+                                <!-- giữ filter -->
+                                <input type="hidden" name="keyword" value="${param.keyword}">
+                                <input type="hidden" name="location" value="${param.location}">
+                                <input type="hidden" name="typeId" value="${param.typeId}">
+                                <input type="hidden" name="minPrice" value="${param.minPrice}">
+                                <input type="hidden" name="maxPrice" value="${param.maxPrice}">
+                                <input type="hidden" name="minArea" value="${param.minArea}">
+                                <input type="hidden" name="maxArea" value="${param.maxArea}">
+                                <input type="hidden" name="page" value="1">
+
+                                <select name="sort" onchange="this.form.submit()">
+                                    <option value="">Sort by Name</option>
+                                    <option value="name_asc"
+                                            ${param.sort == 'name_asc' ? 'selected' : ''}>
+                                        A → Z
+                                    </option>
+                                    <option value="name_desc"
+                                            ${param.sort == 'name_desc' ? 'selected' : ''}>
+                                        Z → A
+                                    </option>
+                                </select>
+                            </form>
+                        </div>
+
+
+
+
                     </div>
 
                     <!-- CARD LIST -->
@@ -129,7 +171,7 @@
             }
 
             /* SIDEBAR */
-            
+
 
             .sidebar {
                 align-self: flex-start;
@@ -161,21 +203,33 @@
             }
 
             /* SORT */
+
+            .sort-box {
+                display: flex;
+                gap: 12px;
+            }
+
             .sort-form select {
-                padding: 8px 12px;
+                padding: 8px 14px;
                 font-size: 14px;
                 border: 1px solid #d1d5db;
-                border-radius: 8px;
+                border-radius: 10px;
                 background: #fff;
                 cursor: pointer;
             }
 
-            .sort-form select:focus {
+
+            .sort-box select:focus {
                 outline: none;
                 border-color: #111;
             }
 
-            
+            /* hover thì hiện dropdown */
+            .sort-item:hover .sort-menu {
+                display: block;
+            }
+
+
 
         </style>
 

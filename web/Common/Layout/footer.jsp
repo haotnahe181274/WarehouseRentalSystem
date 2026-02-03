@@ -91,7 +91,7 @@
         </div>
 
         <div class="footer-about">
-            <a href="${pageContext.request.contextPath}/about"
+            <a href="${pageContext.request.contextPath}/Common/homepage/about.jsp"
                class="footer-about-link">
                 About us
             </a>

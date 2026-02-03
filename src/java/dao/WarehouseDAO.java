@@ -85,10 +85,13 @@ public class WarehouseDAO extends DBContext {
             sql.append("ORDER BY min_area ASC ");
         } else if ("area_desc".equals(sort)) {
             sql.append("ORDER BY min_area DESC ");
+        } else if ("name_asc".equals(sort)) {
+            sql.append("ORDER BY w.name ASC ");
+        } else if ("name_desc".equals(sort)) {
+            sql.append("ORDER BY w.name DESC ");
         } else {
             sql.append("ORDER BY w.warehouse_id DESC ");
         }
-
         sql.append("LIMIT ? OFFSET ?");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
