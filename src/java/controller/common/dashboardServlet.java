@@ -4,23 +4,20 @@
  */
 package controller.common;
 
-import dao.UserDAO;
-import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import model.UserView;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  *
- * @author ad
+ * @author acer
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "dashboardServlet", urlPatterns = {"/dashboard"})
+public class dashboardServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,10 +36,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
+            out.println("<title>Servlet dashboardServlet</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet dashboardServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,7 +57,8 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/Common/Login/login.jsp").forward(request, response);
+       request.getRequestDispatcher("Common/Layout/dashboard.jsp")
+               .forward(request, response);
     }
 
     /**
@@ -74,53 +72,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        UserDAO dao = new UserDAO();
-
-        
-
-        
-        
-                String username = request.getParameter("username");
-String password = request.getParameter("password");
-UserView user = dao.checkAuthen(username, password);
-
-        if (user == null) {
-            request.setAttribute("username", username);
-            request.setAttribute("password", password);
-            request.setAttribute("error", "Invalid email or password");
-            request.getRequestDispatcher("/Common/Login/login.jsp")
-                    .forward(request, response);
-            return;
-        }
-
-        HttpSession session = request.getSession();
-        session.setAttribute("user", user);
-
-        // ⭐⭐ BỔ SUNG QUAN TRỌNG ⭐⭐
-        session.setAttribute("userType", user.getType());
-
-        if ("INTERNAL".equals(user.getType())) {
-            session.setAttribute("role", user.getRole());
-
-            switch (user.getRole()) {
-                case "Admin":
-                    response.sendRedirect("user/list");
-                    break;
-                case "Manager":
-                    response.sendRedirect("warehouse");
-                    break;
-                case "Staff":
-                    response.sendRedirect("staffTask");
-                    break;
-                default:
-                    response.sendRedirect("homepage");
-            }
-        } else {
-            // RENTER
-            response.sendRedirect("homepage");
-        }
-
+        processRequest(request, response);
     }
 
     /**

@@ -10,36 +10,47 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <meta charset="UTF-8">
         <title>WareSpace - Warehouse Rental</title>
+
+        <!-- Font Awesome  -->
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+        <!-- CSS tự viết -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/homepage.css">
     </head>
+
     <body>
+
         <jsp:include page="/Common/Layout/header.jsp" />
 
-
-        <%-- 2. THÊM BANNER  --%>
+        <!-- BANNER -->
         <jsp:include page="banner.jsp" />
 
-        <div class="container py-5">
-            <div class="row">
-                <%-- 3. Cột bên trái: Bộ lọc (Filters) --%>
-                <div class="col-lg-3">
+        <!-- MAIN -->
+        <div class="page-container">
+            <div class="page-grid">
+
+                <!-- FILTER -->
+                <aside class="sidebar">
                     <jsp:include page="search.jsp" />
-                </div>
+                </aside>
 
-                <%-- 4. Cột bên phải: Danh sách sản phẩm --%>
-                <div class="col-lg-9">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="fw-bold">
+                <!-- CONTENT -->
+                <main class="content">
+
+                    <!-- HEADER -->
+                    <div class="content-header">
+                        <h2>
                             Available Warehouses
-                            <span class="text-muted fw-normal">(${totalItems} results)</span>
-                        </h4>
+                            <span>(${totalItems} results)</span>
+                        </h2>
 
-                        <form method="get" action="homepage">
+                        <!-- SORT -->
+                        <form method="get" action="homepage" class="sort-form">
 
-                            <!-- giữ lại filter -->
+                            <!-- filter -->
                             <input type="hidden" name="keyword" value="${param.keyword}">
                             <input type="hidden" name="location" value="${param.location}">
                             <input type="hidden" name="typeId" value="${param.typeId}">
@@ -47,12 +58,9 @@
                             <input type="hidden" name="maxPrice" value="${param.maxPrice}">
                             <input type="hidden" name="minArea" value="${param.minArea}">
                             <input type="hidden" name="maxArea" value="${param.maxArea}">
-                            <input type="hidden" name="page" value="1"> <!-- reset page -->
+                            <input type="hidden" name="page" value="1">
 
-                            <select name="sort" class="form-select"
-                                    style="width: 220px;"
-                                    onchange="this.form.submit()">
-
+                            <select name="sort" onchange="this.form.submit()">
                                 <option value="">Sort by</option>
 
                                 <option value="price_asc"
@@ -78,25 +86,102 @@
                         </form>
                     </div>
 
+                    <!-- CARD LIST -->
+                    <jsp:include page="card.jsp" />
 
-
-                    <%-- 5. Gọi file Card --%>
-                    <jsp:include page="card.jsp" /> 
-
-
-                    <%-- 6. Phân trang --%>
+                    <!-- PAGINATION -->
                     <jsp:include page="pagination.jsp" />
-                </div>
+
+                </main>
             </div>
         </div>
-                <jsp:include page="/Common/Layout/footer.jsp" />
+
+        <jsp:include page="/Common/Layout/footer.jsp" />
 
 
+        <style>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+                color: #111;
+                background: #fff;
+            }
+
+            /* PAGE */
+            .page-container {
+                max-width: 1400px;   /* hoặc 100% nếu bạn muốn full */
+                margin: 0 auto;
+                padding: 32px 24px;  /* giảm padding ngang */
+            }
+
+            /* GRID */
+            .page-grid {
+                display: grid;
+                grid-template-columns: 280px 1fr;
+                gap: 32px;
+            }
+
+            /* SIDEBAR */
+            
+
+            .sidebar {
+                align-self: flex-start;
+                margin-top: 50px;   /* lùi xuống nhẹ */
+            }
+
+            /* CONTENT */
+            .content {
+                width: 100%;
+            }
+
+            /* HEADER */
+            .content-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+            }
+
+            .content-header h2 {
+                font-size: 20px;
+                font-weight: 700;
+            }
+
+            .content-header h2 span {
+                font-size: 14px;
+                font-weight: 400;
+                color: #6b7280;
+            }
+
+            /* SORT */
+            .sort-form select {
+                padding: 8px 12px;
+                font-size: 14px;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
+                background: #fff;
+                cursor: pointer;
+            }
+
+            .sort-form select:focus {
+                outline: none;
+                border-color: #111;
+            }
+
+            
+
+        </style>
+
+
     </body>
 </html>
 
 
-</body>
-</html>
+

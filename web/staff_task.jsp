@@ -7,9 +7,7 @@
         <meta charset="UTF-8">
         <title>Staff Tasks</title>
         <link rel="stylesheet" href="css/Staff-tasks.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 
     </head>
@@ -17,9 +15,8 @@
     <body>
         <jsp:include page="/Common/Layout/header.jsp" />
         <jsp:include page="/Common/Layout/sidebar.jsp" />
-        <div class="container">
-            
-
+        
+        <div class="main-content">            
             <!-- ================= HEADER ================= -->
             <div class="header">
                 <div>
@@ -127,6 +124,6 @@
 
             </div>
         </div>
-
+   
     </body>
 </html>
