@@ -150,11 +150,9 @@ public class ProfileController extends HttpServlet {
             return true;
         }
 
-        if ("MANAGER".equals(loginUser.getRole())) {
-            return "MANAGER".equals(target.getRole());
-        }
+        
 
-        // STAFF / RENTER: chỉ sửa chính mình
+        // STAFF / RENTER Manager: chỉ sửa chính mình
         return loginUser.getId() == target.getId()
                 && loginUser.getType().equals(target.getType());
     }
