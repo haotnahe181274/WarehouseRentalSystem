@@ -97,14 +97,14 @@ public class UserController extends HttpServlet {
             return;
         }
 
-        boolean isAdmin = "Admin".equals(userRole);
-        boolean isManager = "Manager".equals(userRole);
-        boolean isStaff = "Staff".equals(userRole);
-        boolean isRenter = "RENTER".equals(currentUser.getType());
-
+        boolean isAdmin = "Admin".equalsIgnoreCase(userRole);
+        boolean isManager = "Manager".equalsIgnoreCase(userRole);
+        boolean isStaff = "Staff".equalsIgnoreCase(userRole);
+        boolean isRenter = "RENTER".equalsIgnoreCase(currentUser.getType());
+        
         // --- STAFF & RENTER Redirect Logic ---
         if (isStaff || isRenter) {
-            boolean isViewOwn = "view".equals(action)
+            boolean isViewOwn = "view".equalsIgnoreCase(action)
                     && rawId != null && Integer.parseInt(rawId) == currentUser.getId()
                     && (type == null || type.equalsIgnoreCase(currentUser.getType()));
 
@@ -130,7 +130,7 @@ public class UserController extends HttpServlet {
             int id = Integer.parseInt(rawId);
             UserView user = userDAO.getUserById(id, type);
 
-            // Manager: Check if target is Admin
+            
             if (isManager && user != null && "INTERNAL".equalsIgnoreCase(user.getType())) {
                 boolean isSelf = (user.getId() == currentUser.getId());
                 boolean isTargetAllowed = "Staff".equalsIgnoreCase(user.getRole());
@@ -249,11 +249,12 @@ public class UserController extends HttpServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
             return;
         }
-
+        
         String action = request.getParameter("action");
         String mode = request.getParameter("mode");
+        String idRaw = request.getParameter("id");
         if ("block".equals(action) || "unblock".equals(action)) {
-            int id = Integer.parseInt(request.getParameter("id"));
+            int id = Integer.parseInt(idRaw);
             String type = request.getParameter("type");
             int status = action.equals("block") ? 0 : 1;
             userDAO.updateStatus(id, type, status);
@@ -290,7 +291,9 @@ public class UserController extends HttpServlet {
                 int roleId = Integer.parseInt(role);
                 String username = request.getParameter("username");
                 String password = request.getParameter("password");
-                errors = UserValidation.validateCreate(username, password, email, fullName, phone, userDAO);
+                 Map<String, String> validateErrors =
+                UserValidation.validateCreate(username, password, email, fullName, phone, userDAO);
+                errors.putAll(validateErrors);
 
                 if (!errors.isEmpty()) {
                     request.setAttribute("errors", errors);
@@ -311,7 +314,7 @@ public class UserController extends HttpServlet {
 
             // ===== UPDATE =====
             if ("edit".equals(mode)) {
-                int id = Integer.parseInt(request.getParameter("id"));
+                int id = Integer.parseInt(idRaw);
                 int roleId = Integer.parseInt(role);
 
                 // Validate email

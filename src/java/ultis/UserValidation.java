@@ -13,28 +13,36 @@ import java.util.Map;
  * @author hao23
  */
 public class UserValidation {
+
     // Add(Admin)
     public static Map<String, String> validateCreate(String username, String password, String email, String fullName, String phone, UserDAO dao) {
         Map<String, String> errors = new HashMap<>();
-        if (dao.isUsernameExists(username))
+        if (dao.isUsernameExists(username)) {
             errors.put("username", "Username already exists");
-        if(!isValidName(username) || username.contains(" ")) errors.put("username", "Username must not have space");
+        }
+        if (!isValidName(username) || username.contains(" ")) {
+            errors.put("username", "Username must not have space");
+        }
         validateCommon(password, email, fullName, phone, errors);
         return errors;
     }
 
-    private static void validateCommon(String password, String email, String fullName, String phone,  Map<String, String> errors) {
-        if (password != null && !password.isEmpty() && password.length() < 6)
+    private static void validateCommon(String password, String email, String fullName, String phone, Map<String, String> errors) {
+        if (password != null && !password.isEmpty() && password.length() < 6) {
             errors.put("password", "Password must be at least 6 characters");
-        if (!isValidEmail(email))
+        }
+        if (!isValidEmail(email)) {
             errors.put("email", "Invalid email format");
-        if(!isValidName(fullName)) errors.put("fullName",
-                            "Full name must not have leading/trailing spaces or multiple consecutive spaces");
+        }
+        if (!isValidName(fullName)) {
+            errors.put("fullName",
+                    "Full name must not have leading/trailing spaces or multiple consecutive spaces");
+        }
         if (!UserValidation.isValidPhone(phone)) {
-                    errors.put("phone", "Phone must start with 0, contain only digits, max 10 characters");
-                }
+            errors.put("phone", "Phone must start with 0, contain only digits, max 10 characters");
+        }
     }
-     
+
     public static boolean isValidEmail(String email) {
         String regex = "^[A-Za-z0-9+-._]+@[A-Za-z0-9.-]+$";
         return email != null && email.matches(regex);

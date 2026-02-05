@@ -22,7 +22,7 @@ public class UserDAO extends DBContext {
     }
 
     public UserView getUserById(int id, String type) {
-        String sql;
+        String sql = null;
         if ("internal".equalsIgnoreCase(type)) {
             sql = """
                     select iu.internal_user_id as id,
@@ -39,7 +39,7 @@ public class UserDAO extends DBContext {
                     join role r on iu.role_id = r.role_id
                     where iu.internal_user_id = ?
                     """;
-        } else {
+        } else if("renter".equalsIgnoreCase(type)){
             sql = """
                     select renter_id as id,
                     user_name as name,
