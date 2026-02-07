@@ -284,16 +284,13 @@
                         <div class="form-actions">
 
                             <!-- UPDATE USER (Admin / Manager) -->
-                            <c:if test="${mode == 'view' && !isProfile &&
-                                          (loginUser.role == 'Admin'
-                                          || (loginUser.role == 'Manager'
-                                          && targetUser.role != 'Staff'
-                                          && targetUser.role != 'Renter'))}">
-                                  <a class="btn btn-primary"
-                                     href="${pageContext.request.contextPath}/user/list?action=edit&id=${targetUser.id}&type=${targetUser.type}">
-                                      Update
-                                  </a>
+                            <c:if test="${mode == 'view' && !isProfile && loginUser.role == 'Admin'}">
+                                <a class="btn btn-primary"
+                                   href="${pageContext.request.contextPath}/user/list?action=edit&id=${targetUser.id}&type=${targetUser.type}">
+                                    Update
+                                </a>
                             </c:if>
+
 
                             <!-- UPDATE PROFILE -->
                             <c:if test="${mode == 'view' && isProfile}">
