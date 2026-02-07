@@ -17,6 +17,13 @@
         
         <h3>${empty warehouse ? 'Add New Warehouse' : 'Edit Warehouse'}</h3>
 
+        <c:if test="${not empty errorMessage}">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Lỗi!</strong> ${errorMessage}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</c:if>
+        
         <form action="${pageContext.request.contextPath}/warehouse" method="post" enctype="multipart/form-data">
             
             <c:if test="${not empty warehouse}">
