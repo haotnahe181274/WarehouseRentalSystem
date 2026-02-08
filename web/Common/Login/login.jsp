@@ -11,7 +11,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Login | WarehouseHub</title>
+        <title>Login</title>
 
 
 
