@@ -43,7 +43,7 @@
                                name="username"
                                class="form-control"
                                placeholder="Enter your username"
-                               required>
+                               required value="${username}">
                     </div>
 
                     <div class="form-group">
@@ -52,6 +52,7 @@
                                name="password"
                                class="form-control"
                                placeholder="Enter your password"
+                               value="${password}"
                                required>
                     </div>
 

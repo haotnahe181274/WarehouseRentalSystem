@@ -84,7 +84,7 @@ public class LoginServlet extends HttpServlet {
         if (user == null) {
             request.setAttribute("username", username);
             request.setAttribute("password", password);
-            request.setAttribute("error", "Invalid email or password");
+            request.setAttribute("error", "Invalid username or password");
             request.getRequestDispatcher("/Common/Login/login.jsp")
                     .forward(request, response);
             return;
