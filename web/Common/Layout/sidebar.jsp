@@ -118,7 +118,7 @@
             <div class="menu-title">Staff</div>
             <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
             <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
-            <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>
+            <li><a href="${pageContext.request.contextPath}/staffReport"> Incidents</a></li>
             </c:if>
 
     </ul>

@@ -349,7 +349,7 @@ public class WarehouseDAO extends DBContext {
         WarehouseDAO warehouseDAO = new WarehouseDAO();
 
         // ===== TEST DATE =====
-        LocalDate rentStart = LocalDate.of(2025, 2, 10);
+        LocalDate rentStart = LocalDate.of(2025, 4, 10);
         LocalDate rentEnd = LocalDate.of(2025, 2, 15);
 
         // ===== CALL DAO =====
