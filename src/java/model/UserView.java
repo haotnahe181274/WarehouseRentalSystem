@@ -23,6 +23,10 @@ public class UserView {
     private String image;
     private Timestamp createdAt;
     
+    private String idCard;
+    private String address;
+    private String internalUserCode;
+    
     public UserView() {
     }
 
@@ -125,6 +129,30 @@ public class UserView {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getInternalUserCode() {
+        return internalUserCode;
+    }
+
+    public void setInternalUserCode(String internalUserCode) {
+        this.internalUserCode = internalUserCode;
     }
 
     

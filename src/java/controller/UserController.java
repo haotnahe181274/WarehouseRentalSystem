@@ -101,7 +101,7 @@ public class UserController extends HttpServlet {
         boolean isManager = "Manager".equalsIgnoreCase(userRole);
         boolean isStaff = "Staff".equalsIgnoreCase(userRole);
         boolean isRenter = "RENTER".equalsIgnoreCase(currentUser.getType());
-        
+
         // --- STAFF & RENTER Redirect Logic ---
         if (isStaff || isRenter) {
             boolean isViewOwn = "view".equalsIgnoreCase(action)
@@ -130,7 +130,6 @@ public class UserController extends HttpServlet {
             int id = Integer.parseInt(rawId);
             UserView user = userDAO.getUserById(id, type);
 
-            
             if (isManager && user != null && "INTERNAL".equalsIgnoreCase(user.getType())) {
                 boolean isSelf = (user.getId() == currentUser.getId());
                 boolean isTargetAllowed = "Staff".equalsIgnoreCase(user.getRole());
@@ -185,8 +184,10 @@ public class UserController extends HttpServlet {
             keyword = keyword.trim();
         }
 
-        List<UserView> users = userDAO.filterUsersPaging(keyword, status, filterType, sort, offset, pageSize, userRole);
-        int totalItem = userDAO.countFilterUsers(keyword, status, filterType, userRole);
+        List<UserView> users = userDAO.filterUsersPaging(keyword, status, filterType, sort, offset, pageSize, userRole,
+                currentUser.getId(), currentUser.getType());
+        int totalItem = userDAO.countFilterUsers(keyword, status, filterType, userRole, currentUser.getId(),
+                currentUser.getType());
 
         int totalPages = (int) Math.ceil((double) totalItem / pageSize);
         // Query String
@@ -249,7 +250,7 @@ public class UserController extends HttpServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
             return;
         }
-        
+
         String action = request.getParameter("action");
         String mode = request.getParameter("mode");
         String idRaw = request.getParameter("id");
@@ -291,8 +292,10 @@ public class UserController extends HttpServlet {
                 int roleId = Integer.parseInt(role);
                 String username = request.getParameter("username");
                 String password = request.getParameter("password");
-                 Map<String, String> validateErrors =
-                UserValidation.validateCreate(username, password, email, fullName, phone, userDAO);
+                String idCard = request.getParameter("idCard");
+                String address = request.getParameter("address");
+                Map<String, String> validateErrors = UserValidation.validateCreate(username, password, email, fullName,
+                        phone, userDAO);
                 errors.putAll(validateErrors);
 
                 if (!errors.isEmpty()) {
@@ -304,18 +307,26 @@ public class UserController extends HttpServlet {
                     request.setAttribute("fullName", fullName);
                     request.setAttribute("phone", phone);
                     request.setAttribute("roleId", role);
+                    request.setAttribute("idCard", idCard);
+                    request.setAttribute("address", address);
                     request.getRequestDispatcher("/user/users.jsp").forward(request, response);
                     return;
                 }
 
+                // Auto-generate internal user code based on role: A12345, M12345, S12345
+                String internalUserCode = generateInternalUserCode(roleId);
+
                 userDAO.insertInternalUser(
-                        username, password, email, fullName, phone, fileName, roleId);
+                        username, password, email, fullName, phone, fileName, roleId, internalUserCode, idCard,
+                        address);
             }
 
             // ===== UPDATE =====
             if ("edit".equals(mode)) {
                 int id = Integer.parseInt(idRaw);
-                int roleId = Integer.parseInt(role);
+                int roleId = (role != null && !role.isEmpty()) ? Integer.parseInt(role) : 0;
+                String idCard = request.getParameter("idCard");
+                String address = request.getParameter("address");
 
                 // Validate email
                 if (!UserValidation.isValidEmail(email)) {
@@ -344,6 +355,8 @@ public class UserController extends HttpServlet {
                     request.setAttribute("targetUser", user);
                     request.setAttribute("mode", "edit");
                     request.setAttribute("roleId", role);
+                    request.setAttribute("idCard", idCard);
+                    request.setAttribute("address", address);
                     request.getRequestDispatcher("/user/users.jsp").forward(request, response);
                     return;
                 }
@@ -355,11 +368,36 @@ public class UserController extends HttpServlet {
                 }
 
                 userDAO.updateInternalUser(
-                        id, email, fullName, phone, fileName, roleId);
+                        id, email, fullName, phone, fileName, roleId, idCard, address);
             }
         }
 
         response.sendRedirect(request.getContextPath() + "/user/list");
+    }
+
+    // Helper method to generate internal user code based on role
+    // Format: Role prefix + 4-5 random digits
+    // Admin -> A12345, Manager -> M12345, Staff -> S12345
+    private String generateInternalUserCode(int roleId) {
+        String prefix;
+        switch (roleId) {
+            case 1: // Admin
+                prefix = "A";
+                break;
+            case 2: // Manager
+                prefix = "M";
+                break;
+            case 3: // Staff
+                prefix = "S";
+                break;
+            default:
+                prefix = "U"; // Unknown
+        }
+
+        // Random 4-5 digits (10000-99999)
+        int randomNum = (int) (Math.random() * 90000 + 10000);
+
+        return prefix + randomNum;
     }
 
     /**
