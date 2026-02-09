@@ -9,6 +9,7 @@ import java.util.*;
 import model.Warehouse;
 import model.WarehouseType;
 import dao.WarehouseTypeDAO;
+import java.time.LocalDate;
 
 public class WarehouseDAO extends DBContext {
 
@@ -32,6 +33,7 @@ public class WarehouseDAO extends DBContext {
             Integer typeId,
             Double minPrice, Double maxPrice,
             Double minArea, Double maxArea,
+            LocalDate rentStart, LocalDate rentEnd,
             String sort,
             int offset, int limit
     ) {
@@ -44,7 +46,7 @@ public class WarehouseDAO extends DBContext {
                 + "MIN(s.price_per_unit) AS min_price, "
                 + "MIN(s.area) AS min_area "
                 + "FROM Warehouse w "
-                + "LEFT JOIN Storage_unit s ON w.warehouse_id = s.warehouse_id "
+                + "JOIN Storage_unit s ON w.warehouse_id = s.warehouse_id "
                 + "WHERE w.status = 1 "
         );
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -74,6 +76,18 @@ public class WarehouseDAO extends DBContext {
         if (maxArea != null) {
             sql.append("AND s.area <= ? ");
         }
+        if (rentStart != null && rentEnd != null) {
+            sql.append(
+                    "AND NOT EXISTS ( "
+                    + "   SELECT 1 FROM Contract_Storage_unit csu "
+                    + "   JOIN Contract c ON csu.contract_id = c.contract_id "
+                    + "   WHERE csu.unit_id = s.unit_id "
+                    + "   AND c.status IN (1,2) "
+                    + "   AND c.start_date <= ? "
+                    + "   AND c.end_date >= ? "
+                    + ") "
+            );
+        }
 
         sql.append("GROUP BY w.warehouse_id ");
 
@@ -92,6 +106,7 @@ public class WarehouseDAO extends DBContext {
         } else {
             sql.append("ORDER BY w.warehouse_id DESC ");
         }
+
         sql.append("LIMIT ? OFFSET ?");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
@@ -118,13 +133,17 @@ public class WarehouseDAO extends DBContext {
                 ps.setDouble(index++, maxPrice);
             }
 
-            // ✅ set area
             if (minArea != null) {
                 ps.setDouble(index++, minArea);
             }
 
             if (maxArea != null) {
                 ps.setDouble(index++, maxArea);
+            }
+
+            if (rentStart != null && rentEnd != null) {
+                ps.setDate(index++, java.sql.Date.valueOf(rentEnd));
+                ps.setDate(index++, java.sql.Date.valueOf(rentStart));
             }
 
             ps.setInt(index++, limit);
@@ -156,10 +175,13 @@ public class WarehouseDAO extends DBContext {
     }
 
     // Đếm tổng số lượng kết quả để tính totalPages
-    public int getTotalRecords(String keyword, String location,
+    public int getTotalRecords(
+            LocalDate rentStart, LocalDate rentEnd,
+            String keyword, String location,
             Integer typeId,
             Double minPrice, Double maxPrice,
-            Double minArea, Double maxArea) {
+            Double minArea, Double maxArea
+    ) {
 
         StringBuilder sql = new StringBuilder(
                 "SELECT COUNT(DISTINCT w.warehouse_id) "
@@ -188,13 +210,26 @@ public class WarehouseDAO extends DBContext {
             sql.append("AND s.price_per_unit <= ? ");
         }
 
-        // ✅ thêm area
         if (minArea != null) {
             sql.append("AND s.area >= ? ");
         }
 
         if (maxArea != null) {
             sql.append("AND s.area <= ? ");
+        }
+
+        // ✅ PHẢI CÓ date filter giống hệt hàm list
+        if (rentStart != null && rentEnd != null) {
+            sql.append(
+                    "AND NOT EXISTS ( "
+                    + "   SELECT 1 FROM Contract_Storage_unit csu "
+                    + "   JOIN Contract c ON csu.contract_id = c.contract_id "
+                    + "   WHERE csu.unit_id = s.unit_id "
+                    + "   AND c.status IN (1,2) "
+                    + "   AND c.start_date <= ? "
+                    + "   AND c.end_date >= ? "
+                    + ") "
+            );
         }
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
@@ -227,6 +262,11 @@ public class WarehouseDAO extends DBContext {
 
             if (maxArea != null) {
                 ps.setDouble(idx++, maxArea);
+            }
+
+            if (rentStart != null && rentEnd != null) {
+                ps.setDate(idx++, java.sql.Date.valueOf(rentEnd));
+                ps.setDate(idx++, java.sql.Date.valueOf(rentStart));
             }
 
             ResultSet rs = ps.executeQuery();
@@ -304,54 +344,45 @@ public class WarehouseDAO extends DBContext {
         }
     }
 
-//    public static void main(String[] args) {
-//
-//        WarehouseDAO dao = new WarehouseDAO();
-//
-//        // ====== giả lập dữ liệu filter từ user ======
-//        String location = "";        // hoặc "Hà Nội"
-//        Integer typeId = null;       // hoặc 1, 2, 3...
-//        Double minPrice = null;      // hoặc 100.0
-//        Double maxPrice = null;      // hoặc 500.0
-//        Double minArea = null;       // hoặc 50.0
-//        Double maxArea = null;       // hoặc 200.0
-//
-//        int page = 1;
-//        int pageSize = 6;
-//        int offset = (page - 1) * pageSize;
-//
-//        // ====== TEST GET LIST ======
-//        System.out.println("===== TEST getFilteredWarehouses =====");
-//
-//        List<Warehouse> list = dao.getFilteredWarehouses(
-//                location,
-//                minPrice, maxPrice,
-//                minArea, maxArea,
-//                offset, pageSize
-//        );
-//
-//        System.out.println("Số warehouse lấy được: " + list.size());
-//
-//        for (Warehouse w : list) {
-//            System.out.println(
-//                    w.getWarehouseId() + " | "
-//                    + w.getName() + " | "
-//                    + w.getAddress()
-//            );
-//        }
-//
-//        // ====== TEST COUNT ======
-//        System.out.println("\n===== TEST getTotalRecords =====");
-//
-//        int total = dao.getTotalRecords(
-//                location,
-//                minPrice, maxPrice,
-//                minArea, maxArea
-//        );
-//
-//        System.out.println("Tổng số warehouse thỏa điều kiện: " + total);
-//
-//        int totalPages = (int) Math.ceil((double) total / pageSize);
-//        System.out.println("Tổng số trang: " + totalPages);
-//    }
+    public static void main(String[] args) {
+
+        WarehouseDAO warehouseDAO = new WarehouseDAO();
+
+        // ===== TEST DATE =====
+        LocalDate rentStart = LocalDate.of(2025, 2, 10);
+        LocalDate rentEnd = LocalDate.of(2025, 2, 15);
+
+        // ===== CALL DAO =====
+        List<Warehouse> result = warehouseDAO.getFilteredWarehouses(
+                null, // keyword
+                null, // location
+                null, // typeId
+                null, null, // minPrice, maxPrice
+                null, null, // minArea, maxArea
+                rentStart,
+                rentEnd,
+                null, // sort
+                0, // offset
+                100 // limit
+        );
+
+        // ===== PRINT RESULT =====
+        System.out.println("===== FILTER RESULT =====");
+        System.out.println("Rent start: " + rentStart);
+        System.out.println("Rent end  : " + rentEnd);
+        System.out.println("Total warehouses found: " + result.size());
+
+        for (Warehouse w : result) {
+            System.out.println(
+                    "Warehouse ID: " + w.getWarehouseId()
+                    + " | Name: " + w.getName()
+                    + " | Min price: " + w.getMinPrice()
+                    + " | Min area: " + w.getMinArea()
+            );
+        }
+
+        System.out.println("===== END =====");
+    }
+
+
 }

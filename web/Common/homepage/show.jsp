@@ -158,7 +158,7 @@
 
             /* PAGE */
             .page-container {
-                max-width: 1400px;   /* hoặc 100% nếu bạn muốn full */
+                max-width: 1600px;   /* hoặc 100% nếu bạn muốn full */
                 margin: 0 auto;
                 padding: 32px 24px;  /* giảm padding ngang */
             }
@@ -166,7 +166,7 @@
             /* GRID */
             .page-grid {
                 display: grid;
-                grid-template-columns: 280px 1fr;
+                grid-template-columns: 25% 1fr;
                 gap: 32px;
             }
 

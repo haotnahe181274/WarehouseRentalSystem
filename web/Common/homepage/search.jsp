@@ -16,6 +16,16 @@
 
     <form action="homepage" method="GET">
 
+        <!-- RENT DATE -->
+        <div class="filter-group">
+            <label>Rental Period</label>
+
+            <div class="date-row">
+                <input type="date" name="startDate" value="${param.startDate}">
+                <input type="date" name="endDate" value="${param.endDate}">
+            </div>
+        </div>
+
         <!-- LOCATION -->
         <div class="filter-group">
             <label>Location</label>
@@ -174,6 +184,16 @@
     .filter-button:hover {
         background: #000;
     }
+    /* DATE ROW */
+    .date-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    .date-row input {
+        flex: 1;
+    }
+
 
 
 </style>

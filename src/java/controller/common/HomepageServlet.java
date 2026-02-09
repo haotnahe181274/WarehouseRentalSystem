@@ -14,6 +14,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,8 @@ public class HomepageServlet extends HttpServlet {
         // ================== 1. LẤY PARAM ==================
         String location = request.getParameter("location");
         String typeIdRaw = request.getParameter("typeId");
+        String startDateRaw = request.getParameter("startDate");
+        String endDateRaw = request.getParameter("endDate");
 
         String minPriceRaw = request.getParameter("minPrice");
         String maxPriceRaw = request.getParameter("maxPrice");
@@ -85,9 +88,18 @@ public class HomepageServlet extends HttpServlet {
         Integer typeId = null;
         Double minPrice = null, maxPrice = null;
         Double minArea = null, maxArea = null;
+        LocalDate startDate = null;
+        LocalDate endDate = null;
         int page = 1;
 
         try {
+            if (startDateRaw != null && !startDateRaw.isEmpty()) {
+                startDate = LocalDate.parse(startDateRaw);
+            }
+
+            if (endDateRaw != null && !endDateRaw.isEmpty()) {
+                endDate = LocalDate.parse(endDateRaw);
+            }
             if (typeIdRaw != null && !typeIdRaw.isEmpty()) {
                 typeId = Integer.parseInt(typeIdRaw);
             }
@@ -129,6 +141,7 @@ public class HomepageServlet extends HttpServlet {
                 keyword, location, typeId,
                 minPrice, maxPrice,
                 minArea, maxArea,
+                startDate, endDate,
                 sort,
                 offset, pageSize
         );
@@ -140,6 +153,7 @@ public class HomepageServlet extends HttpServlet {
         }
 
         int totalRecords = warehouseDAO.getTotalRecords(
+                startDate, endDate,
                 keyword, location,
                 typeId,
                 minPrice, maxPrice,
@@ -173,6 +187,12 @@ public class HomepageServlet extends HttpServlet {
         if (maxArea != null) {
             qs.append("&maxArea=").append(maxArea);
         }
+        if (startDate != null) {
+            qs.append("&startDate=").append(startDate);
+        }
+        if (endDate != null) {
+            qs.append("&endDate=").append(endDate);
+        }
 
         // ================== 5. SET ATTRIBUTE ==================
         request.setAttribute("queryString", qs.toString());
@@ -181,6 +201,8 @@ public class HomepageServlet extends HttpServlet {
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("totalItems", totalRecords);
         request.setAttribute("imageMap", imageMap);
+        request.setAttribute("startDate", startDate);
+        request.setAttribute("endDate", endDate);
 
         request.setAttribute("locations", warehouseDAO.getAllLocations());
         request.setAttribute("warehouseTypes", typeDAO.getAllTypes());
