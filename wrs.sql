@@ -1,5 +1,5 @@
 -- ==============================
--- DATABASE
+-- DATABASE SETUP
 -- ==============================
 DROP DATABASE IF EXISTS wrs;
 CREATE DATABASE wrs;
@@ -33,9 +33,14 @@ CREATE TABLE Internal_user (
     created_at DATETIME,
     role_id INT,
     image VARCHAR(255),
+    -- Cột mới thêm vào từ ảnh
+    id_card VARCHAR(20),
+    address VARCHAR(255),
+    internal_user_code VARCHAR(20),
     FOREIGN KEY (role_id) REFERENCES Role(role_id)
 );
 
+-- Đã đổi lại thành Renter như yêu cầu
 CREATE TABLE Renter (
     renter_id INT AUTO_INCREMENT PRIMARY KEY,
     user_name VARCHAR(50),
@@ -86,24 +91,67 @@ CREATE TABLE Storage_unit (
     FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id)
 );
 
+-- Cập nhật bảng Item theo ảnh (thêm renter_id, unit_id)
 CREATE TABLE Item (
     item_id INT AUTO_INCREMENT PRIMARY KEY,
     item_name VARCHAR(100),
-    description TEXT
+    description TEXT,
+    renter_id INT, -- Đổi lại thành renter_id
+    unit_id INT,
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id)
+);
+
+-- Bảng mới từ ảnh
+CREATE TABLE storage_unit_item (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    quantity INT,
+    item_id INT,
+    unit_id INT,
+    FOREIGN KEY (item_id) REFERENCES Item(item_id),
+    FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id)
 );
 
 -- ==============================
--- CONTRACT
+-- REQUEST & CONTRACT
 -- ==============================
+CREATE TABLE Rent_request (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
+    request_date DATETIME,
+    status INT,
+    request_type VARCHAR(20),
+    renter_id INT,
+    warehouse_id INT,
+    internal_user_id INT,
+    processed_date DATETIME,
+    start_date DATE,
+    end_date DATE,
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
+);
+
+-- Bảng mới từ ảnh
+CREATE TABLE rent_request_item (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    quantity INT,
+    item_id INT,
+    request_id INT,
+    FOREIGN KEY (item_id) REFERENCES Item(item_id),
+    FOREIGN KEY (request_id) REFERENCES Rent_request(request_id)
+);
+
 CREATE TABLE Contract (
     contract_id INT AUTO_INCREMENT PRIMARY KEY,
     start_date DATETIME,
     end_date DATETIME,
     status INT,
-    renter_id INT,
+    renter_id INT, -- Đổi lại thành renter_id
     warehouse_id INT,
+    request_id INT, -- Cột mới thêm vào từ ảnh
     FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id)
+    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
+    FOREIGN KEY (request_id) REFERENCES Rent_request(request_id)
 );
 
 CREATE TABLE Contract_Storage_unit (
@@ -137,22 +185,6 @@ CREATE TABLE Invoice (
     total_amount DECIMAL(10,2),
     payment_id INT,
     FOREIGN KEY (payment_id) REFERENCES Payment(payment_id)
-);
-
--- ==============================
--- RENT REQUEST
--- ==============================
-CREATE TABLE Rent_request (
-    request_id INT AUTO_INCREMENT PRIMARY KEY,
-    request_date DATETIME,
-    status INT,
-    renter_id INT,
-    warehouse_id INT,
-    internal_user_id INT,
-    processed_date DATETIME,
-    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
-    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
 );
 
 -- ==============================
@@ -197,7 +229,7 @@ CREATE TABLE Feedback (
     comment TEXT,
     is_anonymous BOOLEAN,
     feedback_date DATETIME,
-    renter_id INT,
+    renter_id INT, -- Đổi lại thành renter_id
     warehouse_id INT,
     contract_id INT,
     FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
@@ -244,8 +276,9 @@ CREATE TABLE Incident_report (
 );
 
 -- ==============================
--- INSERT ROLE (3 ROLE)
+-- INSERT DATA
 -- ==============================
+
 INSERT INTO Role (role_name) VALUES
 ('Admin'),
 ('Manager'),
@@ -256,18 +289,20 @@ INSERT INTO Warehouse_Type (type_name, description) VALUES
 ('Normal Storage', 'Kho trong nhà'),
 ('High Security', 'Kho ngoài trời');
 
+-- Thêm dữ liệu giả cho id_card, address, internal_user_code
 INSERT INTO Internal_user
-(user_name, password, full_name, email, phone, status, created_at, role_id, image)
+(user_name, password, full_name, email, phone, status, created_at, role_id, image, id_card, address, internal_user_code)
 VALUES
-('admin01', '123456', 'Admin System', 'admin@mail.com', '090000001', 1, NOW(), 1, 'default.jpg'),
-('manager01', '123456', 'Manager A', 'manager@mail.com', '090000002', 1, NOW(), 2, 'default.jpg'),
-('staff01', '123456', 'Staff A', 'staff1@mail.com', '090000003', 1, NOW(), 3, 'default.jpg'),
-('staff02', '123456', 'Staff B', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg'),
-('admin02', '123456', 'Admin Backup', 'admin2@mail.com', '090000005', 1, NOW(), 1, 'default.jpg'),
-('manager02', '123456', 'Manager B', 'manager2@mail.com', '090000006', 1, NOW(), 2, 'default.jpg'),
-('staff03', '123456', 'Staff C', 'staff3@mail.com', '090000007', 1, NOW(), 3, 'default.jpg'),
-('staff04', '123456', 'Staff D', 'staff4@mail.com', '090000008', 1, NOW(), 3, 'default.jpg');
+('admin01', '123456', 'Admin System', 'admin@mail.com', '090000001', 1, NOW(), 1, 'default.jpg', '001001001', 'Hanoi', 'IU001'),
+('manager01', '123456', 'Manager A', 'manager@mail.com', '090000002', 1, NOW(), 2, 'default.jpg', '001001002', 'Vinh Phuc', 'IU002'),
+('staff01', '123456', 'Staff A', 'staff1@mail.com', '090000003', 1, NOW(), 3, 'default.jpg', '001001003', 'Bac Ninh', 'IU003'),
+('staff02', '123456', 'Staff B', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg', '001001004', 'Hai Phong', 'IU004'),
+('admin02', '123456', 'Admin Backup', 'admin2@mail.com', '090000005', 1, NOW(), 1, 'default.jpg', '001001005', 'Hanoi', 'IU005'),
+('manager02', '123456', 'Manager B', 'manager2@mail.com', '090000006', 1, NOW(), 2, 'default.jpg', '001001006', 'Da Nang', 'IU006'),
+('staff03', '123456', 'Staff C', 'staff3@mail.com', '090000007', 1, NOW(), 3, 'default.jpg', '001001007', 'Ho Chi Minh', 'IU007'),
+('staff04', '123456', 'Staff D', 'staff4@mail.com', '090000008', 1, NOW(), 3, 'default.jpg', '001001008', 'Can Tho', 'IU008');
 
+-- Insert vào Renter thay vì Customer
 INSERT INTO Renter
 (user_name, password, full_name, email, phone, status, created_at, image)
 VALUES
@@ -307,111 +342,33 @@ INSERT INTO Warehouse (name, address, description, status, warehouse_type_id) VA
 ('Kien Giang Marine Warehouse', 'Kiên Giang', 'Kho hàng hải sản', 1, 1),
 ('Ca Mau Cold Storage', 'Cà Mau', 'Kho lạnh thủy sản', 2, 1);
 
-
 INSERT INTO Warehouse_image (image_url, image_type, is_primary, status, created_at, warehouse_id) VALUES
--- Warehouse 1
-('w1_ext.jpg','EXTERIOR',1,1,NOW(),1),
-('w1_int.jpg','INTERIOR',0,1,NOW(),1),
-
--- Warehouse 2
-('w2_ext.jpg','EXTERIOR',1,1,NOW(),2),
-('w2_int.jpg','INTERIOR',0,1,NOW(),2),
-
--- Warehouse 3
-('w3_ext.jpg','EXTERIOR',1,1,NOW(),3),
-('w3_int.jpg','INTERIOR',0,1,NOW(),3),
-
--- Warehouse 4
-('w4_ext.jpg','EXTERIOR',1,1,NOW(),4),
-('w4_int.jpg','INTERIOR',0,1,NOW(),4),
-
--- Warehouse 5
-('w5_ext.jpg','EXTERIOR',1,1,NOW(),5),
-('w5_int.jpg','INTERIOR',0,1,NOW(),5),
-
--- Warehouse 6
-('w6_ext.jpg','EXTERIOR',1,1,NOW(),6),
-('w6_int.jpg','INTERIOR',0,1,NOW(),6),
-
--- Warehouse 7
-('w7_ext.jpg','EXTERIOR',1,1,NOW(),7),
-('w7_int.jpg','INTERIOR',0,1,NOW(),7),
-
--- Warehouse 8
-('w8_ext.jpg','EXTERIOR',1,0,NOW(),8),
-('w8_int.jpg','INTERIOR',0,0,NOW(),8),
-
--- Warehouse 9
-('w9_ext.jpg','EXTERIOR',1,1,NOW(),9),
-('w9_int.jpg','INTERIOR',0,1,NOW(),9),
-
--- Warehouse 10
-('w10_ext.jpg','EXTERIOR',1,1,NOW(),10),
-('w10_int.jpg','INTERIOR',0,1,NOW(),10),
-
--- Warehouse 11
-('w11_ext.jpg','EXTERIOR',1,1,NOW(),11),
-('w11_int.jpg','INTERIOR',0,1,NOW(),11),
-
--- Warehouse 12
-('w12_ext.jpg','EXTERIOR',1,1,NOW(),12),
-('w12_int.jpg','INTERIOR',0,1,NOW(),12),
-
--- Warehouse 13
-('w13_ext.jpg','EXTERIOR',1,1,NOW(),13),
-('w13_int.jpg','INTERIOR',0,1,NOW(),13),
-
--- Warehouse 14
-('w14_ext.jpg','EXTERIOR',1,1,NOW(),14),
-('w14_int.jpg','INTERIOR',0,1,NOW(),14),
-
--- Warehouse 15
-('w15_ext.jpg','EXTERIOR',1,1,NOW(),15),
-('w15_int.jpg','INTERIOR',0,1,NOW(),15),
-
--- Warehouse 16
-('w16_ext.jpg','EXTERIOR',1,1,NOW(),16),
-('w16_int.jpg','INTERIOR',0,1,NOW(),16),
-
--- Warehouse 17
-('w17_ext.jpg','EXTERIOR',1,1,NOW(),17),
-('w17_int.jpg','INTERIOR',0,1,NOW(),17),
-
--- Warehouse 18
-('w18_ext.jpg','EXTERIOR',1,1,NOW(),18),
-('w18_int.jpg','INTERIOR',0,1,NOW(),18),
-
--- Warehouse 19
-('w19_ext.jpg','EXTERIOR',1,1,NOW(),19),
-('w19_int.jpg','INTERIOR',0,1,NOW(),19),
-
--- Warehouse 20
-('w20_ext.jpg','EXTERIOR',1,1,NOW(),20),
-('w20_int.jpg','INTERIOR',0,1,NOW(),20),
-
--- Warehouse 21
-('w21_ext.jpg','EXTERIOR',1,1,NOW(),21),
-('w21_int.jpg','INTERIOR',0,1,NOW(),21),
-
--- Warehouse 22
-('w22_ext.jpg','EXTERIOR',1,1,NOW(),22),
-('w22_int.jpg','INTERIOR',0,1,NOW(),22),
-
--- Warehouse 23
-('w23_ext.jpg','EXTERIOR',1,0,NOW(),23),
-('w23_int.jpg','INTERIOR',0,0,NOW(),23),
-
--- Warehouse 24
-('w24_ext.jpg','EXTERIOR',1,1,NOW(),24),
-('w24_int.jpg','INTERIOR',0,1,NOW(),24),
-
--- Warehouse 25
-('w25_ext.jpg','EXTERIOR',1,1,NOW(),25),
-('w25_int.jpg','INTERIOR',0,1,NOW(),25),
-
--- Warehouse 26
-('w26_ext.jpg','EXTERIOR',1,1,NOW(),26),
-('w26_int.jpg','INTERIOR',0,1,NOW(),26);
+('w1_ext.jpg','EXTERIOR',1,1,NOW(),1), ('w1_int.jpg','INTERIOR',0,1,NOW(),1),
+('w2_ext.jpg','EXTERIOR',1,1,NOW(),2), ('w2_int.jpg','INTERIOR',0,1,NOW(),2),
+('w3_ext.jpg','EXTERIOR',1,1,NOW(),3), ('w3_int.jpg','INTERIOR',0,1,NOW(),3),
+('w4_ext.jpg','EXTERIOR',1,1,NOW(),4), ('w4_int.jpg','INTERIOR',0,1,NOW(),4),
+('w5_ext.jpg','EXTERIOR',1,1,NOW(),5), ('w5_int.jpg','INTERIOR',0,1,NOW(),5),
+('w6_ext.jpg','EXTERIOR',1,1,NOW(),6), ('w6_int.jpg','INTERIOR',0,1,NOW(),6),
+('w7_ext.jpg','EXTERIOR',1,1,NOW(),7), ('w7_int.jpg','INTERIOR',0,1,NOW(),7),
+('w8_ext.jpg','EXTERIOR',1,0,NOW(),8), ('w8_int.jpg','INTERIOR',0,0,NOW(),8),
+('w9_ext.jpg','EXTERIOR',1,1,NOW(),9), ('w9_int.jpg','INTERIOR',0,1,NOW(),9),
+('w10_ext.jpg','EXTERIOR',1,1,NOW(),10), ('w10_int.jpg','INTERIOR',0,1,NOW(),10),
+('w11_ext.jpg','EXTERIOR',1,1,NOW(),11), ('w11_int.jpg','INTERIOR',0,1,NOW(),11),
+('w12_ext.jpg','EXTERIOR',1,1,NOW(),12), ('w12_int.jpg','INTERIOR',0,1,NOW(),12),
+('w13_ext.jpg','EXTERIOR',1,1,NOW(),13), ('w13_int.jpg','INTERIOR',0,1,NOW(),13),
+('w14_ext.jpg','EXTERIOR',1,1,NOW(),14), ('w14_int.jpg','INTERIOR',0,1,NOW(),14),
+('w15_ext.jpg','EXTERIOR',1,1,NOW(),15), ('w15_int.jpg','INTERIOR',0,1,NOW(),15),
+('w16_ext.jpg','EXTERIOR',1,1,NOW(),16), ('w16_int.jpg','INTERIOR',0,1,NOW(),16),
+('w17_ext.jpg','EXTERIOR',1,1,NOW(),17), ('w17_int.jpg','INTERIOR',0,1,NOW(),17),
+('w18_ext.jpg','EXTERIOR',1,1,NOW(),18), ('w18_int.jpg','INTERIOR',0,1,NOW(),18),
+('w19_ext.jpg','EXTERIOR',1,1,NOW(),19), ('w19_int.jpg','INTERIOR',0,1,NOW(),19),
+('w20_ext.jpg','EXTERIOR',1,1,NOW(),20), ('w20_int.jpg','INTERIOR',0,1,NOW(),20),
+('w21_ext.jpg','EXTERIOR',1,1,NOW(),21), ('w21_int.jpg','INTERIOR',0,1,NOW(),21),
+('w22_ext.jpg','EXTERIOR',1,1,NOW(),22), ('w22_int.jpg','INTERIOR',0,1,NOW(),22),
+('w23_ext.jpg','EXTERIOR',1,0,NOW(),23), ('w23_int.jpg','INTERIOR',0,0,NOW(),23),
+('w24_ext.jpg','EXTERIOR',1,1,NOW(),24), ('w24_int.jpg','INTERIOR',0,1,NOW(),24),
+('w25_ext.jpg','EXTERIOR',1,1,NOW(),25), ('w25_int.jpg','INTERIOR',0,1,NOW(),25),
+('w26_ext.jpg','EXTERIOR',1,1,NOW(),26), ('w26_int.jpg','INTERIOR',0,1,NOW(),26);
 
 
 INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, warehouse_id) VALUES
@@ -442,17 +399,39 @@ INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, 
 ('KG-A1',1,120,4800000,'Kho hải sản',25),
 ('CM-A1',1,140,5500000,'Kho lạnh thủy sản',26);
 
-INSERT INTO Item (item_name, description) VALUES
-('Electronics', 'Thiết bị điện tử'),
-('Frozen Food', 'Thực phẩm đông lạnh'),
-('Furniture', 'Nội thất');
+-- Cập nhật Item inserts để bao gồm renter_id và unit_id
+INSERT INTO Item (item_name, description, renter_id, unit_id) VALUES
+('Electronics', 'Thiết bị điện tử', 1, 1),
+('Frozen Food', 'Thực phẩm đông lạnh', 2, 2),
+('Furniture', 'Nội thất', 3, 3);
 
-INSERT INTO Contract
-(start_date, end_date, status, renter_id, warehouse_id)
+-- Dữ liệu mới cho storage_unit_item
+INSERT INTO storage_unit_item (quantity, item_id, unit_id) VALUES
+(100, 1, 1),
+(50, 2, 2),
+(20, 3, 3);
+
+-- Cập nhật Rent_request để bao gồm renter_id, start_date, end_date
+INSERT INTO Rent_request
+(request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date, start_date, end_date)
 VALUES
-(NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1, 1, 1),
-(NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1, 2, 2),
-(NOW(), DATE_ADD(NOW(), INTERVAL 12 MONTH), 1, 3, 3);
+(NOW(), 1, 'RENT',      1, 1, 2, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 6 MONTH)),
+(NOW(), 1, 'CHECK_IN',  2, 2, 3, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
+(NOW(), 1, 'CHECK_OUT', 3, 3, 4, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 7 DAY));
+
+-- Dữ liệu mới cho rent_request_item
+INSERT INTO rent_request_item (quantity, item_id, request_id) VALUES
+(100, 1, 1),
+(50, 2, 2),
+(20, 3, 3);
+
+-- Cập nhật Contract để bao gồm renter_id và request_id
+INSERT INTO Contract
+(start_date, end_date, status, renter_id, warehouse_id, request_id)
+VALUES
+(NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1, 1, 1, 1),
+(NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1, 2, 2, 2),
+(NOW(), DATE_ADD(NOW(), INTERVAL 12 MONTH), 1, 3, 3, 3);
 
 INSERT INTO Contract_Storage_unit
 (contract_id, unit_id, rent_price, start_date, end_date, status)
@@ -472,13 +451,6 @@ INSERT INTO Invoice (issue_date, total_amount, payment_id) VALUES
 (NOW(), 12000000, 1),
 (NOW(), 9000000, 2),
 (NOW(), 36000000, 3);
-
-INSERT INTO Rent_request
-(request_date, status, renter_id, warehouse_id, internal_user_id, processed_date)
-VALUES
-(NOW(), 1, 1, 1, 2, NOW()),
-(NOW(), 0, 2, 2, NULL, NULL),
-(NOW(), 1, 3, 3, 1, NOW());
 
 INSERT INTO Staff_assignment
 (assigned_date, assigned_to, warehouse_id, assigned_by, assignment_type,
