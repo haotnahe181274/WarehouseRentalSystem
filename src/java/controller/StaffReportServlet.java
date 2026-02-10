@@ -34,7 +34,7 @@ public class StaffReportServlet extends HttpServlet {
             request.setAttribute("error", "Tài khoản của bạn chưa được gán vào kho nào!");
         }
 
-        request.getRequestDispatcher("staff_report.jsp").forward(request, response);
+        request.getRequestDispatcher("staff/staff_report.jsp").forward(request, response);
     }
 
     @Override
