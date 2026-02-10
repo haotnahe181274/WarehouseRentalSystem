@@ -6,7 +6,7 @@
         <head>
             <meta charset="UTF-8">
             <title>Profile</title>
-            <!-- Removed Bootstrap CDN -->
+            
             <style>
                 /* Custom Reset/Utilities */
                 * {

@@ -159,16 +159,8 @@ public class UserDAO extends DBContext {
         }
     }
 
-    public List<UserView> filterUsersPaging(
-            String keyword,
-            String status,
-            String type,
-            String sort,
-            int offset,
-            int pageSize,
-            String viewerRole,
-            Integer excludeId,
-            String excludeType) {
+    public List<UserView> getAllUsers(String viewerRole, Integer excludeId, String excludeType,
+            String filterType, Integer filterStatus, String filterRole) {
         List<UserView> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "select * from ( "
@@ -186,50 +178,46 @@ public class UserDAO extends DBContext {
                         + "from renter re "
                         + ") u where 1=1 ");
 
-        if (keyword != null && !keyword.isEmpty()) {
-            sql.append(" and u.name like ?");
-        }
-        if (status != null && !status.isEmpty()) {
-            sql.append(" and u.status = ?");
-        }
-        if (type != null && !type.isEmpty()) {
-            sql.append(" and u.type = ?");
-        }
-        // --- Added Role Filter Logic ---
+        List<Object> params = new ArrayList<>();
+
         if ("Manager".equals(viewerRole)) {
-            // Manager only sees Staff and Renter
             sql.append(" AND (u.role = 'Staff' OR u.type = 'RENTER') ");
         }
 
         if (excludeId != null && excludeType != null) {
             sql.append(" AND NOT (u.id = ? AND u.type = ?) ");
-        }
-        // -------------------------------
-
-        if ("asc".equalsIgnoreCase(sort)) {
-            sql.append(" order by u.name asc");
-        } else if ("desc".equalsIgnoreCase(sort)) {
-            sql.append(" order by u.name desc");
+            params.add(excludeId);
+            params.add(excludeType);
         }
 
-        sql.append(" LIMIT ? OFFSET ? ");
+        if (filterType != null && !filterType.isEmpty()) {
+            sql.append(" AND u.type = ? ");
+            params.add(filterType);
+        }
+
+        if (filterStatus != null) {
+            sql.append(" AND u.status = ? ");
+            params.add(filterStatus);
+        }
+
+        // Role filter applies only if filtering by INTERNAL or it matches one of the
+        // internal
+        // roles.
+        // If filterType is RENTER, role filter shouldn't match anything usually, but
+        // sql handles
+        // it.
+        if (filterRole != null && !filterRole.isEmpty()) {
+            sql.append(" AND u.role = ? ");
+            params.add(filterRole);
+        }
+
+        sql.append(" ORDER BY u.name ASC ");
+
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-            int i = 1;
-            if (keyword != null && !keyword.isEmpty()) {
-                ps.setString(i++, "%" + keyword + "%");
+            int index = 1;
+            for (Object param : params) {
+                ps.setObject(index++, param);
             }
-            if (status != null && !status.isEmpty()) {
-                ps.setInt(i++, Integer.parseInt(status));
-            }
-            if (type != null && !type.isEmpty()) {
-                ps.setString(i++, type);
-            }
-            if (excludeId != null && excludeType != null) {
-                ps.setInt(i++, excludeId);
-                ps.setString(i++, excludeType);
-            }
-            ps.setInt(i++, pageSize);
-            ps.setInt(i++, offset);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapUserView(rs));
@@ -238,66 +226,6 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
-    }
-
-    public int countFilterUsers(
-            String keyword,
-            String status,
-            String type,
-            String viewerRole,
-            Integer excludeId,
-            String excludeType) {
-        StringBuilder sql = new StringBuilder(
-                "select count(*) from ( "
-                        + "select iu.internal_user_id as id, iu.user_name as name, iu.status, 'INTERNAL' as type, r.role_name as role "
-                        + "from internal_user iu "
-                        + "join role r on iu.role_id = r.role_id "
-                        + "union all "
-                        + "select re.renter_id as id, re.user_name as name, re.status, 'RENTER' as type, null as role "
-                        + "from renter re "
-                        + ") u where 1 = 1 ");
-        if (keyword != null && !keyword.isEmpty()) {
-            sql.append(" and u.name like ? ");
-        }
-        if (status != null && !status.isEmpty()) {
-            sql.append(" and u.status = ? ");
-        }
-        if (type != null && !type.isEmpty()) {
-            sql.append(" and u.type = ? ");
-        }
-
-        if ("Manager".equals(viewerRole)) {
-            sql.append(" AND (u.role = 'Staff' OR u.type = 'RENTER') ");
-        }
-
-        if (excludeId != null && excludeType != null) {
-            sql.append(" AND NOT (u.id = ? AND u.type = ?) ");
-        }
-
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-            int i = 1;
-            if (keyword != null && !keyword.isEmpty()) {
-                ps.setString(i++, "%" + keyword + "%");
-            }
-            if (status != null && !status.isEmpty()) {
-                ps.setInt(i++, Integer.parseInt(status));
-            }
-            if (type != null && !type.isEmpty()) {
-                ps.setString(i++, type);
-            }
-            if (excludeId != null && excludeType != null) {
-                ps.setInt(i++, excludeId);
-                ps.setString(i++, excludeType);
-            }
-
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
     }
 
     public boolean isUsernameExists(String username) {

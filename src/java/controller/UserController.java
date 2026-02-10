@@ -162,70 +162,42 @@ public class UserController extends HttpServlet {
             request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
         }
-        // Phân trang
-        int page = 1;
-        int pageSize = 6;
-        String pageRaw = request.getParameter("page");
-        if (pageRaw != null) {
+        // Load all users (DataTables handles pagination/sorting/searching client-side)
+        String filterType = request.getParameter("filterType");
+        String filterStatusRaw = request.getParameter("filterStatus");
+        String filterRole = request.getParameter("filterRole");
+
+        Integer filterStatus = null;
+        if (filterStatusRaw != null && !filterStatusRaw.isEmpty() && !filterStatusRaw.equals("All")) {
             try {
-                page = Integer.parseInt(pageRaw);
-            } catch (Exception e) {
-                page = 1;
+                filterStatus = Integer.parseInt(filterStatusRaw);
+            } catch (NumberFormatException e) {
+                // ignore
             }
         }
-        int offset = (page - 1) * pageSize;
 
-        String keyword = request.getParameter("keyword");
-        String status = request.getParameter("status");
-        String filterType = request.getParameter("filterType");
-        String sort = request.getParameter("sort");
-
-        if (keyword != null) {
-            keyword = keyword.trim();
+        if ("All".equals(filterType)) {
+            filterType = null;
+        }
+        if ("All".equals(filterRole)) {
+            filterRole = null;
         }
 
-        List<UserView> users = userDAO.filterUsersPaging(keyword, status, filterType, sort, offset, pageSize, userRole,
-                currentUser.getId(), currentUser.getType());
-        int totalItem = userDAO.countFilterUsers(keyword, status, filterType, userRole, currentUser.getId(),
-                currentUser.getType());
-
-        int totalPages = (int) Math.ceil((double) totalItem / pageSize);
-        // Query String
-        StringBuilder qs = new StringBuilder();
-
-        if (keyword != null && !keyword.isEmpty()) {
-            qs.append("keyword=").append(URLEncoder.encode(keyword, "UTF-8")).append("&");
-        }
-        if (status != null && !status.isEmpty()) {
-            qs.append("status=").append(status).append("&");
-        }
-        if (filterType != null && !filterType.isEmpty()) {
-            qs.append("filterType=").append(filterType).append("&");
-        }
-        if (sort != null && !sort.isEmpty()) {
-            qs.append("sort=").append(sort).append("&");
+        if ("RENTER".equalsIgnoreCase(filterType)) {
+            filterRole = null;
         }
 
-        String queryString = qs.toString();
-        if (queryString.endsWith("&")) {
-            queryString = queryString.substring(0, queryString.length() - 1);
-        }
-        if (!queryString.isEmpty()) {
-            queryString = "&" + queryString;
-        }
+        List<UserView> users = userDAO.getAllUsers(userRole, currentUser.getId(), currentUser.getType(),
+                filterType, filterStatus, filterRole);
+
         for (UserView u : users) {
             setDefaultImageIfNeeded(u);
         }
-        request.setAttribute("users", users);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("paginationUrl", request.getContextPath() + "/user/list");
-        request.setAttribute("queryString", queryString);
 
-        request.setAttribute("keyword", keyword);
-        request.setAttribute("status", status);
         request.setAttribute("filterType", filterType);
-        request.setAttribute("sort", sort);
+        request.setAttribute("filterStatus", filterStatus);
+        request.setAttribute("filterRole", filterRole);
+        request.setAttribute("users", users);
         request.getRequestDispatcher("/user/userlist.jsp").forward(request, response);
 
     }
@@ -298,6 +270,14 @@ public class UserController extends HttpServlet {
                         phone, userDAO);
                 errors.putAll(validateErrors);
 
+                if (!UserValidation.isValidIdCard(idCard)) {
+                    errors.put("idCard", "ID Card must be exactly 12 digits, no spaces");
+                }
+                if (!UserValidation.isValidString(address)) {
+                    errors.put("address",
+                            "Address must not have leading/trailing spaces or multiple consecutive spaces");
+                }
+
                 if (!errors.isEmpty()) {
                     request.setAttribute("errors", errors);
                     request.setAttribute("mode", "add");
@@ -334,7 +314,7 @@ public class UserController extends HttpServlet {
                 }
 
                 // Validate fullName
-                if (!UserValidation.isValidName(fullName)) {
+                if (!UserValidation.isValidString(fullName)) {
                     errors.put("fullName",
                             "Full name must not have leading/trailing spaces or multiple consecutive spaces");
                 }
@@ -342,6 +322,14 @@ public class UserController extends HttpServlet {
                 // Validate phone
                 if (!UserValidation.isValidPhone(phone)) {
                     errors.put("phone", "Phone must start with 0, contain only digits, max 10 characters");
+                }
+
+                if (!UserValidation.isValidIdCard(idCard)) {
+                    errors.put("idCard", "ID Card must be exactly 12 digits, no spaces");
+                }
+                if (!UserValidation.isValidString(address)) {
+                    errors.put("address",
+                            "Address must not have leading/trailing spaces or multiple consecutive spaces");
                 }
 
                 if (!errors.isEmpty()) {
