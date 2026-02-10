@@ -12,7 +12,7 @@
                     <c:otherwise>User Detail</c:otherwise>
                 </c:choose>
             </title>
-            
+
             <style>
                 /* Custom Reset/Utilities */
                 * {
@@ -452,6 +452,9 @@
                                                     <c:otherwise>
                                                         <input type="text" name="idCard" class="form-control-custom"
                                                             value="${not empty idCard ? idCard : targetUser.idCard}">
+                                                        <c:if test="${not empty errors.idCard}">
+                                                            <div class="error-msg">${errors.idCard}</div>
+                                                        </c:if>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </div>
@@ -479,6 +482,9 @@
                                                 <c:otherwise>
                                                     <input type="text" name="address" class="form-control-custom"
                                                         value="${not empty address ? address : targetUser.address}">
+                                                    <c:if test="${not empty errors.address}">
+                                                        <div class="error-msg">${errors.address}</div>
+                                                    </c:if>
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>

@@ -119,7 +119,7 @@ public class ProfileController extends HttpServlet {
             if (!UserValidation.isValidEmail(email)) {
                 errors.put("email", "Invalid email format");
             }
-            if (!UserValidation.isValidName(fullName)) {
+            if (!UserValidation.isValidString(fullName)) {
                 errors.put("fullName",
                         "Full name must not have leading/trailing spaces or multiple consecutive spaces");
             }
