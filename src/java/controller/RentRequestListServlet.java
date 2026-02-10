@@ -4,7 +4,7 @@
  */
 package controller;
 
-import dao.InternalUserDAO;
+
 import dao.RentRequestDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
