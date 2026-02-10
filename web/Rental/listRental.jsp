@@ -41,7 +41,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Request Date</th>
-                    <th>Status</th>
+                    <th class="col-status">Status</th>
 
                     <c:if test="${sessionScope.userType == 'INTERNAL' }">
                         <th>Renter ID</th>
@@ -70,7 +70,7 @@
                                             pattern="yyyy-MM-dd HH:mm"/>
                         </td>
 
-                        <td data-search="${rr.status}" data-order="${rr.status}">
+                        <td class="col-status" data-search="${rr.status}" data-order="${rr.status}">
                             <c:choose>
                                 <c:when test="${rr.status == 0}">Pending</c:when>
                                 <c:when test="${rr.status == 1}">Approved</c:when>
@@ -94,7 +94,7 @@
                             <td>
                                 <c:choose>
                                     <c:when test="${rr.processedBy != null}">
-                                        ${rr.processedBy.internalUserId}
+                                        ${rr.processedBy.name}
                                     </c:when>
                                     <c:otherwise>none</c:otherwise>
                                 </c:choose>
@@ -168,38 +168,29 @@
                     </tr>
                 </c:forEach>
 
-
-
-            <script>
-                $(document).ready(function () {
-                    let table = $('#rentRequestTable').DataTable({
-                        order: [[0, 'desc']], // sort theo ID
-                        pageLength: 10,
-                        columnDefs: [
-                            {orderable: false, targets: [7]} // Processed By
-                        ]
-                    });
-
-                    
-
-                    // Khi đổi dropdown
-                    $('#statusFilter').on('change', function () {
-                        let val = $(this).val();
-
-                        if (val === "") {
-                            table.column(2).search("").draw(); // All
-                        } else {
-                            table.column(2).search("^" + val + "$", true, false).draw();
-                        }
-                    });
+            </tbody>
+        </table>
+        <script>
+            $(document).ready(function () {
+                let table = $('#rentRequestTable').DataTable({
+                    order: [[0, 'desc']], // sort theo ID
+                    pageLength: 10,
                 });
-            </script>
 
 
 
+                // Khi đổi dropdown
+                $('#statusFilter').on('change', function () {
+                    let val = $(this).val();
 
-        </tbody>
-    </table>
-    <jsp:include page="/Common/Layout/footer.jsp" />
-</body>
+                    if (val === "") {
+                        table.column(2).search("").draw(); // All
+                    } else {
+                        table.column(2).search("^" + val + "$", true, false).draw();
+                    }
+                });
+            });
+        </script>
+        <jsp:include page="/Common/Layout/footer.jsp" />
+    </body>
 </html>

@@ -28,7 +28,8 @@ public class RentRequestDAO extends DBContext {
     SELECT rr.*,
            r.renter_id,
            w.warehouse_id,
-           iu.internal_user_id
+           iu.internal_user_id, iu.full_name,iu.user_name
+                    
     FROM rent_request rr
     JOIN renter r ON rr.renter_id = r.renter_id
     JOIN warehouse w ON rr.warehouse_id = w.warehouse_id
@@ -77,6 +78,8 @@ public class RentRequestDAO extends DBContext {
                 if (!rs.wasNull()) {
                     InternalUser iu = new InternalUser();
                     iu.setInternalUserId(internalUserId);
+                    iu.setName(rs.getString("user_name"));
+                    iu.setFullName(rs.getString("full_name"));
                     rr.setProcessedBy(iu);
                 }
 
