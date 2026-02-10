@@ -35,7 +35,7 @@ public class StaffTaskServlet extends HttpServlet {
         request.setAttribute("completedCount", dao.countCompleted());
 
         // 3. FORWARD VIEW
-        request.getRequestDispatcher("/staff_task.jsp")
+        request.getRequestDispatcher("/staff/staff_task.jsp")
                .forward(request, response);
     }
 }
