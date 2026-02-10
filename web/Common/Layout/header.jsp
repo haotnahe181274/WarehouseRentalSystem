@@ -25,7 +25,7 @@
 
         <c:if test="${sessionScope.userType == 'RENTER'}">
             <li class="app-header__menu-item">
-                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/my-rentals">My Rental</a>
+                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/rentList">My Rental</a>
             </li>
             <li class="app-header__menu-item">
                 <a class="app-header__menu-link" href="${pageContext.request.contextPath}/contracts">Contract</a>

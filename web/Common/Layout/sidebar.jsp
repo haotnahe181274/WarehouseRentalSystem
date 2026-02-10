@@ -108,7 +108,7 @@
             <div class="menu-title">Manager</div>
             <li><a href="${pageContext.request.contextPath}/user/list">Users</a></li>
             <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses</a></li>
-            <li><a href="${pageContext.request.contextPath}/rentRequest">📩 Rental Requests</a></li>
+            <li><a href="${pageContext.request.contextPath}/rentList">📩 Rental Requests</a></li>
             <li><a href="${pageContext.request.contextPath}/contract"> Contracts</a></li>
             <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment</a></li>
             </c:if>
