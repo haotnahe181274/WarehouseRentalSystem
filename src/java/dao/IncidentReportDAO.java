@@ -2,67 +2,43 @@ package dao;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import model.UserView;
 
 public class IncidentReportDAO extends DBContext {
 
-    public boolean insert(String type, String description, int internalUserId) {
-
-    String getWarehouseSql = """
-        SELECT warehouse_id
-        FROM internal_user
-        WHERE internal_user_id = ?
-    """;
-
-    String insertSql = """
-        INSERT INTO incident_report
-        (type, description, status, internal_user_id, warehouse_id, report_date)
-        VALUES (?, ?, 1, ?, ?, NOW())
-    """;
-
-    try {
-        PreparedStatement ps1 = connection.prepareStatement(getWarehouseSql);
-        ps1.setInt(1, internalUserId);
-        ResultSet rs = ps1.executeQuery();
-
-        if (!rs.next()) {
-            return false;
-        }
-
-        int warehouseId = rs.getInt("warehouse_id");
-
-        PreparedStatement ps2 = connection.prepareStatement(insertSql);
-        ps2.setString(1, type);
-        ps2.setString(2, description);
-        ps2.setInt(3, internalUserId);
-        ps2.setInt(4, warehouseId);
-
-        return ps2.executeUpdate() > 0;
-
-    } catch (Exception e) {
-        e.printStackTrace(); // 👈 RẤT QUAN TRỌNG
-    }
-    return false;
-}
-
-    public String getWarehouseNameByUser(int internalUserId) {
-
+    // Lấy ID và Tên kho mà nhân viên đang làm việc (từ bảng Staff_assignment)
+    public Object[] getAssignedWarehouse(int staffId) {
         String sql = """
-            SELECT w.name
-            FROM internal_user iu
-            JOIN warehouse w ON iu.warehouse_id = w.warehouse_id
-            WHERE iu.internal_user_id = ?
+            SELECT w.warehouse_id, w.name 
+            FROM Staff_assignment sa
+            JOIN Warehouse w ON sa.warehouse_id = w.warehouse_id
+            WHERE sa.assigned_to = ? AND sa.status = 1 
+            LIMIT 1
         """;
-
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, internalUserId);
+            ps.setInt(1, staffId);
             ResultSet rs = ps.executeQuery();
-
             if (rs.next()) {
-                return rs.getString("name");
+                return new Object[]{rs.getInt("warehouse_id"), rs.getString("name")};
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
+    }
+
+    // Insert báo cáo vào Database
+    public boolean insert(String type, String description, int warehouseId, int staffId) {
+        String sql = """
+            INSERT INTO Incident_report 
+            (type, description, report_date, status, warehouse_id, internal_user_id) 
+            VALUES (?, ?, NOW(), 1, ?, ?)
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, type);
+            ps.setString(2, description);
+            ps.setInt(3, warehouseId);
+            ps.setInt(4, staffId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
     }
 }

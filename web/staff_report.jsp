@@ -39,52 +39,43 @@
 <div class="layout">   
 <jsp:include page="/Common/Layout/sidebar.jsp" />
 <div class="container">
-    <h2>Incident Report</h2>
+    <h2>Create Incident Report</h2>
+
+    <c:if test="${not empty error}"><p style="color:red;">${error}</p></c:if>
+    <c:if test="${param.success == 1}"><p style="color:green;">Report submitted successfully!</p></c:if>
 
     <form action="staffReport" method="post">
-        <!-- TYPE -->
+        <div class="row">
+            <div class="form-group">
+                <label>Reported By</label>
+                <input type="text" value="${sessionScope.user.fullName}" readonly style="background:#eee;"/>
+            </div>
+
+            <div class="form-group">
+                <label>Warehouse</label>
+                <input type="text" value="${whName}" readonly style="background:#eee;" placeholder="No warehouse assigned"/>
+                
+                <input type="hidden" name="warehouse_id" value="${whId}" />
+            </div>
+        </div>
+
         <div class="form-group">
             <label>Incident Type</label>
-            <select name="type" required>
-                <option value="">-- Select Incident Type --</option>
+            <select name="type" required ${empty whId ? 'disabled' : ''}>
+                <option value="">-- Select Type --</option>
                 <option>Inventory Issue</option>
                 <option>Damaged Goods</option>
-                <option>Lost Item</option>
-                <option>Fire Alarm</option>
-                <option>Water Leak</option>
-                <option>Power Outage</option>
                 <option>Security Issue</option>
             </select>
         </div>
 
-        <!-- DESCRIPTION -->
         <div class="form-group">
             <label>Description</label>
-            <textarea name="description" rows="4" required></textarea>
+            <textarea name="description" rows="4" required ${empty whId ? 'disabled' : ''}></textarea>
         </div>
 
-        <!-- STAFF & WAREHOUSE -->
-        <div class="row">
-            <div class="form-group">
-                <label>Reported By</label>
-                <input type="text"
-                       value="${sessionScope.user.fullName}"
-                       readonly />
-            </div>
-
-
-            <div class="form-group">
-                <label>Warehouse</label>
-                <input type="text"
-                       value="${warehouseName}"
-                       readonly />
-            </div>
-
-
-        </div>
-
-        <div style="text-align:center; margin-top: 25px;">
-            <button class="btn" type="submit">Submit Report</button>
+        <div style="text-align:center;">
+            <button class="btn" type="submit" ${empty whId ? 'disabled' : ''}>Submit Report</button>
         </div>
     </form>
 </div>
