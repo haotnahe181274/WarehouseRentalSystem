@@ -119,11 +119,11 @@ CREATE TABLE Rent_request (
     request_id INT AUTO_INCREMENT PRIMARY KEY,
     request_date DATETIME,
     status INT,
-    renter_id INT, -- Đổi lại thành renter_id
+    request_type VARCHAR(20),
+    renter_id INT,
     warehouse_id INT,
     internal_user_id INT,
     processed_date DATETIME,
-    -- Cột mới thêm vào từ ảnh
     start_date DATE,
     end_date DATE,
     FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
@@ -413,11 +413,11 @@ INSERT INTO storage_unit_item (quantity, item_id, unit_id) VALUES
 
 -- Cập nhật Rent_request để bao gồm renter_id, start_date, end_date
 INSERT INTO Rent_request
-(request_date, status, renter_id, warehouse_id, internal_user_id, processed_date, start_date, end_date)
+(request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date, start_date, end_date)
 VALUES
-(NOW(), 1, 1, 1, 2, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 6 MONTH)),
-(NOW(), 0, 2, 2, NULL, NULL, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 MONTH)),
-(NOW(), 1, 3, 3, 1, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 12 MONTH));
+(NOW(), 1, 'RENT',      1, 1, 2, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 6 MONTH)),
+(NOW(), 1, 'CHECK_IN',  2, 2, 3, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
+(NOW(), 1, 'CHECK_OUT', 3, 3, 4, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 7 DAY));
 
 -- Dữ liệu mới cho rent_request_item
 INSERT INTO rent_request_item (quantity, item_id, request_id) VALUES

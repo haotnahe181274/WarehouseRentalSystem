@@ -14,7 +14,22 @@
         <a href="${pageContext.request.contextPath}/homepage">Clear All</a>
     </div>
 
-    <form action="homepage" method="GET">
+    <form action="homepage" method="GET" onsubmit="return validateDateRange()">
+
+        <!-- RENT DATE -->
+        <div class="filter-group">
+            <label>Rental Period</label>
+
+            <div class="date-row">
+                <input type="date" id="startDate" name="startDate" value="${param.startDate}">
+                <input type="date" id="endDate"   name="endDate"   value="${param.endDate}">
+            </div>
+
+            <!-- ERROR MESSAGE -->
+            <small id="dateError" class="error-text">
+                Please select both start date and end date
+            </small>
+        </div>
 
         <!-- LOCATION -->
         <div class="filter-group">
@@ -174,6 +189,47 @@
     .filter-button:hover {
         background: #000;
     }
+    /* DATE ROW */
+    .date-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    .date-row input {
+        flex: 1;
+    }
+    .error-text {
+        color: #e53935;
+        font-size: 13px;
+        margin-top: 4px;
+        display: none;
+    }
+
 
 
 </style>
+
+<script>
+    function validateDateRange() {
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const error = document.getElementById("dateError");
+
+        // Reset
+        error.style.display = "none";
+
+        // Không nhập gì → OK
+        if (!startDate && !endDate) {
+            return true;
+        }
+
+        // Nhập đủ → OK
+        if (startDate && endDate) {
+            return true;
+        }
+
+        // Chỉ nhập 1 trong 2 → hiện lỗi
+        error.style.display = "block";
+        return false;
+    }
+</script>

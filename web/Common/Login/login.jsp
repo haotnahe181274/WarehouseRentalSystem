@@ -12,21 +12,12 @@
     <head>
         <meta charset="UTF-8">
         <title>Login</title>
-
-
-
-        <style>
-
-        </style>
     </head>
 
     <body>
 
         <!-- HEADER -->
-        <a class="login-header"
-           href="${pageContext.request.contextPath}/homepage">
-            WareSpace
-        </a>
+        <jsp:include page="/Common/Layout/header.jsp" />
 
 
         <!-- LOGIN -->
@@ -52,7 +43,7 @@
                                name="username"
                                class="form-control"
                                placeholder="Enter your username"
-                               required>
+                               required value="${username}">
                     </div>
 
                     <div class="form-group">
@@ -61,6 +52,7 @@
                                name="password"
                                class="form-control"
                                placeholder="Enter your password"
+                               value="${password}"
                                required>
                     </div>
 
@@ -88,9 +80,7 @@
             </div>
         </div>
 
-        <div class="page-footer">
-            © 2024 WareSpace. All rights reserved.
-        </div>
+        <jsp:include page="/Common/Layout/footer.jsp" />
 
 
         <style>
@@ -108,22 +98,14 @@
                 flex-direction: column;
             }
 
-            /* ===== HEADER ===== */
-            .login-header {
-                padding: 24px 32px;
-                font-size: 20px;
-                font-weight: 700;
-                color: #000;
-                text-decoration: none;
-                margin-right: 40px;
-            }
-
             /* ===== CENTER ===== */
             .login-wrapper {
                 flex: 1;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+
+                padding: 80px 0;   
             }
 
             /* ===== CARD ===== */
@@ -218,25 +200,7 @@
                 margin-bottom: 16px;
             }
 
-            /* ===== FOOTER ===== */
-            .login-footer {
-                text-align: center;
-                font-size: 14px;
-                margin-top: 22px;
-            }
 
-            .login-footer a {
-                color: #111;
-                font-weight: 600;
-                text-decoration: none;
-            }
-
-            .page-footer {
-                text-align: center;
-                font-size: 13px;
-                color: #9ca3af;
-                padding: 18px;
-            }
         </style>
 
 

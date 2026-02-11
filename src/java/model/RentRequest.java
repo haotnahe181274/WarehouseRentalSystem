@@ -4,6 +4,7 @@
  */
 package model;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -14,22 +15,28 @@ public class RentRequest {
     private int requestId;
     private Date requestDate;
     private int status;
+    private String requestType;
     private Renter renter;
     private Warehouse warehouse;
     private InternalUser processedBy;
     private Date processedDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-    public RentRequest() {
-    }
-
-    public RentRequest(int requestId, Date requestDate, int status, Renter renter, Warehouse warehouse, InternalUser processedBy, Date processedDate) {
+    public RentRequest(int requestId, Date requestDate, int status, String requestType, Renter renter, Warehouse warehouse, InternalUser processedBy, Date processedDate, LocalDate startDate, LocalDate endDate) {
         this.requestId = requestId;
         this.requestDate = requestDate;
         this.status = status;
+        this.requestType = requestType;
         this.renter = renter;
         this.warehouse = warehouse;
         this.processedBy = processedBy;
         this.processedDate = processedDate;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    public RentRequest() {
     }
 
     public int getRequestId() {
@@ -54,6 +61,14 @@ public class RentRequest {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(String requestType) {
+        this.requestType = requestType;
     }
 
     public Renter getRenter() {
@@ -87,6 +102,26 @@ public class RentRequest {
     public void setProcessedDate(Date processedDate) {
         this.processedDate = processedDate;
     }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    
+
+    
 
     
 }

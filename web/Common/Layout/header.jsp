@@ -20,12 +20,12 @@
     <ul class="app-header__menu">
         <li class="app-header__menu-item">
             <a class="app-header__menu-link"
-               href="${pageContext.request.contextPath}/homepage">Home</a>
+               href="${pageContext.request.contextPath}/homepage">Homepage</a>
         </li>
 
         <c:if test="${sessionScope.userType == 'RENTER'}">
             <li class="app-header__menu-item">
-                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/my-rentals">My Rental</a>
+                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/rentList">My Rental</a>
             </li>
             <li class="app-header__menu-item">
                 <a class="app-header__menu-link" href="${pageContext.request.contextPath}/contracts">Contract</a>
@@ -36,6 +36,23 @@
             <li class="app-header__menu-item">
                 <a class="app-header__menu-link" href="${pageContext.request.contextPath}/Common/homepage/about.jsp">About us</a>
             </li>
+        </c:if>
+        <c:if test="${sessionScope.userType == 'INTERNAL'}"> 
+            <c:if test="${sessionScope.role == 'Admin'}"> 
+                <li class="app-header__menu-item"> 
+                    <a class="app-header__menu-link" href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Admin</a>
+                </li> 
+            </c:if>
+            <c:if test="${sessionScope.role == 'Staff'}"> 
+                <li class="app-header__menu-item"> 
+                    <a class="app-header__menu-link" href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Staff</a> 
+                </li> 
+            </c:if> 
+            <c:if test="${sessionScope.role == 'Manager'}"> 
+                <li class="app-header__menu-item"> 
+                    <a class="app-header__menu-link" href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Manager</a> 
+                </li> 
+            </c:if> 
         </c:if>
     </ul>
 
@@ -82,9 +99,9 @@
             </c:otherwise>
         </c:choose>
     </ul>
-<!-- RENTER ONLY -->
-                            
-            </nav>
+    <!-- RENTER ONLY -->
+
+</nav>
 
 
 
@@ -178,7 +195,7 @@
     /* ===== DROPDOWN ===== */
     .app-header__dropdown {
         position: absolute;
-        top: 100%;     
+        top: 100%;
         right: 0;
         list-style: none;
 
@@ -200,12 +217,12 @@
         color: #000;
         text-decoration: none;
     }
-    
 
 
-.app-header__dropdown-item {
-    list-style: none;
-}
+
+    .app-header__dropdown-item {
+        list-style: none;
+    }
 
     .app-header__dropdown-link:hover {
         background-color: #f2f2f2;
@@ -217,7 +234,7 @@
     }
 
     .app-header__user-box {
-        min-width: 170px;      
+        min-width: 170px;
     }
 
     /* trigger */
@@ -229,4 +246,3 @@
 </style>
 
 
-                            

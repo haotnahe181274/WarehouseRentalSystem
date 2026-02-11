@@ -101,7 +101,7 @@ public class UserController extends HttpServlet {
         boolean isManager = "Manager".equalsIgnoreCase(userRole);
         boolean isStaff = "Staff".equalsIgnoreCase(userRole);
         boolean isRenter = "RENTER".equalsIgnoreCase(currentUser.getType());
-        
+
         // --- STAFF & RENTER Redirect Logic ---
         if (isStaff || isRenter) {
             boolean isViewOwn = "view".equalsIgnoreCase(action)
@@ -130,7 +130,6 @@ public class UserController extends HttpServlet {
             int id = Integer.parseInt(rawId);
             UserView user = userDAO.getUserById(id, type);
 
-            
             if (isManager && user != null && "INTERNAL".equalsIgnoreCase(user.getType())) {
                 boolean isSelf = (user.getId() == currentUser.getId());
                 boolean isTargetAllowed = "Staff".equalsIgnoreCase(user.getRole());
@@ -163,68 +162,42 @@ public class UserController extends HttpServlet {
             request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
         }
-        // Phân trang
-        int page = 1;
-        int pageSize = 6;
-        String pageRaw = request.getParameter("page");
-        if (pageRaw != null) {
+        // Load all users (DataTables handles pagination/sorting/searching client-side)
+        String filterType = request.getParameter("filterType");
+        String filterStatusRaw = request.getParameter("filterStatus");
+        String filterRole = request.getParameter("filterRole");
+
+        Integer filterStatus = null;
+        if (filterStatusRaw != null && !filterStatusRaw.isEmpty() && !filterStatusRaw.equals("All")) {
             try {
-                page = Integer.parseInt(pageRaw);
-            } catch (Exception e) {
-                page = 1;
+                filterStatus = Integer.parseInt(filterStatusRaw);
+            } catch (NumberFormatException e) {
+                // ignore
             }
         }
-        int offset = (page - 1) * pageSize;
 
-        String keyword = request.getParameter("keyword");
-        String status = request.getParameter("status");
-        String filterType = request.getParameter("filterType");
-        String sort = request.getParameter("sort");
-
-        if (keyword != null) {
-            keyword = keyword.trim();
+        if ("All".equals(filterType)) {
+            filterType = null;
+        }
+        if ("All".equals(filterRole)) {
+            filterRole = null;
         }
 
-        List<UserView> users = userDAO.filterUsersPaging(keyword, status, filterType, sort, offset, pageSize, userRole);
-        int totalItem = userDAO.countFilterUsers(keyword, status, filterType, userRole);
-
-        int totalPages = (int) Math.ceil((double) totalItem / pageSize);
-        // Query String
-        StringBuilder qs = new StringBuilder();
-
-        if (keyword != null && !keyword.isEmpty()) {
-            qs.append("keyword=").append(URLEncoder.encode(keyword, "UTF-8")).append("&");
-        }
-        if (status != null && !status.isEmpty()) {
-            qs.append("status=").append(status).append("&");
-        }
-        if (filterType != null && !filterType.isEmpty()) {
-            qs.append("filterType=").append(filterType).append("&");
-        }
-        if (sort != null && !sort.isEmpty()) {
-            qs.append("sort=").append(sort).append("&");
+        if ("RENTER".equalsIgnoreCase(filterType)) {
+            filterRole = null;
         }
 
-        String queryString = qs.toString();
-        if (queryString.endsWith("&")) {
-            queryString = queryString.substring(0, queryString.length() - 1);
-        }
-        if (!queryString.isEmpty()) {
-            queryString = "&" + queryString;
-        }
+        List<UserView> users = userDAO.getAllUsers(userRole, currentUser.getId(), currentUser.getType(),
+                filterType, filterStatus, filterRole);
+
         for (UserView u : users) {
             setDefaultImageIfNeeded(u);
         }
-        request.setAttribute("users", users);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("paginationUrl", request.getContextPath() + "/user/list");
-        request.setAttribute("queryString", queryString);
 
-        request.setAttribute("keyword", keyword);
-        request.setAttribute("status", status);
         request.setAttribute("filterType", filterType);
-        request.setAttribute("sort", sort);
+        request.setAttribute("filterStatus", filterStatus);
+        request.setAttribute("filterRole", filterRole);
+        request.setAttribute("users", users);
         request.getRequestDispatcher("/user/userlist.jsp").forward(request, response);
 
     }
@@ -249,7 +222,7 @@ public class UserController extends HttpServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
             return;
         }
-        
+
         String action = request.getParameter("action");
         String mode = request.getParameter("mode");
         String idRaw = request.getParameter("id");
@@ -291,9 +264,19 @@ public class UserController extends HttpServlet {
                 int roleId = Integer.parseInt(role);
                 String username = request.getParameter("username");
                 String password = request.getParameter("password");
-                 Map<String, String> validateErrors =
-                UserValidation.validateCreate(username, password, email, fullName, phone, userDAO);
+                String idCard = request.getParameter("idCard");
+                String address = request.getParameter("address");
+                Map<String, String> validateErrors = UserValidation.validateCreate(username, password, email, fullName,
+                        phone, userDAO);
                 errors.putAll(validateErrors);
+
+                if (!UserValidation.isValidIdCard(idCard)) {
+                    errors.put("idCard", "ID Card must be exactly 12 digits, no spaces");
+                }
+                if (!UserValidation.isValidString(address)) {
+                    errors.put("address",
+                            "Address must not have leading/trailing spaces or multiple consecutive spaces");
+                }
 
                 if (!errors.isEmpty()) {
                     request.setAttribute("errors", errors);
@@ -304,18 +287,26 @@ public class UserController extends HttpServlet {
                     request.setAttribute("fullName", fullName);
                     request.setAttribute("phone", phone);
                     request.setAttribute("roleId", role);
+                    request.setAttribute("idCard", idCard);
+                    request.setAttribute("address", address);
                     request.getRequestDispatcher("/user/users.jsp").forward(request, response);
                     return;
                 }
 
+                // Auto-generate internal user code based on role: A12345, M12345, S12345
+                String internalUserCode = generateInternalUserCode(roleId);
+
                 userDAO.insertInternalUser(
-                        username, password, email, fullName, phone, fileName, roleId);
+                        username, password, email, fullName, phone, fileName, roleId, internalUserCode, idCard,
+                        address);
             }
 
             // ===== UPDATE =====
             if ("edit".equals(mode)) {
                 int id = Integer.parseInt(idRaw);
-                int roleId = Integer.parseInt(role);
+                int roleId = (role != null && !role.isEmpty()) ? Integer.parseInt(role) : 0;
+                String idCard = request.getParameter("idCard");
+                String address = request.getParameter("address");
 
                 // Validate email
                 if (!UserValidation.isValidEmail(email)) {
@@ -323,7 +314,7 @@ public class UserController extends HttpServlet {
                 }
 
                 // Validate fullName
-                if (!UserValidation.isValidName(fullName)) {
+                if (!UserValidation.isValidString(fullName)) {
                     errors.put("fullName",
                             "Full name must not have leading/trailing spaces or multiple consecutive spaces");
                 }
@@ -331,6 +322,14 @@ public class UserController extends HttpServlet {
                 // Validate phone
                 if (!UserValidation.isValidPhone(phone)) {
                     errors.put("phone", "Phone must start with 0, contain only digits, max 10 characters");
+                }
+
+                if (!UserValidation.isValidIdCard(idCard)) {
+                    errors.put("idCard", "ID Card must be exactly 12 digits, no spaces");
+                }
+                if (!UserValidation.isValidString(address)) {
+                    errors.put("address",
+                            "Address must not have leading/trailing spaces or multiple consecutive spaces");
                 }
 
                 if (!errors.isEmpty()) {
@@ -344,6 +343,8 @@ public class UserController extends HttpServlet {
                     request.setAttribute("targetUser", user);
                     request.setAttribute("mode", "edit");
                     request.setAttribute("roleId", role);
+                    request.setAttribute("idCard", idCard);
+                    request.setAttribute("address", address);
                     request.getRequestDispatcher("/user/users.jsp").forward(request, response);
                     return;
                 }
@@ -355,11 +356,36 @@ public class UserController extends HttpServlet {
                 }
 
                 userDAO.updateInternalUser(
-                        id, email, fullName, phone, fileName, roleId);
+                        id, email, fullName, phone, fileName, roleId, idCard, address);
             }
         }
 
         response.sendRedirect(request.getContextPath() + "/user/list");
+    }
+
+    // Helper method to generate internal user code based on role
+    // Format: Role prefix + 4-5 random digits
+    // Admin -> A12345, Manager -> M12345, Staff -> S12345
+    private String generateInternalUserCode(int roleId) {
+        String prefix;
+        switch (roleId) {
+            case 1: // Admin
+                prefix = "A";
+                break;
+            case 2: // Manager
+                prefix = "M";
+                break;
+            case 3: // Staff
+                prefix = "S";
+                break;
+            default:
+                prefix = "U"; // Unknown
+        }
+
+        // Random 4-5 digits (10000-99999)
+        int randomNum = (int) (Math.random() * 90000 + 10000);
+
+        return prefix + randomNum;
     }
 
     /**

@@ -2,9 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.common;
+package controller;
 
-import dao.UserDAO;
+import dao.RentRequestDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -13,14 +13,15 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.InternalUser;
 import model.UserView;
 
 /**
  *
  * @author ad
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "RentRequestApprove", urlPatterns = {"/rentRequestApprove"})
+public class RentRequestApprove extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,10 +40,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
+            out.println("<title>Servlet RentRequestApprove</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RentRequestApprove at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,7 +61,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/Common/Login/login.jsp").forward(request, response);
+
     }
 
     /**
@@ -74,47 +75,19 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        UserDAO dao = new UserDAO();
-
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        UserView user = dao.checkAuthen(username, password);
-
-        if (user == null) {
-            request.setAttribute("username", username);
-            request.setAttribute("password", password);
-            request.setAttribute("error", "Invalid username or password");
-            request.getRequestDispatcher("/Common/Login/login.jsp")
-                    .forward(request, response);
-            return;
-        }
-
         HttpSession session = request.getSession();
-        session.setAttribute("user", user);
-        session.setAttribute("userType", user.getType());
+        UserView user = (UserView) session.getAttribute("user");
+        int requestId = Integer.parseInt(request.getParameter("requestId"));
 
-        if ("INTERNAL".equals(user.getType())) {
-            session.setAttribute("role", user.getRole());
+        RentRequestDAO dao = new RentRequestDAO();
 
-            switch (user.getRole()) {
-                case "Admin":
-                    response.sendRedirect("Common/Layout/dashboard.jsp");
-                    break;
-                case "Manager":
-                    response.sendRedirect("Common/Layout/dashboard.jsp");
-                    break;
-                case "Staff":
-                    response.sendRedirect("Common/Layout/dashboard.jsp");
-                    break;
-                default:
-                    response.sendRedirect("homepage");
-            }
-        } else {
-            // RENTER
-            response.sendRedirect("homepage");
-        }
+        // 1. Update status
+        dao.updateStatusByManager(requestId, 1, user.getId());
 
+        // 2. Redirect sang trang tạo contract
+        response.sendRedirect(
+                request.getContextPath() + "/rentList"
+        );
     }
 
     /**

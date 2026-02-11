@@ -15,26 +15,28 @@ import java.util.Map;
 public class UserValidation {
 
     // Add(Admin)
-    public static Map<String, String> validateCreate(String username, String password, String email, String fullName, String phone, UserDAO dao) {
+    public static Map<String, String> validateCreate(String username, String password, String email, String fullName,
+            String phone, UserDAO dao) {
         Map<String, String> errors = new HashMap<>();
         if (dao.isUsernameExists(username)) {
             errors.put("username", "Username already exists");
         }
-        if (!isValidName(username) || username.contains(" ")) {
+        if (!isValidString(username) || username.contains(" ")) {
             errors.put("username", "Username must not have space");
         }
         validateCommon(password, email, fullName, phone, errors);
         return errors;
     }
 
-    private static void validateCommon(String password, String email, String fullName, String phone, Map<String, String> errors) {
+    private static void validateCommon(String password, String email, String fullName, String phone,
+            Map<String, String> errors) {
         if (password != null && !password.isEmpty() && password.length() < 6) {
             errors.put("password", "Password must be at least 6 characters");
         }
         if (!isValidEmail(email)) {
             errors.put("email", "Invalid email format");
         }
-        if (!isValidName(fullName)) {
+        if (!isValidString(fullName)) {
             errors.put("fullName",
                     "Full name must not have leading/trailing spaces or multiple consecutive spaces");
         }
@@ -48,18 +50,17 @@ public class UserValidation {
         return email != null && email.matches(regex);
     }
 
-    // Validate fullName and username: không có space ở đầu, cuối và không có nhiều space liên
-    // tiếp
-    public static boolean isValidName(String name) {
-        if (name == null || name.isEmpty()) {
+   
+    public static boolean isValidString(String string) {
+        if (string == null || string.isEmpty()) {
             return false;
         }
         // Không có space ở đầu hoặc cuối
-        if (name.startsWith(" ") || name.endsWith(" ")) {
+        if (string.startsWith(" ") || string.endsWith(" ")) {
             return false;
         }
         // Không có nhiều space liên tiếp (2 space trở lên)
-        if (name.contains("  ")) {
+        if (string.contains("  ")) {
             return false;
         }
         return true;
@@ -74,4 +75,14 @@ public class UserValidation {
         String regex = "^0\\d{0,9}$";
         return phone.matches(regex);
     }
+
+    // Validate idCard: đúng 12 chữ số, không có khoảng trắng
+    public static boolean isValidIdCard(String idCard) {
+        if (idCard == null || idCard.isEmpty()) {
+            return true; // idCard không bắt buộc
+        }
+        return idCard.matches("^\\d{12}$");
+    }
+
+    
 }

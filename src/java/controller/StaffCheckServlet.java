@@ -29,7 +29,7 @@ public class StaffCheckServlet extends HttpServlet {
                 dao.getUnitContractDetailNoNewTable(csuId);
 
         request.setAttribute("detail", detail);
-        request.getRequestDispatcher("staff_check.jsp")
+        request.getRequestDispatcher("/staff_check.jsp")
                .forward(request, response);
     }
 
