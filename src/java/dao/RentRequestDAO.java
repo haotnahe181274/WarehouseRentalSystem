@@ -410,5 +410,32 @@ public class RentRequestDAO extends DBContext {
             System.out.println("--------------------------------------");
         }
     }
+    
+    public void deleteItemsByRequestId(int requestId) {
+    String sql = "DELETE FROM rent_request_item WHERE request_id = ?";
+
+    try (PreparedStatement st = connection.prepareStatement(sql)) {
+
+        st.setInt(1, requestId);
+        st.executeUpdate();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+    public void insertRentRequestItem(int requestId, int itemId) {
+    String sql = "INSERT INTO rent_request_item(quantity, item_id, request_id) VALUES (0, ?, ?)";
+
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, itemId);
+        ps.setInt(2, requestId);
+        ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+    
 
 }
