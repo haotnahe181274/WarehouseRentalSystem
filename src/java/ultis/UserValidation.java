@@ -50,7 +50,6 @@ public class UserValidation {
         return email != null && email.matches(regex);
     }
 
-   
     public static boolean isValidString(String string) {
         if (string == null || string.isEmpty()) {
             return false;
@@ -84,5 +83,23 @@ public class UserValidation {
         return idCard.matches("^\\d{12}$");
     }
 
-    
+    public static Map<String, String> validateRenterRegister(String username, String password, String rePassword,
+            String email, String fullName, String phone, UserDAO dao) {
+        Map<String, String> errors = new HashMap<>();
+        if (dao.isRenterUsernameExists(username)) {
+            errors.put("username", "Username already exists");
+        }
+        if (dao.isRenterEmailExists(email)) {
+            errors.put("email", "Email already exists");
+        }
+        if (!isValidString(username) || username.contains(" ")) {
+            errors.put("username", "Username must not have space");
+        }
+        if (!password.equals(rePassword)) {
+            errors.put("rePassword", "Confirm password does not match");
+        }
+        validateCommon(password, email, fullName, phone, errors);
+        return errors;
+    }
+
 }
