@@ -5,6 +5,7 @@
 package controller;
 
 import dao.RentRequestDAO;
+import dao.WarehouseDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,16 +13,16 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import model.InternalUser;
-import model.UserView;
+import java.util.Date;
+import java.util.List;
+import model.RentRequest;
 
 /**
  *
  * @author ad
  */
-@WebServlet(name = "RentRequestApprove", urlPatterns = {"/rentRequestApprove"})
-public class RentRequestApprove extends HttpServlet {
+@WebServlet(name = "RentRequestDetail", urlPatterns = {"/rentDetail"})
+public class RentRequestDetail extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +41,10 @@ public class RentRequestApprove extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet RentRequestApprove</title>");
+            out.println("<title>Servlet RentRequestDetail</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet RentRequestApprove at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RentRequestDetail at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,6 +63,36 @@ public class RentRequestApprove extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        RentRequestDAO dao = new RentRequestDAO();
+        WarehouseDAO da = new WarehouseDAO();
+
+        String idRaw = request.getParameter("id");
+
+        if (idRaw == null) {
+            response.sendRedirect("rentList");
+            return;
+        }
+
+        int requestId = Integer.parseInt(idRaw);
+
+        RentRequest rr = dao.getRentRequestDetailById(requestId);
+
+        if (rr == null) {
+            response.sendRedirect("rentList");
+            return;
+        }
+        List<Double> areaList = da.getAvailableAreasByWarehouse(
+                rr.getWarehouse().getWarehouseId(),
+                rr.getStartDate(),
+                rr.getEndDate()
+        );
+
+        request.setAttribute("rr", rr);
+        request.setAttribute("areaList", areaList);
+
+        request.getRequestDispatcher("Rental/rentalDetail.jsp")
+                .forward(request, response);
+
     }
 
     /**
@@ -75,23 +106,30 @@ public class RentRequestApprove extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String redirect = request.getParameter("redirect");
-        HttpSession session = request.getSession();
-        UserView user = (UserView) session.getAttribute("user");
         int requestId = Integer.parseInt(request.getParameter("requestId"));
+        double area = Double.parseDouble(request.getParameter("area"));
+
+        String[] itemIds = request.getParameterValues("itemId");
+        String[] names = request.getParameterValues("itemName");
+        String[] descriptions = request.getParameterValues("description");
 
         RentRequestDAO dao = new RentRequestDAO();
 
-        // 1. Update status
-        dao.updateStatusByManager(requestId, 1, user.getId());
+        dao.updateRentRequest(requestId, area);
 
-        // 2. Redirect sang trang tạo contract
-        if ("detail".equals(redirect)) {
-            response.sendRedirect(request.getContextPath()
+//// 1. delete all old items
+//        dao.deleteItemsByRequestId(requestId);
+//
+//// 2. insert lại
+//        if (itemNames != null) {
+//            for (int i = 0; i < itemNames.length; i++) {
+//                if (!itemNames[i].isBlank()) {
+//                    dao.insertRentRequestItem(requestId, itemNames[i], descriptions[i]);
+//                }
+//            }
+//        }
+        response.sendRedirect(request.getContextPath()
                     + "/rentDetail?id=" + requestId);
-        } else {
-            response.sendRedirect(request.getContextPath() + "/rentList");
-        }
     }
 
     /**

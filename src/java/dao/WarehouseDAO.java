@@ -4,12 +4,20 @@
  */
 package dao;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+import java.sql.Timestamp;
+
+
+import java.util.List;
+import java.util.ArrayList;
+
 import model.Warehouse;
 import model.WarehouseType;
 import dao.WarehouseTypeDAO;
-import java.time.LocalDate;
 
 public class WarehouseDAO extends DBContext {
 
@@ -33,7 +41,7 @@ public class WarehouseDAO extends DBContext {
             Integer typeId,
             Double minPrice, Double maxPrice,
             Double minArea, Double maxArea,
-            LocalDate rentStart, LocalDate rentEnd,
+            Date rentStart, Date rentEnd,
             String sort,
             int offset, int limit
     ) {
@@ -142,8 +150,8 @@ public class WarehouseDAO extends DBContext {
             }
 
             if (rentStart != null && rentEnd != null) {
-                ps.setDate(index++, java.sql.Date.valueOf(rentEnd));
-                ps.setDate(index++, java.sql.Date.valueOf(rentStart));
+                ps.setDate(index++, new java.sql.Date(rentEnd.getTime()));
+                ps.setDate(index++, new java.sql.Date(rentStart.getTime()));
             }
 
             ps.setInt(index++, limit);
@@ -176,7 +184,7 @@ public class WarehouseDAO extends DBContext {
 
     // Đếm tổng số lượng kết quả để tính totalPages
     public int getTotalRecords(
-            LocalDate rentStart, LocalDate rentEnd,
+            Date rentStart, Date rentEnd,
             String keyword, String location,
             Integer typeId,
             Double minPrice, Double maxPrice,
@@ -265,8 +273,8 @@ public class WarehouseDAO extends DBContext {
             }
 
             if (rentStart != null && rentEnd != null) {
-                ps.setDate(idx++, java.sql.Date.valueOf(rentEnd));
-                ps.setDate(idx++, java.sql.Date.valueOf(rentStart));
+                ps.setDate(idx++, new java.sql.Date(rentEnd.getTime()));
+                ps.setDate(idx++, new java.sql.Date(rentStart.getTime()));
             }
 
             ResultSet rs = ps.executeQuery();
@@ -344,45 +352,49 @@ public class WarehouseDAO extends DBContext {
         }
     }
 
-    public static void main(String[] args) {
+    public List<Double> getAvailableAreasByWarehouse(
+            int warehouseId,
+            Date rentStart,
+            Date rentEnd
+    ) {
 
-        WarehouseDAO warehouseDAO = new WarehouseDAO();
+        List<Double> areaList = new ArrayList<>();
 
-        // ===== TEST DATE =====
-        LocalDate rentStart = LocalDate.of(2025, 4, 10);
-        LocalDate rentEnd = LocalDate.of(2025, 2, 15);
+        String sql
+                = "SELECT DISTINCT s.area "
+                + "FROM Storage_unit s "
+                + "JOIN Warehouse w ON w.warehouse_id = s.warehouse_id "
+                + "WHERE w.warehouse_id = ? "
+                + "AND w.status = 1 "
+                + "AND s.status = 1 "
+                + "AND NOT EXISTS ( "
+                + "   SELECT 1 "
+                + "   FROM Contract_Storage_unit csu "
+                + "   JOIN Contract c ON csu.contract_id = c.contract_id "
+                + "   WHERE csu.unit_id = s.unit_id "
+                + "   AND c.status =1 "
+                + "   AND c.start_date <= ? "
+                + "   AND c.end_date >= ? "
+                + ") "
+                + "ORDER BY s.area ASC";
 
-        // ===== CALL DAO =====
-        List<Warehouse> result = warehouseDAO.getFilteredWarehouses(
-                null, // keyword
-                null, // location
-                null, // typeId
-                null, null, // minPrice, maxPrice
-                null, null, // minArea, maxArea
-                rentStart,
-                rentEnd,
-                null, // sort
-                0, // offset
-                100 // limit
-        );
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-        // ===== PRINT RESULT =====
-        System.out.println("===== FILTER RESULT =====");
-        System.out.println("Rent start: " + rentStart);
-        System.out.println("Rent end  : " + rentEnd);
-        System.out.println("Total warehouses found: " + result.size());
+            ps.setInt(1, warehouseId);
+            ps.setDate(2, new java.sql.Date(rentEnd.getTime()));
+            ps.setDate(3, new java.sql.Date(rentStart.getTime()));
 
-        for (Warehouse w : result) {
-            System.out.println(
-                    "Warehouse ID: " + w.getWarehouseId()
-                    + " | Name: " + w.getName()
-                    + " | Min price: " + w.getMinPrice()
-                    + " | Min area: " + w.getMinArea()
-            );
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                areaList.add(rs.getDouble("area"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        System.out.println("===== END =====");
+        return areaList;
     }
-
 
 }
