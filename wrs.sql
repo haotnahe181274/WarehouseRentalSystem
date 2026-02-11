@@ -293,26 +293,58 @@ INSERT INTO Warehouse_Type (type_name, description) VALUES
 INSERT INTO Internal_user
 (user_name, password, full_name, email, phone, status, created_at, role_id, image, id_card, address, internal_user_code)
 VALUES
-('admin01', '123456', 'Admin System', 'admin@mail.com', '090000001', 1, NOW(), 1, 'default.jpg', '001001001', 'Hanoi', 'IU001'),
-('manager01', '123456', 'Manager A', 'manager@mail.com', '090000002', 1, NOW(), 2, 'default.jpg', '001001002', 'Vinh Phuc', 'IU002'),
-('staff01', '123456', 'Staff A', 'staff1@mail.com', '090000003', 1, NOW(), 3, 'default.jpg', '001001003', 'Bac Ninh', 'IU003'),
-('staff02', '123456', 'Staff B', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg', '001001004', 'Hai Phong', 'IU004'),
-('admin02', '123456', 'Admin Backup', 'admin2@mail.com', '090000005', 1, NOW(), 1, 'default.jpg', '001001005', 'Hanoi', 'IU005'),
-('manager02', '123456', 'Manager B', 'manager2@mail.com', '090000006', 1, NOW(), 2, 'default.jpg', '001001006', 'Da Nang', 'IU006'),
-('staff03', '123456', 'Staff C', 'staff3@mail.com', '090000007', 1, NOW(), 3, 'default.jpg', '001001007', 'Ho Chi Minh', 'IU007'),
-('staff04', '123456', 'Staff D', 'staff4@mail.com', '090000008', 1, NOW(), 3, 'default.jpg', '001001008', 'Can Tho', 'IU008');
+('admin01', '123456', 'Nguyễn Thùy Linh', 'admin@mail.com', '0900000011', 1, NOW(), 1, 'default.jpg', '001001001002', 'Hà Nội', 'A12345'),
+('manager01', '123456', 'Nguyễn Nhật Anh', 'manager@mail.com', '0900000022', 1, NOW(), 2, 'default.jpg', '001001002003', 'Vĩnh Phúc', 'M12345'),
+('staff01', '123456', 'Lê Thanh Hùng', 'staff1@mail.com', '0900000033', 1, NOW(), 3, 'default.jpg', '001001003003', 'Bắc Ninh', 'S12356'),
+('staff02', '123456', 'Nguyễn Thị Bừng', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg', '001001004002', 'Hải Phòng', 'S12345'),
+('admin02', '123456', 'Nguyễn Văn Ân', 'admin7@mail.com', '0911010101', 1, NOW(), 1, 'default.jpg', '079101010101', 'Hà Nội', 'A48291'),
+('admin03', '123456', 'Trần Thị Bích Ngọc', 'admin8@mail.com', '0922020202', 1, NOW(), 1, 'default.jpg', '079202020202', 'Hải Phòng', 'A73502'),
+
+('manager02', '123456', 'Lê Hoàng Minh', 'manager7@mail.com', '0933030303', 1, NOW(), 2, 'default.jpg', '051303030303', 'Đà Nẵng', 'M19483'),
+('manager03', '123456', 'Phạm Quang Huy', 'manager8@mail.com', '0944040404', 1, NOW(), 2, 'default.jpg', '051404040404', 'Cần Thơ', 'M56274'),
+
+('staff03', '123456', 'Võ Thị Mai', 'staff21@mail.com', '0955050505', 1, NOW(), 3, 'default.jpg', '031505050505', 'TP Hồ Chí Minh', 'S90817'),
+('staff04', '123456', 'Đặng Tuấn Kiệt', 'staff22@mail.com', '0966060606', 1, NOW(), 3, 'default.jpg', '031606060606', 'Bình Dương', 'S27465'),
+('staff05', '123456', 'Bùi Gia Bảo', 'staff23@mail.com', '0977070707', 1, NOW(), 3, 'default.jpg', '084707070707', 'Hà Nội', 'S63920'),
+('staff06', '123456', 'Đoàn Thu Trang', 'staff24@mail.com', '0988080808', 1, NOW(), 3, 'default.jpg', '084808080808', 'Hải Dương', 'S84571'),
+('staff07', '123456', 'Hoàng Minh Đức', 'staff25@mail.com', '0909090909', 1, NOW(), 3, 'default.jpg', '038909090909', 'Nghệ An', 'S12654'),
+('staff08', '123456', 'Nguyễn Thị Phương Anh', 'staff26@mail.com', '0912123434', 1, NOW(), 3, 'default.jpg', '038212343434', 'Huế', 'S39028'),
+('staff09', '123456', 'Trần Đức Thắng', 'staff27@mail.com', '0923234545', 1, NOW(), 3, 'default.jpg', '060323454545', 'Quảng Ninh', 'S55739'),
+('staff10', '123456', 'Lê Thị Kim Oanh', 'staff28@mail.com', '0934345656', 1, NOW(), 3, 'default.jpg', '060434565656', 'Vũng Tàu', 'S77410');
+
 
 -- Insert vào Renter thay vì Customer
 INSERT INTO Renter
 (user_name, password, full_name, email, phone, status, created_at, image)
 VALUES
-('renter01', '123456', 'Nguyen Van A', 'a@gmail.com', '091000001', 1, NOW(), 'default.jpg'),
-('renter02', '123456', 'Tran Thi B', 'b@gmail.com', '091000002', 1, NOW(), 'default.jpg'),
-('renter03', '123456', 'Le Van C', 'c@gmail.com', '091000003', 1, NOW(), 'default.jpg'),
-('renter04', '123456', 'Pham Thi D', 'd@gmail.com', '091000004', 1, NOW(), 'default.jpg'),
-('renter05', '123456', 'Hoang Van E', 'e@gmail.com', '091000005', 1, NOW(), 'default.jpg'),
-('renter06', '123456', 'Do Thi F', 'f@gmail.com', '091000006', 1, NOW(), 'default.jpg'),
-('renter07', '123456', 'Bui Van G', 'g@gmail.com', '091000007', 0, NOW(), 'default.jpg');
+('renter01', '123456', 'Nguyễn Văn Long', 'a@gmail.com', '091000001', 1, NOW(), 'default.jpg'),
+('renter02', '123456', 'Đàm Phương Anh', 'b@gmail.com', '091000002', 1, NOW(), 'default.jpg'),
+('renter03', '123456', 'Lê Văn Chính', 'c@gmail.com', '091000003', 1, NOW(), 'default.jpg'),
+('renter04', '123456', 'Phạm Thị Ngọc', 'd@gmail.com', '091000004', 1, NOW(), 'default.jpg'),
+('renter05', '123456', 'Hoàng Văn Sáng', 'e@gmail.com', '091000005', 1, NOW(), 'default.jpg'),
+('renter06', '123456', 'Đỗ Thị Thùy', 'f@gmail.com', '091000006', 1, NOW(), 'default.jpg'),
+('renter07', '123456', 'Bùi Văn Giang', 'g@gmail.com', '091000007', 0, NOW(), 'default.jpg'),
+('renter08', '123456', 'Nguyễn Văn Hùng', 'h@gmail.com', '0910000008', 1, NOW(), 'default.jpg'),
+('renter09', '123456', 'Trần Thị Mai', 'i@gmail.com', '0910000009', 1, NOW(), 'default.jpg'),
+('renter10', '123456', 'Lê Văn Nam', 'j@gmail.com', '0910000010', 1, NOW(), 'default.jpg'),
+('renter11', '123456', 'Phạm Thị Lan', 'k@gmail.com', '0910000011', 1, NOW(), 'default.jpg'),
+('renter12', '123456', 'Hoàng Minh Tuấn', 'l@gmail.com', '0910000012', 1, NOW(), 'default.jpg'),
+('renter13', '123456', 'Đỗ Thị Hạnh', 'm@gmail.com', '0910000013', 1, NOW(), 'default.jpg'),
+('renter14', '123456', 'Bùi Gia Huy', 'n@gmail.com', '0910000014', 1, NOW(), 'default.jpg'),
+('renter15', '123456', 'Võ Thị Ngọc', 'o@gmail.com', '0910000015', 1, NOW(), 'default.jpg'),
+('renter16', '123456', 'Đặng Quốc Bảo', 'p@gmail.com', '0910000016', 1, NOW(), 'default.jpg'),
+('renter17', '123456', 'Nguyễn Thị Thanh', 'q@gmail.com', '0910000017', 1, NOW(), 'default.jpg'),
+('renter18', '123456', 'Trần Quốc Đạt', 'r@gmail.com', '0910000018', 1, NOW(), 'default.jpg'),
+('renter19', '123456', 'Lý Thị Thu', 's@gmail.com', '0910000019', 1, NOW(), 'default.jpg'),
+('renter20', '123456', 'Phan Minh Khoa', 't@gmail.com', '0910000020', 1, NOW(), 'default.jpg'),
+('renter21', '123456', 'Huỳnh Gia Bảo', 'u@gmail.com', '0910000021', 1, NOW(), 'default.jpg'),
+('renter22', '123456', 'Ngô Thị Ánh', 'v@gmail.com', '0910000022', 1, NOW(), 'default.jpg'),
+('renter23', '123456', 'Mai Văn Trường', 'w@gmail.com', '0910000023', 1, NOW(), 'default.jpg'),
+('renter24', '123456', 'Dương Thị Yến', 'x@gmail.com', '0910000024', 1, NOW(), 'default.jpg'),
+('renter25', '123456', 'Tạ Minh Đức', 'y@gmail.com', '0910000025', 1, NOW(), 'default.jpg'),
+('renter26', '123456', 'Cao Thị Hồng', 'z@gmail.com', '0910000026', 1, NOW(), 'default.jpg'),
+('renter27', '123456', 'Vũ Anh Tuấn', 'aa@gmail.com', '0910000027', 0, NOW(), 'default.jpg');
+
 
 INSERT INTO Warehouse (name, address, description, status, warehouse_type_id) VALUES
 ('Northern Logistics Hub', 'Hà Nội', 'Kho trung tâm miền Bắc', 1, 1),
