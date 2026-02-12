@@ -2,7 +2,10 @@ package dao;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import model.UserView;
+import java.util.ArrayList;
+import java.util.List;
+import model.IncidentReport;
+
 
 public class IncidentReportDAO extends DBContext {
 
@@ -40,5 +43,46 @@ public class IncidentReportDAO extends DBContext {
             return ps.executeUpdate() > 0;
         } catch (Exception e) { e.printStackTrace(); }
         return false;
+    }
+    
+    public List<IncidentReport> getAllIncidentReports() {
+        List<IncidentReport> list = new ArrayList<>();
+
+        String sql = """
+            SELECT 
+                ir.report_id,
+                ir.type,
+                ir.description,
+                ir.report_date,
+                ir.status,
+                w.name AS warehouse_name,
+                iu.full_name AS staff_name
+            FROM Incident_report ir
+            JOIN Warehouse w 
+                ON ir.warehouse_id = w.warehouse_id
+            JOIN Internal_user iu 
+                ON ir.internal_user_id = iu.internal_user_id
+        """;
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                IncidentReport dto = new IncidentReport();
+                dto.setReportId(rs.getInt("report_id"));
+                dto.setType(rs.getString("type"));
+                dto.setDescription(rs.getString("description"));
+                dto.setReportDate(rs.getTimestamp("report_date"));
+                dto.setStatus(rs.getInt("status"));
+                dto.setWarehouseName(rs.getString("warehouse_name"));
+                dto.setStaffName(rs.getString("staff_name"));
+
+                list.add(dto);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }return list;
     }
 }

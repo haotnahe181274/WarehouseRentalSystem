@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.ItemDAO;
 import dao.RentRequestDAO;
 import dao.WarehouseDAO;
 import java.io.IOException;
@@ -13,9 +14,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import model.RentRequest;
+import model.Renter;
+import model.UserView;
 
 /**
  *
@@ -106,30 +111,44 @@ public class RentRequestDetail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        
         int requestId = Integer.parseInt(request.getParameter("requestId"));
         double area = Double.parseDouble(request.getParameter("area"));
 
-        String[] itemIds = request.getParameterValues("itemId");
         String[] names = request.getParameterValues("itemName");
         String[] descriptions = request.getParameterValues("description");
 
         RentRequestDAO dao = new RentRequestDAO();
+        ItemDAO da = new ItemDAO();
+        RentRequest x= dao.getRentRequestDetailById(requestId);
+        int renterId = x.getRenter().getRenterId();
 
         dao.updateRentRequest(requestId, area);
 
-//// 1. delete all old items
-//        dao.deleteItemsByRequestId(requestId);
-//
-//// 2. insert lại
-//        if (itemNames != null) {
-//            for (int i = 0; i < itemNames.length; i++) {
-//                if (!itemNames[i].isBlank()) {
-//                    dao.insertRentRequestItem(requestId, itemNames[i], descriptions[i]);
-//                }
-//            }
-//        }
+// 1. delete all old items
+        dao.deleteItemsByRequestId(requestId);
+
+
+// 2. insert lại
+        for (int i = 0; i < names.length; i++) {
+
+            if (names[i] == null || names[i].isEmpty()) {
+                continue;
+            }
+
+            int itemId = da.insertItem(
+                    names[i],
+                    descriptions[i],
+                    renterId
+            );
+
+            dao.insertRentRequestItem(
+                    requestId,
+                    itemId);
+        }
         response.sendRedirect(request.getContextPath()
-                    + "/rentDetail?id=" + requestId);
+                + "/rentDetail?id=" + requestId);
     }
 
     /**
