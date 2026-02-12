@@ -15,7 +15,7 @@ public class IncidentReportDAO extends DBContext {
             SELECT w.warehouse_id, w.name 
             FROM Staff_assignment sa
             JOIN Warehouse w ON sa.warehouse_id = w.warehouse_id
-            WHERE sa.assigned_to = ? AND sa.status = 1 
+            WHERE sa.assigned_to = ? 
             LIMIT 1
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
