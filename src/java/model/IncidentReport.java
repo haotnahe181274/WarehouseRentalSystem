@@ -11,8 +11,26 @@ public class IncidentReport {
     private int status;
     private int warehouseId;
     private int internalUserId;
+     private String warehouseName;
+    private String staffName;
 
     public IncidentReport() {}
+
+    public String getWarehouseName() {
+        return warehouseName;
+    }
+
+    public void setWarehouseName(String warehouseName) {
+        this.warehouseName = warehouseName;
+    }
+
+    public String getStaffName() {
+        return staffName;
+    }
+
+    public void setStaffName(String staffName) {
+        this.staffName = staffName;
+    }
 
     public int getReportId() { return reportId; }
     public void setReportId(int reportId) { this.reportId = reportId; }
