@@ -13,6 +13,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import ultis.OTPUtils;
 import ultis.UserValidation;
 
 /**
@@ -95,9 +97,32 @@ public class RegisterServlet extends HttpServlet {
             request.setAttribute("username", username);
             request.getRequestDispatcher("/Common/Login/signup.jsp").forward(request, response);
         } else {
-            dao.insertRenter(username, password, fullName, email, phone);
-            request.setAttribute("success", "Registration successful! Please login.");
-            request.getRequestDispatcher("/Common/Login/login.jsp").forward(request, response);
+            // Instead of inserting directly, send OTP
+            String otp = OTPUtils.generateOTP();
+            boolean isSent = OTPUtils.sendOTPEmail(email, otp);
+
+            if (isSent) {
+                HttpSession session = request.getSession();
+                session.setAttribute("otp", otp);
+                session.setAttribute("otpCreationTime", System.currentTimeMillis());
+
+                // Store registration data in session
+                session.setAttribute("tempUsername", username);
+                session.setAttribute("tempPassword", password);
+                session.setAttribute("tempFullName", fullName);
+                session.setAttribute("tempEmail", email);
+                session.setAttribute("tempPhone", phone);
+
+                // Redirect to OTP verification page
+                response.sendRedirect("verify-otp");
+            } else {
+                request.setAttribute("errors", Map.of("email", "Failed to send OTP. Please try again later."));
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("email", email);
+                request.setAttribute("phone", phone);
+                request.setAttribute("username", username);
+                request.getRequestDispatcher("/Common/Login/signup.jsp").forward(request, response);
+            }
         }
     }
 
