@@ -10,6 +10,7 @@ import model.Warehouse;
 import model.WarehouseType;
 import dao.WarehouseTypeDAO;
 import java.time.LocalDate;
+import model.WarehouseImage;
 
 public class WarehouseDAO extends DBContext {
 
@@ -384,5 +385,57 @@ public class WarehouseDAO extends DBContext {
         System.out.println("===== END =====");
     }
 
+public List<WarehouseImage> getImagesByWarehouseId(int id) {
+        List<WarehouseImage> list = new ArrayList<>();
+        String sql = "SELECT * FROM Warehouse_image WHERE warehouse_id = ?";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new WarehouseImage(
+                    rs.getInt("image_id"),
+                    rs.getString("image_url"),
+                    rs.getString("image_type"),
+                    rs.getBoolean("is_primary"),
+                    rs.getInt("warehouse_id")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
+    // 3. Lấy danh sách Zones (Storage Units)
+    public List<StorageUnit> getUnitsByWarehouseId(int id) {
+        List<StorageUnit> list = new ArrayList<>();
+        String sql = "SELECT * FROM Storage_unit WHERE warehouse_id = ?";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new StorageUnit(
+                    rs.getInt("unit_id"),
+                    rs.getString("unit_code"),
+                    rs.getInt("status"),
+                    rs.getBigDecimal("area"),
+                    rs.getBigDecimal("price_per_unit"),
+                    rs.getString("description"),
+                    rs.getInt("warehouse_id")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    private Connection getConnection() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+}
 }
