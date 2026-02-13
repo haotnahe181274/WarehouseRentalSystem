@@ -91,6 +91,7 @@ public class RentRequestCancel extends HttpServlet {
         }
 
         int requestId = Integer.parseInt(request.getParameter("requestId"));
+        String redirect = request.getParameter("redirect");
 
         RentRequestDAO dao = new RentRequestDAO();
 
@@ -106,8 +107,13 @@ public class RentRequestCancel extends HttpServlet {
             );
         }
 
-        // Quay lại list
-        response.sendRedirect(request.getContextPath() + "/rentList");
+        if ("detail".equals(redirect)) {
+            response.sendRedirect(request.getContextPath()
+                    + "/rentDetail?id=" + requestId);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/rentList");
+        }
+
     }
 
     /**

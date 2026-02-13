@@ -352,4 +352,42 @@ public class UserDAO extends DBContext {
         return null;
     }
 
+    public boolean isRenterUsernameExists(String username) {
+        String sql = "select 1 from renter where user_name= ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isRenterEmailExists(String email) {
+        String sql = "select 1 from renter where email= ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void insertRenter(String username, String password, String fullName, String email, String phone) {
+        String sql = "INSERT INTO renter (user_name, password, full_name, email, phone, status, created_at) VALUES (?, ?, ?, ?, ?, 1, NOW())";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, fullName);
+            ps.setString(4, email);
+            ps.setString(5, phone);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
