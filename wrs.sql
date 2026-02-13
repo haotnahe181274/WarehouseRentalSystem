@@ -494,3 +494,37 @@ VALUES
 ('Fire Alarm', 'Báo cháy giả', NOW(), 1, 1, 3),
 ('Water Leak', 'Rò rỉ nước', NOW(), 2, 2, 4),
 ('Power Outage', 'Mất điện', NOW(), 3, 3, 2);
+
+
+-- ==============================
+-- INSERT BỔ SUNG STORAGE UNIT
+-- ==============================
+
+INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, warehouse_id) VALUES
+-- Bổ sung cho Northern Logistics Hub (Kho 1)
+('HN-A2', 1, 60.00, 2200000, 'Ô trung bình - Tầng 1', 1),
+('HN-A3', 1, 100.00, 4000000, 'Ô lớn - Gần cửa xuất', 1),
+
+-- Bổ sung cho Vinh Phuc Distribution Center (Kho 2)
+('VP-A2', 1, 45.00, 1800000, 'Ô nhỏ - Khu vực khô ráo', 2),
+('VP-B1', 1, 120.00, 4500000, 'Khu vực kệ cao (Pallet racking)', 2),
+
+-- Bổ sung cho Bac Ninh Smart Warehouse (Kho 3)
+('BN-A2', 1, 150.00, 5000000, 'Ô tự động hóa hoàn toàn', 3),
+('BN-B1', 1, 50.00, 2000000, 'Ô linh kiện điện tử', 3),
+
+-- Bổ sung cho Hai Phong Port Warehouse (Kho 4)
+('HP-A2', 1, 200.00, 7000000, 'Ô Container 20ft', 4),
+('HP-B1', 1, 400.00, 13000000, 'Ô Container 40ft', 4),
+
+-- Bổ sung cho Da Nang Logistics Hub (Kho 9)
+('DN-A2', 1, 55.00, 2500000, 'Ô tiêu chuẩn', 9),
+('DN-B1', 1, 90.00, 3500000, 'Ô hàng dễ vỡ', 9),
+
+-- Bổ sung cho Ho Chi Minh Logistics Hub (Kho 19)
+('HCM-A2', 1, 200.00, 8000000, 'Kho trung tâm - Diện tích lớn', 19),
+('HCM-B1', 1, 40.00, 2000000, 'Ô nhỏ - Lưu trữ hồ sơ', 19),
+
+-- Bổ sung cho Can Tho Logistics Hub (Kho 22)
+('CT-A2', 1, 100.00, 4200000, 'Kho nông sản sạch', 22),
+('CT-B1', 1, 150.00, 5500000, 'Kho máy móc nông nghiệp', 22);
