@@ -87,6 +87,14 @@ public class VerifyOTPServlet extends HttpServlet {
         String phone = (String) session.getAttribute("tempPhone");
 
         if (sessionOtp != null && sessionOtp.equals(enteredOtp)) {
+            // Check for OTP expiration (5 minutes)
+            Long otpCreationTime = (Long) session.getAttribute("otpCreationTime");
+            if (otpCreationTime != null && (System.currentTimeMillis() - otpCreationTime > 5 * 60 * 1000)) {
+                request.setAttribute("error", "OTP has expired. Please register again to get a new OTP.");
+                request.getRequestDispatcher("/Common/Login/verify_otp.jsp").forward(request, response);
+                return;
+            }
+
             // OTP matches
             UserDAO dao = new UserDAO();
             // Insert user into database
