@@ -97,9 +97,7 @@ CREATE TABLE Item (
     item_name VARCHAR(100),
     description TEXT,
     renter_id INT, -- Đổi lại thành renter_id
-    unit_id INT,
-    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id)
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id)
 );
 
 -- Bảng mới từ ảnh
@@ -115,20 +113,21 @@ CREATE TABLE storage_unit_item (
 -- ==============================
 -- REQUEST & CONTRACT
 -- ==============================
-CREATE TABLE Rent_request (
-    request_id INT AUTO_INCREMENT PRIMARY KEY,
-    request_date DATETIME,
-    status INT,
-    request_type VARCHAR(20),
-    renter_id INT,
-    warehouse_id INT,
-    internal_user_id INT,
-    processed_date DATETIME,
-    start_date DATE,
-    end_date DATE,
-    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
-    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
+CREATE TABLE Rent_request ( 
+request_id INT AUTO_INCREMENT PRIMARY KEY, 
+request_date DATETIME, 
+status INT, 
+request_type VARCHAR(20), 
+renter_id INT, 
+warehouse_id INT, 
+area DECIMAL(10,2), 
+internal_user_id INT, 
+processed_date DATETIME, 
+start_date DATE, 
+end_date DATE, 
+FOREIGN KEY (renter_id) REFERENCES Renter(renter_id), 
+FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id), 
+FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id) 
 );
 
 -- Bảng mới từ ảnh
@@ -430,30 +429,92 @@ INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, 
 ('CM-A1',1,140,5500000,'Kho lạnh thủy sản',26);
 
 -- Cập nhật Item inserts để bao gồm renter_id và unit_id
-INSERT INTO Item (item_name, description, renter_id, unit_id) VALUES
-('Electronics', 'Thiết bị điện tử', 1, 1),
-('Frozen Food', 'Thực phẩm đông lạnh', 2, 2),
-('Furniture', 'Nội thất', 3, 3);
+
+INSERT INTO Item (item_name, description, renter_id) VALUES
+('Samsung TVs Batch 01', 'Lô tivi Samsung 55 inch', 1),      -- đã có contract
+('Frozen Salmon 2025', 'Cá hồi đông lạnh nhập khẩu', 2),     -- đã có contract
+('Office Chairs Set A', 'Ghế văn phòng cao cấp', 3),         -- đã có contract
+
+('Textile Materials Lot 5', 'Nguyên liệu vải may mặc', 4),   -- chưa được duyệt
+('Motorbike Spare Parts', 'Phụ tùng xe máy', 5),             -- đang chờ xử lý
+('Imported Apples', 'Táo nhập khẩu Mỹ', 6),                  -- bị từ chối
+('Wooden Tables Export', 'Bàn gỗ xuất khẩu', 7),             -- pending
+('Rice Export Batch','Gạo xuất khẩu',12),
+('Ceramic Tiles','Gạch men xây dựng',13),
+('Frozen Shrimp Lot','Tôm đông lạnh',14),
+('Sony TVs Batch 02', 'Lô tivi Sony 65 inch', 1),
+('LG Refrigerators Lot', 'Tủ lạnh LG nhập khẩu', 1),
+('Air Conditioner Units', 'Máy lạnh dân dụng', 1);
 
 -- Dữ liệu mới cho storage_unit_item
 INSERT INTO storage_unit_item (quantity, item_id, unit_id) VALUES
 (100, 1, 1),
 (50, 2, 2),
-(20, 3, 3);
+(20, 3, 3),
+(500, 8, 22),  -- 500 bao gạo
+(300, 9, 24),  -- 300 thùng gạch
+(800, 10, 25),  -- 800 thùng tôm
+(200, 11, 1),
+(150, 12, 1),
+(100, 13, 1);
 
 -- Cập nhật Rent_request để bao gồm renter_id, start_date, end_date
 INSERT INTO Rent_request
-(request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date, start_date, end_date)
+(request_date, status, request_type, renter_id, warehouse_id, area,
+ internal_user_id, processed_date, start_date, end_date)
 VALUES
-(NOW(), 1, 'RENT',      1, 1, 2, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 6 MONTH)),
-(NOW(), 1, 'CHECK_IN',  2, 2, 3, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
-(NOW(), 1, 'CHECK_OUT', 3, 3, 4, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 7 DAY));
+
+-- APPROVED REQUESTS (có processed_date + internal_user_id)
+('2025-01-05 09:15:00', 1, 'RENT', 1, 1, 50,
+ 2, '2025-01-06 10:30:00', '2025-01-10', '2025-07-10'),
+
+('2025-02-01 14:00:00', 1, 'RENT', 2, 2, 70,
+ 3, '2025-02-02 08:45:00', '2025-02-05', '2025-08-05'),
+
+('2025-03-12 11:20:00', 1, 'RENT', 3, 3, 100,
+ 4, '2025-03-13 09:10:00', '2025-03-20', '2026-03-20'),
+
+-- PENDING REQUESTS (status = 0 → NULL processed)
+('2025-04-01 10:00:00', 0, 'RENT', 4, 4, 80,
+ NULL, NULL, '2025-04-10', '2025-10-10'),
+
+('2025-04-05 16:30:00', 0, 'RENT', 7, 5, 120,
+ NULL, NULL, '2025-04-20', '2025-12-20'),
+('2025-05-01 09:00:00', 1, 'CHECK_IN', 1, 1, 50,
+ 2, '2025-05-01 10:00:00', '2025-05-01', '2025-11-01'),
+-- REJECTED REQUEST (status = 3 → NULL processed)
+('2025-03-01 08:00:00', 3, 'RENT', 6, 6, 90,
+ NULL, NULL, '2025-03-10', '2025-09-10'),
+ ('2025-06-01 08:00:00',1,'RENT',12,22,130,2,'2025-06-02 09:00:00','2025-06-10','2025-12-10'),
+('2025-06-05 09:30:00',1,'RENT',13,24,100,1,'2025-06-06 10:00:00','2025-06-15','2026-06-15'),
+('2025-06-10 10:00:00',1,'RENT',14,25,120,2,'2025-06-11 11:00:00','2025-06-20','2026-06-20'),
+(NOW(), 1, 'RENT', 1, 1, 70,
+ 2, NOW(), '2025-07-01', '2026-01-01'),
+
+(NOW(), 0, 'RENT', 1, 1, 30,
+ NULL, NULL, '2025-08-01', '2026-02-01'),
+ (NOW(), 1, 'CHECK_IN', 1, 1, 50,
+ 3, NOW(), '2025-07-01', '2026-01-01'),
+
+(NOW(), 1, 'CHECK_IN', 1, 1, 50,
+ 3, NOW(), '2025-07-05', '2026-01-01'),
+ (NOW(), 1, 'CHECK_OUT', 1, 1, 50,
+ 3, NOW(), '2025-08-01', '2026-01-01');
 
 -- Dữ liệu mới cho rent_request_item
 INSERT INTO rent_request_item (quantity, item_id, request_id) VALUES
-(100, 1, 1),
-(50, 2, 2),
-(20, 3, 3);
+(0, 1, 1),
+(0, 2, 2),
+(0, 3, 3),
+(0, 4, 4),
+(0, 7, 5),
+(0, 6, 6),
+(100, 1, 7),
+(200, 1, 11),
+(150, 11, 12),
+
+-- CHECK OUT
+(50, 1, 13);
 
 -- Cập nhật Contract để bao gồm renter_id và request_id
 INSERT INTO Contract
@@ -461,14 +522,20 @@ INSERT INTO Contract
 VALUES
 (NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1, 1, 1, 1),
 (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1, 2, 2, 2),
-(NOW(), DATE_ADD(NOW(), INTERVAL 12 MONTH), 1, 3, 3, 3);
+(NOW(), DATE_ADD(NOW(), INTERVAL 12 MONTH), 1, 3, 3, 3),
+('2025-06-10 00:00:00','2025-12-10 00:00:00',1,12,22,7),
+('2025-06-15 00:00:00','2026-06-15 00:00:00',1,13,24,8),
+('2025-06-20 00:00:00','2026-06-20 00:00:00',1,14,25,9);
 
 INSERT INTO Contract_Storage_unit
 (contract_id, unit_id, rent_price, start_date, end_date, status)
 VALUES
 (1, 1, 2000000, NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1),
 (1, 2, 3500000, NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1),
-(2, 3, 3000000, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1);
+(2, 3, 3000000, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1),
+(4,22,5000000,'2025-06-10 00:00:00','2025-12-10 00:00:00',1),
+(5,24,4000000,'2025-06-15 00:00:00','2026-06-15 00:00:00',1),
+(6,25,4800000,'2025-06-20 00:00:00','2026-06-20 00:00:00',1);
 
 INSERT INTO Payment
 (amount, payment_date, method, status, contract_id)
@@ -516,7 +583,10 @@ INSERT INTO Inventory_log
 VALUES
 (1, 100, NOW(), 1, 1, 3),
 (2, 20, NOW(), 2, 2, 3),
-(3, -5, NOW(), 3, 3, 4);
+(3, -5, NOW(), 3, 3, 4),
+(1, 200, NOW(), 11, 1, 3),   -- check in
+(1, 150, NOW(), 12, 1, 3),
+(2, -50, NOW(), 1, 1, 3); 
 
 INSERT INTO Incident_report
 (type, description, report_date, status, warehouse_id, internal_user_id)

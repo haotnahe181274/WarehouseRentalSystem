@@ -16,7 +16,7 @@ public class ItemDAO extends DBContext {
 
     public int insertItem(String name, String description, int renterId) {
 
-        String sql = "INSERT INTO Item(item_name, description, renter_id, unit_id) VALUES (?, ?, ?, NULL)";
+        String sql = "INSERT INTO Item(item_name, description, renter_id) VALUES (?, ?, ?)";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
