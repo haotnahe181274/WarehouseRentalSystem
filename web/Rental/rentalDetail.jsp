@@ -24,9 +24,9 @@
             <h2>Rent Request Detail</h2>
 
             <c:if test="${isEdit}">
-            <form action="${pageContext.request.contextPath}/rentDetail" method="post" id="detailForm">
-                <input type="hidden" name="requestId" value="${rr.requestId}" />
-            </c:if>
+                <form action="${pageContext.request.contextPath}/rentDetail" method="post" id="detailForm">
+                    <input type="hidden" name="requestId" value="${rr.requestId}" />
+                </c:if>
 
                 <!-- META INFO -->
                 <div class="meta-info">
@@ -35,47 +35,23 @@
                     </p>
                     <p>
                         <strong>Request Date:</strong>
-                        <c:choose>
-                            <c:when test="${isEdit}">
-                                <input type="datetime-local" name="requestDate" value="<fmt:formatDate value="${rr.requestDate}" pattern="yyyy-MM-dd'T'HH:mm"/>" />
-                            </c:when>
-                            <c:otherwise>
+
                                 <fmt:formatDate value="${rr.requestDate}" pattern="dd-MM-yyyy HH:mm"/>
-                            </c:otherwise>
-                        </c:choose>
                     </p>
                     <p>
                         <strong>Status:</strong>
-                        <c:choose>
-                            <c:when test="${isEdit}">
-                                <select name="status">
-                                    <option value="0" <c:if test="${rr.status == 0}">selected</c:if>>Pending</option>
-                                    <option value="1" <c:if test="${rr.status == 1}">selected</c:if>>Approved</option>
-                                    <option value="2" <c:if test="${rr.status == 2}">selected</c:if>>Rejected</option>
-                                    <option value="3" <c:if test="${rr.status == 3}">selected</c:if>>Cancelled</option>
-                                </select>
-                            </c:when>
-                            <c:otherwise>
+                        
                                 <c:choose>
                                     <c:when test="${rr.status == 0}"><span class="status-badge status-pending">Pending</span></c:when>
                                     <c:when test="${rr.status == 1}"><span class="status-badge status-approved">Approved</span></c:when>
                                     <c:when test="${rr.status == 2}"><span class="status-badge status-rejected">Rejected</span></c:when>
                                     <c:when test="${rr.status == 3}"><span class="status-badge status-cancelled">Cancelled</span></c:when>
                                 </c:choose>
-                            </c:otherwise>
-                        </c:choose>
                     </p>
                     <c:if test="${rr.processedDate != null}">
                         <p>
-                            <strong>Processed Date:</strong>
-                            <c:choose>
-                                <c:when test="${isEdit}">
-                                    <input type="datetime-local" name="processedDate" value="<fmt:formatDate value="${rr.processedDate}" pattern="yyyy-MM-dd'T'HH:mm"/>" />
-                                </c:when>
-                                <c:otherwise>
+                            <strong>Processed Date:</strong>                             
                                     <fmt:formatDate value="${rr.processedDate}" pattern="dd-MM-yyyy HH:mm"/>
-                                </c:otherwise>
-                            </c:choose>
                         </p>
                     </c:if>
                 </div>
@@ -95,42 +71,24 @@
                     </div>
                     <div class="info-block">
                         <p><strong>Full Name:</strong>
-                            <c:choose>
-                                <c:when test="${isEdit}"><input type="text" name="renterFullName" value="${rr.renter.fullName}" /></c:when>
-                                <c:otherwise>${rr.renter.fullName}</c:otherwise>
-                            </c:choose>
+                            ${rr.renter.fullName}
                         </p>
                         <p><strong>Email:</strong>
-                            <c:choose>
-                                <c:when test="${isEdit}"><input type="text" name="renterEmail" value="${rr.renter.email}" /></c:when>
-                                <c:otherwise>${rr.renter.email}</c:otherwise>
-                            </c:choose>
+                            ${rr.renter.email}
                         </p>
                         <p><strong>Phone:</strong>
-                            <c:choose>
-                                <c:when test="${isEdit}"><input type="text" name="renterPhone" value="${rr.renter.phone}" /></c:when>
-                                <c:otherwise>${rr.renter.phone}</c:otherwise>
-                            </c:choose>
+                            ${rr.renter.phone}
                         </p>
                     </div>
                     <div class="info-block">
                         <p><strong>Warehouse:</strong>
-                            <c:choose>
-                                <c:when test="${isEdit}"><input type="text" name="warehouseName" value="${rr.warehouse.name}" /></c:when>
-                                <c:otherwise>${rr.warehouse.name}</c:otherwise>
-                            </c:choose>
+                            ${rr.warehouse.name}
                         </p>
                         <p><strong>Address:</strong>
-                            <c:choose>
-                                <c:when test="${isEdit}"><input type="text" name="warehouseAddress" value="${rr.warehouse.address}" /></c:when>
-                                <c:otherwise>${rr.warehouse.address}</c:otherwise>
-                            </c:choose>
+                            ${rr.warehouse.address}
                         </p>
                         <p><strong>Type:</strong>
-                            <c:choose>
-                                <c:when test="${isEdit}"><input type="text" name="warehouseType" value="${rr.warehouse.warehouseType.typeName}" /></c:when>
-                                <c:otherwise>${rr.warehouse.warehouseType.typeName}</c:otherwise>
-                            </c:choose>
+                            ${rr.warehouse.warehouseType.typeName}
                         </p>
                     </div>
                 </div>
@@ -191,9 +149,9 @@
                             <th>Description</th>
                             <th>Quantity</th>
                             <c:if test="${isEdit}"><th></th></c:if>
-                        </tr>
-                    </thead>
-                    <tbody>
+                            </tr>
+                        </thead>
+                        <tbody>
                         <c:forEach items="${rr.items}" var="item">
                             <tr>
                                 <td>
@@ -270,227 +228,230 @@
                         </c:otherwise>
                     </c:choose>
                 </div>
-            <c:if test="${isEdit}"></form></c:if>
+                <c:if test="${isEdit}"></form></c:if>
 
-        </div>
+            </div>
 
         <jsp:include page="/Common/Layout/footer.jsp"/>
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f6f9;
-    }
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f6f9;
+            }
 
-    .detail-container {
-        max-width: 1000px;
-        margin: 40px auto;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        padding: 30px;
-    }
+            .detail-container {
+                max-width: 1000px;
+                margin: 40px auto;
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                padding: 30px;
+            }
 
-    .section-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 15px;
-        color: #1e293b;
-    }
+            .section-title {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 15px;
+                color: #1e293b;
+            }
 
-    .info-card {
-        display: flex;
-        gap: 30px;
-        background: #f8fafc;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 25px;
-    }
+            .info-card {
+                display: flex;
+                gap: 30px;
+                background: #f8fafc;
+                padding: 20px;
+                border-radius: 10px;
+                margin-bottom: 25px;
+            }
 
-    .avatar img {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+            .avatar img {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                object-fit: cover;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            }
 
-    .info-block {
-        flex: 1;
-    }
+            .info-block {
+                flex: 1;
+            }
 
-    .info-block p {
-        margin: 6px 0;
-        font-size: 14px;
-    }
+            .info-block p {
+                margin: 6px 0;
+                font-size: 14px;
+            }
 
-    .request-dates {
-        display: flex;
-        justify-content: space-between;
-        background: #f8fafc;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 25px;
-    }
+            .request-dates {
+                display: flex;
+                justify-content: space-between;
+                background: #f8fafc;
+                padding: 20px;
+                border-radius: 10px;
+                margin-bottom: 25px;
+            }
 
-    .date-box {
-        flex: 1;
-        text-align: center;
-    }
+            .date-box {
+                flex: 1;
+                text-align: center;
+            }
 
-    .date-box strong {
-        display: block;
-        font-size: 16px;
-        margin-top: 5px;
-    }
+            .date-box strong {
+                display: block;
+                font-size: 16px;
+                margin-top: 5px;
+            }
 
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-    }
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
 
-    .table thead {
-        background: #1e293b;
-        color: white;
-    }
+            .table thead {
+                background: #1e293b;
+                color: white;
+            }
 
-    .table th, .table td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #e2e8f0;
-    }
+            .table th, .table td {
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #e2e8f0;
+            }
 
-    .table tbody tr:hover {
-        background-color: #f1f5f9;
-    }
+            .table tbody tr:hover {
+                background-color: #f1f5f9;
+            }
 
-    .total-box {
-        text-align: right;
-        font-weight: bold;
-        padding: 15px;
-        background: #1e293b;
-        color: white;
-        border-radius: 8px;
-    }
+            .total-box {
+                text-align: right;
+                font-weight: bold;
+                padding: 15px;
+                background: #1e293b;
+                color: white;
+                border-radius: 8px;
+            }
 
-    .action-buttons {
-        margin-top: 25px;
-        text-align: right;
-    }
+            .action-buttons {
+                margin-top: 25px;
+                text-align: right;
+            }
 
-    .btn {
-        padding: 10px 18px;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-        font-weight: bold;
-        margin-left: 10px;
-    }
+            .btn {
+                padding: 10px 18px;
+                border-radius: 8px;
+                border: none;
+                cursor: pointer;
+                font-weight: bold;
+                margin-left: 10px;
+            }
 
-    .btn-approve {
-        background-color: #0f172a;
-        color: white;
-    }
+            .btn-approve {
+                background-color: #0f172a;
+                color: white;
+            }
 
-    .btn-approve:hover {
-        background-color: #1e293b;
-    }
+            .btn-approve:hover {
+                background-color: #1e293b;
+            }
 
-    .btn-reject {
-        background-color: #e2e8f0;
-    }
+            .btn-reject {
+                background-color: #e2e8f0;
+            }
 
-    .btn-reject:hover {
-        background-color: #cbd5e1;
-    }
+            .btn-reject:hover {
+                background-color: #cbd5e1;
+            }
 
-    .btn-update {
-        background-color: #facc15;
-    }
+            .btn-update {
+                background-color: #facc15;
+            }
 
-    .btn-cancel {
-        background-color: #ef4444;
-        color: white;
-    }
-    .status-badge {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: bold;
-    }
+            .btn-cancel {
+                background-color: #ef4444;
+                color: white;
+            }
+            .status-badge {
+                display: inline-block;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: bold;
+            }
 
-    .status-pending {
-        background: #facc15;
-    }
-    .status-approved {
-        background: #22c55e;
-        color: white;
-    }
-    .status-rejected {
-        background: #ef4444;
-        color: white;
-    }
-    .status-cancelled {
-        background: #64748b;
-        color: white;
-    }
+            .status-pending {
+                background: #facc15;
+            }
+            .status-approved {
+                background: #22c55e;
+                color: white;
+            }
+            .status-rejected {
+                background: #ef4444;
+                color: white;
+            }
+            .status-cancelled {
+                background: #64748b;
+                color: white;
+            }
 
-    .meta-info {
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
+            .meta-info {
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
 
-    .meta-info p {
-        margin: 5px 0;
-    }
-</style>
-<script>
-    function updatePrice() {
-        let select = document.getElementById("areaSelect");
-        if (!select) return;
-        let option = select.options[select.selectedIndex];
-        if (!option || !option.dataset.price) {
-            document.getElementById("price").innerText = "";
-            return;
-        }
-        document.getElementById("price").innerText = option.dataset.price;
-    }
-</script>
-<script>
-    function validateForm() {
-        let rows = document.querySelectorAll("#itemTable tbody tr");
-        if (rows.length === 0) {
-            alert("You must have at least one item.");
-            return false;
-        }
-        for (let i = 0; i < rows.length; i++) {
-            let nameInput = rows[i].querySelector("input[name='itemName']");
-            let descInput = rows[i].querySelector("input[name='description']");
-            if (nameInput && descInput) {
-                if (nameInput.value.trim() === "" || descInput.value.trim() === "") {
-                    alert("All item fields must be filled.");
+            .meta-info p {
+                margin: 5px 0;
+            }
+        </style>
+        <script>
+            function updatePrice() {
+                let select = document.getElementById("areaSelect");
+                if (!select)
+                    return;
+                let option = select.options[select.selectedIndex];
+                if (!option || !option.dataset.price) {
+                    document.getElementById("price").innerText = "";
+                    return;
+                }
+                document.getElementById("price").innerText = option.dataset.price;
+            }
+        </script>
+        <script>
+            function validateForm() {
+                let rows = document.querySelectorAll("#itemTable tbody tr");
+                if (rows.length === 0) {
+                    alert("You must have at least one item.");
                     return false;
                 }
+                for (let i = 0; i < rows.length; i++) {
+                    let nameInput = rows[i].querySelector("input[name='itemName']");
+                    let descInput = rows[i].querySelector("input[name='description']");
+                    if (nameInput && descInput) {
+                        if (nameInput.value.trim() === "" || descInput.value.trim() === "") {
+                            alert("All item fields must be filled.");
+                            return false;
+                        }
+                    }
+                }
+                return true;
             }
-        }
-        return true;
-    }
-</script>
-<script>
-    function addRow() {
-        let table = document.getElementById("itemTable");
-        if (!table) return;
-        let tbody = table.getElementsByTagName("tbody")[0];
-        let row = tbody.insertRow();
-        row.innerHTML = '<td><input type="text" name="itemName"></td><td><input type="text" name="description"></td><td>0</td><td><button type="button" onclick="removeRow(this)" class="btn btn-reject">Delete</button></td>';
-    }
-    function removeRow(button) {
-        let row = button.closest("tr");
-        if (row) row.remove();
-    }
-</script>
+        </script>
+        <script>
+            function addRow() {
+                let table = document.getElementById("itemTable");
+                if (!table)
+                    return;
+                let tbody = table.getElementsByTagName("tbody")[0];
+                let row = tbody.insertRow();
+                row.innerHTML = '<td><input type="text" name="itemName"></td><td><input type="text" name="description"></td><td>0</td><td><button type="button" onclick="removeRow(this)" class="btn btn-reject">Delete</button></td>';
+            }
+            function removeRow(button) {
+                let row = button.closest("tr");
+                if (row)
+                    row.remove();
+            }
+        </script>
 
     </body>
 </html>
