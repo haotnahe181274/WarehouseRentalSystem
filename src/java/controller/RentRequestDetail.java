@@ -17,7 +17,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import model.RentRequest;
 import model.Renter;
 import model.UserView;
@@ -91,6 +93,26 @@ public class RentRequestDetail extends HttpServlet {
                 rr.getStartDate(),
                 rr.getEndDate()
         );
+        String action = request.getParameter("action");
+
+        String mode = "view";
+
+        if ("edit".equals(action)) {
+            mode = "edit";
+        }
+
+        Map<Double, Double> areaPriceMap = new LinkedHashMap<>();
+
+        for (Double a : areaList) {
+            double p = da.getPriceByArea(rr.getWarehouse().getWarehouseId(), a);
+            areaPriceMap.put(a, p);
+        }
+
+        request.setAttribute("areaPriceMap", areaPriceMap);
+        double price = da.getPriceByArea(rr.getWarehouse().getWarehouseId(), rr.getArea());
+        request.setAttribute("price", price);
+
+        request.setAttribute("mode", mode);
 
         request.setAttribute("rr", rr);
         request.setAttribute("areaList", areaList);
@@ -111,8 +133,7 @@ public class RentRequestDetail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        
+
         int requestId = Integer.parseInt(request.getParameter("requestId"));
         double area = Double.parseDouble(request.getParameter("area"));
 
@@ -121,14 +142,13 @@ public class RentRequestDetail extends HttpServlet {
 
         RentRequestDAO dao = new RentRequestDAO();
         ItemDAO da = new ItemDAO();
-        RentRequest x= dao.getRentRequestDetailById(requestId);
+        RentRequest x = dao.getRentRequestDetailById(requestId);
         int renterId = x.getRenter().getRenterId();
 
         dao.updateRentRequest(requestId, area);
 
 // 1. delete all old items
         dao.deleteItemsByRequestId(requestId);
-
 
 // 2. insert lại
         for (int i = 0; i < names.length; i++) {
@@ -147,6 +167,7 @@ public class RentRequestDetail extends HttpServlet {
                     requestId,
                     itemId);
         }
+
         response.sendRedirect(request.getContextPath()
                 + "/rentDetail?id=" + requestId);
     }

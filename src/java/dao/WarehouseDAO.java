@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.sql.Timestamp;
 
-
 import java.util.List;
 import java.util.ArrayList;
 
@@ -395,6 +394,73 @@ public class WarehouseDAO extends DBContext {
         }
 
         return areaList;
+    }
+
+    public double getPriceByArea(int warehouseId, double area) {
+
+        String sql = "SELECT price_per_unit "
+                + "FROM Storage_unit "
+                + "WHERE warehouse_id = ? "
+                + "AND area = ? "
+                + "AND status = 1 "
+                + "LIMIT 1";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, warehouseId);
+            ps.setDouble(2, area);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("price_per_unit");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public Warehouse findById(int id) {
+
+        String sql = "SELECT w.*, wt.warehouse_type_id, wt.type_name, wt.description AS type_description "
+                + "FROM Warehouse w "
+                + "JOIN WarehouseType wt ON w.warehouse_type_id = wt.warehouse_type_id "
+                + "WHERE w.warehouse_id = ?";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                // Tạo WarehouseType trước
+                WarehouseType type = new WarehouseType(
+                        rs.getInt("warehouse_type_id"),
+                        rs.getString("type_name"),
+                        rs.getString("type_description")
+                );
+
+                // Tạo Warehouse
+                Warehouse warehouse = new Warehouse();
+                warehouse.setWarehouseId(rs.getInt("warehouse_id"));
+                warehouse.setName(rs.getString("name"));
+                warehouse.setAddress(rs.getString("address"));
+                warehouse.setDescription(rs.getString("description"));
+                warehouse.setWarehouseType(type);
+
+                return warehouse;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 }
