@@ -427,7 +427,7 @@ public class WarehouseDAO extends DBContext {
 
         String sql = "SELECT w.*, wt.warehouse_type_id, wt.type_name, wt.description AS type_description "
                 + "FROM Warehouse w "
-                + "JOIN WarehouseType wt ON w.warehouse_type_id = wt.warehouse_type_id "
+                + "JOIN Warehouse_type wt ON w.warehouse_type_id = wt.warehouse_type_id "
                 + "WHERE w.warehouse_id = ?";
 
         try {
@@ -462,5 +462,6 @@ public class WarehouseDAO extends DBContext {
 
         return null;
     }
+
 
 }

@@ -4,6 +4,7 @@
  */
 package dao;
 
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -348,22 +349,42 @@ public class RentRequestDAO extends DBContext {
         return rr;
     }
 
-    public boolean updateRentRequest(int requestId, double area) {
-        String sql = "UPDATE Rent_Request SET area = ? WHERE request_id = ?";
 
+    /** Updates area, start_date and end_date for an existing rent request. */
+    public boolean updateRentRequestDatesAndArea(int requestId, Date startDate, Date endDate, double area) {
+        String sql = "UPDATE rent_request SET start_date = ?, end_date = ?, area = ? WHERE request_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setDouble(1, area);
-            ps.setInt(2, requestId);
-
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
-
+            ps.setDate(1, new java.sql.Date(startDate.getTime()));
+            ps.setDate(2, new java.sql.Date(endDate.getTime()));
+            ps.setDouble(3, area);
+            ps.setInt(4, requestId);
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return false;
+    }
+
+    /**
+     * Inserts a new rent request (create mode). Returns the new request_id, or -1 on failure.
+     */
+    public int insertRentRequest(int renterId, int warehouseId, Date startDate, Date endDate, double area) {
+        String sql = "INSERT INTO rent_request (request_date, status, request_type, renter_id, warehouse_id, start_date, end_date, area) VALUES (NOW(), 0, 'RENT', ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, renterId);
+            ps.setInt(2, warehouseId);
+            ps.setDate(3, new java.sql.Date(startDate.getTime()));
+            ps.setDate(4, new java.sql.Date(endDate.getTime()));
+            ps.setDouble(5, area);
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static void main(String[] args) {

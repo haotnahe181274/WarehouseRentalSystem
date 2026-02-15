@@ -4,6 +4,8 @@
  */
 package controller;
 
+import dao.ItemDAO;
+import dao.RentRequestDAO;
 import dao.WarehouseDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,6 +14,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.RentRequest;
+import model.UserView;
 import model.Warehouse;
 
 /**
@@ -61,35 +66,75 @@ public class CreateRentRequest extends HttpServlet {
             throws ServletException, IOException {
         WarehouseDAO dao = new WarehouseDAO();
         String idRaw = request.getParameter("id");
-
         if (idRaw == null) {
-            response.sendRedirect("rentList");
+            response.sendRedirect("homepage");
             return;
         }
-
         int id = Integer.parseInt(idRaw);
-
         Warehouse w = dao.findById(id);
-
-        request.setAttribute("warehouse", w);
+        if (w == null) {
+            response.sendRedirect("homepage");
+            return;
+        }
+        RentRequest rr = new RentRequest();
+        rr.setWarehouse(w);
+        request.setAttribute("rr", rr);
         request.setAttribute("mode", "create");
-        request.getRequestDispatcher("Rental/rentalDetail.jsp")
-                .forward(request, response);
-
+        request.getRequestDispatcher("Rental/rentalDetail.jsp").forward(request, response);
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * Handles the HTTP <code>POST</code> method. Creates a new rent request.
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        UserView user = (UserView) session.getAttribute("user");
+        if (!"RENTER".equals(user.getType())) {
+            response.sendRedirect(request.getContextPath() + "/homepage");
+            return;
+        }
+
+        String warehouseIdStr = request.getParameter("warehouseId");
+        String startDateStr = request.getParameter("startDate");
+        String endDateStr = request.getParameter("endDate");
+        String areaStr = request.getParameter("area");
+        String[] names = request.getParameterValues("itemName");
+        String[] descriptions = request.getParameterValues("description");
+
+        int warehouseId = Integer.parseInt(warehouseIdStr);
+        double area = Double.parseDouble(areaStr);
+        java.sql.Date startDate;
+        java.sql.Date endDate;
+        try {
+            startDate = java.sql.Date.valueOf(startDateStr);
+            endDate = java.sql.Date.valueOf(endDateStr);
+        } catch (IllegalArgumentException e) {
+            response.sendRedirect(request.getContextPath() + "/rentList");
+            return;
+        }
+
+        int renterId = user.getId();
+        RentRequestDAO rrDao = new RentRequestDAO();
+        ItemDAO itemDao = new ItemDAO();
+
+        int newRequestId = rrDao.insertRentRequest(renterId, warehouseId, startDate, endDate, area);
+
+        if (names != null) {
+            for (int i = 0; i < names.length; i++) {
+                if (names[i] == null || names[i].trim().isEmpty()) continue;
+                String desc = (descriptions != null && i < descriptions.length) ? descriptions[i] : "";
+                int itemId = itemDao.insertItem(names[i].trim(), desc, renterId);
+                rrDao.insertRentRequestItem(newRequestId, itemId);
+            }
+        }
+
+        response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + newRequestId);
     }
 
     /**
