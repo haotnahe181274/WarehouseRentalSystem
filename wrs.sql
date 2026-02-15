@@ -229,11 +229,9 @@ CREATE TABLE Feedback (
     comment TEXT,
     is_anonymous BOOLEAN,
     feedback_date DATETIME,
-    renter_id INT, -- Đổi lại thành renter_id
-    warehouse_id INT,
+    renter_id INT,
     contract_id INT,
     FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
     FOREIGN KEY (contract_id) REFERENCES Contract(contract_id)
 );
 
@@ -500,11 +498,11 @@ VALUES
 (2, 3, 'Furniture', 5, 'Dọn dẹp');
 
 INSERT INTO Feedback
-(rating, comment, is_anonymous, feedback_date, renter_id, warehouse_id, contract_id)
+(rating, comment, is_anonymous, feedback_date, renter_id, contract_id)
 VALUES
-(5, 'Dịch vụ rất tốt', 0, NOW(), 1, 1, 1),
-(4, 'Kho ổn', 1, NOW(), 2, 2, 2),
-(3, 'Giá hơi cao', 0, NOW(), 3, 3, 3);
+(5, 'Dịch vụ rất tốt', 0, NOW(), 1, 1),
+(4, 'Kho ổn', 1, NOW(), 2, 2),
+(3, 'Giá hơi cao', 0, NOW(), 3, 3);
 
 INSERT INTO Feedback_response
 (response_text, response_date, feedback_id, internal_user_id)
