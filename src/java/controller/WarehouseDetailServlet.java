@@ -1,6 +1,6 @@
 package controller;
 
-import dao.WarehouseDAO;
+import dao.WarehouseManagementDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -30,7 +30,7 @@ public class WarehouseDetailServlet extends HttpServlet {
             int id = Integer.parseInt(idRaw);
 
             // 2. Gọi DAO
-            WarehouseDAO dao = new WarehouseDAO();
+            WarehouseManagementDAO dao = new WarehouseManagementDAO();
  
             // A. Lấy thông tin cơ bản của kho (Tên, địa chỉ, mô tả, min_price...)
             Warehouse w = dao.getWarehouseById(id);
@@ -42,7 +42,7 @@ public class WarehouseDetailServlet extends HttpServlet {
             }
 
             // B. Lấy danh sách ảnh (WarehouseImage object)
-            List<WarehouseImage> images = dao.getWarehouseImages(id);
+            List<WarehouseImage> images = dao.getWarehouseById(id);
 
             // C. Lấy danh sách các ô chứa/Zone (StorageUnit object)
             List<StorageUnit> units = dao.getStorageUnits(id);
