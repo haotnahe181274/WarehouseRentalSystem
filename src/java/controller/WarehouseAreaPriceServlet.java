@@ -41,9 +41,9 @@ public class WarehouseAreaPriceServlet extends HttpServlet {
                 return;
             }
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-                Date startDate = sdf.parse(start);
-                Date endDate = sdf.parse(end);
+                java.sql.Date startDate = java.sql.Date.valueOf(start);
+                java.sql.Date endDate = java.sql.Date.valueOf(end);
+
                 List<Double> areas = dao.getAvailableAreasByWarehouse(warehouseId, startDate, endDate);
                 StringBuilder sb = new StringBuilder("[");
                 for (int i = 0; i < areas.size(); i++) {

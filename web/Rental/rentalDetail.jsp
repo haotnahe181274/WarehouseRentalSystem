@@ -114,10 +114,10 @@
                             <select name="area" id="areaSelect" required>
                                 <c:choose>
                                     <c:when test="${isCreate}">
-                                        <option value="">--None--</option>
+                                        <option value="">Select date first</option>
                                     </c:when>
                                     <c:otherwise>
-                                        <option value="">-- Select Area --</option>
+                                        
                                         <c:forEach items="${areaPriceMap}" var="entry">
                                             <option value="${entry.key}" data-price="${entry.value}" <c:if test="${entry.key == rr.area}">selected</c:if>>${entry.key} m²</option>
                                         </c:forEach>

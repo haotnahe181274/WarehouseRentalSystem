@@ -31,6 +31,9 @@
                 <a class="app-header__menu-link" href="${pageContext.request.contextPath}/contracts">Contract</a>
             </li>
             <li class="app-header__menu-item">
+                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/itemlist">My Item</a>
+            </li>
+            <li class="app-header__menu-item">
                 <a class="app-header__menu-link" href="${pageContext.request.contextPath}/payments">Payment</a>
             </li>
             <li class="app-header__menu-item">
