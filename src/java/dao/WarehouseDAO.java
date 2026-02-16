@@ -83,15 +83,17 @@ public class WarehouseDAO extends DBContext {
         if (maxArea != null) {
             sql.append("AND s.area <= ? ");
         }
+        // Unit bị coi là đã thuê chỉ khi: contract status=1, payment status=1 (đã thanh toán), và khoảng ngày trùng
         if (rentStart != null && rentEnd != null) {
             sql.append(
                     "AND NOT EXISTS ( "
                     + "   SELECT 1 FROM Contract_Storage_unit csu "
                     + "   JOIN Contract c ON csu.contract_id = c.contract_id "
+                    + "   JOIN Payment p ON p.contract_id = c.contract_id AND p.status = 1 "
                     + "   WHERE csu.unit_id = s.unit_id "
-                    + "   AND c.status IN (1,2) "
-                    + "   AND c.start_date <= ? "
-                    + "   AND c.end_date >= ? "
+                    + "   AND c.status = 1 "
+                    + "   AND csu.start_date <= ? "
+                    + "   AND csu.end_date >= ? "
                     + ") "
             );
         }
@@ -225,14 +227,15 @@ public class WarehouseDAO extends DBContext {
             sql.append("AND s.area <= ? ");
         }
 
-        // ✅ PHẢI CÓ date filter giống hệt hàm list
+        // Cùng logic: unit đã thuê khi contract status=1, payment status=1, và khoảng ngày trùng
         if (rentStart != null && rentEnd != null) {
             sql.append(
                     "AND NOT EXISTS ( "
                     + "   SELECT 1 FROM Contract_Storage_unit csu "
                     + "   JOIN Contract c ON csu.contract_id = c.contract_id "
+                    + "   JOIN Payment p ON p.contract_id = c.contract_id AND p.status = 1 "
                     + "   WHERE csu.unit_id = s.unit_id "
-                    + "   AND c.status IN (1,2) "
+                    + "   AND c.status = 1 "
                     + "   AND c.start_date <= ? "
                     + "   AND c.end_date >= ? "
                     + ") "
@@ -359,6 +362,7 @@ public class WarehouseDAO extends DBContext {
 
         List<Double> areaList = new ArrayList<>();
 
+        // Chỉ coi unit đã thuê khi: contract status=1, payment status=1 (đã thanh toán), và khoảng ngày trùng
         String sql
                 = "SELECT DISTINCT s.area "
                 + "FROM Storage_unit s "
@@ -370,10 +374,11 @@ public class WarehouseDAO extends DBContext {
                 + "   SELECT 1 "
                 + "   FROM Contract_Storage_unit csu "
                 + "   JOIN Contract c ON csu.contract_id = c.contract_id "
+                + "   JOIN Payment p ON p.contract_id = c.contract_id AND p.status = 1 "
                 + "   WHERE csu.unit_id = s.unit_id "
-                + "   AND c.status =1 "
-                + "   AND c.start_date <= ? "
-                + "   AND c.end_date >= ? "
+                + "   AND c.status = 1 "
+                + "   AND csu.start_date <= ? "
+                + "   AND csu.end_date >= ? "
                 + ") "
                 + "ORDER BY s.area ASC";
 

@@ -178,13 +178,6 @@ CREATE TABLE Payment (
     FOREIGN KEY (contract_id) REFERENCES Contract(contract_id)
 );
 
-CREATE TABLE Invoice (
-    invoice_id INT AUTO_INCREMENT PRIMARY KEY,
-    issue_date DATETIME,
-    total_amount DECIMAL(10,2),
-    payment_id INT,
-    FOREIGN KEY (payment_id) REFERENCES Payment(payment_id)
-);
 
 -- ==============================
 -- STAFF ASSIGNMENT
@@ -543,11 +536,6 @@ VALUES
 (12000000, NOW(), 'BANK', 1, 1),
 (9000000, NOW(), 'CASH', 1, 2),
 (36000000, NOW(), 'BANK', 1, 3);
-
-INSERT INTO Invoice (issue_date, total_amount, payment_id) VALUES
-(NOW(), 12000000, 1),
-(NOW(), 9000000, 2),
-(NOW(), 36000000, 3);
 
 INSERT INTO Staff_assignment
 (assigned_date, assigned_to, warehouse_id, assigned_by, assignment_type,
