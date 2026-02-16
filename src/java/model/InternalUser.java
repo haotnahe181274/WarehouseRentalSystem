@@ -20,11 +20,12 @@ public class InternalUser {
     private int status;
     private Date createdAt;
     private Role role;
+    private String internalUserCode;
 
     public InternalUser() {
     }
 
-    public InternalUser(int internalUserId, String name, String password, String fullName, String email, String phone, int status, Date createdAt, Role role) {
+    public InternalUser(int internalUserId, String name, String password, String fullName, String email, String phone, int status, Date createdAt, Role role, String internalUserCode) {
         this.internalUserId = internalUserId;
         this.name = name;
         this.password = password;
@@ -34,6 +35,7 @@ public class InternalUser {
         this.status = status;
         this.createdAt = createdAt;
         this.role = role;
+        this.internalUserCode = internalUserCode;
     }
 
     public int getInternalUserId() {
@@ -108,6 +110,17 @@ public class InternalUser {
         this.role = role;
     }
 
+    public String getInternalUserCode() {
+        return internalUserCode;
+    }
+
+    public void setInternalUserCode(String internalUserCode) {
+        this.internalUserCode = internalUserCode;
+    }
+
+    
+
+    
     
     
     

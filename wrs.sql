@@ -97,9 +97,7 @@ CREATE TABLE Item (
     item_name VARCHAR(100),
     description TEXT,
     renter_id INT, -- Đổi lại thành renter_id
-    unit_id INT,
-    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id)
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id)
 );
 
 -- Bảng mới từ ảnh
@@ -115,20 +113,21 @@ CREATE TABLE storage_unit_item (
 -- ==============================
 -- REQUEST & CONTRACT
 -- ==============================
-CREATE TABLE Rent_request (
-    request_id INT AUTO_INCREMENT PRIMARY KEY,
-    request_date DATETIME,
-    status INT,
-    request_type VARCHAR(20),
-    renter_id INT,
-    warehouse_id INT,
-    internal_user_id INT,
-    processed_date DATETIME,
-    start_date DATE,
-    end_date DATE,
-    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
-    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
+CREATE TABLE Rent_request ( 
+request_id INT AUTO_INCREMENT PRIMARY KEY, 
+request_date DATETIME, 
+status INT, 
+request_type VARCHAR(20), 
+renter_id INT, 
+warehouse_id INT, 
+area DECIMAL(10,2), 
+internal_user_id INT, 
+processed_date DATETIME, 
+start_date DATE, 
+end_date DATE, 
+FOREIGN KEY (renter_id) REFERENCES Renter(renter_id), 
+FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id), 
+FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id) 
 );
 
 -- Bảng mới từ ảnh
@@ -229,11 +228,9 @@ CREATE TABLE Feedback (
     comment TEXT,
     is_anonymous BOOLEAN,
     feedback_date DATETIME,
-    renter_id INT, -- Đổi lại thành renter_id
-    warehouse_id INT,
+    renter_id INT,
     contract_id INT,
     FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
     FOREIGN KEY (contract_id) REFERENCES Contract(contract_id)
 );
 
@@ -293,26 +290,58 @@ INSERT INTO Warehouse_Type (type_name, description) VALUES
 INSERT INTO Internal_user
 (user_name, password, full_name, email, phone, status, created_at, role_id, image, id_card, address, internal_user_code)
 VALUES
-('admin01', '123456', 'Admin System', 'admin@mail.com', '090000001', 1, NOW(), 1, 'default.jpg', '001001001', 'Hanoi', 'IU001'),
-('manager01', '123456', 'Manager A', 'manager@mail.com', '090000002', 1, NOW(), 2, 'default.jpg', '001001002', 'Vinh Phuc', 'IU002'),
-('staff01', '123456', 'Staff A', 'staff1@mail.com', '090000003', 1, NOW(), 3, 'default.jpg', '001001003', 'Bac Ninh', 'IU003'),
-('staff02', '123456', 'Staff B', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg', '001001004', 'Hai Phong', 'IU004'),
-('admin02', '123456', 'Admin Backup', 'admin2@mail.com', '090000005', 1, NOW(), 1, 'default.jpg', '001001005', 'Hanoi', 'IU005'),
-('manager02', '123456', 'Manager B', 'manager2@mail.com', '090000006', 1, NOW(), 2, 'default.jpg', '001001006', 'Da Nang', 'IU006'),
-('staff03', '123456', 'Staff C', 'staff3@mail.com', '090000007', 1, NOW(), 3, 'default.jpg', '001001007', 'Ho Chi Minh', 'IU007'),
-('staff04', '123456', 'Staff D', 'staff4@mail.com', '090000008', 1, NOW(), 3, 'default.jpg', '001001008', 'Can Tho', 'IU008');
+('admin01', '123456', 'Nguyễn Thùy Linh', 'admin@mail.com', '0900000011', 1, NOW(), 1, 'default.jpg', '001001001002', 'Hà Nội', 'A12345'),
+('manager01', '123456', 'Nguyễn Nhật Anh', 'manager@mail.com', '0900000022', 1, NOW(), 2, 'default.jpg', '001001002003', 'Vĩnh Phúc', 'M12345'),
+('staff01', '123456', 'Lê Thanh Hùng', 'staff1@mail.com', '0900000033', 1, NOW(), 3, 'default.jpg', '001001003003', 'Bắc Ninh', 'S12356'),
+('staff02', '123456', 'Nguyễn Thị Bừng', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg', '001001004002', 'Hải Phòng', 'S12345'),
+('admin02', '123456', 'Nguyễn Văn Ân', 'admin7@mail.com', '0911010101', 1, NOW(), 1, 'default.jpg', '079101010101', 'Hà Nội', 'A48291'),
+('admin03', '123456', 'Trần Thị Bích Ngọc', 'admin8@mail.com', '0922020202', 1, NOW(), 1, 'default.jpg', '079202020202', 'Hải Phòng', 'A73502'),
+
+('manager02', '123456', 'Lê Hoàng Minh', 'manager7@mail.com', '0933030303', 1, NOW(), 2, 'default.jpg', '051303030303', 'Đà Nẵng', 'M19483'),
+('manager03', '123456', 'Phạm Quang Huy', 'manager8@mail.com', '0944040404', 1, NOW(), 2, 'default.jpg', '051404040404', 'Cần Thơ', 'M56274'),
+
+('staff03', '123456', 'Võ Thị Mai', 'staff21@mail.com', '0955050505', 1, NOW(), 3, 'default.jpg', '031505050505', 'TP Hồ Chí Minh', 'S90817'),
+('staff04', '123456', 'Đặng Tuấn Kiệt', 'staff22@mail.com', '0966060606', 1, NOW(), 3, 'default.jpg', '031606060606', 'Bình Dương', 'S27465'),
+('staff05', '123456', 'Bùi Gia Bảo', 'staff23@mail.com', '0977070707', 1, NOW(), 3, 'default.jpg', '084707070707', 'Hà Nội', 'S63920'),
+('staff06', '123456', 'Đoàn Thu Trang', 'staff24@mail.com', '0988080808', 1, NOW(), 3, 'default.jpg', '084808080808', 'Hải Dương', 'S84571'),
+('staff07', '123456', 'Hoàng Minh Đức', 'staff25@mail.com', '0909090909', 1, NOW(), 3, 'default.jpg', '038909090909', 'Nghệ An', 'S12654'),
+('staff08', '123456', 'Nguyễn Thị Phương Anh', 'staff26@mail.com', '0912123434', 1, NOW(), 3, 'default.jpg', '038212343434', 'Huế', 'S39028'),
+('staff09', '123456', 'Trần Đức Thắng', 'staff27@mail.com', '0923234545', 1, NOW(), 3, 'default.jpg', '060323454545', 'Quảng Ninh', 'S55739'),
+('staff10', '123456', 'Lê Thị Kim Oanh', 'staff28@mail.com', '0934345656', 1, NOW(), 3, 'default.jpg', '060434565656', 'Vũng Tàu', 'S77410');
+
 
 -- Insert vào Renter thay vì Customer
 INSERT INTO Renter
 (user_name, password, full_name, email, phone, status, created_at, image)
 VALUES
-('renter01', '123456', 'Nguyen Van A', 'a@gmail.com', '091000001', 1, NOW(), 'default.jpg'),
-('renter02', '123456', 'Tran Thi B', 'b@gmail.com', '091000002', 1, NOW(), 'default.jpg'),
-('renter03', '123456', 'Le Van C', 'c@gmail.com', '091000003', 1, NOW(), 'default.jpg'),
-('renter04', '123456', 'Pham Thi D', 'd@gmail.com', '091000004', 1, NOW(), 'default.jpg'),
-('renter05', '123456', 'Hoang Van E', 'e@gmail.com', '091000005', 1, NOW(), 'default.jpg'),
-('renter06', '123456', 'Do Thi F', 'f@gmail.com', '091000006', 1, NOW(), 'default.jpg'),
-('renter07', '123456', 'Bui Van G', 'g@gmail.com', '091000007', 0, NOW(), 'default.jpg');
+('renter01', '123456', 'Nguyễn Văn Long', 'a@gmail.com', '091000001', 1, NOW(), 'default.jpg'),
+('renter02', '123456', 'Đàm Phương Anh', 'b@gmail.com', '091000002', 1, NOW(), 'default.jpg'),
+('renter03', '123456', 'Lê Văn Chính', 'c@gmail.com', '091000003', 1, NOW(), 'default.jpg'),
+('renter04', '123456', 'Phạm Thị Ngọc', 'd@gmail.com', '091000004', 1, NOW(), 'default.jpg'),
+('renter05', '123456', 'Hoàng Văn Sáng', 'e@gmail.com', '091000005', 1, NOW(), 'default.jpg'),
+('renter06', '123456', 'Đỗ Thị Thùy', 'f@gmail.com', '091000006', 1, NOW(), 'default.jpg'),
+('renter07', '123456', 'Bùi Văn Giang', 'g@gmail.com', '091000007', 0, NOW(), 'default.jpg'),
+('renter08', '123456', 'Nguyễn Văn Hùng', 'h@gmail.com', '0910000008', 1, NOW(), 'default.jpg'),
+('renter09', '123456', 'Trần Thị Mai', 'i@gmail.com', '0910000009', 1, NOW(), 'default.jpg'),
+('renter10', '123456', 'Lê Văn Nam', 'j@gmail.com', '0910000010', 1, NOW(), 'default.jpg'),
+('renter11', '123456', 'Phạm Thị Lan', 'k@gmail.com', '0910000011', 1, NOW(), 'default.jpg'),
+('renter12', '123456', 'Hoàng Minh Tuấn', 'l@gmail.com', '0910000012', 1, NOW(), 'default.jpg'),
+('renter13', '123456', 'Đỗ Thị Hạnh', 'm@gmail.com', '0910000013', 1, NOW(), 'default.jpg'),
+('renter14', '123456', 'Bùi Gia Huy', 'n@gmail.com', '0910000014', 1, NOW(), 'default.jpg'),
+('renter15', '123456', 'Võ Thị Ngọc', 'o@gmail.com', '0910000015', 1, NOW(), 'default.jpg'),
+('renter16', '123456', 'Đặng Quốc Bảo', 'p@gmail.com', '0910000016', 1, NOW(), 'default.jpg'),
+('renter17', '123456', 'Nguyễn Thị Thanh', 'q@gmail.com', '0910000017', 1, NOW(), 'default.jpg'),
+('renter18', '123456', 'Trần Quốc Đạt', 'r@gmail.com', '0910000018', 1, NOW(), 'default.jpg'),
+('renter19', '123456', 'Lý Thị Thu', 's@gmail.com', '0910000019', 1, NOW(), 'default.jpg'),
+('renter20', '123456', 'Phan Minh Khoa', 't@gmail.com', '0910000020', 1, NOW(), 'default.jpg'),
+('renter21', '123456', 'Huỳnh Gia Bảo', 'u@gmail.com', '0910000021', 1, NOW(), 'default.jpg'),
+('renter22', '123456', 'Ngô Thị Ánh', 'v@gmail.com', '0910000022', 1, NOW(), 'default.jpg'),
+('renter23', '123456', 'Mai Văn Trường', 'w@gmail.com', '0910000023', 1, NOW(), 'default.jpg'),
+('renter24', '123456', 'Dương Thị Yến', 'x@gmail.com', '0910000024', 1, NOW(), 'default.jpg'),
+('renter25', '123456', 'Tạ Minh Đức', 'y@gmail.com', '0910000025', 1, NOW(), 'default.jpg'),
+('renter26', '123456', 'Cao Thị Hồng', 'z@gmail.com', '0910000026', 1, NOW(), 'default.jpg'),
+('renter27', '123456', 'Vũ Anh Tuấn', 'aa@gmail.com', '0910000027', 0, NOW(), 'default.jpg');
+
 
 INSERT INTO Warehouse (name, address, description, status, warehouse_type_id) VALUES
 ('Northern Logistics Hub', 'Hà Nội', 'Kho trung tâm miền Bắc', 1, 1),
@@ -400,30 +429,92 @@ INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, 
 ('CM-A1',1,140,5500000,'Kho lạnh thủy sản',26);
 
 -- Cập nhật Item inserts để bao gồm renter_id và unit_id
-INSERT INTO Item (item_name, description, renter_id, unit_id) VALUES
-('Electronics', 'Thiết bị điện tử', 1, 1),
-('Frozen Food', 'Thực phẩm đông lạnh', 2, 2),
-('Furniture', 'Nội thất', 3, 3);
+
+INSERT INTO Item (item_name, description, renter_id) VALUES
+('Samsung TVs Batch 01', 'Lô tivi Samsung 55 inch', 1),      -- đã có contract
+('Frozen Salmon 2025', 'Cá hồi đông lạnh nhập khẩu', 2),     -- đã có contract
+('Office Chairs Set A', 'Ghế văn phòng cao cấp', 3),         -- đã có contract
+
+('Textile Materials Lot 5', 'Nguyên liệu vải may mặc', 4),   -- chưa được duyệt
+('Motorbike Spare Parts', 'Phụ tùng xe máy', 5),             -- đang chờ xử lý
+('Imported Apples', 'Táo nhập khẩu Mỹ', 6),                  -- bị từ chối
+('Wooden Tables Export', 'Bàn gỗ xuất khẩu', 7),             -- pending
+('Rice Export Batch','Gạo xuất khẩu',12),
+('Ceramic Tiles','Gạch men xây dựng',13),
+('Frozen Shrimp Lot','Tôm đông lạnh',14),
+('Sony TVs Batch 02', 'Lô tivi Sony 65 inch', 1),
+('LG Refrigerators Lot', 'Tủ lạnh LG nhập khẩu', 1),
+('Air Conditioner Units', 'Máy lạnh dân dụng', 1);
 
 -- Dữ liệu mới cho storage_unit_item
 INSERT INTO storage_unit_item (quantity, item_id, unit_id) VALUES
 (100, 1, 1),
 (50, 2, 2),
-(20, 3, 3);
+(20, 3, 3),
+(500, 8, 22),  -- 500 bao gạo
+(300, 9, 24),  -- 300 thùng gạch
+(800, 10, 25),  -- 800 thùng tôm
+(200, 11, 1),
+(150, 12, 1),
+(100, 13, 1);
 
 -- Cập nhật Rent_request để bao gồm renter_id, start_date, end_date
 INSERT INTO Rent_request
-(request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date, start_date, end_date)
+(request_date, status, request_type, renter_id, warehouse_id, area,
+ internal_user_id, processed_date, start_date, end_date)
 VALUES
-(NOW(), 1, 'RENT',      1, 1, 2, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 6 MONTH)),
-(NOW(), 1, 'CHECK_IN',  2, 2, 3, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
-(NOW(), 1, 'CHECK_OUT', 3, 3, 4, NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 7 DAY));
+
+-- APPROVED REQUESTS (có processed_date + internal_user_id)
+('2025-01-05 09:15:00', 1, 'RENT', 1, 1, 50,
+ 2, '2025-01-06 10:30:00', '2025-01-10', '2025-07-10'),
+
+('2025-02-01 14:00:00', 1, 'RENT', 2, 2, 70,
+ 3, '2025-02-02 08:45:00', '2025-02-05', '2025-08-05'),
+
+('2025-03-12 11:20:00', 1, 'RENT', 3, 3, 100,
+ 4, '2025-03-13 09:10:00', '2025-03-20', '2026-03-20'),
+
+-- PENDING REQUESTS (status = 0 → NULL processed)
+('2025-04-01 10:00:00', 0, 'RENT', 4, 4, 80,
+ NULL, NULL, '2025-04-10', '2025-10-10'),
+
+('2025-04-05 16:30:00', 0, 'RENT', 7, 5, 120,
+ NULL, NULL, '2025-04-20', '2025-12-20'),
+('2025-05-01 09:00:00', 1, 'CHECK_IN', 1, 1, 50,
+ 2, '2025-05-01 10:00:00', '2025-05-01', '2025-11-01'),
+-- REJECTED REQUEST (status = 3 → NULL processed)
+('2025-03-01 08:00:00', 3, 'RENT', 6, 6, 90,
+ NULL, NULL, '2025-03-10', '2025-09-10'),
+ ('2025-06-01 08:00:00',1,'RENT',12,22,130,2,'2025-06-02 09:00:00','2025-06-10','2025-12-10'),
+('2025-06-05 09:30:00',1,'RENT',13,24,100,1,'2025-06-06 10:00:00','2025-06-15','2026-06-15'),
+('2025-06-10 10:00:00',1,'RENT',14,25,120,2,'2025-06-11 11:00:00','2025-06-20','2026-06-20'),
+(NOW(), 1, 'RENT', 1, 1, 70,
+ 2, NOW(), '2025-07-01', '2026-01-01'),
+
+(NOW(), 0, 'RENT', 1, 1, 30,
+ NULL, NULL, '2025-08-01', '2026-02-01'),
+ (NOW(), 1, 'CHECK_IN', 1, 1, 50,
+ 3, NOW(), '2025-07-01', '2026-01-01'),
+
+(NOW(), 1, 'CHECK_IN', 1, 1, 50,
+ 3, NOW(), '2025-07-05', '2026-01-01'),
+ (NOW(), 1, 'CHECK_OUT', 1, 1, 50,
+ 3, NOW(), '2025-08-01', '2026-01-01');
 
 -- Dữ liệu mới cho rent_request_item
 INSERT INTO rent_request_item (quantity, item_id, request_id) VALUES
-(100, 1, 1),
-(50, 2, 2),
-(20, 3, 3);
+(0, 1, 1),
+(0, 2, 2),
+(0, 3, 3),
+(0, 4, 4),
+(0, 7, 5),
+(0, 6, 6),
+(100, 1, 7),
+(200, 1, 11),
+(150, 11, 12),
+
+-- CHECK OUT
+(50, 1, 13);
 
 -- Cập nhật Contract để bao gồm renter_id và request_id
 INSERT INTO Contract
@@ -431,14 +522,20 @@ INSERT INTO Contract
 VALUES
 (NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1, 1, 1, 1),
 (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1, 2, 2, 2),
-(NOW(), DATE_ADD(NOW(), INTERVAL 12 MONTH), 1, 3, 3, 3);
+(NOW(), DATE_ADD(NOW(), INTERVAL 12 MONTH), 1, 3, 3, 3),
+('2025-06-10 00:00:00','2025-12-10 00:00:00',1,12,22,7),
+('2025-06-15 00:00:00','2026-06-15 00:00:00',1,13,24,8),
+('2025-06-20 00:00:00','2026-06-20 00:00:00',1,14,25,9);
 
 INSERT INTO Contract_Storage_unit
 (contract_id, unit_id, rent_price, start_date, end_date, status)
 VALUES
 (1, 1, 2000000, NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1),
 (1, 2, 3500000, NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1),
-(2, 3, 3000000, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1);
+(2, 3, 3000000, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1),
+(4,22,5000000,'2025-06-10 00:00:00','2025-12-10 00:00:00',1),
+(5,24,4000000,'2025-06-15 00:00:00','2026-06-15 00:00:00',1),
+(6,25,4800000,'2025-06-20 00:00:00','2026-06-20 00:00:00',1);
 
 INSERT INTO Payment
 (amount, payment_date, method, status, contract_id)
@@ -468,11 +565,11 @@ VALUES
 (2, 3, 'Furniture', 5, 'Dọn dẹp');
 
 INSERT INTO Feedback
-(rating, comment, is_anonymous, feedback_date, renter_id, warehouse_id, contract_id)
+(rating, comment, is_anonymous, feedback_date, renter_id, contract_id)
 VALUES
-(5, 'Dịch vụ rất tốt', 0, NOW(), 1, 1, 1),
-(4, 'Kho ổn', 1, NOW(), 2, 2, 2),
-(3, 'Giá hơi cao', 0, NOW(), 3, 3, 3);
+(5, 'Dịch vụ rất tốt', 0, NOW(), 1, 1),
+(4, 'Kho ổn', 1, NOW(), 2, 2),
+(3, 'Giá hơi cao', 0, NOW(), 3, 3);
 
 INSERT INTO Feedback_response
 (response_text, response_date, feedback_id, internal_user_id)
@@ -486,7 +583,10 @@ INSERT INTO Inventory_log
 VALUES
 (1, 100, NOW(), 1, 1, 3),
 (2, 20, NOW(), 2, 2, 3),
-(3, -5, NOW(), 3, 3, 4);
+(3, -5, NOW(), 3, 3, 4),
+(1, 200, NOW(), 11, 1, 3),   -- check in
+(1, 150, NOW(), 12, 1, 3),
+(2, -50, NOW(), 1, 1, 3); 
 
 INSERT INTO Incident_report
 (type, description, report_date, status, warehouse_id, internal_user_id)

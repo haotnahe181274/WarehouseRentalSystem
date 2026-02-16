@@ -12,6 +12,7 @@ public class Item {
     private int itemId;
     private String itemName;
     private String description;
+    private int renterId;
 
     public Item() {
     }
@@ -45,6 +46,17 @@ public class Item {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public int getRenterId() {
+        return renterId;
+    }
+
+    public void setRenterId(int renterId) {
+        this.renterId = renterId;
+    }
+
+    
+    
     
     
 }

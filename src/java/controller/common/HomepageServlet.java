@@ -14,7 +14,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,17 +88,17 @@ public class HomepageServlet extends HttpServlet {
         Integer typeId = null;
         Double minPrice = null, maxPrice = null;
         Double minArea = null, maxArea = null;
-        LocalDate startDate = null;
-        LocalDate endDate = null;
+        Date startDate = null;
+        Date endDate = null;
         int page = 1;
 
         try {
             if (startDateRaw != null && !startDateRaw.isEmpty()) {
-                startDate = LocalDate.parse(startDateRaw);
+                startDate = java.sql.Date.valueOf(startDateRaw);
             }
 
             if (endDateRaw != null && !endDateRaw.isEmpty()) {
-                endDate = LocalDate.parse(endDateRaw);
+                endDate = java.sql.Date.valueOf(endDateRaw);
             }
             if (typeIdRaw != null && !typeIdRaw.isEmpty()) {
                 typeId = Integer.parseInt(typeIdRaw);

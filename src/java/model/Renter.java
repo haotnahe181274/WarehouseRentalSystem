@@ -19,11 +19,12 @@ public class Renter {
     private String phone;
     private int status;
     private Date createAt;
+    private String image;
 
     public Renter() {
     }
 
-    public Renter(int renterId, String username, String password, String fullName, String email, String phone, int status, Date createAt) {
+    public Renter(int renterId, String username, String password, String fullName, String email, String phone, int status, Date createAt, String image) {
         this.renterId = renterId;
         this.username = username;
         this.password = password;
@@ -32,6 +33,7 @@ public class Renter {
         this.phone = phone;
         this.status = status;
         this.createAt = createAt;
+        this.image = image;
     }
 
     public int getRenterId() {
@@ -97,6 +99,16 @@ public class Renter {
     public void setCreateAt(Date createAt) {
         this.createAt = createAt;
     }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    
 
     
     

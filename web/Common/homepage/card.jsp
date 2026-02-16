@@ -66,7 +66,7 @@
                 </div>
 
                 <!-- BUTTON -->
-                <a href="${pageContext.request.contextPath}/Common/homepage/about.jsp" class="warehouse-button">
+                <a href="${pageContext.request.contextPath}/createRentRequest?id=${w.warehouseId}" class="warehouse-button">
                     View Details
                 </a>
 
