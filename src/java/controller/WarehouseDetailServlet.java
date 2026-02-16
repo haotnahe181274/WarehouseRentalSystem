@@ -42,7 +42,7 @@ public class WarehouseDetailServlet extends HttpServlet {
             }
 
             // B. Lấy danh sách ảnh (WarehouseImage object)
-            List<WarehouseImage> images = dao.getWarehouseById(id);
+            List<WarehouseImage> images = dao.getWarehouseImages(id);
 
             // C. Lấy danh sách các ô chứa/Zone (StorageUnit object)
             List<StorageUnit> units = dao.getStorageUnits(id);

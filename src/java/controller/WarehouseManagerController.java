@@ -2,7 +2,7 @@ package controller;
 
 import jakarta.servlet.annotation.MultipartConfig;
 import dao.WarehouseImageDAO;
-import dao.WarehouseDAO;
+import dao.WarehouseManagementDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -36,7 +36,7 @@ public class WarehouseManagerController extends HttpServlet {
             return; 
         }
 
-        WarehouseDAO dao = new WarehouseDAO();
+        WarehouseManagementDAO dao = new WarehouseManagementDAO();
         String action = request.getParameter("action");
 
         // --- ACTION: ADD ---
@@ -152,7 +152,7 @@ public class WarehouseManagerController extends HttpServlet {
                 return;
             }
 
-            WarehouseDAO dao = new WarehouseDAO();
+            WarehouseManagementDAO dao = new WarehouseManagementDAO();
             int currentWarehouseId = 0;
 
             if (idStr != null && !idStr.trim().isEmpty()) {
