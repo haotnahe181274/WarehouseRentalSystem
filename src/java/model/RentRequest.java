@@ -4,40 +4,51 @@
  */
 package model;
 
-import java.time.LocalDate;
-import java.util.Date;
 
-/**
- *
- * @author hao23
- */
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+
 public class RentRequest {
+
     private int requestId;
     private Date requestDate;
     private int status;
     private String requestType;
     private Renter renter;
     private Warehouse warehouse;
+    private double area;
+
     private InternalUser processedBy;
     private Date processedDate;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private Date startDate;
+    private Date endDate;
 
-    public RentRequest(int requestId, Date requestDate, int status, String requestType, Renter renter, Warehouse warehouse, InternalUser processedBy, Date processedDate, LocalDate startDate, LocalDate endDate) {
+    private List<RentRequestItem> items;
+
+    public RentRequest() {
+        items = new ArrayList<>();
+    }
+
+    public RentRequest(int requestId, Date requestDate, int status, String requestType, Renter renter, Warehouse warehouse, double area, InternalUser processedBy, Date processedDate, Date startDate, Date endDate, List<RentRequestItem> items) {
         this.requestId = requestId;
         this.requestDate = requestDate;
         this.status = status;
         this.requestType = requestType;
         this.renter = renter;
         this.warehouse = warehouse;
+        this.area = area;
         this.processedBy = processedBy;
         this.processedDate = processedDate;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.items = items;
     }
+    
+    
 
-    public RentRequest() {
-    }
+    
 
     public int getRequestId() {
         return requestId;
@@ -87,6 +98,14 @@ public class RentRequest {
         this.warehouse = warehouse;
     }
 
+    public double getArea() {
+        return area;
+    }
+
+    public void setArea(double area) {
+        this.area = area;
+    }
+
     public InternalUser getProcessedBy() {
         return processedBy;
     }
@@ -103,25 +122,31 @@ public class RentRequest {
         this.processedDate = processedDate;
     }
 
-    public LocalDate getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
     
 
+    public List<RentRequestItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<RentRequestItem> items) {
+        this.items = items;
+    }
     
 
-    
 }

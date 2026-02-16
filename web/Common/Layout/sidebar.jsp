@@ -100,7 +100,7 @@
             <li><a href="${pageContext.request.contextPath}/user/list">Users</a></li>
             <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses</a></li>
 
-            <li><a href="${pageContext.request.contextPath}/report">Reports</a></li>
+            <li><a href="${pageContext.request.contextPath}/incident">Reports</a></li>
             </c:if>
 
         <!-- MANAGER -->
@@ -111,6 +111,7 @@
             <li><a href="${pageContext.request.contextPath}/rentList">📩 Rental Requests</a></li>
             <li><a href="${pageContext.request.contextPath}/contract"> Contracts</a></li>
             <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment</a></li>
+            <li><a href="${pageContext.request.contextPath}/incident">Reports</a></li>
             </c:if>
 
         <!-- STAFF -->
@@ -118,7 +119,7 @@
             <div class="menu-title">Staff</div>
             <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
             <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
-            <li><a href="${pageContext.request.contextPath}/staffReport"> Incidents</a></li>
+            <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>
             </c:if>
 
     </ul>

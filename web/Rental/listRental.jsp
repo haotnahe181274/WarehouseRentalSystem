@@ -41,20 +41,20 @@
                 <tr>
                     <th>ID</th>
                     <th>Request Date</th>
-                    <th>Status</th>
+                    <th class="col-status">Status</th>
 
                     <c:if test="${sessionScope.userType == 'INTERNAL' }">
-                        <th>Renter ID</th>
+                        <th>Renter </th>
                         </c:if>
 
-                    <th>Warehouse ID</th>
+                    <th>Warehouse </th>
                     <th>Start Date</th>
                     <th>End Date</th>
 
-                    <c:if test="${sessionScope.userType == 'INTERNAL' }">
-                        <th>Processed By</th>
-                        <th>Processed Date</th>
-                        </c:if>
+
+
+                    <th>Processed Date</th>
+
 
                     <th>Action</th>
                 </tr>
@@ -67,10 +67,10 @@
 
                         <td>
                             <fmt:formatDate value="${rr.requestDate}"
-                                            pattern="yyyy-MM-dd HH:mm"/>
+                                            pattern="dd-MM-yyyy HH:mm"/>
                         </td>
 
-                        <td data-search="${rr.status}" data-order="${rr.status}">
+                        <td class="col-status" data-search="${rr.status}" data-order="${rr.status}">
                             <c:choose>
                                 <c:when test="${rr.status == 0}">Pending</c:when>
                                 <c:when test="${rr.status == 1}">Approved</c:when>
@@ -81,39 +81,36 @@
 
 
                         <c:if test="${sessionScope.userType == 'INTERNAL' }">
-                            <td>${rr.renter.renterId}</td>
+                            <td>${rr.renter.fullName}</td>
                         </c:if>
 
-                        <td>${rr.warehouse.warehouseId}</td>
+                        <td>${rr.warehouse.name}</td>
 
-                        <td>${rr.startDate}</td>
+                        <td>
+                            <fmt:formatDate value="${rr.startDate}" pattern="dd/MM/yyyy"/>
+                        </td>
 
-                        <td>${rr.endDate}</td>
+                        <td>
+                            <fmt:formatDate value="${rr.endDate}" pattern="dd/MM/yyyy"/>
+                        </td>
 
-                        <c:if test="${sessionScope.userType == 'INTERNAL' }">
-                            <td>
-                                <c:choose>
-                                    <c:when test="${rr.processedBy != null}">
-                                        ${rr.processedBy.internalUserId}
-                                    </c:when>
-                                    <c:otherwise>none</c:otherwise>
-                                </c:choose>
-                            </td>
 
-                            <td>
-                                <c:choose>
-                                    <c:when test="${rr.processedDate != null}">
-                                        <fmt:formatDate value="${rr.processedDate}"
-                                                        pattern="yyyy-MM-dd HH:mm"/>
-                                    </c:when>
-                                    <c:otherwise>none</c:otherwise>
-                                </c:choose>
-                            </td>
-                        </c:if>
+
+
+                        <td>
+                            <c:choose>
+                                <c:when test="${rr.processedDate != null}">
+                                    <fmt:formatDate value="${rr.processedDate}"
+                                                    pattern="dd-MM-yyyy HH:mm"/>
+                                </c:when>
+                                <c:otherwise>none</c:otherwise>
+                            </c:choose>
+                        </td>
+
 
                         <td>
                             <!-- VIEW: ai cũng thấy -->
-                            <a href="${pageContext.request.contextPath}/rent-request-detail?id=${rr.requestId}"
+                            <a href="${pageContext.request.contextPath}/rentDetail?id=${rr.requestId}"
                                class="btn btn-sm btn-info">
                                 View
                             </a>
@@ -126,6 +123,7 @@
                                           method="post"
                                           style="display:inline;">
                                         <input type="hidden" name="requestId" value="${rr.requestId}">
+                                        <input type="hidden" name="redirect" value="list">
                                         <button class="btn btn-sm btn-success">
                                             Approve
                                         </button>
@@ -136,6 +134,7 @@
                                           method="post"
                                           style="display:inline;">
                                         <input type="hidden" name="requestId" value="${rr.requestId}">
+                                        <input type="hidden" name="redirect" value="list">
                                         <button class="btn btn-sm btn-danger">
                                             Reject
                                         </button>
@@ -147,16 +146,15 @@
                             <c:if test="${sessionScope.userType == 'RENTER'}">
                                 <c:if test="${rr.status == 0}">
                                     <!-- UPDATE -->
-                                    <a href="${pageContext.request.contextPath}/rent-request-update?id=${rr.requestId}"
-                                       class="btn btn-sm btn-warning">
-                                        Update
-                                    </a>
+                                    <a href="${pageContext.request.contextPath}/rentDetail?id=${rr.requestId}&edit=true"
+                                       class="btn btn-update">Update</a>
 
                                     <!-- CANCEL -->
                                     <form action="${pageContext.request.contextPath}/rentRequestCancel"
                                           method="post"
                                           style="display:inline;">
                                         <input type="hidden" name="requestId" value="${rr.requestId}">
+                                        <input type="hidden" name="redirect" value="list">
                                         <button class="btn btn-sm btn-danger">
                                             Cancel
                                         </button>
@@ -168,38 +166,29 @@
                     </tr>
                 </c:forEach>
 
-
-
-            <script>
-                $(document).ready(function () {
-                    let table = $('#rentRequestTable').DataTable({
-                        order: [[0, 'desc']], // sort theo ID
-                        pageLength: 10,
-                        columnDefs: [
-                            {orderable: false, targets: [7]} // Processed By
-                        ]
-                    });
-
-                    
-
-                    // Khi đổi dropdown
-                    $('#statusFilter').on('change', function () {
-                        let val = $(this).val();
-
-                        if (val === "") {
-                            table.column(2).search("").draw(); // All
-                        } else {
-                            table.column(2).search("^" + val + "$", true, false).draw();
-                        }
-                    });
+            </tbody>
+        </table>
+        <script>
+            $(document).ready(function () {
+                let table = $('#rentRequestTable').DataTable({
+                    order: [[0, 'desc']], // sort theo ID
+                    pageLength: 10,
                 });
-            </script>
 
 
 
+                // Khi đổi dropdown
+                $('#statusFilter').on('change', function () {
+                    let val = $(this).val();
 
-        </tbody>
-    </table>
-    <jsp:include page="/Common/Layout/footer.jsp" />
-</body>
+                    if (val === "") {
+                        table.column(2).search("").draw(); // All
+                    } else {
+                        table.column(2).search("^" + val + "$", true, false).draw();
+                    }
+                });
+            });
+        </script>
+        <jsp:include page="/Common/Layout/footer.jsp" />
+    </body>
 </html>

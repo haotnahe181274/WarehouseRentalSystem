@@ -2,7 +2,10 @@ package dao;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import model.UserView;
+import java.util.ArrayList;
+import java.util.List;
+import model.IncidentReport;
+
 
 public class IncidentReportDAO extends DBContext {
 
@@ -40,5 +43,72 @@ public class IncidentReportDAO extends DBContext {
             return ps.executeUpdate() > 0;
         } catch (Exception e) { e.printStackTrace(); }
         return false;
+    }
+    
+     public List<IncidentReport> getAll() {
+        List<IncidentReport> list = new ArrayList<>();
+        String sql = """
+            SELECT ir.report_id, ir.type, ir.description, ir.report_date, ir.status,
+                   w.name AS warehouse_name,
+                   iu.full_name AS staff_name
+            FROM Incident_report ir
+            JOIN Warehouse w ON ir.warehouse_id = w.warehouse_id
+            JOIN Internal_user iu ON ir.internal_user_id = iu.internal_user_id
+            ORDER BY ir.report_date DESC
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                IncidentReport r = new IncidentReport();
+                r.setReportId(rs.getInt("report_id"));
+                r.setType(rs.getString("type"));
+                r.setDescription(rs.getString("description"));
+                r.setReportDate(rs.getTimestamp("report_date"));
+                r.setStatus(rs.getInt("status"));
+                r.setWarehouseName(rs.getString("warehouse_name"));
+                r.setStaffName(rs.getString("staff_name"));
+                list.add(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Staff: chỉ xem report của mình
+    public List<IncidentReport> getByStaff(int staffId) {
+        List<IncidentReport> list = new ArrayList<>();
+        String sql = """
+            SELECT ir.report_id, ir.type, ir.description, ir.report_date, ir.status,
+                   w.name AS warehouse_name,
+                   iu.full_name AS staff_name
+            FROM Incident_report ir
+            JOIN Warehouse w ON ir.warehouse_id = w.warehouse_id
+            JOIN Internal_user iu ON ir.internal_user_id = iu.internal_user_id
+            WHERE ir.internal_user_id = ?
+            ORDER BY ir.report_date DESC
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, staffId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                IncidentReport r = new IncidentReport();
+                r.setReportId(rs.getInt("report_id"));
+                r.setType(rs.getString("type"));
+                r.setDescription(rs.getString("description"));
+                r.setReportDate(rs.getTimestamp("report_date"));
+                r.setStatus(rs.getInt("status"));
+                r.setWarehouseName(rs.getString("warehouse_name"));
+                r.setStaffName(rs.getString("staff_name"));
+                list.add(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }
