@@ -195,6 +195,7 @@ public class HomepageServlet extends HttpServlet {
         }
 
         // ================== 5. SET ATTRIBUTE ==================
+        request.setAttribute("isHomepage", true);
         request.setAttribute("queryString", qs.toString());
         request.setAttribute("warehouses", list);
         request.setAttribute("currentPage", page);

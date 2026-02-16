@@ -143,7 +143,7 @@
                     <tr>
                         <th>Item Name</th>
                         <th>Description</th>
-                        <th>Quantity</th>
+                        
                         <c:if test="${isForm}"><th></th></c:if>
                     </tr>
                 </thead>
@@ -166,7 +166,7 @@
                                     <c:otherwise>${item.item.description}</c:otherwise>
                                 </c:choose>
                             </td>
-                            <td>${item.quantity}</td>
+                            
                             <c:if test="${isForm}">
                                 <td><button type="button" onclick="removeRow(this)" class="btn btn-reject">Delete</button></td>
                             </c:if>
@@ -176,7 +176,7 @@
                         <tr>
                             <td><input type="text" name="itemName" placeholder="Item name" /></td>
                             <td><input type="text" name="description" placeholder="Description" /></td>
-                            <td>0</td>
+                            
                             <td><button type="button" onclick="removeRow(this)" class="btn btn-reject">Delete</button></td>
                         </tr>
                     </c:if>
@@ -360,7 +360,7 @@
                 if (!table) return;
                 var tbody = table.getElementsByTagName("tbody")[0];
                 var row = tbody.insertRow();
-                row.innerHTML = '<td><input type="text" name="itemName"></td><td><input type="text" name="description"></td><td>0</td><td><button type="button" onclick="removeRow(this)" class="btn btn-reject">Delete</button></td>';
+                row.innerHTML = '<td><input type="text" name="itemName"></td><td><input type="text" name="description"></td><td><button type="button" onclick="removeRow(this)" class="btn btn-reject">Delete</button></td>';
             }
             function removeRow(button) {
                 var row = button.closest("tr");

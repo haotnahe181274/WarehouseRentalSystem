@@ -31,14 +31,9 @@
                 <a class="app-header__menu-link" href="${pageContext.request.contextPath}/contracts">Contract</a>
             </li>
             <li class="app-header__menu-item">
-                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/itemlist">My Item</a>
+                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/itemlist">List Item</a>
             </li>
-            <li class="app-header__menu-item">
-                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/payments">Payment</a>
-            </li>
-            <li class="app-header__menu-item">
-                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/Common/homepage/about.jsp">About us</a>
-            </li>
+            
         </c:if>
         <c:if test="${sessionScope.userType == 'INTERNAL'}"> 
             <c:if test="${sessionScope.role == 'Admin'}"> 
@@ -56,6 +51,14 @@
                     <a class="app-header__menu-link" href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Manager</a> 
                 </li> 
             </c:if> 
+        </c:if>
+        <c:if test="${sessionScope.userType == 'RENTER' || isHomepage}">
+              <li class="app-header__menu-item">
+                  <a class="app-header__menu-link"
+                     href="${pageContext.request.contextPath}/Common/homepage/about.jsp">
+                      About us
+                  </a>
+              </li>
         </c:if>
     </ul>
 
@@ -76,18 +79,31 @@
                     </div>
 
                     <ul class="app-header__dropdown app-header__user-box">
+
                         <li class="app-header__dropdown-item">
                             <a class="app-header__dropdown-link"
                                href="${pageContext.request.contextPath}/profile">
                                 My Profile
                             </a>
                         </li>
+
+                        <!-- Nếu là RENTER thì thêm My Payment -->
+                        <c:if test="${sessionScope.userType == 'RENTER'}">
+                            <li class="app-header__dropdown-item">
+                                <a class="app-header__dropdown-link"
+                                   href="${pageContext.request.contextPath}/payments">
+                                    My Payment
+                                </a>
+                            </li>
+                        </c:if>
+
                         <li class="app-header__dropdown-item">
                             <a class="app-header__dropdown-link"
                                href="${pageContext.request.contextPath}/logout">
                                 Logout
                             </a>
                         </li>
+
                     </ul>
                 </li>
             </c:when>
