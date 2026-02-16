@@ -13,7 +13,6 @@ public class Item {
     private String itemName;
     private String description;
     private int renterId;
-    private int unitId;
 
     public Item() {
     }
@@ -56,13 +55,6 @@ public class Item {
         this.renterId = renterId;
     }
 
-    public int getUnitId() {
-        return unitId;
-    }
-
-    public void setUnitId(int unitId) {
-        this.unitId = unitId;
-    }
     
     
     

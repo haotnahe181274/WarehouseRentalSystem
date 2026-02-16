@@ -15,9 +15,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import model.RentRequest;
 import model.Renter;
 import model.UserView;
@@ -81,17 +82,24 @@ public class RentRequestDetail extends HttpServlet {
         int requestId = Integer.parseInt(idRaw);
 
         RentRequest rr = dao.getRentRequestDetailById(requestId);
-
         if (rr == null) {
             response.sendRedirect("rentList");
             return;
         }
-        List<Double> areaList = da.getAvailableAreasByWarehouse(
-                rr.getWarehouse().getWarehouseId(),
-                rr.getStartDate(),
-                rr.getEndDate()
-        );
+        String action = request.getParameter("action");
+        String mode = "edit".equals(action) ? "edit" : "view";
 
+        int warehouseId = rr.getWarehouse().getWarehouseId();
+        List<Double> areaList = da.getAvailableAreasByWarehouse(warehouseId, rr.getStartDate(), rr.getEndDate());
+        Map<Double, Double> areaPriceMap = new LinkedHashMap<>();
+        for (Double a : areaList) {
+            areaPriceMap.put(a, da.getPriceByArea(warehouseId, a));
+        }
+        double price = da.getPriceByArea(warehouseId, rr.getArea());
+
+        request.setAttribute("areaPriceMap", areaPriceMap);
+        request.setAttribute("price", price);
+        request.setAttribute("mode", mode);
         request.setAttribute("rr", rr);
         request.setAttribute("areaList", areaList);
 
@@ -111,42 +119,44 @@ public class RentRequestDetail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        
+
         int requestId = Integer.parseInt(request.getParameter("requestId"));
         double area = Double.parseDouble(request.getParameter("area"));
-
         String[] names = request.getParameterValues("itemName");
         String[] descriptions = request.getParameterValues("description");
 
         RentRequestDAO dao = new RentRequestDAO();
-        ItemDAO da = new ItemDAO();
-        RentRequest x= dao.getRentRequestDetailById(requestId);
+        ItemDAO itemDao = new ItemDAO();
+        RentRequest x = dao.getRentRequestDetailById(requestId);
+        if (x == null) {
+            response.sendRedirect(request.getContextPath() + "/rentList");
+            return;
+        }
         int renterId = x.getRenter().getRenterId();
 
-        dao.updateRentRequest(requestId, area);
+        java.util.Date startDate = x.getStartDate();
+        java.util.Date endDate = x.getEndDate();
+        String startStr = request.getParameter("startDate");
+        String endStr = request.getParameter("endDate");
+        if (startStr != null && !startStr.isEmpty() && endStr != null && !endStr.isEmpty()) {
+            try {
+                startDate = java.sql.Date.valueOf(startStr);
+                endDate = java.sql.Date.valueOf(endStr);
+            } catch (IllegalArgumentException ignored) { }
+        }
+        dao.updateRentRequestDatesAndArea(requestId, startDate, endDate, area);
 
-// 1. delete all old items
         dao.deleteItemsByRequestId(requestId);
 
-
-// 2. insert lại
+        if (names != null) {
         for (int i = 0; i < names.length; i++) {
-
-            if (names[i] == null || names[i].isEmpty()) {
-                continue;
-            }
-
-            int itemId = da.insertItem(
-                    names[i],
-                    descriptions[i],
-                    renterId
-            );
-
-            dao.insertRentRequestItem(
-                    requestId,
-                    itemId);
+            if (names[i] == null || names[i].trim().isEmpty()) continue;
+            String desc = (descriptions != null && i < descriptions.length) ? descriptions[i] : "";
+            int itemId = itemDao.insertItem(names[i].trim(), desc != null ? desc : "", renterId);
+            dao.insertRentRequestItem(requestId, itemId);
         }
+        }
+
         response.sendRedirect(request.getContextPath()
                 + "/rentDetail?id=" + requestId);
     }

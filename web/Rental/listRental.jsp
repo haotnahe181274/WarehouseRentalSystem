@@ -146,7 +146,7 @@
                             <c:if test="${sessionScope.userType == 'RENTER'}">
                                 <c:if test="${rr.status == 0}">
                                     <!-- UPDATE -->
-                                    <a href="${pageContext.request.contextPath}/rentDetail?id=${rr.requestId}&edit=true"
+                                    <a href="${pageContext.request.contextPath}/rentDetail?id=${rr.requestId}&action=edit"
                                        class="btn btn-update">Update</a>
 
                                     <!-- CANCEL -->

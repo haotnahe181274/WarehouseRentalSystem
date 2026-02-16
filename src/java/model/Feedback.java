@@ -17,20 +17,19 @@ public class Feedback {
     private boolean anonymous;
     private Date feedbackDate;
     private Renter renter;
-    private Warehouse warehouse;
     private Contract contract;
 
     public Feedback() {
     }
 
-    public Feedback(int feedbackId, int rating, String comment, boolean anonymous, Date feedbackDate, Renter renter, Warehouse warehouse, Contract contract) {
+    public Feedback(int feedbackId, int rating, String comment, boolean anonymous, Date feedbackDate, Renter renter,
+            Contract contract) {
         this.feedbackId = feedbackId;
         this.rating = rating;
         this.comment = comment;
         this.anonymous = anonymous;
         this.feedbackDate = feedbackDate;
         this.renter = renter;
-        this.warehouse = warehouse;
         this.contract = contract;
     }
 
@@ -82,14 +81,6 @@ public class Feedback {
         this.renter = renter;
     }
 
-    public Warehouse getWarehouse() {
-        return warehouse;
-    }
-
-    public void setWarehouse(Warehouse warehouse) {
-        this.warehouse = warehouse;
-    }
-
     public Contract getContract() {
         return contract;
     }
@@ -97,6 +88,4 @@ public class Feedback {
     public void setContract(Contract contract) {
         this.contract = contract;
     }
-    
-    
 }
