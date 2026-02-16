@@ -9,6 +9,8 @@ import java.util.*;
 import model.Warehouse;
 import model.WarehouseType; 
 import dao.WarehouseTypeDAO; 
+import model.StorageUnit;
+import model.WarehouseImage;
 
 public class WarehouseManagementDAO extends DBContext {
 
@@ -316,9 +318,15 @@ public class WarehouseManagementDAO extends DBContext {
     return generatedId; // Trả về ID (hoặc 0 nếu lỗi)
     
 }
-    // Lấy thông tin chi tiết 1 Warehouse theo ID
-    public Warehouse getWarehouseById(int id) {
-        String sql = "SELECT * FROM Warehouse WHERE warehouse_id = ?";
+        public Warehouse getWarehouseById(int id) {
+        // SQL: Join bảng Type + Subquery tính giá thấp nhất + diện tích nhỏ nhất
+        String sql = "SELECT w.*, wt.type_name, " +
+                     "(SELECT MIN(price_per_unit) FROM Storage_unit WHERE warehouse_id = w.warehouse_id) AS min_price, " +
+                     "(SELECT MIN(area) FROM Storage_unit WHERE warehouse_id = w.warehouse_id) AS min_area " +
+                     "FROM Warehouse w " +
+                     "JOIN Warehouse_Type wt ON w.warehouse_type_id = wt.warehouse_type_id " +
+                     "WHERE w.warehouse_id = ?";
+        
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, id);
@@ -331,15 +339,86 @@ public class WarehouseManagementDAO extends DBContext {
                 w.setAddress(rs.getString("address"));
                 w.setDescription(rs.getString("description"));
                 w.setStatus(rs.getInt("status"));
-                // Các thuộc tính khác nếu có (ví dụ warehouse_type_id)
+                
+                // Set Min Price & Min Area (Cho hiển thị đẹp)
+                w.setMinPrice(rs.getDouble("min_price"));
+                w.setMinArea(rs.getDouble("min_area"));
+
+                // Tạo đối tượng WarehouseType và gán vào
+                WarehouseType wt = new WarehouseType();
+                wt.setWarehouseTypeId(rs.getInt("warehouse_type_id"));
+                wt.setTypeName(rs.getString("type_name"));
+                w.setWarehouseType(wt);
                 
                 return w;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Error getWarehouseById: " + e.getMessage());
         }
-        return null; // Không tìm thấy
+        return null;
     }
+
+    // 2. Lấy danh sách các ô chứa (Storage Units / Zones)
+    public List<StorageUnit> getStorageUnits(int warehouseId) {
+        List<StorageUnit> list = new ArrayList<>();
+        String sql = "SELECT * FROM Storage_unit WHERE warehouse_id = ?";
+        
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, warehouseId);
+            ResultSet rs = st.executeQuery();
+            
+            while (rs.next()) {
+                // Tạo một đối tượng Warehouse "giả" chỉ chứa ID để thỏa mãn Constructor
+                Warehouse w = new Warehouse();
+                w.setWarehouseId(warehouseId);
+
+                // Lấy dữ liệu từ DB
+                int unitId = rs.getInt("unit_id");
+                String code = rs.getString("unit_code");
+                int status = rs.getInt("status");
+                double area = rs.getDouble("area");
+                // Chú ý: Tên cột DB là price_per_unit
+                double price = rs.getDouble("price_per_unit"); 
+                String desc = rs.getString("description");
+
+                // Gọi Constructor (Thứ tự tham số phải khớp với Model StorageUnit của bạn)
+                StorageUnit u = new StorageUnit(unitId, code, status, area, price, desc, w);
+                
+                list.add(u);
+            }
+        } catch (Exception e) {
+            System.out.println("Error getStorageUnits: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // 3. Lấy danh sách ảnh của kho (Cần hàm này để sửa lỗi trong Servlet)
+    public List<WarehouseImage> getWarehouseImages(int warehouseId) {
+        List<WarehouseImage> list = new ArrayList<>();
+        String sql = "SELECT * FROM Warehouse_image WHERE warehouse_id = ?";
+        
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, warehouseId);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                WarehouseImage img = new WarehouseImage();
+                img.setImageId(rs.getInt("image_id"));
+                img.setImageUrl(rs.getString("image_url"));
+                img.setImageType(rs.getString("image_type"));
+                img.setPrimary(rs.getBoolean("is_primary"));
+                img.setStatus(rs.getInt("status"));
+                // Không cần set Warehouse object ngược lại để tránh loop, hoặc chỉ set ID
+                list.add(img);
+            }
+        } catch (Exception e) {
+            System.out.println("Error getWarehouseImages: " + e.getMessage());
+        }
+        return list;
+    }
+
+
 
     public void update(Warehouse w) {
     String sql = "UPDATE Warehouse SET name=?, address=?, description=?, status=? WHERE warehouse_id=?";
