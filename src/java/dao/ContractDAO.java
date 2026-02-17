@@ -33,6 +33,12 @@ public class ContractDAO extends DBContext {
                 // DB là "status" (giống nhau nên giữ nguyên)
                 c.setStatus(rs.getInt("status"));
 
+                try {
+                    c.setPrice(rs.getDouble("price"));
+                } catch (Exception e) {
+                    // cột price có thể chưa tồn tại trong DB cũ
+                }
+
                 // Nếu muốn lấy cả renter_id và warehouse_id (tạm thời mình set ID giả để tránh
                 // null pointer)
                 // c.setRenterId(rs.getInt("renter_id"));
@@ -48,12 +54,13 @@ public class ContractDAO extends DBContext {
     }
 
     public void addContract(Contract c) {
-        String sql = "INSERT INTO Contract (startDate, endDate, status) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Contract (start_date, end_date, status, price) VALUES (?, ?, ?, ?)";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setDate(1, new java.sql.Date(c.getStartDate().getTime()));
             st.setDate(2, new java.sql.Date(c.getEndDate().getTime()));
             st.setInt(3, c.getStatus());
+            st.setDouble(4, c.getPrice());
             st.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,13 +68,14 @@ public class ContractDAO extends DBContext {
     }
 
     public void updateContract(Contract c) {
-        String sql = "UPDATE Contract SET startDate=?, endDate=?, status=? WHERE contractId=?";
+        String sql = "UPDATE Contract SET start_date=?, end_date=?, status=?, price=? WHERE contract_id=?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setDate(1, new java.sql.Date(c.getStartDate().getTime()));
             st.setDate(2, new java.sql.Date(c.getEndDate().getTime()));
             st.setInt(3, c.getStatus());
-            st.setInt(4, c.getContractId());
+            st.setDouble(4, c.getPrice());
+            st.setInt(5, c.getContractId());
             st.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

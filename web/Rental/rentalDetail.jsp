@@ -464,6 +464,13 @@
                         alert("All units must have Start date, End date, Area and Price (select area to get price).");
                         return false;
                     }
+                    // End date must be after start date
+                    var sd = new Date(start);
+                    var ed = new Date(end);
+                    if (!isNaN(sd.getTime()) && !isNaN(ed.getTime()) && ed <= sd) {
+                        alert("End date must be after Start date for every unit.");
+                        return false;
+                    }
                 }
                 var itemRows = document.querySelectorAll("#itemTable tbody tr");
                 if (itemRows.length === 0) {

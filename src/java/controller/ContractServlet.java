@@ -58,6 +58,11 @@ public class ContractServlet extends HttpServlet {
         java.util.Date start = sdf.parse(startDateStr);
         java.util.Date end = sdf.parse(endDateStr);
         int status = Integer.parseInt(statusStr);
+        String priceStr = request.getParameter("price");
+        double price = 0;
+        if (priceStr != null && !priceStr.isEmpty()) {
+            price = Double.parseDouble(priceStr);
+        }
 
         // Giả sử Renter và Warehouse có ID là 1 để test (Bạn cần lấy từ form dropdown)
         // Nếu DB cho phép null thì để null, nếu không phải set giá trị giả
@@ -67,11 +72,13 @@ public class ContractServlet extends HttpServlet {
             // Add new
             // Lưu ý: Kiểm tra xem DB có cho phép Renter/Warehouse null không
             Contract c = new Contract(0, start, end, status, null, null);
+            c.setPrice(price);
             dao.addContract(c);
         } else {
             // Update
             int id = Integer.parseInt(idStr);
             Contract c = new Contract(id, start, end, status, null, null);
+            c.setPrice(price);
             dao.updateContract(c);
         }
         

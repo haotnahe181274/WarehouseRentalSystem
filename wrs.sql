@@ -157,6 +157,7 @@ CREATE TABLE Contract (
     renter_id INT, -- Đổi lại thành renter_id
     warehouse_id INT,
     request_id INT, -- Cột mới thêm vào từ ảnh
+    price DECIMAL(12,2),
     FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
     FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
     FOREIGN KEY (request_id) REFERENCES Rent_request(request_id)
@@ -166,7 +167,6 @@ CREATE TABLE Contract_Storage_unit (
     id INT AUTO_INCREMENT PRIMARY KEY,
     contract_id INT,
     unit_id INT,
-    rent_price DECIMAL(10,2),
     start_date DATETIME,
     end_date DATETIME,
     status INT,
@@ -513,24 +513,24 @@ INSERT INTO rent_request_item (quantity, item_id, request_id) VALUES
 
 -- Cập nhật Contract để bao gồm renter_id và request_id
 INSERT INTO Contract
-(start_date, end_date, status, renter_id, warehouse_id, request_id)
+(start_date, end_date, status, renter_id, warehouse_id, request_id, price)
 VALUES
-(NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1, 1, 1, 1),
-(NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1, 2, 2, 2),
-(NOW(), DATE_ADD(NOW(), INTERVAL 12 MONTH), 1, 3, 3, 3),
-('2025-06-10 00:00:00','2025-12-10 00:00:00',1,12,22,7),
-('2025-06-15 00:00:00','2026-06-15 00:00:00',1,13,24,8),
-('2025-06-20 00:00:00','2026-06-20 00:00:00',1,14,25,9);
+(NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1, 1, 1, 1, 5500000),
+(NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1, 2, 2, 2, 3000000),
+(NOW(), DATE_ADD(NOW(), INTERVAL 12 MONTH), 1, 3, 3, 3, 36000000),
+('2025-06-10 00:00:00','2025-12-10 00:00:00',1,12,22,7, 5000000),
+('2025-06-15 00:00:00','2026-06-15 00:00:00',1,13,24,8, 4000000),
+('2025-06-20 00:00:00','2026-06-20 00:00:00',1,14,25,9, 4800000);
 
 INSERT INTO Contract_Storage_unit
-(contract_id, unit_id, rent_price, start_date, end_date, status)
+(contract_id, unit_id, start_date, end_date, status)
 VALUES
-(1, 1, 2000000, NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1),
-(1, 2, 3500000, NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1),
-(2, 3, 3000000, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1),
-(4,22,5000000,'2025-06-10 00:00:00','2025-12-10 00:00:00',1),
-(5,24,4000000,'2025-06-15 00:00:00','2026-06-15 00:00:00',1),
-(6,25,4800000,'2025-06-20 00:00:00','2026-06-20 00:00:00',1);
+(1, 1, NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1),
+(1, 2, NOW(), DATE_ADD(NOW(), INTERVAL 6 MONTH), 1),
+(2, 3, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1),
+(4,22,'2025-06-10 00:00:00','2025-12-10 00:00:00',1),
+(5,24,'2025-06-15 00:00:00','2026-06-15 00:00:00',1),
+(6,25,'2025-06-20 00:00:00','2026-06-20 00:00:00',1);
 
 INSERT INTO Payment
 (amount, payment_date, method, status, contract_id)
