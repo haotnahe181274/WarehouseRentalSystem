@@ -36,11 +36,37 @@
                                 </strong>
                                 <span class="badge bg-warning text-dark">Rating: ${f.rating}/5</span>
                             </div>
-                            <p class="mt-1">${f.comment}</p>
-                            <small class="text-muted">Posted on: ${f.feedbackDate}</small>
                         </div>
-                    </c:forEach>
+                        <p class="mt-1">${f.comment}</p>
+                        <small class="text-muted">Posted on: ${f.feedbackDate}</small>
+
+                        <!-- Response Section -->
+                        <c:set var="userResponse" value="${feedbackResponses[f.feedbackId]}" />
+                        <c:if test="${not empty userResponse}">
+                            <div class="ms-5 mt-2 p-3 bg-light border rounded">
+                                <strong>Response from ${userResponse.internalUser.fullName}</strong>
+                                <p class="mb-1">${userResponse.responseText}</p>
+                                <small class="text-muted">Replied on: ${userResponse.responseDate}</small>
+                            </div>
+                        </c:if>
+
+                        <c:if test="${empty userResponse and canReply}">
+                            <div class="ms-5 mt-2">
+                                <form action="feedback" method="post">
+                                    <input type="hidden" name="action" value="reply">
+                                    <input type="hidden" name="warehouseId" value="${warehouseId}">
+                                    <input type="hidden" name="feedbackId" value="${f.feedbackId}">
+                                    <div class="mb-2">
+                                        <textarea class="form-control" name="responseText" rows="2"
+                                            placeholder="Write a reply..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-primary">Reply</button>
+                                </form>
+                            </div>
+                        </c:if>
                 </div>
+                </c:forEach>
+            </div>
             </div>
 
             <!-- Feedback Form -->
