@@ -101,21 +101,17 @@ public class CreateRentRequest extends HttpServlet {
         }
 
         String warehouseIdStr = request.getParameter("warehouseId");
-        String startDateStr = request.getParameter("startDate");
-        String endDateStr = request.getParameter("endDate");
-        String areaStr = request.getParameter("area");
+        String[] startDates = request.getParameterValues("unitStartDate");
+        String[] endDates = request.getParameterValues("unitEndDate");
+        String[] areas = request.getParameterValues("unitArea");
+        String[] prices = request.getParameterValues("unitPrice");
         String[] names = request.getParameterValues("itemName");
         String[] descriptions = request.getParameterValues("description");
 
         int warehouseId = Integer.parseInt(warehouseIdStr);
-        double area = Double.parseDouble(areaStr);
-        java.sql.Date startDate;
-        java.sql.Date endDate;
-        try {
-            startDate = java.sql.Date.valueOf(startDateStr);
-            endDate = java.sql.Date.valueOf(endDateStr);
-        } catch (IllegalArgumentException e) {
-            response.sendRedirect(request.getContextPath() + "/rentList");
+        if (startDates == null || endDates == null || areas == null || prices == null
+                || startDates.length == 0 || endDates.length == 0 || areas.length == 0 || prices.length == 0) {
+            response.sendRedirect(request.getContextPath() + "/createRentRequest?id=" + warehouseId);
             return;
         }
 
@@ -123,7 +119,18 @@ public class CreateRentRequest extends HttpServlet {
         RentRequestDAO rrDao = new RentRequestDAO();
         ItemDAO itemDao = new ItemDAO();
 
-        int newRequestId = rrDao.insertRentRequest(renterId, warehouseId, startDate, endDate, area);
+        int newRequestId = rrDao.insertRentRequest(renterId, warehouseId);
+
+        for (int i = 0; i < startDates.length; i++) {
+            try {
+                java.sql.Date sd = java.sql.Date.valueOf(startDates[i].trim());
+                java.sql.Date ed = java.sql.Date.valueOf(endDates[i].trim());
+                double a = Double.parseDouble(areas[i].trim());
+                double pr = Double.parseDouble(prices[i].trim());
+                rrDao.insertRentRequestUnit(newRequestId, sd, ed, a, pr);
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
 
         if (names != null) {
             for (int i = 0; i < names.length; i++) {

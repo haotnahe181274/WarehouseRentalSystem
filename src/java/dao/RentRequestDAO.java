@@ -15,6 +15,7 @@ import model.InternalUser;
 import model.Item;
 import model.RentRequest;
 import model.RentRequestItem;
+import model.RentRequestUnit;
 import model.Renter;
 import model.Warehouse;
 import model.WarehouseType;
@@ -34,8 +35,7 @@ public class RentRequestDAO extends DBContext {
            r.full_name AS renter_name,
            w.warehouse_id,
            w.name AS warehouse_name,
-           iu.internal_user_id, iu.full_name,iu.user_name
-                    
+           iu.internal_user_id, iu.full_name, iu.user_name
     FROM rent_request rr
     JOIN renter r ON rr.renter_id = r.renter_id
     JOIN warehouse w ON rr.warehouse_id = w.warehouse_id
@@ -48,40 +48,22 @@ public class RentRequestDAO extends DBContext {
 
             while (rs.next()) {
                 RentRequest rr = new RentRequest();
-
-                // ===== BASIC INFO =====
                 rr.setRequestId(rs.getInt("request_id"));
                 rr.setStatus(rs.getInt("status"));
                 rr.setRequestType(rs.getString("request_type"));
+                rr.setRequestDate(rs.getTimestamp("request_date"));
+                rr.setProcessedDate(rs.getTimestamp("processed_date"));
 
-                // ===== DATETIME -> java.util.Date =====
-                rr.setRequestDate(rs.getTimestamp("request_date")); // có giờ
-                rr.setProcessedDate(rs.getTimestamp("processed_date")); // có thể null
-
-                // ===== DATE -> LocalDate =====
-                Date startSqlDate = rs.getDate("start_date");
-                if (startSqlDate != null) {
-                    rr.setStartDate(startSqlDate);
-                }
-
-                Date endSqlDate = rs.getDate("end_date");
-                if (endSqlDate != null) {
-                    rr.setEndDate(endSqlDate);
-                }
-
-                // ===== RENTER =====
                 Renter renter = new Renter();
                 renter.setRenterId(rs.getInt("renter_id"));
                 renter.setFullName(rs.getString("renter_name"));
                 rr.setRenter(renter);
 
-                // ===== WAREHOUSE =====
                 Warehouse w = new Warehouse();
                 w.setWarehouseId(rs.getInt("warehouse_id"));
                 w.setName(rs.getString("warehouse_name"));
                 rr.setWarehouse(w);
 
-                // ===== INTERNAL USER (nullable) =====
                 int internalUserId = rs.getInt("internal_user_id");
                 if (!rs.wasNull()) {
                     InternalUser iu = new InternalUser();
@@ -107,9 +89,9 @@ public class RentRequestDAO extends DBContext {
         String sql = """
         SELECT rr.*,
                r.renter_id,
-                     r.full_name AS renter_name,
+               r.full_name AS renter_name,
                w.warehouse_id,
-                     w.name AS warehouse_name,
+               w.name AS warehouse_name,
                iu.internal_user_id
         FROM rent_request rr
         JOIN renter r ON rr.renter_id = r.renter_id
@@ -127,40 +109,22 @@ public class RentRequestDAO extends DBContext {
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     RentRequest rr = new RentRequest();
-
-                    // ===== BASIC INFO =====
                     rr.setRequestId(rs.getInt("request_id"));
                     rr.setStatus(rs.getInt("status"));
                     rr.setRequestType(rs.getString("request_type"));
-
-                    // ===== DATETIME -> java.util.Date =====
                     rr.setRequestDate(rs.getTimestamp("request_date"));
                     rr.setProcessedDate(rs.getTimestamp("processed_date"));
 
-                    // ===== DATE -> LocalDate =====
-                    Date startSqlDate = rs.getDate("start_date");
-                    if (startSqlDate != null) {
-                        rr.setStartDate(startSqlDate);
-                    }
-
-                    Date endSqlDate = rs.getDate("end_date");
-                    if (endSqlDate != null) {
-                        rr.setEndDate(endSqlDate);
-                    }
-
-                    // ===== RENTER =====
                     Renter renter = new Renter();
                     renter.setRenterId(rs.getInt("renter_id"));
                     renter.setFullName(rs.getString("renter_name"));
                     rr.setRenter(renter);
 
-                    // ===== WAREHOUSE =====
                     Warehouse w = new Warehouse();
                     w.setWarehouseId(rs.getInt("warehouse_id"));
                     w.setName(rs.getString("warehouse_name"));
                     rr.setWarehouse(w);
 
-                    // ===== INTERNAL USER (nullable) =====
                     int internalUserId = rs.getInt("internal_user_id");
                     if (!rs.wasNull()) {
                         InternalUser iu = new InternalUser();
@@ -276,18 +240,8 @@ public class RentRequestDAO extends DBContext {
                     rr.setRequestDate(rs.getTimestamp("request_date"));
                     rr.setStatus(rs.getInt("status"));
                     rr.setRequestType(rs.getString("request_type"));
-                    rr.setArea(rs.getDouble("area"));
                     rr.setProcessedDate(rs.getTimestamp("processed_date"));
-
-                    Date start = rs.getDate("start_date");
-                    if (start != null) {
-                        rr.setStartDate(start);
-                    }
-
-                    Date end = rs.getDate("end_date");
-                    if (end != null) {
-                        rr.setEndDate(end);
-                    }
+                    // start_date, end_date, area chỉ lấy từ rent_request_unit (set ở dưới)
 
                     // ===== RENTER =====
                     Renter renter = new Renter();
@@ -346,36 +300,71 @@ public class RentRequestDAO extends DBContext {
             e.printStackTrace();
         }
 
+        if (rr != null) {
+            List<RentRequestUnit> units = getUnitsByRequestId(rr.getRequestId());
+            rr.setUnits(units);
+        }
+
         return rr;
     }
 
-
-    /** Updates area, start_date and end_date for an existing rent request. */
-    public boolean updateRentRequestDatesAndArea(int requestId, Date startDate, Date endDate, double area) {
-        String sql = "UPDATE rent_request SET start_date = ?, end_date = ?, area = ? WHERE request_id = ?";
+    public List<RentRequestUnit> getUnitsByRequestId(int requestId) {
+        List<RentRequestUnit> list = new ArrayList<>();
+        String sql = "SELECT id, request_id, area, start_date, end_date, rent_price FROM rent_request_unit WHERE request_id = ? ORDER BY id";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setDate(1, new java.sql.Date(startDate.getTime()));
-            ps.setDate(2, new java.sql.Date(endDate.getTime()));
-            ps.setDouble(3, area);
-            ps.setInt(4, requestId);
-            return ps.executeUpdate() > 0;
+            ps.setInt(1, requestId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                RentRequestUnit u = new RentRequestUnit();
+                u.setId(rs.getInt("id"));
+                u.setRequestId(rs.getInt("request_id"));
+                u.setArea(rs.getDouble("area"));
+                Date start = rs.getDate("start_date");
+                if (start != null) u.setStartDate(start);
+                Date end = rs.getDate("end_date");
+                if (end != null) u.setEndDate(end);
+                u.setRentPrice(rs.getDouble("rent_price"));
+                list.add(u);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return list;
+    }
+
+    public void deleteUnitsByRequestId(int requestId) {
+        String sql = "DELETE FROM rent_request_unit WHERE request_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void insertRentRequestUnit(int requestId, Date startDate, Date endDate, double area, double rentPrice) {
+        String sql = "INSERT INTO rent_request_unit (request_id, area, start_date, end_date, rent_price) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+            ps.setDouble(2, area);
+            ps.setDate(3, new java.sql.Date(startDate.getTime()));
+            ps.setDate(4, new java.sql.Date(endDate.getTime()));
+            ps.setDouble(5, rentPrice);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
-     * Inserts a new rent request (create mode). Returns the new request_id, or -1 on failure.
+     * Inserts a new rent request (chỉ header; ngày/diện tích/giá lưu ở rent_request_unit).
+     * Returns the new request_id, or -1 on failure.
      */
-    public int insertRentRequest(int renterId, int warehouseId, Date startDate, Date endDate, double area) {
-        String sql = "INSERT INTO rent_request (request_date, status, request_type, renter_id, warehouse_id, start_date, end_date, area) VALUES (NOW(), 0, 'RENT', ?, ?, ?, ?, ?)";
+    public int insertRentRequest(int renterId, int warehouseId) {
+        String sql = "INSERT INTO rent_request (request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date) VALUES (NOW(), 0, 'RENT', ?, ?, NULL, NULL)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, renterId);
             ps.setInt(2, warehouseId);
-            ps.setDate(3, new java.sql.Date(startDate.getTime()));
-            ps.setDate(4, new java.sql.Date(endDate.getTime()));
-            ps.setDouble(5, area);
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
@@ -407,12 +396,8 @@ public class RentRequestDAO extends DBContext {
             System.out.println("Request ID     : " + rr.getRequestId());
             System.out.println("Status         : " + rr.getStatus());
             System.out.println("Type           : " + rr.getRequestType());
-
             System.out.println("Request Date   : " + rr.getRequestDate());
             System.out.println("Processed Date : " + rr.getProcessedDate());
-
-            System.out.println("Start Date     : " + rr.getStartDate());
-            System.out.println("End Date       : " + rr.getEndDate());
 
             if (rr.getRenter() != null) {
                 System.out.println("Renter ID      : " + rr.getRenter().getRenterId());

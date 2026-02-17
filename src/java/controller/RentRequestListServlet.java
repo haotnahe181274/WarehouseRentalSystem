@@ -15,9 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import model.InternalUser;
 import model.RentRequest;
-import model.Renter;
 import model.UserView;
 
 /**

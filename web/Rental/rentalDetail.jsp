@@ -82,59 +82,93 @@
                 </div>
             </div>
 
-            <!-- REQUESTED DATES & AREA & PRICE -->
-            <div class="section-title">Requested Dates</div>
-            <div class="request-dates">
-                <div class="date-box">
-                    Start Date
-                    <c:choose>
-                        <c:when test="${isForm}">
-                            <input type="date" name="startDate" id="startDate" value="<c:if test="${rr.startDate != null}"><fmt:formatDate value="${rr.startDate}" pattern="yyyy-MM-dd"/></c:if>" />
-                        </c:when>
-                        <c:otherwise>
-                            <strong><fmt:formatDate value="${rr.startDate}" pattern="dd-MM-yyyy"/></strong>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-                <div class="date-box">
-                    End Date
-                    <c:choose>
-                        <c:when test="${isForm}">
-                            <input type="date" name="endDate" id="endDate" value="<c:if test="${rr.endDate != null}"><fmt:formatDate value="${rr.endDate}" pattern="yyyy-MM-dd"/></c:if>" />
-                        </c:when>
-                        <c:otherwise>
-                            <strong><fmt:formatDate value="${rr.endDate}" pattern="dd-MM-yyyy"/></strong>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-                <div class="date-box">
-                    Area Requested
-                    <c:choose>
-                        <c:when test="${isForm}">
-                            <select name="area" id="areaSelect" required>
+            <!-- REQUESTED UNITS: mỗi unit có ngày, diện tích, giá riêng -->
+            <div class="section-title">Requested Units</div>
+            <c:choose>
+                <c:when test="${isForm}">
+                    <div class="units-form-wrapper">
+                        <table class="table units-table" id="unitsTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Area (m²)</th>
+                                    <th>Price (VND)</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="unitsTableBody">
                                 <c:choose>
-                                    <c:when test="${isCreate}">
-                                        <option value="">Select date first</option>
+                                    <c:when test="${not empty rr.units}">
+                                        <c:forEach items="${rr.units}" var="u" varStatus="vs">
+                                            <tr class="unit-row" data-index="${vs.index}">
+                                                <td>${vs.index + 1}</td>
+                                                <td><input type="date" name="unitStartDate" class="unit-start" value="<fmt:formatDate value="${u.startDate}" pattern="yyyy-MM-dd"/>" /></td>
+                                                <td><input type="date" name="unitEndDate" class="unit-end" value="<fmt:formatDate value="${u.endDate}" pattern="yyyy-MM-dd"/>" /></td>
+                                                <td>
+                                                    <select name="unitArea" class="unit-area">
+                                                        <c:forEach items="${areaPriceMap}" var="entry">
+                                                            <option value="${entry.key}" data-price="${entry.value}" <c:if test="${entry.key == u.area}">selected</c:if>>${entry.key} m²</option>
+                                                        </c:forEach>
+                                                    </select>
+                                                </td>
+                                                <td><span class="unit-price-display"><fmt:formatNumber value="${u.rentPrice}" groupingUsed="true"/></span> <input type="hidden" name="unitPrice" class="unit-price" value="${u.rentPrice}" /></td>
+                                                <td><button type="button" class="btn btn-reject btn-remove-unit">Remove</button></td>
+                                            </tr>
+                                        </c:forEach>
                                     </c:when>
                                     <c:otherwise>
-                                        
-                                        <c:forEach items="${areaPriceMap}" var="entry">
-                                            <option value="${entry.key}" data-price="${entry.value}" <c:if test="${entry.key == rr.area}">selected</c:if>>${entry.key} m²</option>
-                                        </c:forEach>
+                                        <tr class="unit-row" data-index="0">
+                                            <td>1</td>
+                                            <td><input type="date" name="unitStartDate" class="unit-start" /></td>
+                                            <td><input type="date" name="unitEndDate" class="unit-end" /></td>
+                                            <td>
+                                                <select name="unitArea" class="unit-area">
+                                                    <option value="">-- Chọn ngày trước --</option>
+                                                    <c:forEach items="${areaPriceMap}" var="entry">
+                                                        <option value="${entry.key}" data-price="${entry.value}">${entry.key} m²</option>
+                                                    </c:forEach>
+                                                </select>
+                                            </td>
+                                            <td><span class="unit-price-display"></span> <input type="hidden" name="unitPrice" class="unit-price" value="" /></td>
+                                            <td><button type="button" class="btn btn-reject btn-remove-unit">Remove</button></td>
+                                        </tr>
                                     </c:otherwise>
                                 </c:choose>
-                            </select>
+                            </tbody>
+                        </table>
+                        <button type="button" id="addUnitBtn" class="btn btn-approve">Add Unit</button>
+                        <p class="unit-total"><strong>Total: <span id="totalPrice">0</span> VND</strong></p>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <c:choose>
+                        <c:when test="${not empty rr.units}">
+                            <table class="table">
+                                <thead>
+                                    <tr><th>#</th><th>Start Date</th><th>End Date</th><th>Area</th><th>Price (VND)</th></tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach items="${rr.units}" var="u" varStatus="vs">
+                                        <tr>
+                                            <td>${vs.index + 1}</td>
+                                            <td><fmt:formatDate value="${u.startDate}" pattern="dd-MM-yyyy"/></td>
+                                            <td><fmt:formatDate value="${u.endDate}" pattern="dd-MM-yyyy"/></td>
+                                            <td>${u.area} m²</td>
+                                            <td><fmt:formatNumber value="${u.rentPrice}" groupingUsed="true"/></td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                            <p class="unit-total"><strong>Total: <fmt:formatNumber value="${rr.totalUnitsPrice}" groupingUsed="true"/> VND</strong></p>
                         </c:when>
                         <c:otherwise>
-                            <strong>${rr.area} m²</strong>
+                            <p class="meta-info">No units in this request.</p>
                         </c:otherwise>
                     </c:choose>
-                </div>
-                <div class="date-box">
-                    Price
-                    <strong><span id="price">${price != null ? price : ''}</span> VND</strong>
-                </div>
-            </div>
+                </c:otherwise>
+            </c:choose>
 
             <!-- ITEM LIST -->
             <div class="section-title">List of Items</div>
@@ -273,79 +307,172 @@
             .status-cancelled { background: #64748b; color: white; }
             .meta-info { margin-bottom: 20px; font-size: 14px; }
             .meta-info p { margin: 5px 0; }
+            .units-table { margin-bottom: 15px; }
+            .units-table th { background: #1e293b; color: white; padding: 10px; }
+            .units-table td { padding: 8px; vertical-align: middle; }
+            .unit-row input[type="date"], .unit-row select { width: 100%; padding: 6px; }
+            .unit-total { margin-top: 15px; font-size: 16px; }
         </style>
 
-        <!-- AJAX: khi đổi ngày -> load danh sách diện tích; khi đổi diện tích -> load giá -->
         <script>
             (function() {
                 var box = document.getElementById("detailContainer");
                 if (!box) return;
                 var base = box.getAttribute("data-context-path");
                 var warehouseId = box.getAttribute("data-warehouse-id");
-                var startEl = document.getElementById("startDate");
-                var endEl = document.getElementById("endDate");
-                var areaEl = document.getElementById("areaSelect");
-                var priceEl = document.getElementById("price");
+                var isForm = box.getAttribute("data-mode") === "create" || box.getAttribute("data-mode") === "edit";
+                if (!isForm) return;
 
-                // Đổi ngày -> gọi API lấy danh sách diện tích (JSON array), điền vào dropdown
-                function khiDoiNgay() {
-                    if (!startEl || !endEl || !areaEl || !warehouseId) return;
-                    var start = startEl.value;
-                    var end = endEl.value;
+                var tbody = document.getElementById("unitsTableBody");
+                if (!tbody) return;
+
+                function loadAreasForRow(row, callback) {
+                    var start = row.querySelector(".unit-start").value;
+                    var end = row.querySelector(".unit-end").value;
+                    var areaSelect = row.querySelector(".unit-area");
+                    var priceDisplay = row.querySelector(".unit-price-display");
+                    var priceInput = row.querySelector(".unit-price");
                     if (!start || !end) {
-                        areaEl.innerHTML = "<option value=\"\">-- Chọn ngày --</option>";
-                        if (priceEl) priceEl.textContent = "";
+                        areaSelect.innerHTML = "<option value=\"\">-- Chọn ngày trước --</option>";
+                        if (priceDisplay) priceDisplay.textContent = "";
+                        if (priceInput) priceInput.value = "";
+                        updateTotal();
                         return;
                     }
                     var url = base + "/warehouseAreaPrice?action=areas&warehouseId=" + warehouseId + "&startDate=" + encodeURIComponent(start) + "&endDate=" + encodeURIComponent(end);
                     fetch(url).then(function(r) { return r.json(); }).then(function(areas) {
-                        areaEl.innerHTML = "<option value=\"\">-- Chọn diện tích --</option>";
+                        areaSelect.innerHTML = "<option value=\"\">-- Chọn diện tích --</option>";
                         if (Array.isArray(areas)) {
                             for (var i = 0; i < areas.length; i++) {
                                 var opt = document.createElement("option");
                                 opt.value = areas[i];
                                 opt.textContent = areas[i] + " m²";
-                                areaEl.appendChild(opt);
+                                areaSelect.appendChild(opt);
                             }
                         }
-                        if (priceEl) priceEl.textContent = "";
+                        if (priceDisplay) priceDisplay.textContent = "";
+                        if (priceInput) priceInput.value = "";
+                        updateTotal();
+                        if (callback) callback();
                     });
                 }
 
-                // Đổi diện tích -> gọi API lấy giá (JSON { price: số }), hiển thị
-                function khiDoiDienTich() {
-                    if (!areaEl || !priceEl || !warehouseId) return;
-                    var opt = areaEl.options[areaEl.selectedIndex];
-                    if (opt && opt.getAttribute("data-price") !== null) {
-                        priceEl.textContent = opt.getAttribute("data-price");
+                function setPriceForRow(row) {
+                    var areaSelect = row.querySelector(".unit-area");
+                    var priceDisplay = row.querySelector(".unit-price-display");
+                    var priceInput = row.querySelector(".unit-price");
+                    var opt = areaSelect && areaSelect.options[areaSelect.selectedIndex];
+                    if (opt && opt.getAttribute("data-price") !== null && opt.getAttribute("data-price") !== "") {
+                        var p = opt.getAttribute("data-price");
+                        if (priceDisplay) priceDisplay.textContent = Number(p).toLocaleString("vi-VN");
+                        if (priceInput) priceInput.value = p;
+                        updateTotal();
                         return;
                     }
-                    var area = areaEl.value;
-                    if (!area) { priceEl.textContent = ""; return; }
+                    var area = areaSelect && areaSelect.value;
+                    if (!area) { if (priceDisplay) priceDisplay.textContent = ""; if (priceInput) priceInput.value = ""; updateTotal(); return; }
                     var url = base + "/warehouseAreaPrice?action=price&warehouseId=" + warehouseId + "&area=" + encodeURIComponent(area);
                     fetch(url).then(function(r) { return r.json(); }).then(function(obj) {
-                        priceEl.textContent = obj.price != null ? obj.price : "";
+                        var p = obj.price != null ? obj.price : 0;
+                        if (priceDisplay) priceDisplay.textContent = Number(p).toLocaleString("vi-VN");
+                        if (priceInput) priceInput.value = p;
+                        updateTotal();
                     });
                 }
 
-                if (startEl) startEl.addEventListener("change", khiDoiNgay);
-                if (endEl) endEl.addEventListener("change", khiDoiNgay);
-                if (areaEl) areaEl.addEventListener("change", khiDoiDienTich);
-                if (areaEl && areaEl.selectedIndex >= 0 && areaEl.options[areaEl.selectedIndex].getAttribute("data-price") !== null) {
-                    khiDoiDienTich();
+                function updateTotal() {
+                    var total = 0;
+                    tbody.querySelectorAll(".unit-price").forEach(function(inp) {
+                        var v = parseFloat(inp.value);
+                        if (!isNaN(v)) total += v;
+                    });
+                    var el = document.getElementById("totalPrice");
+                    if (el) el.textContent = total.toLocaleString("vi-VN");
                 }
+
+                function renumberRows() {
+                    tbody.querySelectorAll(".unit-row").forEach(function(row, i) {
+                        row.setAttribute("data-index", i);
+                        var firstTd = row.querySelector("td:first-child");
+                        if (firstTd) firstTd.textContent = i + 1;
+                    });
+                }
+
+                tbody.addEventListener("change", function(e) {
+                    var row = e.target.closest(".unit-row");
+                    if (!row) return;
+                    if (e.target.classList.contains("unit-start") || e.target.classList.contains("unit-end")) {
+                        loadAreasForRow(row);
+                    } else if (e.target.classList.contains("unit-area")) {
+                        setPriceForRow(row);
+                    }
+                });
+
+                tbody.addEventListener("click", function(e) {
+                    if (!e.target.classList.contains("btn-remove-unit")) return;
+                    var row = e.target.closest(".unit-row");
+                    if (!row) return;
+                    if (tbody.querySelectorAll(".unit-row").length <= 1) {
+                        alert("You must have at least one unit.");
+                        return;
+                    }
+                    row.remove();
+                    renumberRows();
+                    updateTotal();
+                });
+
+                document.getElementById("addUnitBtn").addEventListener("click", function() {
+                    var firstRow = tbody.querySelector(".unit-row");
+                    if (!firstRow) return;
+                    var newRow = firstRow.cloneNode(true);
+                    newRow.querySelector(".unit-start").value = "";
+                    newRow.querySelector(".unit-end").value = "";
+                    newRow.querySelector(".unit-area").innerHTML = "<option value=\"\">-- Chọn ngày trước --</option>";
+                    newRow.querySelector(".unit-price-display").textContent = "";
+                    newRow.querySelector(".unit-price").value = "";
+                    tbody.appendChild(newRow);
+                    renumberRows();
+                    updateTotal();
+                });
+
+                tbody.querySelectorAll(".unit-row").forEach(function(row) {
+                    var areaSelect = row.querySelector(".unit-area");
+                    if (areaSelect && areaSelect.selectedIndex >= 0) {
+                        var opt = areaSelect.options[areaSelect.selectedIndex];
+                        if (opt && opt.getAttribute("data-price") !== null && opt.getAttribute("data-price") !== "") {
+                            setPriceForRow(row);
+                        }
+                    }
+                });
+                updateTotal();
             })();
         </script>
         <script>
             function validateForm() {
-                var rows = document.querySelectorAll("#itemTable tbody tr");
-                if (rows.length === 0) {
+                var unitRows = document.querySelectorAll("#unitsTableBody .unit-row");
+                if (unitRows.length === 0) {
+                    alert("You must have at least one unit.");
+                    return false;
+                }
+                for (var i = 0; i < unitRows.length; i++) {
+                    var row = unitRows[i];
+                    var start = row.querySelector(".unit-start").value;
+                    var end = row.querySelector(".unit-end").value;
+                    var area = row.querySelector(".unit-area").value;
+                    var price = row.querySelector(".unit-price").value;
+                    if (!start || !end || !area || !price) {
+                        alert("All units must have Start date, End date, Area and Price (select area to get price).");
+                        return false;
+                    }
+                }
+                var itemRows = document.querySelectorAll("#itemTable tbody tr");
+                if (itemRows.length === 0) {
                     alert("You must have at least one item.");
                     return false;
                 }
-                for (var i = 0; i < rows.length; i++) {
-                    var nameInput = rows[i].querySelector("input[name='itemName']");
-                    var descInput = rows[i].querySelector("input[name='description']");
+                for (var i = 0; i < itemRows.length; i++) {
+                    var nameInput = itemRows[i].querySelector("input[name='itemName']");
+                    var descInput = itemRows[i].querySelector("input[name='description']");
                     if (nameInput && descInput && (nameInput.value.trim() === "" || descInput.value.trim() === "")) {
                         alert("All item fields must be filled.");
                         return false;

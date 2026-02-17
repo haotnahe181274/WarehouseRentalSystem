@@ -18,37 +18,17 @@ public class RentRequest {
     private String requestType;
     private Renter renter;
     private Warehouse warehouse;
-    private double area;
-
     private InternalUser processedBy;
     private Date processedDate;
-    private Date startDate;
-    private Date endDate;
 
     private List<RentRequestItem> items;
+    /** Các unit trong request (mỗi unit: ngày, diện tích, giá riêng). */
+    private List<RentRequestUnit> units;
 
     public RentRequest() {
         items = new ArrayList<>();
+        units = new ArrayList<>();
     }
-
-    public RentRequest(int requestId, Date requestDate, int status, String requestType, Renter renter, Warehouse warehouse, double area, InternalUser processedBy, Date processedDate, Date startDate, Date endDate, List<RentRequestItem> items) {
-        this.requestId = requestId;
-        this.requestDate = requestDate;
-        this.status = status;
-        this.requestType = requestType;
-        this.renter = renter;
-        this.warehouse = warehouse;
-        this.area = area;
-        this.processedBy = processedBy;
-        this.processedDate = processedDate;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.items = items;
-    }
-    
-    
-
-    
 
     public int getRequestId() {
         return requestId;
@@ -98,13 +78,6 @@ public class RentRequest {
         this.warehouse = warehouse;
     }
 
-    public double getArea() {
-        return area;
-    }
-
-    public void setArea(double area) {
-        this.area = area;
-    }
 
     public InternalUser getProcessedBy() {
         return processedBy;
@@ -122,23 +95,6 @@ public class RentRequest {
         this.processedDate = processedDate;
     }
 
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    
 
     public List<RentRequestItem> getItems() {
         return items;
@@ -147,6 +103,18 @@ public class RentRequest {
     public void setItems(List<RentRequestItem> items) {
         this.items = items;
     }
-    
 
+    public List<RentRequestUnit> getUnits() {
+        return units;
+    }
+
+    public void setUnits(List<RentRequestUnit> units) {
+        this.units = units;
+    }
+
+    /** Tổng tiền các unit (để hiển thị). */
+    public double getTotalUnitsPrice() {
+        if (units == null || units.isEmpty()) return 0;
+        return units.stream().mapToDouble(RentRequestUnit::getRentPrice).sum();
+    }
 }

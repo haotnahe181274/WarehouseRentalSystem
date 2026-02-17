@@ -113,21 +113,19 @@ CREATE TABLE storage_unit_item (
 -- ==============================
 -- REQUEST & CONTRACT
 -- ==============================
-CREATE TABLE Rent_request ( 
-request_id INT AUTO_INCREMENT PRIMARY KEY, 
-request_date DATETIME, 
-status INT, 
-request_type VARCHAR(20), 
-renter_id INT, 
-warehouse_id INT, 
-area DECIMAL(10,2), 
-internal_user_id INT, 
-processed_date DATETIME, 
-start_date DATE, 
-end_date DATE, 
-FOREIGN KEY (renter_id) REFERENCES Renter(renter_id), 
-FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id), 
-FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id) 
+-- Rent_request chỉ lưu thông tin chung; start_date, end_date, area lưu ở rent_request_unit
+CREATE TABLE Rent_request (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
+    request_date DATETIME,
+    status INT,
+    request_type VARCHAR(20),
+    renter_id INT,
+    warehouse_id INT,
+    internal_user_id INT,
+    processed_date DATETIME,
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
 );
 
 -- Bảng mới từ ảnh
@@ -138,6 +136,17 @@ CREATE TABLE rent_request_item (
     request_id INT,
     FOREIGN KEY (item_id) REFERENCES Item(item_id),
     FOREIGN KEY (request_id) REFERENCES Rent_request(request_id)
+);
+
+-- Mỗi rent request có thể có nhiều unit: mỗi unit có ngày, diện tích, giá riêng
+CREATE TABLE rent_request_unit (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    request_id INT NOT NULL,
+    area DECIMAL(10,2) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    rent_price DECIMAL(12,2) NOT NULL,
+    FOREIGN KEY (request_id) REFERENCES Rent_request(request_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Contract (
@@ -451,48 +460,41 @@ INSERT INTO storage_unit_item (quantity, item_id, unit_id) VALUES
 (150, 12, 1),
 (100, 13, 1);
 
--- Cập nhật Rent_request để bao gồm renter_id, start_date, end_date
-INSERT INTO Rent_request
-(request_date, status, request_type, renter_id, warehouse_id, area,
- internal_user_id, processed_date, start_date, end_date)
-VALUES
+-- Rent_request: chỉ request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date
+INSERT INTO Rent_request (request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date) VALUES
+('2025-01-05 09:15:00', 1, 'RENT', 1, 1, 2, '2025-01-06 10:30:00'),
+('2025-02-01 14:00:00', 1, 'RENT', 2, 2, 3, '2025-02-02 08:45:00'),
+('2025-03-12 11:20:00', 1, 'RENT', 3, 3, 4, '2025-03-13 09:10:00'),
+('2025-04-01 10:00:00', 0, 'RENT', 4, 4, NULL, NULL),
+('2025-04-05 16:30:00', 0, 'RENT', 7, 5, NULL, NULL),
+('2025-05-01 09:00:00', 1, 'CHECK_IN', 1, 1, 2, '2025-05-01 10:00:00'),
+('2025-03-01 08:00:00', 3, 'RENT', 6, 6, NULL, NULL),
+('2025-06-01 08:00:00', 1, 'RENT', 12, 22, 2, '2025-06-02 09:00:00'),
+('2025-06-05 09:30:00', 1, 'RENT', 13, 24, 1, '2025-06-06 10:00:00'),
+('2025-06-10 10:00:00', 1, 'RENT', 14, 25, 2, '2025-06-11 11:00:00'),
+(NOW(), 1, 'RENT', 1, 1, 2, NOW()),
+(NOW(), 0, 'RENT', 1, 1, NULL, NULL),
+(NOW(), 1, 'CHECK_IN', 1, 1, 3, NOW()),
+(NOW(), 1, 'CHECK_IN', 1, 1, 3, NOW()),
+(NOW(), 1, 'CHECK_OUT', 1, 1, 3, NOW());
 
--- APPROVED REQUESTS (có processed_date + internal_user_id)
-('2025-01-05 09:15:00', 1, 'RENT', 1, 1, 50,
- 2, '2025-01-06 10:30:00', '2025-01-10', '2025-07-10'),
-
-('2025-02-01 14:00:00', 1, 'RENT', 2, 2, 70,
- 3, '2025-02-02 08:45:00', '2025-02-05', '2025-08-05'),
-
-('2025-03-12 11:20:00', 1, 'RENT', 3, 3, 100,
- 4, '2025-03-13 09:10:00', '2025-03-20', '2026-03-20'),
-
--- PENDING REQUESTS (status = 0 → NULL processed)
-('2025-04-01 10:00:00', 0, 'RENT', 4, 4, 80,
- NULL, NULL, '2025-04-10', '2025-10-10'),
-
-('2025-04-05 16:30:00', 0, 'RENT', 7, 5, 120,
- NULL, NULL, '2025-04-20', '2025-12-20'),
-('2025-05-01 09:00:00', 1, 'CHECK_IN', 1, 1, 50,
- 2, '2025-05-01 10:00:00', '2025-05-01', '2025-11-01'),
--- REJECTED REQUEST (status = 3 → NULL processed)
-('2025-03-01 08:00:00', 3, 'RENT', 6, 6, 90,
- NULL, NULL, '2025-03-10', '2025-09-10'),
- ('2025-06-01 08:00:00',1,'RENT',12,22,130,2,'2025-06-02 09:00:00','2025-06-10','2025-12-10'),
-('2025-06-05 09:30:00',1,'RENT',13,24,100,1,'2025-06-06 10:00:00','2025-06-15','2026-06-15'),
-('2025-06-10 10:00:00',1,'RENT',14,25,120,2,'2025-06-11 11:00:00','2025-06-20','2026-06-20'),
-(NOW(), 1, 'RENT', 1, 1, 70,
- 2, NOW(), '2025-07-01', '2026-01-01'),
-
-(NOW(), 0, 'RENT', 1, 1, 30,
- NULL, NULL, '2025-08-01', '2026-02-01'),
- (NOW(), 1, 'CHECK_IN', 1, 1, 50,
- 3, NOW(), '2025-07-01', '2026-01-01'),
-
-(NOW(), 1, 'CHECK_IN', 1, 1, 50,
- 3, NOW(), '2025-07-05', '2026-01-01'),
- (NOW(), 1, 'CHECK_OUT', 1, 1, 50,
- 3, NOW(), '2025-08-01', '2026-01-01');
+-- rent_request_unit: mỗi request (RENT) có ít nhất 1 unit với area, start_date, end_date, rent_price
+INSERT INTO rent_request_unit (request_id, area, start_date, end_date, rent_price) VALUES
+(1, 50, '2025-01-10', '2025-07-10', 2000000),
+(2, 70, '2025-02-05', '2025-08-05', 2500000),
+(3, 100, '2025-03-20', '2026-03-20', 3500000),
+(4, 80, '2025-04-10', '2025-10-10', 3000000),
+(5, 120, '2025-04-20', '2025-12-20', 5000000),
+(6, 50, '2025-05-01', '2025-11-01', 2000000),
+(7, 90, '2025-03-10', '2025-09-10', 3200000),
+(8, 130, '2025-06-10', '2025-12-10', 5000000),
+(9, 100, '2025-06-15', '2026-06-15', 4000000),
+(10, 120, '2025-06-20', '2026-06-20', 4800000),
+(11, 70, '2025-07-01', '2026-01-01', 2200000),
+(12, 30, '2025-08-01', '2026-02-01', 0),
+(13, 50, '2025-07-01', '2026-01-01', 2000000),
+(14, 50, '2025-07-05', '2026-01-01', 2000000),
+(15, 50, '2025-08-01', '2026-01-01', 2000000);
 
 -- Dữ liệu mới cho rent_request_item
 INSERT INTO rent_request_item (quantity, item_id, request_id) VALUES

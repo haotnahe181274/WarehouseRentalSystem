@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import model.RentRequest;
-import model.Renter;
+import model.RentRequestUnit;
 import model.UserView;
 
 /**
@@ -90,18 +90,22 @@ public class RentRequestDetail extends HttpServlet {
         String mode = "edit".equals(action) ? "edit" : "view";
 
         int warehouseId = rr.getWarehouse().getWarehouseId();
-        List<Double> areaList = da.getAvailableAreasByWarehouse(warehouseId, rr.getStartDate(), rr.getEndDate());
         Map<Double, Double> areaPriceMap = new LinkedHashMap<>();
-        for (Double a : areaList) {
-            areaPriceMap.put(a, da.getPriceByArea(warehouseId, a));
+        if (!rr.getUnits().isEmpty()) {
+            RentRequestUnit first = rr.getUnits().get(0);
+            if (first.getStartDate() != null && first.getEndDate() != null) {
+                List<Double> areaList = da.getAvailableAreasByWarehouse(warehouseId, first.getStartDate(), first.getEndDate());
+                for (Double a : areaList) {
+                    areaPriceMap.put(a, da.getPriceByArea(warehouseId, a));
+                }
+            }
+            if (first.getArea() > 0) {
+                request.setAttribute("price", da.getPriceByArea(warehouseId, first.getArea()));
+            }
         }
-        double price = da.getPriceByArea(warehouseId, rr.getArea());
-
         request.setAttribute("areaPriceMap", areaPriceMap);
-        request.setAttribute("price", price);
         request.setAttribute("mode", mode);
         request.setAttribute("rr", rr);
-        request.setAttribute("areaList", areaList);
 
         request.getRequestDispatcher("Rental/rentalDetail.jsp")
                 .forward(request, response);
@@ -121,7 +125,10 @@ public class RentRequestDetail extends HttpServlet {
             throws ServletException, IOException {
 
         int requestId = Integer.parseInt(request.getParameter("requestId"));
-        double area = Double.parseDouble(request.getParameter("area"));
+        String[] startDates = request.getParameterValues("unitStartDate");
+        String[] endDates = request.getParameterValues("unitEndDate");
+        String[] areas = request.getParameterValues("unitArea");
+        String[] prices = request.getParameterValues("unitPrice");
         String[] names = request.getParameterValues("itemName");
         String[] descriptions = request.getParameterValues("description");
 
@@ -134,31 +141,32 @@ public class RentRequestDetail extends HttpServlet {
         }
         int renterId = x.getRenter().getRenterId();
 
-        java.util.Date startDate = x.getStartDate();
-        java.util.Date endDate = x.getEndDate();
-        String startStr = request.getParameter("startDate");
-        String endStr = request.getParameter("endDate");
-        if (startStr != null && !startStr.isEmpty() && endStr != null && !endStr.isEmpty()) {
-            try {
-                startDate = java.sql.Date.valueOf(startStr);
-                endDate = java.sql.Date.valueOf(endStr);
-            } catch (IllegalArgumentException ignored) { }
+        if (startDates != null && endDates != null && areas != null && prices != null
+                && startDates.length > 0 && endDates.length > 0 && areas.length > 0 && prices.length > 0) {
+            dao.deleteUnitsByRequestId(requestId);
+            for (int i = 0; i < startDates.length; i++) {
+                try {
+                    java.sql.Date sd = java.sql.Date.valueOf(startDates[i].trim());
+                    java.sql.Date ed = java.sql.Date.valueOf(endDates[i].trim());
+                    double a = Double.parseDouble(areas[i].trim());
+                    double pr = Double.parseDouble(prices[i].trim());
+                    dao.insertRentRequestUnit(requestId, sd, ed, a, pr);
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
         }
-        dao.updateRentRequestDatesAndArea(requestId, startDate, endDate, area);
 
         dao.deleteItemsByRequestId(requestId);
-
         if (names != null) {
-        for (int i = 0; i < names.length; i++) {
-            if (names[i] == null || names[i].trim().isEmpty()) continue;
-            String desc = (descriptions != null && i < descriptions.length) ? descriptions[i] : "";
-            int itemId = itemDao.insertItem(names[i].trim(), desc != null ? desc : "", renterId);
-            dao.insertRentRequestItem(requestId, itemId);
-        }
+            for (int i = 0; i < names.length; i++) {
+                if (names[i] == null || names[i].trim().isEmpty()) continue;
+                String desc = (descriptions != null && i < descriptions.length) ? descriptions[i] : "";
+                int itemId = itemDao.insertItem(names[i].trim(), desc != null ? desc : "", renterId);
+                dao.insertRentRequestItem(requestId, itemId);
+            }
         }
 
-        response.sendRedirect(request.getContextPath()
-                + "/rentDetail?id=" + requestId);
+        response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId);
     }
 
     /**
