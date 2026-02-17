@@ -2,9 +2,11 @@ package controller;
 
 import dao.ContractDAO;
 import dao.FeedbackDAO;
+import dao.FeedbackResponseDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,6 +14,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Feedback;
+import model.FeedbackResponse;
+import model.InternalUser;
 import model.UserView;
 import model.Contract;
 import model.Renter;
@@ -56,6 +60,19 @@ public class FeedbackServlet extends HttpServlet {
             }
             request.setAttribute("canFeedback", canFeedback);
 
+            // Fetch responses
+            FeedbackResponseDAO responseDAO = new FeedbackResponseDAO();
+            Map<Integer, FeedbackResponse> feedbackResponses = responseDAO.getResponsesByWarehouseId(warehouseId);
+            request.setAttribute("feedbackResponses", feedbackResponses);
+
+            // Check if user can reply (Manager or Admin)
+            boolean canReply = false;
+            if (user != null && ("MANAGER".equalsIgnoreCase(user.getRole()) || "ADMIN".equalsIgnoreCase(user.getRole())
+                    || "Internal".equalsIgnoreCase(user.getType()))) {
+                canReply = true;
+            }
+            request.setAttribute("canReply", canReply);
+
             request.getRequestDispatcher("feedback.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
@@ -69,8 +86,19 @@ public class FeedbackServlet extends HttpServlet {
         HttpSession session = request.getSession();
         UserView user = (UserView) session.getAttribute("user");
 
-        if (user == null || !"RENTER".equalsIgnoreCase(user.getType())) {
+        if (user == null) {
             response.sendRedirect("login"); // Or access denied page
+            return;
+        }
+
+        String action = request.getParameter("action");
+        if ("reply".equals(action)) {
+            handleReply(request, response, user);
+            return;
+        }
+
+        if (!"RENTER".equalsIgnoreCase(user.getType())) {
+            response.sendRedirect("login");
             return;
         }
 
@@ -111,6 +139,45 @@ public class FeedbackServlet extends HttpServlet {
                 request.setAttribute("error", "You need a valid contract to submit feedback.");
                 doGet(request, response);
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("homepage");
+        }
+    }
+
+    private void handleReply(HttpServletRequest request,
+            HttpServletResponse response, UserView user)
+            throws IOException {
+        // Check permission again
+        if (!"Internal".equalsIgnoreCase(user.getType())) {
+            response.sendRedirect("homepage");
+            return;
+        }
+
+        String feedbackIdStr = request.getParameter("feedbackId");
+        String responseText = request.getParameter("responseText");
+        String warehouseIdStr = request.getParameter("warehouseId");
+
+        try {
+            int feedbackId = Integer.parseInt(feedbackIdStr);
+            int warehouseId = Integer.parseInt(warehouseIdStr);
+
+            FeedbackResponse feedbackResponse = new FeedbackResponse();
+            feedbackResponse.setResponseText(responseText);
+
+            Feedback feedback = new Feedback();
+            feedback.setFeedbackId(feedbackId);
+            feedbackResponse.setFeedback(feedback);
+
+            InternalUser internalUser = new InternalUser();
+            internalUser.setInternalUserId(user.getId());
+            feedbackResponse.setInternalUser(internalUser);
+
+            FeedbackResponseDAO dao = new FeedbackResponseDAO();
+            dao.insertResponse(feedbackResponse);
+
+            response.sendRedirect("feedback?warehouseId=" + warehouseId);
 
         } catch (Exception e) {
             e.printStackTrace();
