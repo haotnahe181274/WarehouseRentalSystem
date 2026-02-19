@@ -316,6 +316,56 @@ body{
                 </div>
 
             </div>
+                            <button class="btn btn-sm btn-dark mb-3" data-bs-toggle="modal" data-bs-target="#addZoneModal">
+    <i class="fa fa-plus"></i> Add New Zone
+</button>
+
+<div class="modal fade" id="addZoneModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Thêm Ô Chứa Mới (Zone)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="${pageContext.request.contextPath}/warehouse/unit" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="warehouseId" value="${w.warehouseId}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Mã Zone (Ví dụ: ZONE-A1)</label>
+                        <input type="text" name="unitCode" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Diện tích (sq ft)</label>
+                            <input type="number" step="0.1" name="area" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giá thuê (VND)</label>
+                            <input type="number" name="price" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select name="status" class="form-select">
+                            <option value="1">Available (Trống)</option>
+                            <option value="2">Occupied (Đã thuê)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả đặc điểm</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu Zone</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
         </div>
 
     </div>
@@ -323,6 +373,8 @@ body{
 
 </div>
 <!-- END LAYOUT -->
+
+
 
 <jsp:include page="/Common/Layout/footer.jsp"/>
 

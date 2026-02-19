@@ -138,6 +138,48 @@ public class WarehouseManagementDAO extends DBContext {
         return list;
     }
 
+    // 1. Thêm mới một Ô chứa (Storage Unit / Zone)
+    public boolean insertStorageUnit(StorageUnit unit) {
+        String sql = "INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, warehouse_id) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, unit.getUnitCode());
+            st.setInt(2, unit.getStatus()); // 1: Trống (Available), 2: Đã thuê
+            st.setDouble(3, unit.getArea());
+            st.setDouble(4, unit.getPrice()); // Lưu ý: Tên getPrice() phải khớp với model của Hiếu
+            st.setString(5, unit.getDescription());
+            st.setInt(6, unit.getWarehouse().getWarehouseId());
+            
+            int rows = st.executeUpdate();
+            return rows > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi insertStorageUnit: " + e.getMessage());
+        }
+        return false;
+    }
+
+    // 2. Cập nhật Ô chứa
+    public boolean updateStorageUnit(StorageUnit unit) {
+        String sql = "UPDATE Storage_unit SET unit_code=?, status=?, area=?, price_per_unit=?, description=? " +
+                     "WHERE unit_id=?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, unit.getUnitCode());
+            st.setInt(2, unit.getStatus());
+            st.setDouble(3, unit.getArea());
+            st.setDouble(4, unit.getPrice());
+            st.setString(5, unit.getDescription());
+            st.setInt(6, unit.getUnitId());
+            
+            int rows = st.executeUpdate();
+            return rows > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi updateStorageUnit: " + e.getMessage());
+        }
+        return false;
+    }
+    
     // Đếm tổng số lượng kết quả để tính totalPages
     public int getTotalRecords(String keyword, String location,
             Integer typeId,
