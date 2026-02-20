@@ -147,7 +147,7 @@ public class WarehouseManagementDAO extends DBContext {
             st.setString(1, unit.getUnitCode());
             st.setInt(2, unit.getStatus()); // 1: Trống (Available), 2: Đã thuê
             st.setDouble(3, unit.getArea());
-            st.setDouble(4, unit.getPrice()); // Lưu ý: Tên getPrice() phải khớp với model của Hiếu
+            st.setDouble(4, unit.getPricePerUnit()); // Lưu ý: Tên getPrice() phải khớp với model của Hiếu
             st.setString(5, unit.getDescription());
             st.setInt(6, unit.getWarehouse().getWarehouseId());
             
@@ -168,7 +168,7 @@ public class WarehouseManagementDAO extends DBContext {
             st.setString(1, unit.getUnitCode());
             st.setInt(2, unit.getStatus());
             st.setDouble(3, unit.getArea());
-            st.setDouble(4, unit.getPrice());
+            st.setDouble(4, unit.getPricePerUnit());
             st.setString(5, unit.getDescription());
             st.setInt(6, unit.getUnitId());
             
