@@ -617,4 +617,30 @@ INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, 
 
 -- Bổ sung cho Can Tho Logistics Hub (Kho 22)
 ('CT-A2', 1, 100.00, 4200000, 'Kho nông sản sạch', 22),
-('CT-B1', 1, 150.00, 5500000, 'Kho máy móc nông nghiệp', 22);
+('CT-B1', 1, 150.00, 5500000, 'Kho máy móc nông nghiệp', 22),
+
+-- Khu vực Miền Bắc (Hà Nội, Vĩnh Phúc, Quảng Ninh)
+('HN-B1', 1, 80.00, 3200000, 'Ô tiêu chuẩn - Tầng 2, có thang tời', 1),
+('HN-B2', 1, 120.00, 4800000, 'Ô diện tích lớn - Lắp sẵn kệ pallet 3 tầng', 1),
+('VP-C1', 1, 60.00, 2100000, 'Khu lưu trữ phụ tùng, trang thiết bị vừa và nhỏ', 2),
+('VP-C2', 1, 90.00, 3200000, 'Khu tập kết và đóng gói hàng hóa nhẹ', 2),
+('QN-A2', 1, 150.00, 6500000, 'Khu an ninh đặc biệt có camera giám sát 24/7', 5),
+('QN-B1', 1, 80.00, 3500000, 'Kho bảo mật cao, trang bị khóa vân tay', 5),
+
+-- Khu vực Miền Trung (Hà Tĩnh, Khánh Hòa, Lâm Đồng)
+('HT-A2', 1, 100.00, 3500000, 'Khu tập kết hàng cung ứng khu vực', 8),
+('HT-B1', 1, 50.00, 1800000, 'Ô nhỏ cho thiết bị hoặc hàng hóa y tế', 8),
+('KH-A2', 1, 150.00, 6000000, 'Kho lạnh sâu -20 độ C (Chuyên thủy hải sản)', 13),
+('KH-B1', 1, 80.00, 3800000, 'Kho mát bảo quản trái cây nhập khẩu', 13),
+('LD-A2', 1, 120.00, 4800000, 'Kho mát bảo quản hoa tươi nội địa', 16),
+('LD-B1', 1, 60.00, 2800000, 'Kho thông gió bảo quản hạt giống', 16),
+
+-- Khu vực Miền Nam & Tây Nam Bộ (TP.HCM, Tiền Giang, An Giang, Cà Mau)
+('HCM-C1', 1, 250.00, 10000000, 'Kho thương mại điện tử - Lối đi rộng cho xe nâng', 19),
+('HCM-C2', 1, 300.00, 11500000, 'Kho hàng FMCG luân chuyển nhanh', 19),
+('TG-A2', 1, 90.00, 3100000, 'Kho thu mua và lưu trữ trái cây theo mùa', 21),
+('TG-B1', 1, 110.00, 3800000, 'Khu vực sơ chế và đóng gói nông sản', 21),
+('AG-A2', 1, 140.00, 5200000, 'Kho ngoại quan qua biên giới', 24),
+('AG-B1', 1, 70.00, 2900000, 'Kho chờ lưu trữ hồ sơ, thủ tục hải quan', 24),
+('CM-A2', 1, 180.00, 7500000, 'Kho đông lạnh chế biến tôm xuất khẩu', 26),
+('CM-B1', 1, 100.00, 4500000, 'Kho nguyên liệu thủy sản thô', 26);
