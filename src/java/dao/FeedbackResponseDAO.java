@@ -11,7 +11,7 @@ import model.InternalUser;
 public class FeedbackResponseDAO extends DBContext {
 
     public boolean insertResponse(FeedbackResponse response) {
-        String sql = "INSERT INTO FeedbackResponse (response_text, response_date, feedback_id, internal_user_id) VALUES (?, NOW(), ?, ?)";
+        String sql = "INSERT INTO Feedback_response (response_text, response_date, feedback_id, internal_user_id) VALUES (?, NOW(), ?, ?)";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, response.getResponseText());
@@ -29,15 +29,48 @@ public class FeedbackResponseDAO extends DBContext {
         Map<Integer, FeedbackResponse> map = new HashMap<>();
         String sql = """
                 SELECT fr.*, iu.full_name as replier_name
-                FROM FeedbackResponse fr
+                FROM Feedback_response fr
                 JOIN Feedback f ON fr.feedback_id = f.feedback_id
                 JOIN Contract c ON f.contract_id = c.contract_id
-                JOIN InternalUser iu ON fr.internal_user_id = iu.internal_user_id
+                JOIN Internal_user iu ON fr.internal_user_id = iu.internal_user_id
                 WHERE c.warehouse_id = ?
                 """;
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, warehouseId);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                FeedbackResponse fr = new FeedbackResponse();
+                fr.setResponseId(rs.getInt("response_id"));
+                fr.setResponseText(rs.getString("response_text"));
+                fr.setResponseDate(rs.getTimestamp("response_date"));
+
+                Feedback f = new Feedback();
+                f.setFeedbackId(rs.getInt("feedback_id"));
+                fr.setFeedback(f);
+
+                InternalUser iu = new InternalUser();
+                iu.setInternalUserId(rs.getInt("internal_user_id"));
+                iu.setFullName(rs.getString("replier_name"));
+                fr.setInternalUser(iu);
+
+                map.put(f.getFeedbackId(), fr);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    public Map<Integer, FeedbackResponse> getAllResponses() {
+        Map<Integer, FeedbackResponse> map = new HashMap<>();
+        String sql = """
+                SELECT fr.*, iu.full_name as replier_name
+                FROM Feedback_response fr
+                JOIN Internal_user iu ON fr.internal_user_id = iu.internal_user_id
+                """;
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 FeedbackResponse fr = new FeedbackResponse();

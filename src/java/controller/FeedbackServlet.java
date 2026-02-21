@@ -133,7 +133,7 @@ public class FeedbackServlet extends HttpServlet {
                 feedbackDAO.insertFeedback(feedback);
 
                 // Redirect to avoid resubmission and show updated list
-                response.sendRedirect("feedback?warehouseId=" + warehouseId);
+                response.sendRedirect("warehouse/detail?id=" + warehouseId);
             } else {
                 // User does not have a valid contract
                 request.setAttribute("error", "You need a valid contract to submit feedback.");
@@ -158,6 +158,7 @@ public class FeedbackServlet extends HttpServlet {
         String feedbackIdStr = request.getParameter("feedbackId");
         String responseText = request.getParameter("responseText");
         String warehouseIdStr = request.getParameter("warehouseId");
+        String redirectTo = request.getParameter("redirectTo");
 
         try {
             int feedbackId = Integer.parseInt(feedbackIdStr);
@@ -177,7 +178,12 @@ public class FeedbackServlet extends HttpServlet {
             FeedbackResponseDAO dao = new FeedbackResponseDAO();
             dao.insertResponse(feedbackResponse);
 
-            response.sendRedirect("feedback?warehouseId=" + warehouseId);
+            // Redirect based on source page
+            if ("feedbackManagement".equals(redirectTo)) {
+                response.sendRedirect("feedbackManagement");
+            } else {
+                response.sendRedirect("warehouse/detail?id=" + warehouseId);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

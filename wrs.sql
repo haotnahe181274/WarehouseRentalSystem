@@ -558,6 +558,7 @@ INSERT INTO Feedback
 (rating, comment, is_anonymous, feedback_date, renter_id, contract_id)
 VALUES
 (5, 'Dịch vụ rất tốt', 0, NOW(), 1, 1),
+(5, 'Dịch vụ tốt', 0, NOW(), 6, 1),
 (4, 'Kho ổn', 1, NOW(), 2, 2),
 (3, 'Giá hơi cao', 0, NOW(), 3, 3);
 
