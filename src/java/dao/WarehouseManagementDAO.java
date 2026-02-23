@@ -477,4 +477,34 @@ public class WarehouseManagementDAO extends DBContext {
         e.printStackTrace();
     }
 }
+    // Lấy danh sách các khoảng thời gian đã bị thuê của unit
+    public Map<Integer, List<String[]>> getUnitBookedDates(int warehouseId) {
+        Map<Integer, List<String[]>> map = new HashMap<>();
+        
+        // Kết nối bảng Hợp đồng chi tiết (Contract_Storage_unit) với bảng Zone (Storage_unit)
+        String sql = "SELECT csu.unit_id, csu.start_date, csu.end_date " +
+                     "FROM Contract_Storage_unit csu " +
+                     "JOIN Storage_unit su ON csu.unit_id = su.unit_id " +
+                     "WHERE su.warehouse_id = ? AND csu.status = 1"; 
+        
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, warehouseId);
+            ResultSet rs = st.executeQuery();
+            
+            while (rs.next()) {
+                int unitId = rs.getInt("unit_id");
+                String start = rs.getDate("start_date").toString();
+                String end = rs.getDate("end_date").toString();
+                
+                // Nếu unitId chưa có trong Map thì tạo list mới
+                map.putIfAbsent(unitId, new ArrayList<>());
+                // Thêm cặp ngày vào list của unitId đó
+                map.get(unitId).add(new String[]{start, end});
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi getUnitBookedDates: " + e.getMessage());
+        }
+        return map;
+    }
 }

@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import model.StorageUnit;
 import model.Warehouse;
 import model.WarehouseImage;
 
@@ -48,12 +49,58 @@ public class WarehouseManagerController extends HttpServlet {
         // ========================================================================
         // --- ACTION: VIEW (SỬA ĐỔI: Chuyển tiếp sang WarehouseDetailController) ---
         // ========================================================================
-        if ("view".equals(action)) {
-            // Thay vì xử lý ở đây, ta đẩy toàn bộ req/resp sang Servlet chi tiết
-            // Servlet kia (urlPatterns="/warehouse/detail") sẽ lo việc gọi DAO và forward ra JSP
-            request.getRequestDispatcher("/warehouse/detail").forward(request, response);
-            return;
+       if ("view".equals(action)) {
+            String idStr = request.getParameter("id");
+            if (idStr != null) {
+                try {
+                    int id = Integer.parseInt(idStr);
+                    
+                    Warehouse w = dao.getWarehouseById(id);
+                    List<WarehouseImage> images = dao.getWarehouseImages(id);
+                    List<StorageUnit> units = dao.getStorageUnits(id);
+
+                  // ==========================================
+                    // TẠO DỮ LIỆU LỊCH CHO TỪNG ZONE
+                    // ==========================================
+                    Map<Integer, List<String[]>> unitBookedDates = dao.getUnitBookedDates(id);
+                    StringBuilder jsonBuilder = new StringBuilder("{");
+                    
+                    int count = 0;
+                    for (Map.Entry<Integer, List<String[]>> entry : unitBookedDates.entrySet()) {
+                        jsonBuilder.append("\"").append(entry.getKey()).append("\": [");
+                        List<String[]> dates = entry.getValue();
+                        
+                        for (int i = 0; i < dates.size(); i++) {
+                           // Sửa lại đoạn nối chuỗi sự kiện trong Java
+jsonBuilder.append("{")
+           .append("\"title\": \"Đã Thuê\",") // Thêm tiêu đề sự kiện
+           .append("\"start\": \"").append(dates.get(i)[0]).append("\",")
+           .append("\"end\": \"").append(dates.get(i)[1]).append("T23:59:59\",")
+           .append("\"color\": \"#dc3545\",") // Đổi sang màu đỏ đậm (Danger) cho nổi bật
+           .append("\"textColor\": \"#ffffff\"") // Chữ màu trắng
+           .append("}");
+                            if (i < dates.size() - 1) jsonBuilder.append(",");
+                        }
+                        jsonBuilder.append("]");
+                        if (count < unitBookedDates.size() - 1) jsonBuilder.append(",");
+                        count++;
+                    }
+                    jsonBuilder.append("}");
+                    
+                    // Gửi chuỗi JSON siêu to khổng lồ này sang JSP
+                    // Nếu kho chưa có ai thuê, chuỗi sẽ là "{}"
+                    request.setAttribute("unitEventsJson", jsonBuilder.toString().equals("{}") ? "{}" : jsonBuilder.toString());
+                    // ==========================================
+                    request.setAttribute("w", w);
+                    request.setAttribute("images", images);
+                    request.setAttribute("units", units);
+
+                    request.getRequestDispatcher("/Management/warehouse-detail.jsp").forward(request, response);
+                    return;
+                } catch (Exception e) {}
+            }
         }
+        
 
         // --- ACTION: EDIT ---
         if ("edit".equals(action)) {
