@@ -13,6 +13,7 @@ public class Contract {
     private Date startDate;
     private Date endDate;
     private int status;
+    private double price;
     private Renter renter;
     private Warehouse warehouse;
 
@@ -58,6 +59,14 @@ public class Contract {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public Renter getRenter() {

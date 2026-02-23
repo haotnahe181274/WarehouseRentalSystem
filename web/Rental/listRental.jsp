@@ -47,12 +47,7 @@
                         <th>Renter </th>
                         </c:if>
 
-                    <th>Warehouse </th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-
-
-
+                    <th>Warehouse</th>
                     <th>Processed Date</th>
 
 
@@ -85,18 +80,6 @@
                         </c:if>
 
                         <td>${rr.warehouse.name}</td>
-
-                        <td>
-                            <fmt:formatDate value="${rr.startDate}" pattern="dd/MM/yyyy"/>
-                        </td>
-
-                        <td>
-                            <fmt:formatDate value="${rr.endDate}" pattern="dd/MM/yyyy"/>
-                        </td>
-
-
-
-
                         <td>
                             <c:choose>
                                 <c:when test="${rr.processedDate != null}">
@@ -146,7 +129,7 @@
                             <c:if test="${sessionScope.userType == 'RENTER'}">
                                 <c:if test="${rr.status == 0}">
                                     <!-- UPDATE -->
-                                    <a href="${pageContext.request.contextPath}/rentDetail?id=${rr.requestId}&edit=true"
+                                    <a href="${pageContext.request.contextPath}/rentDetail?id=${rr.requestId}&action=edit"
                                        class="btn btn-update">Update</a>
 
                                     <!-- CANCEL -->

@@ -15,11 +15,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import model.RentRequest;
-import model.Renter;
+import model.RentRequestUnit;
 import model.UserView;
 
 /**
@@ -81,19 +82,30 @@ public class RentRequestDetail extends HttpServlet {
         int requestId = Integer.parseInt(idRaw);
 
         RentRequest rr = dao.getRentRequestDetailById(requestId);
-
         if (rr == null) {
             response.sendRedirect("rentList");
             return;
         }
-        List<Double> areaList = da.getAvailableAreasByWarehouse(
-                rr.getWarehouse().getWarehouseId(),
-                rr.getStartDate(),
-                rr.getEndDate()
-        );
+        String action = request.getParameter("action");
+        String mode = "edit".equals(action) ? "edit" : "view";
 
+        int warehouseId = rr.getWarehouse().getWarehouseId();
+        Map<Double, Double> areaPriceMap = new LinkedHashMap<>();
+        if (!rr.getUnits().isEmpty()) {
+            RentRequestUnit first = rr.getUnits().get(0);
+            if (first.getStartDate() != null && first.getEndDate() != null) {
+                List<Double> areaList = da.getAvailableAreasByWarehouse(warehouseId, first.getStartDate(), first.getEndDate());
+                for (Double a : areaList) {
+                    areaPriceMap.put(a, da.getPriceByArea(warehouseId, a));
+                }
+            }
+            if (first.getArea() > 0) {
+                request.setAttribute("price", da.getPriceByArea(warehouseId, first.getArea()));
+            }
+        }
+        request.setAttribute("areaPriceMap", areaPriceMap);
+        request.setAttribute("mode", mode);
         request.setAttribute("rr", rr);
-        request.setAttribute("areaList", areaList);
 
         request.getRequestDispatcher("Rental/rentalDetail.jsp")
                 .forward(request, response);
@@ -111,44 +123,50 @@ public class RentRequestDetail extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        
-        int requestId = Integer.parseInt(request.getParameter("requestId"));
-        double area = Double.parseDouble(request.getParameter("area"));
 
+        int requestId = Integer.parseInt(request.getParameter("requestId"));
+        String[] startDates = request.getParameterValues("unitStartDate");
+        String[] endDates = request.getParameterValues("unitEndDate");
+        String[] areas = request.getParameterValues("unitArea");
+        String[] prices = request.getParameterValues("unitPrice");
         String[] names = request.getParameterValues("itemName");
         String[] descriptions = request.getParameterValues("description");
 
         RentRequestDAO dao = new RentRequestDAO();
-        ItemDAO da = new ItemDAO();
-        RentRequest x= dao.getRentRequestDetailById(requestId);
+        ItemDAO itemDao = new ItemDAO();
+        RentRequest x = dao.getRentRequestDetailById(requestId);
+        if (x == null) {
+            response.sendRedirect(request.getContextPath() + "/rentList");
+            return;
+        }
         int renterId = x.getRenter().getRenterId();
 
-        dao.updateRentRequest(requestId, area);
-
-// 1. delete all old items
-        dao.deleteItemsByRequestId(requestId);
-
-
-// 2. insert lại
-        for (int i = 0; i < names.length; i++) {
-
-            if (names[i] == null || names[i].isEmpty()) {
-                continue;
+        if (startDates != null && endDates != null && areas != null && prices != null
+                && startDates.length > 0 && endDates.length > 0 && areas.length > 0 && prices.length > 0) {
+            dao.deleteUnitsByRequestId(requestId);
+            for (int i = 0; i < startDates.length; i++) {
+                try {
+                    java.sql.Date sd = java.sql.Date.valueOf(startDates[i].trim());
+                    java.sql.Date ed = java.sql.Date.valueOf(endDates[i].trim());
+                    double a = Double.parseDouble(areas[i].trim());
+                    double pr = Double.parseDouble(prices[i].trim());
+                    dao.insertRentRequestUnit(requestId, sd, ed, a, pr);
+                } catch (IllegalArgumentException ignored) {
+                }
             }
-
-            int itemId = da.insertItem(
-                    names[i],
-                    descriptions[i],
-                    renterId
-            );
-
-            dao.insertRentRequestItem(
-                    requestId,
-                    itemId);
         }
-        response.sendRedirect(request.getContextPath()
-                + "/rentDetail?id=" + requestId);
+
+        dao.deleteItemsByRequestId(requestId);
+        if (names != null) {
+            for (int i = 0; i < names.length; i++) {
+                if (names[i] == null || names[i].trim().isEmpty()) continue;
+                String desc = (descriptions != null && i < descriptions.length) ? descriptions[i] : "";
+                int itemId = itemDao.insertItem(names[i].trim(), desc != null ? desc : "", renterId);
+                dao.insertRentRequestItem(requestId, itemId);
+            }
+        }
+
+        response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId);
     }
 
     /**

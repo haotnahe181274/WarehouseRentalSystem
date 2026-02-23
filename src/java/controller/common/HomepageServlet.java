@@ -14,7 +14,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -196,6 +195,7 @@ public class HomepageServlet extends HttpServlet {
         }
 
         // ================== 5. SET ATTRIBUTE ==================
+        request.setAttribute("isHomepage", true);
         request.setAttribute("queryString", qs.toString());
         request.setAttribute("warehouses", list);
         request.setAttribute("currentPage", page);

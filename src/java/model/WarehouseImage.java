@@ -22,6 +22,8 @@ public class WarehouseImage {
     public WarehouseImage() {
     }
 
+   
+    
     public WarehouseImage(int imageId, String imageUrl, String imageType, boolean primary, int status, Date createAt, Warehouse warehouse) {
         this.imageId = imageId;
         this.imageUrl = imageUrl;

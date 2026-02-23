@@ -14,7 +14,6 @@ public class ContractStorageUnit {
     private int id;
     private Contract contract;
     private StorageUnit storageUnit;
-    private double rentPrice;
     private Date startDate;
     private Date endDate;
     private int status;
@@ -22,11 +21,10 @@ public class ContractStorageUnit {
     public ContractStorageUnit() {
     }
 
-    public ContractStorageUnit(int id, Contract contract, StorageUnit storageUnit, double rentPrice, Date startDate, Date endDate, int status) {
+    public ContractStorageUnit(int id, Contract contract, StorageUnit storageUnit, Date startDate, Date endDate, int status) {
         this.id = id;
         this.contract = contract;
         this.storageUnit = storageUnit;
-        this.rentPrice = rentPrice;
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = status;
@@ -54,14 +52,6 @@ public class ContractStorageUnit {
 
     public void setStorageUnit(StorageUnit storageUnit) {
         this.storageUnit = storageUnit;
-    }
-
-    public double getRentPrice() {
-        return rentPrice;
-    }
-
-    public void setRentPrice(double rentPrice) {
-        this.rentPrice = rentPrice;
     }
 
     public Date getStartDate() {
