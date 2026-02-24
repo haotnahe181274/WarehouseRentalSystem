@@ -44,6 +44,20 @@
         .fc-day:not(.fc-day-other) { cursor: pointer; }
         .fc-day-other .fc-bg-event { display: none !important; }
         .fc-day-other .fc-event-title { display: none !important; }
+         .warehouse-button {
+        margin-top: 16px;
+        text-align: center;
+        padding: 12px;
+        background: #111827;
+        color: #fff;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .warehouse-button:hover {
+        background: #000;
+    }
     </style>
 </head>
 
@@ -243,7 +257,9 @@
                                         <textarea name="note" class="form-control form-control-sm" rows="2" placeholder="VD: Cần lưu trữ hàng dễ vỡ..."></textarea>
                                     </div>
                                     
-                                    <button class="btn btn-submit rounded-pill fw-bold">Submit Request</button>
+                                   <a href="${pageContext.request.contextPath}/createRentRequest?id=${w.warehouseId}" class="warehouse-button">
+                    Submit Request
+                </a>
                                 </form>
                             </div>
 
