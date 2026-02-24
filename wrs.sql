@@ -534,7 +534,8 @@ INSERT INTO rent_request_item (item_id, request_id) VALUES
 (11, 11),
 (11, 12),
 (14, 13),
-(15, 14);
+(15, 14),
+(11, 1);
 
 -- check_request + check_request_item: đơn check in/out
 INSERT INTO check_request (request_date, request_type, renter_id, warehouse_id, unit_id, internal_user_id, processed_date) VALUES

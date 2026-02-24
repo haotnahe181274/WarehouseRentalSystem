@@ -19,6 +19,8 @@ public class CheckRequest {
     private Warehouse warehouse;
     private StorageUnit unit;
     private List<CheckRequestItem> items = new ArrayList<>();
+    // Trạng thái tổng suy ra từ các CheckRequestItem: processing | done | fail
+    private String overallStatus;
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -44,4 +46,7 @@ public class CheckRequest {
     public void setUnit(StorageUnit unit) { this.unit = unit; }
     public List<CheckRequestItem> getItems() { return items; }
     public void setItems(List<CheckRequestItem> items) { this.items = items != null ? items : new ArrayList<>(); }
+
+    public String getOverallStatus() { return overallStatus; }
+    public void setOverallStatus(String overallStatus) { this.overallStatus = overallStatus; }
 }

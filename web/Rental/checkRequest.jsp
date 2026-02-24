@@ -29,82 +29,136 @@
         <jsp:include page="/Common/Layout/header.jsp"/>
 
         <div class="check-container">
+            <c:set var="pageMode" value="${empty pageMode ? (empty checkRequest ? 'create' : 'view') : pageMode}" />
             <c:set var="mode" value="${mode}" />
             <h2>
                 <c:choose>
-                    <c:when test="${mode eq 'OUT'}">New Check Out Request</c:when>
-                    <c:otherwise>New Check In Request</c:otherwise>
+                    <c:when test="${pageMode eq 'view'}">
+                        <c:choose>
+                            <c:when test="${mode eq 'OUT'}">Check Out Request Detail</c:when>
+                            <c:otherwise>Check In Request Detail</c:otherwise>
+                        </c:choose>
+                    </c:when>
+                    <c:otherwise>
+                        <c:choose>
+                            <c:when test="${mode eq 'OUT'}">New Check Out Request</c:when>
+                            <c:otherwise>New Check In Request</c:otherwise>
+                        </c:choose>
+                    </c:otherwise>
                 </c:choose>
             </h2>
 
-            <!-- Bước 1: chọn unit (GET, để lọc item theo unit/warehouse) -->
-            <form action="${pageContext.request.contextPath}/createCheckRequest" method="get" class="section">
-                <input type="hidden" name="mode" value="${mode}"/>
-                <label>Unit (only active contracts)</label><br/>
-                <select name="unitId" required onchange="this.form.submit()">
-                    <option value="">-- Select unit --</option>
-                    <c:forEach items="${activeUnits}" var="u">
-                        <option value="${u.unitId}" <c:if test="${selectedUnitId == u.unitId}">selected</c:if>>
-                            ${u.warehouse.name} - ${u.unitCode} (${u.warehouse.address})
-                        </option>
-                    </c:forEach>
-                </select>
-                <div class="hint">Chọn unit để lọc đúng các item đã khai trong rent request của unit đó.</div>
-            </form>
+            <!-- CREATE MODE -->
+            <c:if test="${pageMode eq 'create'}">
+                <!-- Bước 1: chọn unit (GET, để lọc item theo unit/warehouse) -->
+                <form action="${pageContext.request.contextPath}/createCheckRequest" method="get" class="section">
+                    <input type="hidden" name="mode" value="${mode}"/>
+                    <label>Unit (only active contracts)</label><br/>
+                    <select name="unitId" required onchange="this.form.submit()">
+                        <option value="">-- Select unit --</option>
+                        <c:forEach items="${activeUnits}" var="u">
+                            <option value="${u.unitId}" <c:if test="${selectedUnitId == u.unitId}">selected</c:if>>
+                                ${u.warehouse.name} - ${u.unitCode} (${u.warehouse.address})
+                            </option>
+                        </c:forEach>
+                    </select>
+                    
+                </form>
 
-            <!-- Bước 2: chọn nhiều item + quantity (POST) -->
-            <form action="${pageContext.request.contextPath}/createCheckRequest" method="post">
-                <input type="hidden" name="mode" value="${mode}"/>
-                <input type="hidden" name="unitId" value="${selectedUnitId}"/>
+                <!-- Bước 2: chọn nhiều item + quantity (POST) -->
+                <form action="${pageContext.request.contextPath}/createCheckRequest" method="post">
+                    <input type="hidden" name="mode" value="${mode}"/>
+                    <input type="hidden" name="unitId" value="${selectedUnitId}"/>
+
+                    <div class="section">
+                        <label>Items (only items from rent requests of this unit's warehouse)</label><br/>
+                        <c:choose>
+                            <c:when test="${empty selectedUnitId}">
+                                <p class="hint">Please select a unit above to see available items.</p>
+                            </c:when>
+                            <c:when test="${empty items}">
+                                <p class="hint">No items found for rent requests of this unit.</p>
+                            </c:when>
+                            <c:otherwise>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Description</th>
+                                            <th>Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach items="${items}" var="it">
+                                            <tr>
+                                                <td>
+                                                    ${it.itemName}
+                                                    <input type="hidden" name="itemId" value="${it.itemId}"/>
+                                                </td>
+                                                <td>${it.description}</td>
+                                                <td>
+                                                    <input type="number" name="quantity" min="0" value="0" />
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                               
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+
+                    <div style="margin-top:20px;">
+                        <button type="submit" class="btn btn-approve">
+                            <c:choose>
+                                <c:when test="${mode eq 'OUT'}">Create Check Out Request</c:when>
+                                <c:otherwise>Create Check In Request</c:otherwise>
+                            </c:choose>
+                        </button>
+                        <a href="${pageContext.request.contextPath}/itemlist" class="btn btn-reject">Cancel</a>
+                    </div>
+                </form>
+            </c:if>
+
+            <!-- VIEW MODE -->
+            <c:if test="${pageMode eq 'view'}">
+                <div class="section">
+                    <p><strong>Request ID:</strong> ${checkRequest.id}</p>
+                    <p><strong>Date:</strong> ${checkRequest.requestDate}</p>
+                    <p><strong>Warehouse:</strong> ${checkRequest.warehouse.name}</p>
+                    <p><strong>Unit:</strong> ${checkRequest.unit.unitCode}</p>
+                </div>
 
                 <div class="section">
-                    <label>Items (only items from rent requests of this unit's warehouse)</label><br/>
-                    <c:choose>
-                        <c:when test="${empty selectedUnitId}">
-                            <p class="hint">Please select a unit above to see available items.</p>
-                        </c:when>
-                        <c:when test="${empty items}">
-                            <p class="hint">No items found for rent requests of this unit.</p>
-                        </c:when>
-                        <c:otherwise>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Item</th>
-                                        <th>Description</th>
-                                        <th>Quantity</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:forEach items="${items}" var="it">
-                                        <tr>
-                                            <td>
-                                                ${it.itemName}
-                                                <input type="hidden" name="itemId" value="${it.itemId}"/>
-                                            </td>
-                                            <td>${it.description}</td>
-                                            <td>
-                                                <input type="number" name="quantity" min="0" value="0" />
-                                            </td>
-                                        </tr>
-                                    </c:forEach>
-                                </tbody>
-                            </table>
-                            <p class="hint">Chỉ những item có quantity &gt; 0 mới được đưa vào request.</p>
-                        </c:otherwise>
-                    </c:choose>
+                    <label>Items</label><br/>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Requested Qty</th>
+                                <th>Processed Qty</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach items="${checkRequest.items}" var="ci">
+                                <tr>
+                                    <td>${ci.item.itemName}</td>
+                                    <td>${ci.item.description}</td>
+                                    <td>${ci.quantity}</td>
+                                    <td><c:out value="${ci.processedQuantity}" default="-" /></td>
+                                    <td>${ci.status}</td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div style="margin-top:20px;">
-                    <button type="submit" class="btn btn-approve">
-                        <c:choose>
-                            <c:when test="${mode eq 'OUT'}">Create Check Out Request</c:when>
-                            <c:otherwise>Create Check In Request</c:otherwise>
-                        </c:choose>
-                    </button>
-                    
+                    <a href="${pageContext.request.contextPath}/checkRequestList" class="btn btn-reject">Back to List</a>
                 </div>
-            </form>
+            </c:if>
         </div>
 
         <jsp:include page="/Common/Layout/footer.jsp"/>

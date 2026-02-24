@@ -3,7 +3,6 @@ package controller;
 import dao.CheckRequestDAO;
 import dao.ItemDAO;
 import dao.StorageUnitDAO;
-import dao.StorageUnitItemDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -151,9 +150,11 @@ public class CreateCheckRequest extends HttpServlet {
             for (int[] pair : selectedItems) {
                 checkDao.insertCheckRequestItem(checkRequestId, pair[0], pair[1]);
             }
+            // Sau khi tạo xong, chuyển sang trang view chi tiết request đó
+            response.sendRedirect(request.getContextPath() + "/checkRequestDetail?id=" + checkRequestId);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/itemList");
         }
-
-        response.sendRedirect(request.getContextPath() + "/itemList");
     }
 }
 
