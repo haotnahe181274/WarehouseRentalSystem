@@ -4,333 +4,480 @@
 
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-<meta charset="UTF-8">
-<title>${w.name} | WRS</title>
+    <meta charset="UTF-8">
+    <title>${w.name} | WRS</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
 
-<style>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f6fa; }
+        .layout { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; padding: 24px; background: #f5f7fb; }
+        .card-custom { border: none; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); background: white; }
+        
+        /* Gallery & Zone */
+        .main-img-frame { height: 400px; overflow: hidden; border-radius: 12px; }
+        .main-img-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb-img { height: 80px; width: 100%; object-fit: cover; border-radius: 8px; cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        .thumb-img:hover { opacity: 1; border: 2px solid #3b82f6; }
+        .zone-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; background: #fff; transition: 0.2s; }
+        .zone-card:hover { border-color: #3b82f6; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .status-badge { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 9999px; }
+        .status-available { background: #d1fae5; color: #065f46; }
+        .status-occupied { background: #fee2e2; color: #991b1b; }
 
-body{
-    font-family: Arial, sans-serif;
-    background:#f5f6fa;
-}
+        /* Form Sidebar */
+        .right-sidebar { position: sticky; top: 20px; z-index: 10; }
+        .btn-submit { background: #111827; color: white; width: 100%; padding: 12px; transition: 0.2s; }
+        .btn-submit:hover { background: #1f2937; color: white; transform: translateY(-1px); }
 
-/* Layout */
-.layout{
-    display:flex;
-    min-height:100vh;
-}
+        /* Tùy chỉnh Calendar Nhỏ Gọn (Compact Mode) */
+        .fc { font-size: 0.85rem; } 
+        .fc .fc-button { padding: 0.3rem 0.6rem !important; font-size: 0.8rem !important; text-transform: capitalize; }
+        .fc-daygrid-day-frame { min-height: 2.5rem !important; } 
+        .fc-event { border: none !important; border-radius: 4px !important; }
+        .fc-daygrid-day-number { text-decoration: none !important; color: #4b5563 !important; font-weight: 500; }
+        .fc-day:not(.fc-day-other) { cursor: pointer; }
+        .fc-day-other .fc-bg-event { display: none !important; }
+        .fc-day-other .fc-event-title { display: none !important; }
+         .warehouse-button {
+        margin-top: 16px;
+        text-align: center;
+        padding: 12px;
+        background: #111827;
+        color: #fff;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+    }
 
-.main-content{
-    flex:1;
-    padding:24px;
-    background:#f5f7fb;
-}
-
-/* Card */
-.card-custom{
-    border:none;
-    border-radius:12px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.1);
-    background:white;
-}
-
-/* Gallery */
-.main-img-frame{
-    height:400px;
-    overflow:hidden;
-    border-radius:12px;
-}
-
-.main-img-frame img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
-
-.thumb-img{
-    height:80px;
-    width:100%;
-    object-fit:cover;
-    border-radius:8px;
-    cursor:pointer;
-    opacity:0.6;
-    transition:0.2s;
-}
-
-.thumb-img:hover{
-    opacity:1;
-    border:2px solid #3b82f6;
-}
-
-/* Zone */
-.zone-card{
-    border:1px solid #e5e7eb;
-    border-radius:8px;
-    padding:15px;
-    background:#fff;
-    transition:0.2s;
-}
-
-.zone-card:hover{
-    border-color:#3b82f6;
-    box-shadow:0 4px 6px rgba(0,0,0,0.1);
-}
-
-.status-badge{
-    font-size:12px;
-    font-weight:600;
-    padding:2px 8px;
-    border-radius:9999px;
-}
-
-.status-available{
-    background:#d1fae5;
-    color:#065f46;
-}
-
-.status-occupied{
-    background:#fee2e2;
-    color:#991b1b;
-}
-
-/* Booking */
-.booking-sidebar{
-    position:sticky;
-    top:20px;
-}
-
-.btn-submit{
-    background:#111827;
-    color:white;
-    width:100%;
-    padding:12px;
-}
-
-.btn-submit:hover{
-    background:#1f2937;
-    color:white;
-}
-
-</style>
+    .warehouse-button:hover {
+        background: #000;
+    }
+    </style>
 </head>
 
 <body>
 
-<jsp:include page="/Common/Layout/header.jsp"/>
+    <jsp:include page="/Common/Layout/header.jsp" />
 
-<div class="layout">
+    <div class="layout">
 
-    <jsp:include page="/Common/Layout/sidebar.jsp"/>
+        <jsp:include page="/Common/Layout/sidebar.jsp" />
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
+        <div class="main-content">
 
-        <!-- Warehouse Header -->
-        <div class="bg-white border-bottom py-4 mb-4">
-            <div class="container d-flex justify-content-between align-items-center">
-
-                <div>
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fas fa-warehouse fs-4"></i>
-                        <h2 class="fw-bold mb-0">${w.name}</h2>
+            <div class="bg-white border-bottom py-4 mb-4">
+                <div class="container d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-warehouse fs-4 text-primary"></i>
+                            <h2 class="fw-bold mb-0">${w.name}</h2>
+                        </div>
+                        <p class="text-muted mb-0 mt-1 ms-1"><i class="fas fa-map-marker-alt me-1"></i> ${w.address}</p>
                     </div>
-                    <p class="text-muted mb-0 mt-1 ms-1">${w.address}</p>
+                    <div>
+                        <c:choose>
+                            <c:when test="${w.status == 1}">
+                                <span class="badge bg-success rounded-pill px-3 py-2 fs-6">
+                                    <i class="fas fa-check-circle me-1"></i> Available
+                                </span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="badge bg-secondary rounded-pill px-3 py-2 fs-6">
+                                    <i class="fas fa-tools me-1"></i> Maintenance
+                                </span>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
                 </div>
+            </div>
 
-                <div>
-                    <c:choose>
-                        <c:when test="${w.status == 1}">
-                            <span class="badge bg-success rounded-pill px-3 py-2">
-                                <i class="fas fa-check-circle me-1"></i> Available
-                            </span>
-                        </c:when>
-                        <c:otherwise>
-                            <span class="badge bg-secondary rounded-pill px-3 py-2">
-                                Maintenance
-                            </span>
-                        </c:otherwise>
-                    </c:choose>
+            <div class="container pb-5">
+                <div class="row">
+
+                    <div class="col-lg-8">
+
+                        <div class="card-custom p-3 mb-4">
+                            <h5 class="fw-bold mb-3">Warehouse Gallery</h5>
+                            <c:set var="mainDisplayUrl" value="default-placeholder.jpg" />
+                            <c:if test="${not empty images}">
+                                <c:set var="mainDisplayUrl" value="${images[0].imageUrl}" />
+                                <c:forEach items="${images}" var="item">
+                                    <c:if test="${item.primary}">
+                                        <c:set var="mainDisplayUrl" value="${item.imageUrl}" />
+                                    </c:if>
+                                </c:forEach>
+                            </c:if>
+
+                            <div class="main-img-frame mb-3 text-center border bg-light rounded"
+                                 style="height: 400px; display: flex; align-items: center; justify-content: center;">
+                                <img src="${pageContext.request.contextPath}/resources/warehouse/image/${mainDisplayUrl}"
+                                     id="displayImg" style="max-height: 100%; max-width: 100%; object-fit: contain;"
+                                     onerror="this.src='https://via.placeholder.com/800x400?text=No+Image'">
+                            </div>
+
+                            <div class="row g-2">
+                                <c:forEach items="${images}" var="img">
+                                    <div class="col-3 col-md-2">
+                                        <div class="border rounded p-1" style="cursor: pointer;">
+                                            <img src="${pageContext.request.contextPath}/resources/warehouse/image/${img.imageUrl}"
+                                                 class="thumb-img w-100" style="height: 60px; object-fit: cover;"
+                                                 onclick="changeImage(this.src)"
+                                                 onerror="this.src='https://via.placeholder.com/80x80'">
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Floor Plan View <span class="text-muted fs-6 fw-normal ms-2">(Nhấn vào Zone để xem lịch trống)</span></h5>
+                                <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#addZoneModal">
+                                    <i class="fa fa-plus"></i> Add New Zone
+                                </button>
+                            </div>
+
+                            <div class="row g-3">
+                                <c:forEach items="${units}" var="u">
+                                    <div class="col-md-4">
+                                        <div class="zone-card h-100 d-flex flex-column justify-content-between"
+                                             id="zone-card-${u.unitId}"
+                                             style="cursor: pointer;"
+                                             onclick="viewCalendarForUnit(${u.unitId}, '${u.unitCode}')">
+                                            <div>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <h6 class="fw-bold text-dark">${u.unitCode}</h6>
+                                                    <c:choose>
+                                                        <c:when test="${u.status == 1}">
+                                                            <span class="status-badge status-available">Available</span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="status-badge status-occupied">Occupied</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                                <p class="small text-muted mb-3" style="min-height: 40px;">${u.description}</p>
+                                                <h5 class="fw-bold text-dark mb-0">
+                                                    <fmt:formatNumber value="${u.area}" />
+                                                    <span class="fs-6 text-muted">sq ft</span>
+                                                </h5>
+                                            </div>
+                                            <div class="mt-3 pt-3 border-top">
+                                                <small class="fw-bold text-primary fs-6">
+                                                    <fmt:formatNumber value="${u.pricePerUnit}" /> VND <span class="text-muted fw-normal">/tháng</span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </div>
+                        </div>
+
+                    </div> <div class="col-lg-4">
+                        <div class="right-sidebar"> 
+
+                            <div class="card-custom p-3 mb-3" id="calendarWidget" style="display: none;">
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                    <h6 class="fw-bold mb-0" id="calendarTitle">Lịch trống</h6>
+                                    <button class="btn btn-sm btn-light border text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCalendar" aria-expanded="true">
+                                        <i class="fas fa-chevron-up" id="toggleIcon"></i> Ẩn/Hiện
+                                    </button>
+                                </div>
+                                
+                                <div class="collapse show" id="collapseCalendar">
+                                    <div class="row g-2 mt-1 mb-3">
+                                        <div class="col-6">
+                                            <select id="selectMonth" class="form-select form-select-sm border-secondary text-dark fw-bold">
+                                                <option value="01">Tháng 1</option>
+                                                <option value="02">Tháng 2</option>
+                                                <option value="03">Tháng 3</option>
+                                                <option value="04">Tháng 4</option>
+                                                <option value="05">Tháng 5</option>
+                                                <option value="06">Tháng 6</option>
+                                                <option value="07">Tháng 7</option>
+                                                <option value="08">Tháng 8</option>
+                                                <option value="09">Tháng 9</option>
+                                                <option value="10">Tháng 10</option>
+                                                <option value="11">Tháng 11</option>
+                                                <option value="12">Tháng 12</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <select id="selectYear" class="form-select form-select-sm border-secondary text-dark fw-bold"></select>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-center align-items-center mb-2" style="font-size: 0.75rem;">
+                                        <span class="me-3"><i class="fa fa-square text-white border border-secondary me-1"></i> Ngày trống</span>
+                                        <span><i class="fa fa-square me-1" style="color: #ffb3ba;"></i> Đã được thuê</span>
+                                    </div>
+                                    
+                                    <div id="bookingCalendar"></div>
+                                </div>
+                            </div>
+
+                            <div class="card-custom p-4">
+                                <h5 class="fw-bold mb-4">Booking Request</h5>
+                                <form action="rent-request" method="POST">
+                                    <input type="hidden" name="warehouseId" value="${w.warehouseId}">
+
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label class="small fw-bold text-muted mb-1">Start Date</label>
+                                            <input type="date" id="formStartDate" name="startDate" class="form-control form-control-sm" required>
+                                        </div>
+                                        <div class="col-6 mb-3">
+                                            <label class="small fw-bold text-muted mb-1">End Date</label>
+                                            <input type="date" id="formEndDate" name="endDate" class="form-control form-control-sm" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="small fw-bold text-muted mb-1">Selected Zones</label>
+                                        <div class="border rounded p-2 bg-light" style="max-height:120px; overflow-y:auto;">
+                                            <c:forEach items="${units}" var="u">
+                                                <c:if test="${u.status == 1}">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input zone-checkbox" type="checkbox" name="selectedUnits" id="chk-zone-${u.unitId}" value="${u.unitId}">
+                                                        <label class="form-check-label small" for="chk-zone-${u.unitId}">${u.unitCode} (<fmt:formatNumber value="${u.area}" /> sq ft)</label>
+                                                    </div>
+                                                </c:if>
+                                            </c:forEach>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="small fw-bold text-muted mb-1">Note / Requirements</label>
+                                        <textarea name="note" class="form-control form-control-sm" rows="2" placeholder="VD: Cần lưu trữ hàng dễ vỡ..."></textarea>
+                                    </div>
+                                    
+                                   <a href="${pageContext.request.contextPath}/createRentRequest?id=${w.warehouseId}" class="warehouse-button">
+                    Submit Request
+                </a>
+                                </form>
+                            </div>
+
+                        </div> 
+                    </div> 
+
+                </div> 
+                
+                <jsp:include page="/feedback.jsp">
+                    <jsp:param name="embedded" value="true" />
+                </jsp:include>
+
+            </div> 
+        </div> 
+    </div> 
+    
+    <jsp:include page="/Common/Layout/footer.jsp" />
+
+    <div class="modal fade" id="addZoneModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">Thêm Ô Chứa Mới (Zone)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-
+                <form action="${pageContext.request.contextPath}/warehouse/unit" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="add">
+                        <input type="hidden" name="warehouseId" value="${w.warehouseId}">
+                        <div class="mb-3">
+                            <label class="form-label">Mã Zone (Ví dụ: ZONE-A1)</label>
+                            <input type="text" name="unitCode" class="form-control" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Diện tích (sq ft)</label>
+                                <input type="number" step="0.1" name="area" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Giá thuê (VND)</label>
+                                <input type="number" name="price" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <select name="status" class="form-select">
+                                <option value="1">Available (Trống)</option>
+                                <option value="2">Occupied (Đã thuê)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả đặc điểm</label>
+                            <textarea name="description" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Lưu Zone</button>
+                    </div>
+                </form>
             </div>
         </div>
-
-     <div class="card-custom p-3 mb-4">
-                        <h5 class="fw-bold mb-3">Warehouse Gallery</h5>
-
-                        <c:set var="mainDisplayUrl" value="default-placeholder.jpg" />
-                        
-                        <c:if test="${not empty images}">
-                            <%-- Mặc định lấy ảnh đầu tiên trong list --%>
-                            <c:set var="mainDisplayUrl" value="${images[0].imageUrl}" />
-                            
-                            <%-- Nếu muốn xịn hơn: Tìm ảnh nào có primary=true thì ưu tiên lấy --%>
-                            <c:forEach items="${images}" var="item">
-                                <c:if test="${item.primary}">
-                                    <c:set var="mainDisplayUrl" value="${item.imageUrl}" />
-                                </c:if>
-                            </c:forEach>
-                        </c:if>
-
-                        <div class="main-img-frame mb-3 text-center border bg-light rounded" style="height: 400px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                            <img src="${pageContext.request.contextPath}/resources/warehouse/image/${mainDisplayUrl}" 
-                                 id="displayImg" 
-                                 style="max-height: 100%; max-width: 100%; object-fit: contain;"
-                                 onerror="this.src='https://via.placeholder.com/800x400?text=No+Image'">
-                        </div>
-
-                        <div class="row g-2">
-                            <c:forEach items="${images}" var="img">
-                                <div class="col-3 col-md-2">
-                                    <div class="border rounded p-1" style="cursor: pointer;">
-                                        <img src="${pageContext.request.contextPath}/resources/warehouse/image/${img.imageUrl}" 
-                                             class="thumb-img w-100" 
-                                             style="height: 60px; object-fit: cover;"
-                                             onclick="changeImage(this.src)"
-                                             onerror="this.src='https://via.placeholder.com/80x80'">
-                                    </div>
-                                </div>
-                            </c:forEach>
-                        </div>
-                    </div>
-
-<script>
-    function changeImage(src) {
-        document.getElementById('displayImg').src = src;
-    }
-</script>
-                    <!-- Zones -->
-                    <div class="mb-4">
-                        <h5 class="fw-bold">Floor Plan View</h5>
-
-                        <div class="row g-3">
-                            <c:forEach items="${units}" var="u">
-                                <div class="col-md-4">
-
-                                    <div class="zone-card h-100 d-flex flex-column justify-content-between">
-
-                                        <div>
-                                            <div class="d-flex justify-content-between mb-2">
-                                                <h6 class="fw-bold">${u.unitCode}</h6>
-
-                                                <c:choose>
-                                                    <c:when test="${u.status == 1}">
-                                                        <span class="status-badge status-available">
-                                                            Available
-                                                        </span>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <span class="status-badge status-occupied">
-                                                            Occupied
-                                                        </span>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
-
-                                            <p class="small text-muted">${u.description}</p>
-
-                                            <h5 class="fw-bold">
-                                                <fmt:formatNumber value="${u.area}"/> 
-                                                <span class="fs-6 text-muted">sq ft</span>
-                                            </h5>
-                                        </div>
-
-                                        <div class="mt-3 pt-2 border-top">
-                                            <small class="fw-bold text-primary">
-                                                <fmt:formatNumber value="${u.pricePerUnit}"/> VND
-                                            </small>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                            </c:forEach>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- RIGHT -->
-                <div class="col-lg-4">
-
-                    <div class="card-custom p-4 booking-sidebar">
-
-                        <h5 class="fw-bold">Booking & Declaration</h5>
-
-                        <form action="rent-request" method="POST">
-
-                            <input type="hidden" name="warehouseId" value="${w.warehouseId}">
-
-                            <div class="mb-3">
-                                <label>Start Date</label>
-                                <input type="date" name="startDate" class="form-control" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label>End Date</label>
-                                <input type="date" name="endDate" class="form-control" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label>Selected Zones</label>
-
-                                <div class="border rounded p-2 bg-light"
-                                     style="max-height:150px;overflow-y:auto;">
-
-                                    <c:forEach items="${units}" var="u">
-                                        <c:if test="${u.status == 1}">
-                                            <div class="form-check">
-                                                <input class="form-check-input"
-                                                       type="checkbox"
-                                                       name="selectedUnits"
-                                                       value="${u.unitId}">
-                                                <label class="form-check-label small">
-                                                    ${u.unitCode}
-                                                </label>
-                                            </div>
-                                        </c:if>
-                                    </c:forEach>
-
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <label>Additional Requirements</label>
-                                <textarea name="note"
-                                          class="form-control"
-                                          rows="3"></textarea>
-                            </div>
-
-                            <button class="btn btn-submit">
-                                Submit Request
-                            </button>
-
-                        </form>
-
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-
     </div>
-    <!-- END MAIN CONTENT -->
 
-</div>
-<!-- END LAYOUT -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 
-<jsp:include page="/Common/Layout/footer.jsp"/>
+    <script>
+        var allZoneEvents = ${empty unitEventsJson ? '{}' : unitEventsJson};
+        var calendar;
+        var currentSelectedUnitId = null;
 
-<script>
-function changeImage(src){
-    document.getElementById("displayImg").src = src;
-}
-</script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // 1. Tự động sinh danh sách Năm (Từ năm nay )
+            var yearSelect = document.getElementById('selectYear');
+            var currentYear = new Date().getFullYear();
+            for (var i = currentYear; i <= currentYear + 11; i++) {
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.innerHTML = 'Năm ' + i;
+                yearSelect.appendChild(opt);
+            }
+
+            // 2. Khởi tạo Lịch
+            var calendarEl = document.getElementById('bookingCalendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                height: 'auto',
+                firstDay: 1, 
+                showNonCurrentDates: false, 
+                fixedWeekCount: false,
+                
+                // Thay đổi tên Nút tiếng Anh thành tiếng Việt
+                buttonText: {
+                    today: 'Hôm nay'
+                },
+                
+                headerToolbar: {
+                    // Đưa nút "Hôm nay" sang trái, ẩn cái tiêu đề tiếng Anh mặc định đi để tiết kiệm diện tích
+                    left: 'today', 
+                    center: '',
+                    right: 'prev,next' 
+                },
+                events: [],
+                
+                // Đồng bộ Dropdown khi người dùng bấm nút prev/next/hôm nay
+                datesSet: function(info) {
+                    var date = info.view.currentStart;
+                    var m = date.getMonth() + 1;
+                    var y = date.getFullYear();
+                    
+                    document.getElementById('selectMonth').value = m < 10 ? '0' + m : m;
+                    document.getElementById('selectYear').value = y;
+                },
+                
+                // Xử lý khi Click ngày
+                dateClick: function(info) {
+                    var clickedDate = info.dateStr; 
+                    
+                    // Không cho chọn ngày trong quá khứ
+                    var today = new Date();
+                    today.setHours(0,0,0,0);
+                    var clicked = new Date(clickedDate);
+                    if(clicked < today) {
+                        alert("Không thể chọn ngày trong quá khứ!");
+                        return;
+                    }
+
+                    // Kiểm tra xem ngày này có bị tô hồng không
+                    var isBooked = false;
+                    if(currentSelectedUnitId && allZoneEvents[currentSelectedUnitId]) {
+                        var events = allZoneEvents[currentSelectedUnitId];
+                        for(var i=0; i < events.length; i++) {
+                            var start = events[i].start.split('T')[0];
+                            var end = events[i].end.split('T')[0];
+                            if(clickedDate >= start && clickedDate <= end) {
+                                isBooked = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(isBooked) {
+                        alert("Ngày này đã có người thuê, vui lòng chọn ngày khác!");
+                        return;
+                    }
+
+                    // Hợp lệ -> Điền vào form và báo hiệu bằng màu nền
+                    document.getElementById('formStartDate').value = clickedDate;
+                    info.dayEl.style.backgroundColor = '#d1fae5'; 
+                    setTimeout(function(){
+                        info.dayEl.style.backgroundColor = '';
+                    }, 400);
+                }
+            });
+
+            calendar.render();
+
+            // 3. Xử lý khi người dùng chọn Dropdown Tháng/Năm
+            function jumpToDate() {
+                var m = document.getElementById('selectMonth').value;
+                var y = document.getElementById('selectYear').value;
+                calendar.gotoDate(y + '-' + m + '-01'); // Nhảy Lịch đến ngày 1 của tháng/năm được chọn
+            }
+            
+            document.getElementById('selectMonth').addEventListener('change', jumpToDate);
+            document.getElementById('selectYear').addEventListener('change', jumpToDate);
+
+
+            // 4. Đổi icon Mũi tên khi Đóng/Mở lịch
+            var myCollapsible = document.getElementById('collapseCalendar')
+            myCollapsible.addEventListener('hide.bs.collapse', function () {
+                document.getElementById('toggleIcon').className = 'fas fa-chevron-down';
+            })
+            myCollapsible.addEventListener('show.bs.collapse', function () {
+                document.getElementById('toggleIcon').className = 'fas fa-chevron-up';
+            })
+        });
+
+        // Hàm xử lý Click thẻ Zone
+        function viewCalendarForUnit(unitId, unitCode) {
+            currentSelectedUnitId = unitId; 
+
+            document.querySelectorAll('.zone-card').forEach(card => card.style.borderColor = '#e5e7eb');
+            document.getElementById('zone-card-' + unitId).style.borderColor = '#3b82f6';
+            
+            document.querySelectorAll('.zone-checkbox').forEach(chk => chk.checked = false);
+            var chkBox = document.getElementById('chk-zone-' + unitId);
+            if(chkBox) chkBox.checked = true;
+
+            var widget = document.getElementById('calendarWidget');
+            widget.style.display = 'block'; 
+            
+            var bsCollapse = new bootstrap.Collapse(document.getElementById('collapseCalendar'), { toggle: false });
+            bsCollapse.show();
+            
+            setTimeout(function() { calendar.updateSize(); }, 200); 
+
+            document.getElementById('calendarTitle').innerHTML = 'Lịch: <span class="text-primary">' + unitCode + '</span>';
+
+            calendar.removeAllEvents();
+            if (allZoneEvents[unitId] && allZoneEvents[unitId].length > 0) {
+                allZoneEvents[unitId].forEach(function (eventData) {
+                    delete eventData.title; 
+                    eventData.allDay = true;
+                    eventData.display = 'background';
+                    eventData.color = '#ffb3ba'; 
+                    calendar.addEvent(eventData);
+                });
+            }
+        }
+
+        // Đổi ảnh Gallery
+        function changeImage(src) {
+            document.getElementById('displayImg').src = src;
+        }
+    </script>
 
 </body>
 </html>

@@ -10,32 +10,119 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
     <style>
-        .layout { display: flex; min-height: 100vh; }
-        .main-content { flex: 1; padding: 24px; background: #f5f7fb; }
-        
-        /* Custom styles giống User */
-        .top-bar-hidden { display: none; } /* Ẩn đi để JS tự move vào Table */
-        
-        /* DataTables Customization */
-        #warehouseTable_filter { display: flex !important; align-items: center; gap: 10px; }
-        #warehouseTable_length { display: flex !important; align-items: center; gap: 15px; float: none !important; }
-        .dt-controls-left { display: flex; align-items: center; gap: 15px; float: left; }
-        
-        /* Buttons */
-        .btn-add { background: black; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; border: none; }
-        .btn-add:hover { background: #333; color: white; }
-        .btn-reset { padding: 6px 12px; background: black; color: white; border-radius: 4px; text-decoration: none; font-size: 14px; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+        }
 
-        /* Table Image */
-        .warehouse-thumbnail { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
+        h3 {
+            margin-bottom: 15px;
+        }
+
+        .layout { 
+            display: flex; 
+            min-height: 100vh; 
+        }
+
+        .main-content { 
+            flex: 1; 
+            padding: 24px; 
+            background: #f5f7fb; 
+        }
         
-        /* Filter Inputs */
-        .filter-select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; outline: none; }
+        .top-bar-hidden { 
+            display: none; 
+        }
         
-        /* Table Style */
-        table.dataTable { width: 100% !important; background: #fff; border-radius: 6px; overflow: hidden; border-collapse: collapse !important; }
-        table.dataTable th { background: #fafafa; padding: 12px; border-bottom: 2px solid #eee; }
-        table.dataTable td { padding: 10px; vertical-align: middle; border-bottom: 1px solid #eee; }
+        /* DataTables Customization (Đồng bộ từ User List) */
+        #warehouseTable_filter { 
+            display: flex !important; 
+            align-items: center; 
+            gap: 10px; 
+        }
+
+        #warehouseTable_length { 
+            display: flex !important; 
+            align-items: center; 
+            gap: 15px; 
+            float: none !important; 
+        }
+
+        .dt-controls-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            float: left; 
+        }
+
+        .filter-section {
+            margin-bottom: 0 !important;
+        }
+
+        /* Đồng bộ filter inputs từ inline CSS của User List */
+        .filter-select { 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            border: 1px solid #d1d5db; 
+            background-color: #fff; 
+            color: #374151; 
+            font-size: 14px; 
+            outline: none; 
+            cursor: pointer; 
+        }
+        
+        /* Buttons (Đồng bộ từ User List) */
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-add { 
+            background: black; 
+            color: white; 
+        }
+
+        .btn-add:hover { 
+            background: #e0e0e0; 
+            color: #000;
+        }
+
+        /* Đồng bộ nút Reset từ inline CSS của User List */
+        .btn-reset { 
+            padding: 8px 16px; 
+            border-radius: 6px; 
+            background-color: black; 
+            color: white; 
+            text-decoration: none; 
+            font-size: 14px; 
+            font-weight: 500; 
+            transition: background-color 0.2s; 
+        }
+
+        .btn-reset:hover {
+            background-color: #333;
+            color: white;
+        }
+
+        /* Table Style (Đồng bộ từ User List) */
+        table.dataTable { 
+            width: 100% !important; 
+            background: #fff; 
+            border-radius: 6px; 
+            overflow: hidden; 
+        }
+
+        /* Table Image riêng của Warehouse */
+        .warehouse-thumbnail { 
+            width: 80px; 
+            height: 60px; 
+            object-fit: cover; 
+            border-radius: 4px; 
+            border: 1px solid #ddd; 
+        }
     </style>
 </head>
 
@@ -47,11 +134,11 @@
 
         <div class="main-content">
             
-            <h3 style="font-weight: 600; color: #111827; margin-bottom: 20px;">Warehouse List</h3>
+            <h3 style="font-weight: 600; color: #111827;">Warehouse List</h3>
 
             <div class="top-bar-hidden">
                 <c:if test="${sessionScope.role == 'Manager'}">
-                    <a href="${pageContext.request.contextPath}/warehouse?action=add" class="btn-add">
+                    <a href="${pageContext.request.contextPath}/warehouse?action=add" class="btn btn-add">
                         <i class="fa-solid fa-plus"></i> Add Warehouse
                     </a>
                 </c:if>
@@ -141,8 +228,14 @@
                 "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
                 "language": {
                     "search": "Search:",
-                    "lengthMenu": "Show _MENU_ entries",
-                    "info": "Showing _START_ to _END_ of _TOTAL_ warehouses"
+                    "lengthMenu": "_MENU_", // Đồng bộ text với User List
+                    "info": "Showing _START_ to _END_ of _TOTAL_ warehouses",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    }
                 }
             });
 
@@ -161,9 +254,9 @@
             if (filterSec.length && lengthDiv.length) {
                 // Tạo một div bao ngoài để gom nhóm
                 var wrapper = $('<div class="dt-controls-left"></div>');
-                lengthDiv.before(wrapper); // Chèn wrapper trước
-                wrapper.append(lengthDiv); // Bỏ length vào wrapper
-                wrapper.append(filterSec); // Bỏ filter vào wrapper
+                lengthDiv.before(wrapper); 
+                wrapper.append(lengthDiv); 
+                wrapper.append(filterSec); 
             }
         });
     </script>

@@ -94,6 +94,24 @@
             color: #27ae60;
             font-weight: bold;
         }
+        /* Nút View */
+        .btn-view {
+            display: inline-block;
+            padding: 5px 12px;
+            background-color: #2ecc71; /* Màu xanh lá */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .btn-view:hover {
+            background-color: #27ae60;
+            color: #fff;
+        }
+
+        
     </style>
 </head>
 
@@ -120,30 +138,43 @@
 
                 <table>
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Warehouse</th>
+                        <tr>   
                             <th>Staff</th>
+                            <th>Type</th>
+                            <th>Warehouse</th>
                             <th>Date</th>
                             <th>Status</th>
+                            <th>Action</th> </tr>
                         </tr>
                     </thead>
 
                     <tbody>
                         <c:forEach var="r" items="${incidentList}">
-                            <tr>
-                                <td>${r.reportId}</td>
-                                <td>${r.type}</td>
-                                <td>${r.description}</td>
-                                <td>${r.warehouseName}</td>
+                            <tr> 
                                 <td>${r.staffName}</td>
+                                <td>${r.type}</td>
+                                <td>${r.warehouseName}</td>                  
                                 <td>${r.reportDate}</td>
                                 <td>
-                                    <span class="status-${r.status}">
-                                        ${r.status}
-                                    </span>
+                                    <c:choose>
+                                        <c:when test="${r.status == 1}">
+                                            <span class="status-badge status-pending">Pending</span>
+                                        </c:when>
+                                        <c:when test="${r.status == 2}">
+                                            <span class="status-badge status-process">Processing</span>
+                                        </c:when>
+                                        <c:when test="${r.status == 3}">
+                                            <span class="status-badge status-fail">reject</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="status-badge">Unknown</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <a href="${pageContext.request.contextPath}/viewReport?id=${r.reportId}" class="btn-view">
+                                        View
+                                    </a>
                                 </td>
                             </tr>
                         </c:forEach>
