@@ -36,10 +36,9 @@
         .btn-submit:hover { background: #1f2937; color: white; transform: translateY(-1px); }
 
         /* Tùy chỉnh Calendar Nhỏ Gọn (Compact Mode) */
-        .fc { font-size: 0.85rem; } /* Thu nhỏ chữ toàn bộ lịch */
-        .fc-toolbar-title { font-size: 1.1rem !important; color: #111827; } /* Tiêu đề tháng nhỏ lại */
-        .fc .fc-button { padding: 0.2rem 0.5rem !important; font-size: 0.8rem !important; }
-        .fc-daygrid-day-frame { min-height: 2.5rem !important; } /* Ép chiều cao ô vuông ngắn lại */
+        .fc { font-size: 0.85rem; } 
+        .fc .fc-button { padding: 0.3rem 0.6rem !important; font-size: 0.8rem !important; text-transform: capitalize; }
+        .fc-daygrid-day-frame { min-height: 2.5rem !important; } 
         .fc-event { border: none !important; border-radius: 4px !important; }
         .fc-daygrid-day-number { text-decoration: none !important; color: #4b5563 !important; font-weight: 500; }
         .fc-day:not(.fc-day-other) { cursor: pointer; }
@@ -167,7 +166,10 @@
                         </div>
 
                     </div> <div class="col-lg-4">
-                        <div class="right-sidebar"> <div class="card-custom p-3 mb-3" id="calendarWidget" style="display: none;">
+                        <div class="right-sidebar"> 
+
+                            <div class="card-custom p-3 mb-3" id="calendarWidget" style="display: none;">
+                                
                                 <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
                                     <h6 class="fw-bold mb-0" id="calendarTitle">Lịch trống</h6>
                                     <button class="btn btn-sm btn-light border text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCalendar" aria-expanded="true">
@@ -176,10 +178,32 @@
                                 </div>
                                 
                                 <div class="collapse show" id="collapseCalendar">
-                                    <div class="d-flex align-items-center mb-2 mt-2" style="font-size: 0.75rem;">
-                                        <span class="me-3"><i class="fa fa-square text-white border me-1"></i> Ngày trống</span>
+                                    <div class="row g-2 mt-1 mb-3">
+                                        <div class="col-6">
+                                            <select id="selectMonth" class="form-select form-select-sm border-secondary text-dark fw-bold">
+                                                <option value="01">Tháng 1</option>
+                                                <option value="02">Tháng 2</option>
+                                                <option value="03">Tháng 3</option>
+                                                <option value="04">Tháng 4</option>
+                                                <option value="05">Tháng 5</option>
+                                                <option value="06">Tháng 6</option>
+                                                <option value="07">Tháng 7</option>
+                                                <option value="08">Tháng 8</option>
+                                                <option value="09">Tháng 9</option>
+                                                <option value="10">Tháng 10</option>
+                                                <option value="11">Tháng 11</option>
+                                                <option value="12">Tháng 12</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <select id="selectYear" class="form-select form-select-sm border-secondary text-dark fw-bold"></select>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-center align-items-center mb-2" style="font-size: 0.75rem;">
+                                        <span class="me-3"><i class="fa fa-square text-white border border-secondary me-1"></i> Ngày trống</span>
                                         <span><i class="fa fa-square me-1" style="color: #ffb3ba;"></i> Đã được thuê</span>
                                     </div>
+                                    
                                     <div id="bookingCalendar"></div>
                                 </div>
                             </div>
@@ -223,7 +247,12 @@
                                 </form>
                             </div>
 
-                        </div> </div> </div> <jsp:include page="/feedback.jsp">
+                        </div> 
+                    </div> 
+
+                </div> 
+                
+                <jsp:include page="/feedback.jsp">
                     <jsp:param name="embedded" value="true" />
                 </jsp:include>
 
@@ -288,25 +317,54 @@
         var currentSelectedUnitId = null;
 
         document.addEventListener('DOMContentLoaded', function () {
-            var calendarEl = document.getElementById('bookingCalendar');
+            
+            // 1. Tự động sinh danh sách Năm (Từ năm nay )
+            var yearSelect = document.getElementById('selectYear');
+            var currentYear = new Date().getFullYear();
+            for (var i = currentYear; i <= currentYear + 11; i++) {
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.innerHTML = 'Năm ' + i;
+                yearSelect.appendChild(opt);
+            }
 
+            // 2. Khởi tạo Lịch
+            var calendarEl = document.getElementById('bookingCalendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 height: 'auto',
                 firstDay: 1, 
                 showNonCurrentDates: false, 
                 fixedWeekCount: false,
+                
+                // Thay đổi tên Nút tiếng Anh thành tiếng Việt
+                buttonText: {
+                    today: 'Hôm nay'
+                },
+                
                 headerToolbar: {
-                    left: 'title',
-                    right: 'prev,next' // Bỏ nút 'today' cho gọn
+                    // Đưa nút "Hôm nay" sang trái, ẩn cái tiêu đề tiếng Anh mặc định đi để tiết kiệm diện tích
+                    left: 'today', 
+                    center: '',
+                    right: 'prev,next' 
                 },
                 events: [],
                 
-                // Ý TƯỞNG WOW: Xử lý thông minh khi Click ngày
+                // Đồng bộ Dropdown khi người dùng bấm nút prev/next/hôm nay
+                datesSet: function(info) {
+                    var date = info.view.currentStart;
+                    var m = date.getMonth() + 1;
+                    var y = date.getFullYear();
+                    
+                    document.getElementById('selectMonth').value = m < 10 ? '0' + m : m;
+                    document.getElementById('selectYear').value = y;
+                },
+                
+                // Xử lý khi Click ngày
                 dateClick: function(info) {
                     var clickedDate = info.dateStr; 
                     
-                    // 1. Không cho chọn ngày trong quá khứ
+                    // Không cho chọn ngày trong quá khứ
                     var today = new Date();
                     today.setHours(0,0,0,0);
                     var clicked = new Date(clickedDate);
@@ -315,12 +373,11 @@
                         return;
                     }
 
-                    // 2. Kiểm tra xem ngày này có bị tô hồng (bị thuê) không
+                    // Kiểm tra xem ngày này có bị tô hồng không
                     var isBooked = false;
                     if(currentSelectedUnitId && allZoneEvents[currentSelectedUnitId]) {
                         var events = allZoneEvents[currentSelectedUnitId];
                         for(var i=0; i < events.length; i++) {
-                            // Cắt chuỗi ngày để so sánh (bỏ phần T23:59:59)
                             var start = events[i].start.split('T')[0];
                             var end = events[i].end.split('T')[0];
                             if(clickedDate >= start && clickedDate <= end) {
@@ -335,7 +392,7 @@
                         return;
                     }
 
-                    // 3. Hợp lệ -> Điền vào form và báo hiệu bằng màu nền
+                    // Hợp lệ -> Điền vào form và báo hiệu bằng màu nền
                     document.getElementById('formStartDate').value = clickedDate;
                     info.dayEl.style.backgroundColor = '#d1fae5'; 
                     setTimeout(function(){
@@ -346,7 +403,18 @@
 
             calendar.render();
 
-            // Đổi icon Mũi tên khi Đóng/Mở lịch
+            // 3. Xử lý khi người dùng chọn Dropdown Tháng/Năm
+            function jumpToDate() {
+                var m = document.getElementById('selectMonth').value;
+                var y = document.getElementById('selectYear').value;
+                calendar.gotoDate(y + '-' + m + '-01'); // Nhảy Lịch đến ngày 1 của tháng/năm được chọn
+            }
+            
+            document.getElementById('selectMonth').addEventListener('change', jumpToDate);
+            document.getElementById('selectYear').addEventListener('change', jumpToDate);
+
+
+            // 4. Đổi icon Mũi tên khi Đóng/Mở lịch
             var myCollapsible = document.getElementById('collapseCalendar')
             myCollapsible.addEventListener('hide.bs.collapse', function () {
                 document.getElementById('toggleIcon').className = 'fas fa-chevron-down';
@@ -356,32 +424,27 @@
             })
         });
 
+        // Hàm xử lý Click thẻ Zone
         function viewCalendarForUnit(unitId, unitCode) {
-            currentSelectedUnitId = unitId; // Lưu lại ID đang chọn để check dateClick
+            currentSelectedUnitId = unitId; 
 
-            // Đổi viền Zone
             document.querySelectorAll('.zone-card').forEach(card => card.style.borderColor = '#e5e7eb');
             document.getElementById('zone-card-' + unitId).style.borderColor = '#3b82f6';
             
-            // Tích Checkbox bên phải
             document.querySelectorAll('.zone-checkbox').forEach(chk => chk.checked = false);
             var chkBox = document.getElementById('chk-zone-' + unitId);
             if(chkBox) chkBox.checked = true;
 
-            // HIỆN WIDGET LỊCH
             var widget = document.getElementById('calendarWidget');
             widget.style.display = 'block'; 
             
-            // Đảm bảo phần collapse đang mở
             var bsCollapse = new bootstrap.Collapse(document.getElementById('collapseCalendar'), { toggle: false });
             bsCollapse.show();
             
-            setTimeout(function() { calendar.updateSize(); }, 200); // Đợi CSS trượt xong mới vẽ lại Lịch
+            setTimeout(function() { calendar.updateSize(); }, 200); 
 
-            // Đổi tiêu đề Lịch
             document.getElementById('calendarTitle').innerHTML = 'Lịch: <span class="text-primary">' + unitCode + '</span>';
 
-            // Cập nhật Lịch
             calendar.removeAllEvents();
             if (allZoneEvents[unitId] && allZoneEvents[unitId].length > 0) {
                 allZoneEvents[unitId].forEach(function (eventData) {
