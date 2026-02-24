@@ -177,6 +177,7 @@
                     <tr>
                         <th>Item Name</th>
                         <th>Description</th>
+
                         
                         <c:if test="${isForm}"><th></th></c:if>
                     </tr>
@@ -200,6 +201,7 @@
                                     <c:otherwise>${item.item.description}</c:otherwise>
                                 </c:choose>
                             </td>
+
                             
                             <c:if test="${isForm}">
                                 <td><button type="button" onclick="removeRow(this)" class="btn btn-reject">Delete</button></td>

@@ -40,7 +40,6 @@ public class RentRequestDAO extends DBContext {
     JOIN renter r ON rr.renter_id = r.renter_id
     JOIN warehouse w ON rr.warehouse_id = w.warehouse_id
     LEFT JOIN internal_user iu ON rr.internal_user_id = iu.internal_user_id
-    WHERE rr.request_type = 'RENT'
     ORDER BY rr.request_date DESC
 """;
 
@@ -50,7 +49,6 @@ public class RentRequestDAO extends DBContext {
                 RentRequest rr = new RentRequest();
                 rr.setRequestId(rs.getInt("request_id"));
                 rr.setStatus(rs.getInt("status"));
-                rr.setRequestType(rs.getString("request_type"));
                 rr.setRequestDate(rs.getTimestamp("request_date"));
                 rr.setProcessedDate(rs.getTimestamp("processed_date"));
 
@@ -97,7 +95,6 @@ public class RentRequestDAO extends DBContext {
         JOIN renter r ON rr.renter_id = r.renter_id
         JOIN warehouse w ON rr.warehouse_id = w.warehouse_id
         LEFT JOIN internal_user iu ON rr.internal_user_id = iu.internal_user_id
-        WHERE rr.request_type = 'RENT'
           AND rr.renter_id = ?
         ORDER BY rr.request_date DESC
     """;
@@ -111,7 +108,6 @@ public class RentRequestDAO extends DBContext {
                     RentRequest rr = new RentRequest();
                     rr.setRequestId(rs.getInt("request_id"));
                     rr.setStatus(rs.getInt("status"));
-                    rr.setRequestType(rs.getString("request_type"));
                     rr.setRequestDate(rs.getTimestamp("request_date"));
                     rr.setProcessedDate(rs.getTimestamp("processed_date"));
 
@@ -208,7 +204,6 @@ public class RentRequestDAO extends DBContext {
 
                -- request item
                rri.id AS rri_id,
-               rri.quantity,
                i.item_id,
                i.item_name AS item_name,
                i.description AS item_description
@@ -219,8 +214,6 @@ public class RentRequestDAO extends DBContext {
         LEFT JOIN internal_user iu ON rr.internal_user_id = iu.internal_user_id
         LEFT JOIN rent_request_item rri ON rr.request_id = rri.request_id
         LEFT JOIN item i ON rri.item_id = i.item_id
-
-        WHERE rr.request_type = 'RENT'
           AND rr.request_id = ?
     """;
 
@@ -239,9 +232,7 @@ public class RentRequestDAO extends DBContext {
                     rr.setRequestId(rs.getInt("request_id"));
                     rr.setRequestDate(rs.getTimestamp("request_date"));
                     rr.setStatus(rs.getInt("status"));
-                    rr.setRequestType(rs.getString("request_type"));
                     rr.setProcessedDate(rs.getTimestamp("processed_date"));
-                    // start_date, end_date, area chỉ lấy từ rent_request_unit (set ở dưới)
 
                     // ===== RENTER =====
                     Renter renter = new Renter();
@@ -284,7 +275,6 @@ public class RentRequestDAO extends DBContext {
                 if (!rs.wasNull()) {
                     RentRequestItem rri = new RentRequestItem();
                     rri.setId(rriId);
-                    rri.setQuantity(rs.getInt("quantity"));
 
                     Item item = new Item();
                     item.setItemId(rs.getInt("item_id"));
@@ -356,12 +346,9 @@ public class RentRequestDAO extends DBContext {
         }
     }
 
-    /**
-     * Inserts a new rent request (chỉ header; ngày/diện tích/giá lưu ở rent_request_unit).
-     * Returns the new request_id, or -1 on failure.
-     */
+    /** Tạo rent_request (header). Dùng cho cả đơn thuê kho và đơn check in/out. */
     public int insertRentRequest(int renterId, int warehouseId) {
-        String sql = "INSERT INTO rent_request (request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date) VALUES (NOW(), 0, 'RENT', ?, ?, NULL, NULL)";
+        String sql = "INSERT INTO rent_request (request_date, status, renter_id, warehouse_id, internal_user_id, processed_date) VALUES (NOW(), 0, ?, ?, NULL, NULL)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, renterId);
             ps.setInt(2, warehouseId);
@@ -395,7 +382,6 @@ public class RentRequestDAO extends DBContext {
         for (RentRequest rr : list) {
             System.out.println("Request ID     : " + rr.getRequestId());
             System.out.println("Status         : " + rr.getStatus());
-            System.out.println("Type           : " + rr.getRequestType());
             System.out.println("Request Date   : " + rr.getRequestDate());
             System.out.println("Processed Date : " + rr.getProcessedDate());
 
@@ -430,18 +416,15 @@ public class RentRequestDAO extends DBContext {
     }
 }
 
+    /** Thêm item vào rent_request (chỉ khai báo item, không quantity). */
     public void insertRentRequestItem(int requestId, int itemId) {
-    String sql = "INSERT INTO rent_request_item(quantity, item_id, request_id) VALUES (0, ?, ?)";
-
-    try {
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setInt(1, itemId);
-        ps.setInt(2, requestId);
-        ps.executeUpdate();
-    } catch (Exception e) {
-        e.printStackTrace();
+        String sql = "INSERT INTO rent_request_item(item_id, request_id) VALUES (?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, itemId);
+            ps.setInt(2, requestId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
-    
-
 }

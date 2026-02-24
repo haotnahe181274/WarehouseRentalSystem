@@ -15,7 +15,6 @@ public class RentRequest {
     private int requestId;
     private Date requestDate;
     private int status;
-    private String requestType;
     private Renter renter;
     private Warehouse warehouse;
     private InternalUser processedBy;
@@ -52,14 +51,6 @@ public class RentRequest {
 
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    public String getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(String requestType) {
-        this.requestType = requestType;
     }
 
     public Renter getRenter() {

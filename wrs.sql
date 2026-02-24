@@ -113,12 +113,11 @@ CREATE TABLE storage_unit_item (
 -- ==============================
 -- REQUEST & CONTRACT
 -- ==============================
--- Rent_request chỉ lưu thông tin chung; start_date, end_date, area lưu ở rent_request_unit
+-- Rent_request: thông tin chung (thuê kho hoặc đơn check in/out đều dùng bảng này)
 CREATE TABLE Rent_request (
     request_id INT AUTO_INCREMENT PRIMARY KEY,
     request_date DATETIME,
     status INT,
-    request_type VARCHAR(20),
     renter_id INT,
     warehouse_id INT,
     internal_user_id INT,
@@ -128,17 +127,16 @@ CREATE TABLE Rent_request (
     FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
 );
 
--- Bảng mới từ ảnh
+-- Item trong đơn thuê kho: chỉ khai báo item sẽ dùng (không lưu quantity)
 CREATE TABLE rent_request_item (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    quantity INT,
-    item_id INT,
-    request_id INT,
+    item_id INT NOT NULL,
+    request_id INT NOT NULL,
     FOREIGN KEY (item_id) REFERENCES Item(item_id),
     FOREIGN KEY (request_id) REFERENCES Rent_request(request_id)
 );
 
--- Mỗi rent request có thể có nhiều unit: mỗi unit có ngày, diện tích, giá riêng
+-- Mỗi rent request thuê kho có nhiều unit: mỗi unit có ngày, diện tích, giá riêng
 CREATE TABLE rent_request_unit (
     id INT AUTO_INCREMENT PRIMARY KEY,
     request_id INT NOT NULL,
@@ -146,7 +144,36 @@ CREATE TABLE rent_request_unit (
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     rent_price DECIMAL(12,2) NOT NULL,
-    FOREIGN KEY (request_id) REFERENCES Rent_request(request_id) ON DELETE CASCADE
+    FOREIGN KEY (request_id) REFERENCES Rent_request(request_id) 
+);
+
+-- Đơn check in/out (tách riêng, không dùng Rent_request).
+-- Không lưu status ở header; trạng thái đơn được suy ra từ status của từng check_request_item.
+CREATE TABLE check_request (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    request_date DATETIME,
+    request_type VARCHAR(20) NOT NULL,
+    renter_id INT,
+    warehouse_id INT,
+    unit_id INT,
+    internal_user_id INT,
+    processed_date DATETIME,
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
+    FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
+);
+
+-- Chi tiết từng item trong đơn check in/out
+CREATE TABLE check_request_item (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    check_request_id INT NOT NULL,
+    item_id INT NOT NULL,
+    quantity INT NOT NULL,
+    processed_quantity INT ,
+    status VARCHAR(20) NOT NULL DEFAULT 'processing',
+    FOREIGN KEY (check_request_id) REFERENCES check_request(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES Item(item_id)
 );
 
 CREATE TABLE Contract (
@@ -446,7 +473,9 @@ INSERT INTO Item (item_name, description, renter_id) VALUES
 ('Frozen Shrimp Lot','Tôm đông lạnh',14),
 ('Sony TVs Batch 02', 'Lô tivi Sony 65 inch', 1),
 ('LG Refrigerators Lot', 'Tủ lạnh LG nhập khẩu', 1),
-('Air Conditioner Units', 'Máy lạnh dân dụng', 1);
+('Air Conditioner Units', 'Máy lạnh dân dụng', 1),
+('Panasonic TVs Batch 03', 'Lô tivi Panasonic 55 inch', 1),
+('Daikin AC Lot', 'Máy lạnh Daikin inverter', 1);
 
 -- Dữ liệu mới cho storage_unit_item
 INSERT INTO storage_unit_item (quantity, item_id, unit_id) VALUES
@@ -460,56 +489,65 @@ INSERT INTO storage_unit_item (quantity, item_id, unit_id) VALUES
 (150, 12, 1),
 (100, 13, 1);
 
--- Rent_request: chỉ request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date
-INSERT INTO Rent_request (request_date, status, request_type, renter_id, warehouse_id, internal_user_id, processed_date) VALUES
-('2025-01-05 09:15:00', 1, 'RENT', 1, 1, 2, '2025-01-06 10:30:00'),
-('2025-02-01 14:00:00', 1, 'RENT', 2, 2, 3, '2025-02-02 08:45:00'),
-('2025-03-12 11:20:00', 1, 'RENT', 3, 3, 4, '2025-03-13 09:10:00'),
-('2025-04-01 10:00:00', 0, 'RENT', 4, 4, NULL, NULL),
-('2025-04-05 16:30:00', 0, 'RENT', 7, 5, NULL, NULL),
-('2025-05-01 09:00:00', 1, 'CHECK_IN', 1, 1, 2, '2025-05-01 10:00:00'),
-('2025-03-01 08:00:00', 3, 'RENT', 6, 6, NULL, NULL),
-('2025-06-01 08:00:00', 1, 'RENT', 12, 22, 2, '2025-06-02 09:00:00'),
-('2025-06-05 09:30:00', 1, 'RENT', 13, 24, 1, '2025-06-06 10:00:00'),
-('2025-06-10 10:00:00', 1, 'RENT', 14, 25, 2, '2025-06-11 11:00:00'),
-(NOW(), 1, 'RENT', 1, 1, 2, NOW()),
-(NOW(), 0, 'RENT', 1, 1, NULL, NULL),
-(NOW(), 1, 'CHECK_IN', 1, 1, 3, NOW()),
-(NOW(), 1, 'CHECK_IN', 1, 1, 3, NOW()),
-(NOW(), 1, 'CHECK_OUT', 1, 1, 3, NOW());
+-- Rent_request: chỉ cho đơn thuê kho
+INSERT INTO Rent_request (request_date, status, renter_id, warehouse_id, internal_user_id, processed_date) VALUES
+('2025-01-05 09:15:00', 1, 1, 1, 2, '2025-01-06 10:30:00'),
+('2025-02-01 14:00:00', 1, 2, 2, 3, '2025-02-02 08:45:00'),
+('2025-03-12 11:20:00', 1, 3, 3, 4, '2025-03-13 09:10:00'),
+('2025-04-01 10:00:00', 0, 4, 4, NULL, NULL),
+('2025-04-05 16:30:00', 0, 7, 5, NULL, NULL),
+('2025-03-01 08:00:00', 3, 6, 6, NULL, NULL),
+('2025-06-01 08:00:00', 1, 12, 22, 2, '2025-06-02 09:00:00'),
+('2025-06-05 09:30:00', 1, 13, 24, 1, '2025-06-06 10:00:00'),
+('2025-06-10 10:00:00', 1, 14, 25, 2, '2025-06-11 11:00:00'),
+(NOW(), 1, 1, 1, 2, NOW()),
+(NOW(), 0, 1, 1, NULL, NULL),
+(NOW(), 1, 1, 1, 3, NOW()),
+('2025-07-10 09:00:00', 1, 1, 1, 2, '2025-07-10 10:00:00'), -- request 13
+('2025-07-15 14:00:00', 1, 1, 1, 3, '2025-07-15 15:00:00');
 
--- rent_request_unit: mỗi request (RENT) có ít nhất 1 unit với area, start_date, end_date, rent_price
+-- rent_request_unit: chỉ cho đơn thuê kho
 INSERT INTO rent_request_unit (request_id, area, start_date, end_date, rent_price) VALUES
 (1, 50, '2025-01-10', '2025-07-10', 2000000),
 (2, 70, '2025-02-05', '2025-08-05', 2500000),
 (3, 100, '2025-03-20', '2026-03-20', 3500000),
 (4, 80, '2025-04-10', '2025-10-10', 3000000),
 (5, 120, '2025-04-20', '2025-12-20', 5000000),
-(6, 50, '2025-05-01', '2025-11-01', 2000000),
 (7, 90, '2025-03-10', '2025-09-10', 3200000),
 (8, 130, '2025-06-10', '2025-12-10', 5000000),
 (9, 100, '2025-06-15', '2026-06-15', 4000000),
 (10, 120, '2025-06-20', '2026-06-20', 4800000),
 (11, 70, '2025-07-01', '2026-01-01', 2200000),
 (12, 30, '2025-08-01', '2026-02-01', 0),
-(13, 50, '2025-07-01', '2026-01-01', 2000000),
-(14, 50, '2025-07-05', '2026-01-01', 2000000),
-(15, 50, '2025-08-01', '2026-01-01', 2000000);
+(12, 50, '2025-07-05', '2026-01-01', 2000000),
+(13, 60, '2025-07-20', '2026-01-20', 2500000),
+(14, 40, '2025-08-01', '2026-02-01', 1800000);
 
--- Dữ liệu mới cho rent_request_item
-INSERT INTO rent_request_item (quantity, item_id, request_id) VALUES
-(0, 1, 1),
-(0, 2, 2),
-(0, 3, 3),
-(0, 4, 4),
-(0, 7, 5),
-(0, 6, 6),
-(100, 1, 7),
-(200, 1, 11),
-(150, 11, 12),
+-- rent_request_item: chỉ khai báo item (không quantity)
+INSERT INTO rent_request_item (item_id, request_id) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(7, 5),
+(1, 7),
+(11, 11),
+(11, 12),
+(14, 13),
+(15, 14);
 
--- CHECK OUT
-(50, 1, 13);
+-- check_request + check_request_item: đơn check in/out
+INSERT INTO check_request (request_date, request_type, renter_id, warehouse_id, unit_id, internal_user_id, processed_date) VALUES
+('2025-05-01 09:00:00', 'CHECK_IN', 1, 1, 1, 2, '2025-05-01 10:00:00'),
+('2025-07-02 08:00:00', 'CHECK_OUT', 1, 1, 1, 3, '2025-07-02 09:00:00'),
+(NOW(), 'CHECK_IN', 1, 1, 1, NULL, NULL);
+
+INSERT INTO check_request_item (check_request_id, item_id, quantity, processed_quantity, status) VALUES
+(1, 1, 100, NULL, 'processing'),
+(1, 11, 50, NULL, 'processing'),
+(2, 1, 50, 50, 'done'),
+(3, 1, 20, NULL, 'processing'),
+(3, 11, 30, NULL, 'processing');
 
 -- Cập nhật Contract để bao gồm renter_id và request_id
 INSERT INTO Contract
@@ -520,7 +558,9 @@ VALUES
 (NOW(), DATE_ADD(NOW(), INTERVAL 12 MONTH), 1, 3, 3, 3, 36000000),
 ('2025-06-10 00:00:00','2025-12-10 00:00:00',1,12,22,7, 5000000),
 ('2025-06-15 00:00:00','2026-06-15 00:00:00',1,13,24,8, 4000000),
-('2025-06-20 00:00:00','2026-06-20 00:00:00',1,14,25,9, 4800000);
+('2025-06-20 00:00:00','2026-06-20 00:00:00',1,14,25,9, 4800000),
+('2025-07-20', '2026-05-20', 1, 1, 1, 13, 15000000),
+('2025-08-01', '2026-05-01', 1, 1, 1, 14, 12000000);
 
 INSERT INTO Contract_Storage_unit
 (contract_id, unit_id, start_date, end_date, status)
@@ -530,14 +570,18 @@ VALUES
 (2, 3, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 1),
 (4,22,'2025-06-10 00:00:00','2025-12-10 00:00:00',1),
 (5,24,'2025-06-15 00:00:00','2026-06-15 00:00:00',1),
-(6,25,'2025-06-20 00:00:00','2026-06-20 00:00:00',1);
+(6,25,'2025-06-20 00:00:00','2026-06-20 00:00:00',1),
+(7, 4, '2025-07-20', '2026-04-20', 1),
+(8, 5, '2025-08-01', '2026-04-01', 1);
 
 INSERT INTO Payment
 (amount, payment_date, method, status, contract_id)
 VALUES
 (12000000, NOW(), 'BANK', 1, 1),
 (9000000, NOW(), 'CASH', 1, 2),
-(36000000, NOW(), 'BANK', 1, 3);
+(36000000, NOW(), 'BANK', 1, 3),
+(15000000, NOW(), 'BANK', 1, 7),
+(12000000, NOW(), 'BANK', 1, 8);
 
 INSERT INTO Staff_assignment
 (assigned_date, assigned_to, warehouse_id, assigned_by, assignment_type,
@@ -618,3 +662,5 @@ INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, 
 -- Bổ sung cho Can Tho Logistics Hub (Kho 22)
 ('CT-A2', 1, 100.00, 4200000, 'Kho nông sản sạch', 22),
 ('CT-B1', 1, 150.00, 5500000, 'Kho máy móc nông nghiệp', 22);
+
+

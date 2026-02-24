@@ -23,6 +23,11 @@
 
             <h2>My Stored Items</h2>
 
+            <div style="margin-bottom:15px;">
+                <a href="${pageContext.request.contextPath}/createCheckRequest?mode=IN" class="btn btn-approve">New Check In Request</a>
+                <a href="${pageContext.request.contextPath}/createCheckRequest?mode=OUT" class="btn btn-reject" style="margin-left:8px;">New Check Out Request</a>
+            </div>
+
             <table class="table" id="itemTable">
                 <thead>
                     <tr>

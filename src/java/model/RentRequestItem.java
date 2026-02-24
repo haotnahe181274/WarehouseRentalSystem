@@ -8,17 +8,16 @@ package model;
  *
  * @author ad
  */
+/** Item khai báo trong đơn thuê kho (không có quantity). */
 public class RentRequestItem {
     private int id;
-    private int quantity;
     private Item item;
 
     public RentRequestItem() {
     }
 
-    public RentRequestItem(int id, int quantity, Item item) {
+    public RentRequestItem(int id, Item item) {
         this.id = id;
-        this.quantity = quantity;
         this.item = item;
     }
 
@@ -28,14 +27,6 @@ public class RentRequestItem {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public Item getItem() {
