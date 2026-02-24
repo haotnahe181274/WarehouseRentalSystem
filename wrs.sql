@@ -301,6 +301,96 @@ CREATE TABLE Incident_report (
     FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
 );
 
+CREATE TABLE Blog_Category (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    status INT DEFAULT 1,
+    created_at DATETIME DEFAULT NOW()
+);
+
+CREATE TABLE Blog_Post (
+    post_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    status INT DEFAULT 1,
+    view_count INT DEFAULT 0,
+    created_at DATETIME DEFAULT NOW(),
+    updated_at DATETIME,
+    renter_id INT,
+    internal_user_id INT,
+    category_id INT,
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id),
+    FOREIGN KEY (category_id) REFERENCES Blog_Category(category_id)
+);
+
+CREATE TABLE Blog_Comment (
+    comment_id INT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT NOT NULL,
+    status INT DEFAULT 1,
+    created_at DATETIME DEFAULT NOW(),
+    updated_at DATETIME,
+    post_id INT NOT NULL,
+    parent_comment_id INT,
+    renter_id INT,
+    internal_user_id INT,
+    FOREIGN KEY (post_id) REFERENCES Blog_Post(post_id),
+    FOREIGN KEY (parent_comment_id) REFERENCES Blog_Comment(comment_id),
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
+);
+
+CREATE TABLE Blog_Like (
+    like_id INT AUTO_INCREMENT PRIMARY KEY,
+    target_type VARCHAR(10) NOT NULL,
+    target_id INT NOT NULL,
+    created_at DATETIME DEFAULT NOW(),
+    renter_id INT,
+    internal_user_id INT,
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
+);
+
+CREATE TABLE Blog_Tag (
+    tag_id INT AUTO_INCREMENT PRIMARY KEY,
+    tag_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE Blog_Post_Tag (
+    post_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    PRIMARY KEY (post_id, tag_id),
+    FOREIGN KEY (post_id) REFERENCES Blog_Post(post_id),
+    FOREIGN KEY (tag_id) REFERENCES Blog_Tag(tag_id)
+);
+
+CREATE TABLE Blog_Bookmark (
+    bookmark_id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    renter_id INT,
+    internal_user_id INT,
+    created_at DATETIME DEFAULT NOW(),
+    FOREIGN KEY (post_id) REFERENCES Blog_Post(post_id),
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
+);
+
+CREATE TABLE Blog_Report (
+    report_id INT AUTO_INCREMENT PRIMARY KEY,
+    target_type VARCHAR(10) NOT NULL,
+    target_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    status INT DEFAULT 0,
+    created_at DATETIME DEFAULT NOW(),
+    resolved_at DATETIME,
+    renter_id INT,
+    internal_user_id INT,
+    resolved_by INT,
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id),
+    FOREIGN KEY (resolved_by) REFERENCES Internal_user(internal_user_id)
+);
 -- ==============================
 -- INSERT DATA
 -- ==============================
