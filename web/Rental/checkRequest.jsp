@@ -130,14 +130,14 @@
                 </div>
 
                 <div class="section">
-                    <label>Items</label><br/>
+                    
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>Item</th>
                                 <th>Description</th>
-                                <th>Requested Qty</th>
-                                <th>Processed Qty</th>
+                                <th>Requested Quantity</th>
+                                <th>Processed Quantity</th>
                                 <th>Status</th>
                             </tr>
                         </thead>

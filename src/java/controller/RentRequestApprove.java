@@ -76,7 +76,11 @@ public class RentRequestApprove extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String redirect = request.getParameter("redirect");
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
         UserView user = (UserView) session.getAttribute("user");
         int requestId = Integer.parseInt(request.getParameter("requestId"));
 

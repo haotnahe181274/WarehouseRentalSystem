@@ -75,7 +75,11 @@ public class VerifyOTPServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            response.sendRedirect(request.getContextPath() + "/register");
+            return;
+        }
         String enteredOtp = request.getParameter("otp");
         String sessionOtp = (String) session.getAttribute("otp");
 

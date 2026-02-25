@@ -64,16 +64,21 @@ public class CreateRentRequest extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
         WarehouseDAO dao = new WarehouseDAO();
         String idRaw = request.getParameter("id");
         if (idRaw == null) {
-            response.sendRedirect("homepage");
+            response.sendRedirect(request.getContextPath() + "/homepage");
             return;
         }
         int id = Integer.parseInt(idRaw);
         Warehouse w = dao.findById(id);
         if (w == null) {
-            response.sendRedirect("homepage");
+            response.sendRedirect(request.getContextPath() + "/homepage");
             return;
         }
         RentRequest rr = new RentRequest();

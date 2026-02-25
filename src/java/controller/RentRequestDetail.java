@@ -69,13 +69,19 @@ public class RentRequestDetail extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         RentRequestDAO dao = new RentRequestDAO();
         WarehouseDAO da = new WarehouseDAO();
 
         String idRaw = request.getParameter("id");
 
         if (idRaw == null) {
-            response.sendRedirect("rentList");
+            response.sendRedirect(request.getContextPath() + "/rentList");
             return;
         }
 
@@ -83,7 +89,7 @@ public class RentRequestDetail extends HttpServlet {
 
         RentRequest rr = dao.getRentRequestDetailById(requestId);
         if (rr == null) {
-            response.sendRedirect("rentList");
+            response.sendRedirect(request.getContextPath() + "/rentList");
             return;
         }
         String action = request.getParameter("action");

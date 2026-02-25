@@ -28,6 +28,12 @@ public class WarehouseDetailServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         try {
             // 1. Lấy ID từ URL (ví dụ: /warehouse/detail?id=5)
             String idRaw = request.getParameter("id");
@@ -72,8 +78,8 @@ public class WarehouseDetailServlet extends HttpServlet {
             request.setAttribute("feedbackResponses", feedbackResponses);
 
             // F. Check user permissions for feedback
-            HttpSession session = request.getSession();
-            UserView user = (UserView) session.getAttribute("user");
+            HttpSession session = request.getSession(false);
+            UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
             boolean canFeedback = false;
             boolean canReply = false;
 
