@@ -28,6 +28,12 @@
     <body>
         <jsp:include page="/Common/Layout/header.jsp"/>
 
+        <c:if test="${not empty quantityError}">
+            <script>
+                alert('${quantityError}');
+            </script>
+        </c:if>
+
         <div class="check-container">
             <c:set var="pageMode" value="${empty pageMode ? (empty checkRequest ? 'create' : 'view') : pageMode}" />
             <c:set var="mode" value="${mode}" />

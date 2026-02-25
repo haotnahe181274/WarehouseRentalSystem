@@ -138,9 +138,11 @@ public class CreateCheckRequest extends HttpServlet {
             }
         }
         if (selectedItems.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/createCheckRequest?mode=" + mode + "&unitId=" + unitId);
+            request.setAttribute("quantityError", "Bạn phải nhập ít nhất 1 item có số lượng > 0.");
+            doGet(request, response);
             return;
         }
+       
 
         String requestType = "OUT".equalsIgnoreCase(mode) ? "CHECK_OUT" : "CHECK_IN";
         CheckRequestDAO checkDao = new CheckRequestDAO();

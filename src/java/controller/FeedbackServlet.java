@@ -53,7 +53,7 @@ public class FeedbackServlet extends HttpServlet {
             request.setAttribute("warehouseId", warehouseId);
 
             // Check if user can feedback
-            HttpSession session = request.getSession(false);
+            
             UserView user = session != null ? (UserView) session.getAttribute("user") : null;
             boolean canFeedback = false;
 

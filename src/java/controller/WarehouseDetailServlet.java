@@ -78,7 +78,7 @@ public class WarehouseDetailServlet extends HttpServlet {
             request.setAttribute("feedbackResponses", feedbackResponses);
 
             // F. Check user permissions for feedback
-            HttpSession session = request.getSession(false);
+            
             UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
             boolean canFeedback = false;
             boolean canReply = false;
