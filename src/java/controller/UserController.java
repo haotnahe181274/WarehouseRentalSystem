@@ -88,7 +88,11 @@ public class UserController extends HttpServlet {
         String rawId = request.getParameter("id");
         String type = request.getParameter("type");
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
         UserView currentUser = (UserView) session.getAttribute("user");
         String userRole = (String) session.getAttribute("role");
 
@@ -214,7 +218,11 @@ public class UserController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
         String userRole = (String) session.getAttribute("role");
 
         // Only Admin can perform POST actions (save, block, unblock)

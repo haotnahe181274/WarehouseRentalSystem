@@ -214,7 +214,8 @@ public class RentRequestDAO extends DBContext {
         LEFT JOIN internal_user iu ON rr.internal_user_id = iu.internal_user_id
         LEFT JOIN rent_request_item rri ON rr.request_id = rri.request_id
         LEFT JOIN item i ON rri.item_id = i.item_id
-          AND rr.request_id = ?
+
+        WHERE rr.request_id = ?
     """;
 
         RentRequest rr = null;

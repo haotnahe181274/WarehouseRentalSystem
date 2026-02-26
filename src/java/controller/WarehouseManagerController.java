@@ -31,10 +31,10 @@ public class WarehouseManagerController extends HttpServlet {
             throws ServletException, IOException {
 
         // 1. Kiểm tra Login
-        HttpSession session = request.getSession();
-        if (session.getAttribute("user") == null) { 
-            response.sendRedirect("login"); 
-            return; 
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
         }
 
         WarehouseManagementDAO dao = new WarehouseManagementDAO();
@@ -151,9 +151,9 @@ jsonBuilder.append("{")
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        HttpSession session = request.getSession();
-        if (session.getAttribute("user") == null) {
-            response.sendRedirect("login");
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 

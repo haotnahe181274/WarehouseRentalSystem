@@ -57,10 +57,7 @@
                     </div>
 
                     <div class="options">
-                        <label>
-                            <input type="checkbox" name="remember">
-                            Remember me
-                        </label>
+                        
 
                         <a href="forgot-password">Forgot Password?</a>
                     </div>

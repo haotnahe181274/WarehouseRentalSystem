@@ -22,12 +22,14 @@ public class PaymentListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
-        UserView user = (UserView) session.getAttribute("user");
-
-        // Chỉ cho phép RENTER truy cập
-        if (user == null || !"RENTER".equalsIgnoreCase(user.getType())) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        UserView user = (UserView) session.getAttribute("user");
+        if (!"RENTER".equalsIgnoreCase(user.getType())) {
+            response.sendRedirect(request.getContextPath() + "/homepage");
             return;
         }
 

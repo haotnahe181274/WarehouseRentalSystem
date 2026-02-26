@@ -15,11 +15,12 @@ public class StaffReportServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
-
-        // KIỂM TRA QUYỀN: Chỉ cho phép "Staff" vào trang này
-        if (user == null || !user.getRole().equalsIgnoreCase("Staff")) {
-            // Nếu không phải Staff, trả về lỗi 403 Forbidden
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        UserView user = (UserView) session.getAttribute("user");
+        if (!user.getRole().equalsIgnoreCase("Staff")) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập chức năng này!");
             return;
         }
@@ -47,7 +48,7 @@ public class StaffReportServlet extends HttpServlet {
 
         // Bảo mật kép: Kiểm tra role một lần nữa trước khi lưu vào DB
         if (user == null || !user.getRole().equalsIgnoreCase("Staff")) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 

@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import model.UserView;
 
 @WebServlet("/staffTask")
 public class StaffTaskServlet extends HttpServlet {
@@ -13,17 +14,15 @@ public class StaffTaskServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. CHECK LOGIN + ROLE
         HttpSession session = request.getSession(false);
-
-        if (session == null || session.getAttribute("role") == null) {
-            response.sendRedirect("login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-
-        String role = session.getAttribute("role").toString();
-        if (!"Staff".equals(role)) {
-            response.sendRedirect("403.jsp");
+        UserView user = (UserView) session.getAttribute("user");
+        String role = user.getRole() != null ? user.getRole() : "";
+        if (!"Staff".equalsIgnoreCase(role)) {
+            response.sendRedirect(request.getContextPath() + "/homepage");
             return;
         }
 

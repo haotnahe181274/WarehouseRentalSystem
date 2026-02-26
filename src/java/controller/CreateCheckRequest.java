@@ -3,7 +3,6 @@ package controller;
 import dao.CheckRequestDAO;
 import dao.ItemDAO;
 import dao.StorageUnitDAO;
-import dao.StorageUnitItemDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -139,9 +138,11 @@ public class CreateCheckRequest extends HttpServlet {
             }
         }
         if (selectedItems.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/createCheckRequest?mode=" + mode + "&unitId=" + unitId);
+            request.setAttribute("quantityError", "Bạn phải nhập ít nhất 1 item có số lượng > 0.");
+            doGet(request, response);
             return;
         }
+       
 
         String requestType = "OUT".equalsIgnoreCase(mode) ? "CHECK_OUT" : "CHECK_IN";
         CheckRequestDAO checkDao = new CheckRequestDAO();
@@ -151,9 +152,11 @@ public class CreateCheckRequest extends HttpServlet {
             for (int[] pair : selectedItems) {
                 checkDao.insertCheckRequestItem(checkRequestId, pair[0], pair[1]);
             }
+            // Sau khi tạo xong, chuyển sang trang view chi tiết request đó
+            response.sendRedirect(request.getContextPath() + "/checkRequestDetail?id=" + checkRequestId);
+        } else {
+            response.sendRedirect(request.getContextPath() + "/itemList");
         }
-
-        response.sendRedirect(request.getContextPath() + "/itemList");
     }
 }
 

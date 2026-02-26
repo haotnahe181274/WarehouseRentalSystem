@@ -15,12 +15,11 @@ public class IncidentReportListServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        UserView user = (UserView) session.getAttribute("user");
-
-        if (user == null) {
-            response.sendRedirect("login.jsp");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+        UserView user = (UserView) session.getAttribute("user");
 
         IncidentReportDAO dao = new IncidentReportDAO();
 

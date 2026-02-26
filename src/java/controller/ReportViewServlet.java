@@ -62,6 +62,12 @@ public class ReportViewServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
 
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         // 1. Lấy ID từ URL (ví dụ: viewReport?id=5)
         String idRaw = request.getParameter("id");
         if (idRaw != null) {
@@ -78,7 +84,7 @@ public class ReportViewServlet extends HttpServlet {
                 return;
             }
         }
-        response.sendRedirect("reportList");
+        response.sendRedirect(request.getContextPath() + "/incident");
     }
 
     /**
@@ -93,8 +99,8 @@ public class ReportViewServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
-        UserView user = (UserView) session.getAttribute("user");
+        HttpSession session = request.getSession(false);
+        UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
 
         // 1. Kiểm tra quyền Manager
         if (user == null || !user.getRole().equalsIgnoreCase("Manager")) {

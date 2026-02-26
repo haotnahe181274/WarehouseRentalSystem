@@ -31,9 +31,16 @@ public class FeedbackServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         String warehouseIdStr = request.getParameter("warehouseId");
         if (warehouseIdStr == null || warehouseIdStr.isEmpty()) {
-            response.sendRedirect("homepage"); // Or logic to handle missing ID
+            response.sendRedirect(request.getContextPath() + "/homepage");
             return;
         }
 
@@ -46,8 +53,8 @@ public class FeedbackServlet extends HttpServlet {
             request.setAttribute("warehouseId", warehouseId);
 
             // Check if user can feedback
-            HttpSession session = request.getSession();
-            UserView user = (UserView) session.getAttribute("user");
+            
+            UserView user = session != null ? (UserView) session.getAttribute("user") : null;
             boolean canFeedback = false;
 
             if (user != null && "RENTER".equalsIgnoreCase(user.getType())) {
@@ -76,15 +83,15 @@ public class FeedbackServlet extends HttpServlet {
             request.getRequestDispatcher("feedback.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
-            response.sendRedirect("homepage");
+            response.sendRedirect(request.getContextPath() + "/homepage");
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        UserView user = (UserView) session.getAttribute("user");
+        HttpSession session = request.getSession(false);
+        UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
 
         if (user == null) {
             response.sendRedirect("login"); // Or access denied page

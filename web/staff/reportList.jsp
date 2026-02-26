@@ -6,6 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Incident Report List</title>
+    <link rel="stylesheet"
+              href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
     <style>
         * {
@@ -136,7 +141,7 @@
                     </c:if>
                 </div>
 
-                <table>
+                <table id="itemTable">
                     <thead>
                         <tr>   
                             <th>Staff</th>
@@ -184,5 +189,13 @@
         </div>
     </div>
         <jsp:include page="/Common/Layout/footer.jsp" />
+        <script>
+            $(document).ready(function () {
+                $('#itemTable').DataTable({
+                    pageLength: 5
+                    
+                });
+            });
+        </script>
 </body>
 </html>
