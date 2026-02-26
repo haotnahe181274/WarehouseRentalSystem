@@ -12,6 +12,13 @@
                 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
                 <style>
+                    body {
+                        margin: 0;
+                        background: #f5f7fb;
+                        font-family: 'Inter', sans-serif;
+                    }
+
+                    /* ===== Layout ===== */
                     .layout {
                         display: flex;
                         min-height: 100vh;
@@ -19,22 +26,100 @@
 
                     .main-content {
                         flex: 1;
-                        padding: 24px;
-                        background: #f5f7fb;
+                        padding: 30px;
                     }
 
-                    body {
-                        font-family: Arial, sans-serif;
-
-                        background: #f5f6fa;
+                    /* ===== Page title ===== */
+                    .page-title {
+                        font-size: 24px;
+                        font-weight: 700;
+                        color: #111827;
+                        margin-bottom: 4px;
                     }
 
-                    h3 {
-                        margin-bottom: 15px;
+                    .page-subtitle {
+                        color: #6b7280;
+                        font-size: 14px;
+                        margin-bottom: 24px;
+                    }
+
+                    /* ===== Filter bar ===== */
+                    .filter-bar {
+                        display: flex;
+                        gap: 12px;
+                        margin-bottom: 24px;
+                        align-items: center;
+                    }
+
+                    .filter-bar select {
+                        border: 1px solid #d1d5db;
+                        border-radius: 8px;
+                        padding: 8px 12px;
+                        font-size: 14px;
+                        background: #fff;
+                    }
+
+                    /* Reset button */
+                    .btn-reset {
+                        background: #111827;
+                        color: #fff;
+                        border: none;
+                        border-radius: 20px;
+                        padding: 8px 20px;
+                        font-size: 13px;
+                        cursor: pointer;
+                        transition: all .2s;
+                        text-decoration: none;
+                        display: inline-block;
+                    }
+
+                    .btn-reset:hover {
+                        background: #1f2937;
+                        color: #fff;
                     }
 
                     .top-bar {
                         display: none;
+                    }
+
+                    /* ===== DataTable overrides ===== */
+                    #userTable {
+                        border-collapse: collapse;
+                        width: 100%;
+                        font-size: 14px;
+                    }
+
+                    #userTable thead th {
+                        background: #f9fafb;
+                        color: #374151;
+                        font-weight: 600;
+                        padding: 12px 14px;
+                        border-bottom: 2px solid #e5e7eb;
+                    }
+
+                    #userTable tbody td {
+                        padding: 12px 14px;
+                        border-bottom: 1px solid #f3f4f6;
+                        vertical-align: middle;
+                    }
+
+                    #userTable tbody tr:hover {
+                        background: #f0f4ff;
+                    }
+
+                    .dataTables_wrapper .dataTables_filter input {
+                        border: 1px solid #d1d5db;
+                        border-radius: 8px;
+                        padding: 6px 12px;
+                        font-size: 14px;
+                        outline: none;
+                    }
+
+                    .dataTables_wrapper .dataTables_length select {
+                        border: 1px solid #d1d5db;
+                        border-radius: 6px;
+                        padding: 4px 8px;
+                        font-size: 14px;
                     }
 
                     #userTable_filter {
@@ -61,6 +146,7 @@
                         margin-bottom: 0 !important;
                     }
 
+                    /* ===== Action buttons ===== */
                     .btn {
                         padding: 6px 12px;
                         border: none;
@@ -70,18 +156,29 @@
                     }
 
                     .btn-add {
-                        background: black;
-                        color: white;
+                        background: #111827;
+                        color: #fff;
+                        border-radius: 8px;
+                        font-size: 13px;
+                        padding: 8px 16px;
+                        transition: background .2s;
+                    }
+
+                    .btn-add:hover {
+                        background: #1f2937;
+                        color: #fff;
                     }
 
                     .btn-block {
                         background: #ff4d4f;
                         color: white;
+                        border-radius: 6px;
                     }
 
                     .btn-unblock {
                         background: #52c41a;
                         color: white;
+                        border-radius: 6px;
                     }
 
                     table.dataTable {
@@ -89,10 +186,6 @@
                         background: #fff;
                         border-radius: 6px;
                         overflow: hidden;
-                    }
-
-                    .btn-add:hover {
-                        background: #e0e0e0;
                     }
                 </style>
             </head>
@@ -112,35 +205,33 @@
                             </c:if>
                         </div>
 
-                        <h3 style="font-weight: 600; color: #111827;">User List</h3>
+                        <h1 class="page-title">User List</h1>
+                        <p class="page-subtitle">Manage all users in the system</p>
 
                         <!-- Filter Section -->
                         <!-- Filter Section -->
                         <div class="filter-section">
                             <form action="${pageContext.request.contextPath}/user/list" method="get" id="filterForm"
-                                style="display: flex; gap: 10px; align-items: center;">
+                                class="filter-bar">
 
                                 <!-- Hidden input to store pageLength -->
                                 <input type="hidden" name="pageSize" id="pageSizeInput">
 
-                                <select name="filterType" onchange="submitFilter()"
-                                    style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
+                                <select name="filterType" onchange="submitFilter()">
                                     <option value="All">All Types</option>
                                     <option value="INTERNAL" ${filterType=='INTERNAL' ? 'selected' : '' }>Internal
                                     </option>
                                     <option value="RENTER" ${filterType=='RENTER' ? 'selected' : '' }>Renter</option>
                                 </select>
 
-                                <select name="filterStatus" onchange="submitFilter()"
-                                    style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
+                                <select name="filterStatus" onchange="submitFilter()">
                                     <option value="All">All Status</option>
                                     <option value="1" ${filterStatus==1 ? 'selected' : '' }>Active</option>
                                     <option value="0" ${filterStatus==0 ? 'selected' : '' }>Blocked</option>
                                 </select>
 
                                 <c:if test="${filterType == 'INTERNAL'}">
-                                    <select name="filterRole" onchange="submitFilter()"
-                                        style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
+                                    <select name="filterRole" onchange="submitFilter()">
                                         <option value="All">All Roles</option>
                                         <option value="Admin" ${filterRole=='Admin' ? 'selected' : '' }>Admin</option>
                                         <option value="Manager" ${filterRole=='Manager' ? 'selected' : '' }>Manager
@@ -151,9 +242,8 @@
 
                                 <c:if
                                     test="${(filterType != null && filterType != 'All') || (filterStatus != null) || (filterRole != null && filterRole != 'All')}">
-                                    <a href="${pageContext.request.contextPath}/user/list"
-                                        style="padding: 8px 16px; border-radius: 6px; background-color: black; color: white; text-decoration: none; font-size: 14px; font-weight: 500; transition: background-color 0.2s;">
-                                        Reset
+                                    <a href="${pageContext.request.contextPath}/user/list" class="btn-reset">
+                                        <i class="fa-solid fa-rotate-left"></i> Reset
                                     </a>
                                 </c:if>
                             </form>
