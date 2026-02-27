@@ -170,23 +170,7 @@ public class ContractDAO extends DBContext {
         return false;
     }
 
-    // 4. TẠO HỢP ĐỒNG TỪ REQUEST (Trạng thái ban đầu = 0)
-    public boolean createContractFromRequest(int requestId) {
-        String sql = "INSERT INTO Contract (start_date, end_date, status, renter_id, warehouse_id, request_id, price) "
-                + "SELECT MIN(ru.start_date), MAX(ru.end_date), 0, r.renter_id, r.warehouse_id, r.request_id, SUM(ru.rent_price) "
-                + "FROM Rent_request r "
-                + "JOIN rent_request_unit ru ON r.request_id = ru.request_id "
-                + "WHERE r.request_id = ? AND r.status = 1 "
-                + "GROUP BY r.request_id";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, requestId);
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            System.out.println("Lỗi createContractFromRequest: " + e.getMessage());
-        }
-        return false;
-    }
+   
     
     
     
