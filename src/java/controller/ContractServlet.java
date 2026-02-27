@@ -36,7 +36,7 @@ public class ContractServlet extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             Contract c = dao.getContractById(id);
             request.setAttribute("contract", c);
-            request.getRequestDispatcher("contract/Contract-form.jsp").forward(request, response);
+            request.getRequestDispatcher("contract/contract.jsp").forward(request, response);
         }
     }
 

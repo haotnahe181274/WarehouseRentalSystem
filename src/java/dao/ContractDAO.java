@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import model.Contract;
+import model.InternalUser;
 import model.Renter;
 import model.Warehouse;
 
@@ -82,23 +83,144 @@ public class ContractDAO extends DBContext {
     }  
     
     
-    
+    // 1. LẤY CHI TIẾT HỢP ĐỒNG (Full thông tin 3 bên)
+    public Contract getContractByRequest(int id) {
+        // SQL JOIN 3 bảng: Renter, Warehouse và Internal_user (Manager)
+        String sql = "SELECT c.*, "
+                + "req.start_date AS req_start, req.end_date AS req_end, " // Lấy từ request
+                + "r.full_name AS r_name, r.email AS r_email, r.phone AS r_phone, "
+                + "w.address AS w_location, w.capacity AS w_capacity, "
+                + "u.full_name AS m_name, u.email AS m_email, u.phone AS m_phone "
+                + "FROM Contract c "
+                + "JOIN Rent_request req ON c.request_id = req.request_id " // Join với Request
+                + "LEFT JOIN Renter r ON c.renter_id = r.renter_id "
+                + "LEFT JOIN Warehouse w ON c.warehouse_id = w.warehouse_id "
+                + "LEFT JOIN Internal_user u ON c.internal_user_id = u.internal_user_id "
+                + "WHERE c.contract_id = ?";
+        
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                Contract c = new Contract();
+                c.setContractId(rs.getInt("contract_id"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setStatus(rs.getInt("status"));
+                c.setPrice(rs.getDouble("price"));
+
+                // Mapping Renter (Bên B)
+                Renter renter = new Renter();
+                renter.setFullName(rs.getString("r_name"));
+                renter.setEmail(rs.getString("r_email"));
+                renter.setPhone(rs.getString("r_phone"));
+                c.setRenter(renter);
+                
+                // Mapping Warehouse
+                Warehouse warehouse = new Warehouse();
+                warehouse.setAddress(rs.getString("w_location"));
+                warehouse.setMinArea(rs.getDouble("w_capacity"));
+                c.setWarehouse(warehouse);
+
+                // Mapping Manager (Bên A - Người duyệt hợp đồng)
+                InternalUser manager = new InternalUser();
+                manager.setFullName(rs.getString("m_name"));
+                manager.setEmail(rs.getString("m_email"));
+                manager.setPhone(rs.getString("m_phone"));
+                c.setUser(manager);
+
+                return c;
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi getContractById: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // 2. DÀNH CHO MANAGER: Duyệt/Từ chối + Cập nhật ID Manager vào Hợp đồng
+    public boolean managerUpdateStatus(int contractId, int newStatus, int managerId) {
+        // Khi Manager thao tác, ta lưu luôn ID của họ vào internal_user_id
+        String sql = "UPDATE Contract SET status = ?, internal_user_id = ? WHERE contract_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, newStatus);
+            ps.setInt(2, managerId);
+            ps.setInt(3, contractId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi managerUpdateStatus: " + e.getMessage());
+        }
+        return false;
+    }
+
+    // 3. DÀNH CHO RENTER: Chấp nhận ký hoặc Từ chối
+    public boolean renterUpdateStatus(int contractId, int newStatus) {
+        // Renter thao tác thì chỉ cần đổi trạng thái, không đổi Manager đã duyệt trước đó
+        String sql = "UPDATE Contract SET status = ? WHERE contract_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, newStatus);
+            ps.setInt(2, contractId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi renterUpdateStatus: " + e.getMessage());
+        }
+        return false;
+    }
+
+    // 4. TẠO HỢP ĐỒNG TỪ REQUEST (Trạng thái ban đầu = 0)
+    public boolean createContractFromRequest(int requestId) {
+        String sql = "INSERT INTO Contract (start_date, end_date, status, renter_id, warehouse_id, request_id, price) "
+                + "SELECT MIN(ru.start_date), MAX(ru.end_date), 0, r.renter_id, r.warehouse_id, r.request_id, SUM(ru.rent_price) "
+                + "FROM Rent_request r "
+                + "JOIN rent_request_unit ru ON r.request_id = ru.request_id "
+                + "WHERE r.request_id = ? AND r.status = 1 "
+                + "GROUP BY r.request_id";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, requestId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi createContractFromRequest: " + e.getMessage());
+        }
+        return false;
+    }
     
     
     
 
     public Contract getContractById(int id) {
-        String sql = "SELECT * FROM Contract WHERE contractId = ?";
+
+        String sql = "SELECT * FROM Contract WHERE contract_id = ?";
+
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, id);
+
             ResultSet rs = st.executeQuery();
+
             if (rs.next()) {
-                return new Contract(rs.getInt(1), rs.getDate(2), rs.getDate(3), rs.getInt(4), null, null);
+
+                Contract contract = new Contract(
+                        rs.getInt("contract_id"),
+                        rs.getDate("start_date"),
+                        rs.getDate("end_date"),
+                        rs.getInt("status"),
+                        rs.getDouble("price"),
+                        null,      // renter (chưa join)
+                        null,      // warehouse (chưa join)
+                        null       // internal user (chưa join)
+                );
+
+                return contract;
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
