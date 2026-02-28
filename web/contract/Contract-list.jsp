@@ -104,14 +104,12 @@
                                         </c:choose>
                                     </td>
 
-                                    <td class="text-center">
-                                        <a href="contract?action=edit&id=${c.contractId}" 
-                                           class="btn btn-outline-primary btn-sm"
-                                           title="Chỉnh sửa">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                                <td class="text-center">
+                                    <a href="contract-detail?id=${c.contractId}"
+                                       class="btn btn-outline-info btn-sm">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
                             </c:forEach>
 
                             <c:if test="${empty listC}">
