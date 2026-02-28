@@ -162,43 +162,57 @@ public class ContractDAO extends DBContext {
     // ===============================
     // MANAGER APPROVE
     // ===============================
-    public void managerUpdateStatus(int contractId, int status, int managerId) {
+    public boolean managerUpdateStatus(int contractId,
+                                   int status,
+                                   int managerId) {
 
         String sql = """
             UPDATE Contract
-            SET status = ?, manager_id = ?
+            SET status = ?
             WHERE contract_id = ?
         """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setInt(1, status);
-            ps.setInt(2, managerId);
-            ps.setInt(3, contractId);
-            ps.executeUpdate();
+            ps.setInt(2, contractId);
+
+            return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     // ===============================
     // RENTER CONFIRM
     // ===============================
-    public void renterUpdateStatus(int contractId, int status) {
+    public boolean renterUpdateStatus(int contractId, int status) {
 
-        String sql = "UPDATE Contract SET status=? WHERE contract_id=?";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, status);
-            ps.setInt(2, contractId);
-            ps.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    if (status != 3 && status != 4) {
+        return false;
     }
+
+    String sql = """
+        UPDATE Contract
+        SET status = ?
+        WHERE contract_id = ?
+        AND status = 1
+    """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+        ps.setInt(1, status);
+        ps.setInt(2, contractId);
+
+        return ps.executeUpdate() > 0;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+}
 
 
    
