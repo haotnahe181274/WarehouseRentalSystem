@@ -7,6 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
+import model.ContractDetail;
 
 @WebServlet(name = "ContractServlet", urlPatterns = {"/contract"})
 public class ContractServlet extends HttpServlet {
@@ -32,12 +33,23 @@ public class ContractServlet extends HttpServlet {
             request.getRequestDispatcher("contract/Contract-list.jsp").forward(request, response);
         } 
         else if ("edit".equals(action)) {
-            // Logic lấy 1 contract để sửa (giữ nguyên của bạn)
-            int id = Integer.parseInt(request.getParameter("id"));
-            Contract c = dao.getContractById(id);
-            request.setAttribute("contract", c);
-            request.getRequestDispatcher("contract/contract.jsp").forward(request, response);
-        }
+
+    int id = Integer.parseInt(request.getParameter("id"));
+
+    // ⭐ LẤY FULL JOIN DATA
+        ContractDetail contract = dao.getContractByRequest(id);
+        request.setAttribute("contract", contract);
+
+    if (contract == null) {
+        response.getWriter().println("Contract not found");
+        return;
+    }
+
+    request.setAttribute("contract", contract);
+
+    request.getRequestDispatcher("contract/contract.jsp")
+           .forward(request, response);
+}
     }
 
     @Override
