@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import model.Contract;
+import model.ContractDetail;
 import model.InternalUser;
 import model.Renter;
 import model.Warehouse;
@@ -17,7 +18,7 @@ public class ContractDAO extends DBContext {
         SELECT 
             MIN(ru.start_date),
             MAX(ru.end_date),
-            1, -- Mặc định hợp đồng mới có status = 1
+            0,
             rr.renter_id,
             rr.warehouse_id,
             rr.request_id,
@@ -84,60 +85,76 @@ public class ContractDAO extends DBContext {
     
     
     // 1. LẤY CHI TIẾT HỢP ĐỒNG (Full thông tin 3 bên)
-    public Contract getContractByRequest(int id) {
-        // SQL JOIN 3 bảng: Renter, Warehouse và Internal_user (Manager)
-        String sql = "SELECT c.*, "
-                + "req.start_date AS req_start, req.end_date AS req_end, " // Lấy từ request
-                + "r.full_name AS r_name, r.email AS r_email, r.phone AS r_phone, "
-                + "w.address AS w_location, w.capacity AS w_capacity, "
-                + "u.full_name AS m_name, u.email AS m_email, u.phone AS m_phone "
-                + "FROM Contract c "
-                + "JOIN Rent_request req ON c.request_id = req.request_id " // Join với Request
-                + "LEFT JOIN Renter r ON c.renter_id = r.renter_id "
-                + "LEFT JOIN Warehouse w ON c.warehouse_id = w.warehouse_id "
-                + "LEFT JOIN Internal_user u ON c.internal_user_id = u.internal_user_id "
-                + "WHERE c.contract_id = ?";
+   public ContractDetail getContractByRequest(int id) {
+
+    String sql = """
+        SELECT 
+                    c.contract_id,
+                    c.start_date,
+                    c.end_date,
+                    c.status,
+                    c.price,
         
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                Contract c = new Contract();
-                c.setContractId(rs.getInt("contract_id"));
-                c.setStartDate(rs.getDate("start_date"));
-                c.setEndDate(rs.getDate("end_date"));
-                c.setStatus(rs.getInt("status"));
-                c.setPrice(rs.getDouble("price"));
+                    r.full_name AS renter_name,
+                    r.email AS renter_email,
+                    r.phone AS renter_phone,
+        
+                    w.warehouse_id,
+                    w.name AS warehouse_name,
+                    w.address AS warehouse_address,
+        
+                    iu.full_name AS manager_name,
+                    iu.email AS manager_email,
+                    iu.phone AS manager_phone
+                FROM Contract c
+        
+                LEFT JOIN Renter r 
+                    ON c.renter_id = r.renter_id
+        
+                LEFT JOIN Warehouse w 
+                    ON c.warehouse_id = w.warehouse_id
+        
+                LEFT JOIN Rent_request ru 
+                    ON c.request_id = ru.request_id
+        
+                LEFT JOIN Internal_user iu 
+                    ON ru.internal_user_id = iu.internal_user_id
+        WHERE c.contract_id = ?
+    """;
 
-                // Mapping Renter (Bên B)
-                Renter renter = new Renter();
-                renter.setFullName(rs.getString("r_name"));
-                renter.setEmail(rs.getString("r_email"));
-                renter.setPhone(rs.getString("r_phone"));
-                c.setRenter(renter);
-                
-                // Mapping Warehouse
-                Warehouse warehouse = new Warehouse();
-                warehouse.setAddress(rs.getString("w_location"));
-                warehouse.setMinArea(rs.getDouble("w_capacity"));
-                c.setWarehouse(warehouse);
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
 
-                // Mapping Manager (Bên A - Người duyệt hợp đồng)
-                InternalUser manager = new InternalUser();
-                manager.setFullName(rs.getString("m_name"));
-                manager.setEmail(rs.getString("m_email"));
-                manager.setPhone(rs.getString("m_phone"));
-                c.setUser(manager);
+        if (rs.next()) {
+            ContractDetail cd = new ContractDetail();
 
-                return c;
-            }
-        } catch (Exception e) {
-            System.out.println("Lỗi getContractById: " + e.getMessage());
+            cd.setContractId(rs.getInt("contract_id"));
+            cd.setStartDate(rs.getDate("start_date"));
+            cd.setEndDate(rs.getDate("end_date"));
+            cd.setPrice(rs.getDouble("price"));
+            cd.setStatus(rs.getInt("status"));
+
+            cd.setRenterName(rs.getString("renter_name"));
+            cd.setRenterEmail(rs.getString("renter_email"));
+            cd.setRenterPhone(rs.getString("renter_phone"));
+
+            cd.setWarehouseAddress(rs.getString("address"));
+
+            cd.setManagerName(rs.getString("manager_name"));
+            cd.setManagerEmail(rs.getString("manager_email"));
+            cd.setManagerPhone(rs.getString("manager_phone"));
+
+            return cd;
         }
-        return null;
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+
+    return null;
+}
 
     // 2. DÀNH CHO MANAGER: Duyệt/Từ chối + Cập nhật ID Manager vào Hợp đồng
     public boolean managerUpdateStatus(int contractId, int newStatus, int managerId) {

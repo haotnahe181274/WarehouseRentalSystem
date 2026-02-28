@@ -6,97 +6,43 @@
     <title>Chi tiết hợp đồng</title>
 
     <style>
-        body {
-            font-family: Arial;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 0;
-        }
-
+        body {font-family: Arial;background-color:#f4f6f9;margin:0;}
         .header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background:#2c3e50;color:white;
+            padding:20px 40px;
+            display:flex;justify-content:space-between;
         }
-
         .status {
-            background-color: #2ecc71;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
+            padding:5px 15px;
+            border-radius:20px;
+            font-size:14px;
+            background:#2ecc71;
         }
-
         .container {
-            padding: 40px;
-            background: white;
-            margin: 30px auto;
-            width: 90%;
-            border-radius: 10px;
+            padding:40px;background:white;
+            margin:30px auto;width:90%;
+            border-radius:10px;
         }
-
-        h3 {
-            color: #2980b9;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-
-        .row {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .box {
-            width: 48%;
-        }
-
-        .info p {
-            margin: 8px 0;
-        }
-
+        h3 {color:#2980b9;border-bottom:1px solid #ddd;}
+        .row {display:flex;justify-content:space-between;}
+        .box {width:48%;}
+        .info p {margin:8px 0;}
         .highlight {
-            background: #f1f2f6;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 15px;
+            background:#f1f2f6;
+            padding:20px;
+            border-radius:8px;
+            margin-top:15px;
         }
-
-        .price {
-            color: red;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .actions {
-            text-align: center;
-            margin-top: 30px;
-        }
-
+        .price {color:red;font-weight:bold;font-size:18px;}
+        .actions {text-align:center;margin-top:30px;}
         .btn {
-            padding: 10px 25px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 5px;
+            padding:10px 25px;border:none;
+            border-radius:6px;cursor:pointer;margin:5px;
+            color:white;
         }
-
-        .agree {
-            background-color: #27ae60;
-            color: white;
-        }
-
-        .reject {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        .pdf {
-            background-color: #3498db;
-            color: white;
-        }
+        .agree{background:#27ae60;}
+        .reject{background:#e74c3c;}
+        .pdf{background:#3498db;}
     </style>
 </head>
 
@@ -105,15 +51,15 @@
 <!-- HEADER -->
 <div class="header">
     <div>
-        MÃ HĐ: ${contract.contractId}
+        MÃ HĐ: ${contractDetail.contractId}
     </div>
 
     <div>
         <c:choose>
-            <c:when test="${contract.status == 1}">
+            <c:when test="${contractDetail.status == 1}">
                 <span class="status">Đã đồng ý</span>
             </c:when>
-            <c:when test="${contract.status == 2}">
+            <c:when test="${contractDetail.status == 2}">
                 <span class="status" style="background:#e74c3c;">Đã từ chối</span>
             </c:when>
             <c:otherwise>
@@ -125,42 +71,60 @@
 
 <div class="container">
 
-    <!-- BÊN A - BÊN B -->
+    <!-- BÊN A & B -->
     <div class="row">
+
+        <!-- BÊN A -->
         <div class="box">
             <h3>BÊN CHO THUÊ (BÊN A)</h3>
+
+            <c:choose>
+                <c:when test="${not empty contractDetail.managerName}">
+                    <div class="info">
+                        <p><b>Công ty:</b> Warehouse Rental System</p>
+                        <p><b>Đại diện:</b> ${contractDetail.managerName}</p>
+                    </div>
+                </c:when>
+
+                <c:otherwise>
+                    <p style="color:#f39c12;">
+                        Hợp đồng đang chờ Manager xác nhận
+                    </p>
+                </c:otherwise>
+            </c:choose>
+        </div>
+
+        <!-- BÊN B -->
+        <div class="box">
+            <h3>BÊN THUÊ (BÊN B)</h3>
+
             <div class="info">
-                <p><b>Công ty:</b> ${ownerName}</p>
-                <p><b>Đại diện:</b> ${ownerRep}</p>
-                <p><b>MST:</b> ${ownerTax}</p>
-                <p><b>Địa chỉ:</b> ${ownerAddress}</p>
+                <p><b>Họ và tên:</b> ${contractDetail.renterName}</p>
+                <p><b>Email:</b> ${contractDetail.renterEmail}</p>
+                <p><b>Điện thoại:</b> ${contractDetail.renterPhone}</p>
             </div>
         </div>
 
-        <div class="box">
-            <h3>BÊN THUÊ (BÊN B)</h3>
-            <div class="info">
-                <p><b>Công ty:</b> ${contract.renter.renterName}</p>
-                <p><b>Email:</b> ${contract.renter.renterEmail}</p>
-                <p><b>Điện thoại:</b> ${contract.renter.renterPhone}</p>
-            </div>
-        </div>
     </div>
 
     <br>
 
-    <!-- CHI TIẾT KHO -->
+    <!-- KHO -->
     <h3>CHI TIẾT KHO BÃI & TÀI CHÍNH</h3>
 
-    <p><b>Địa điểm kho:</b> ${contract.warehouse.location}</p>
+    <p><b>Địa điểm kho:</b> ${contractDetail.warehouseAddress}</p>
 
     <div class="highlight">
-        <p><b>Diện tích thuê:</b> ${contract.warehouse.capacity} m²</p>
-        <p><b>Thời hạn thuê:</b> ${contract.startDate} → ${contract.endDate}</p>
+        <p><b>Thời hạn thuê:</b>
+            ${contractDetail.startDate}
+            →
+            ${contractDetail.endDate}
+        </p>
+
         <p>
             <b>Giá thuê hàng tháng:</b>
             <span class="price">
-                ${contract.price} VNĐ/tháng
+                ${contractDetail.price} VNĐ/tháng
             </span>
         </p>
     </div>
@@ -175,25 +139,28 @@
         <li>Trách nhiệm PCCC thuộc về Bên B trong suốt thời gian vận hành.</li>
     </ul>
 
-    <!-- ACTION BUTTONS -->
+    <!-- BUTTON -->
     <div class="actions">
 
-        <!-- Form Đồng ý / Từ chối -->
         <form action="contract" method="post" style="display:inline;">
-            <input type="hidden" name="contractId" value="${contract.contractId}"/>
+            <input type="hidden" name="contractId"
+                   value="${contractDetail.contractId}"/>
 
-            <button type="submit" name="action" value="agree" class="btn agree">
+            <button type="submit" name="action"
+                    value="agree" class="btn agree">
                 Đồng ý
             </button>
 
-            <button type="submit" name="action" value="reject" class="btn reject">
+            <button type="submit" name="action"
+                    value="reject" class="btn reject">
                 Từ chối
             </button>
         </form>
 
-        <!-- Xuất PDF -->
         <form action="exportPdf" method="get" style="display:inline;">
-            <input type="hidden" name="contractId" value="${contract.contractId}"/>
+            <input type="hidden" name="contractId"
+                   value="${contractDetail.contractId}"/>
+
             <button type="submit" class="btn pdf">
                 Xuất File PDF
             </button>
