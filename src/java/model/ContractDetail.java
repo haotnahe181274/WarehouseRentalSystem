@@ -8,39 +8,21 @@ public class ContractDetail {
     private int contractId;
     private Date startDate;
     private Date endDate;
-    private double price;
     private int status;
+    private double price;
 
-    // ===== RENTER =====
     private String renterName;
     private String renterEmail;
     private String renterPhone;
 
-    // ===== WAREHOUSE =====
     private String warehouseName;
     private String warehouseAddress;
 
-    // ===== MANAGER =====
     private String managerName;
     private String managerEmail;
     private String managerPhone;
 
-    public String getManagerEmail() {
-        return managerEmail;
-    }
-
-    public void setManagerEmail(String managerEmail) {
-        this.managerEmail = managerEmail;
-    }
-
-    public String getManagerPhone() {
-        return managerPhone;
-    }
-
     // ===== GETTER & SETTER =====
-    public void setManagerPhone(String managerPhone) {
-        this.managerPhone = managerPhone;
-    }
 
     public int getContractId() {
         return contractId;
@@ -66,20 +48,20 @@ public class ContractDetail {
         this.endDate = endDate;
     }
 
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
     public int getStatus() {
         return status;
     }
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public String getRenterName() {
@@ -129,4 +111,22 @@ public class ContractDetail {
     public void setManagerName(String managerName) {
         this.managerName = managerName;
     }
+
+    public String getManagerEmail() {
+        return managerEmail;
+    }
+
+    public void setManagerEmail(String managerEmail) {
+        this.managerEmail = managerEmail;
+    }
+
+    public String getManagerPhone() {
+        return managerPhone;
+    }
+
+    public void setManagerPhone(String managerPhone) {
+        this.managerPhone = managerPhone;
+    }
+
+    
 }
