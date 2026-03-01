@@ -208,6 +208,7 @@
         <body>
             <jsp:include page="/Common/Layout/header.jsp" />
             <c:set var="loginUser" value="${sessionScope.user}" />
+            <c:set var="isAdminView" value="${mode == 'view' && loginUser.role == 'Admin'}" />
 
             <div class="layout">
                 <jsp:include page="/Common/Layout/sidebar.jsp" />
@@ -224,7 +225,14 @@
                     <form action="${pageContext.request.contextPath}/user/list" method="post"
                         enctype="multipart/form-data">
                         <input type="hidden" name="action" value="save">
-                        <input type="hidden" name="mode" value="${mode}">
+                        <c:choose>
+                            <c:when test="${isAdminView}">
+                                <input type="hidden" name="mode" value="edit">
+                            </c:when>
+                            <c:otherwise>
+                                <input type="hidden" name="mode" value="${mode}">
+                            </c:otherwise>
+                        </c:choose>
 
                         <c:if test="${targetUser != null}">
                             <input type="hidden" name="id" value="${targetUser.id}">
@@ -244,8 +252,8 @@
                                             class="avatar-img">
                                     </c:if>
 
-                                    <!-- Upload Button (Only for Add or Edit, not View) -->
-                                    <c:if test="${mode != 'view'}">
+                                    <!-- Upload Button (for Add, Edit, or Admin viewing) -->
+                                    <c:if test="${mode != 'view' || isAdminView}">
                                         <label class="btn-custom btn-outline"
                                             style="cursor: pointer; display: block; margin-top: 10px;">
                                             Upload Photo
@@ -363,7 +371,7 @@
                                         <div>
                                             <label class="form-label">Full Name</label>
                                             <c:choose>
-                                                <c:when test="${mode == 'view'}">
+                                                <c:when test="${mode == 'view' && !isAdminView}">
                                                     <div class="view-text">${targetUser.fullName}</div>
                                                 </c:when>
                                                 <c:otherwise>
@@ -383,7 +391,7 @@
                                             <c:choose>
                                                 <c:when test="${targetUser.type == 'INTERNAL' || mode == 'add'}">
                                                     <c:choose>
-                                                        <c:when test="${mode == 'view'}">
+                                                        <c:when test="${mode == 'view' && !isAdminView}">
                                                             <div class="view-text">${targetUser.role}</div>
                                                         </c:when>
                                                         <c:otherwise>
@@ -399,7 +407,7 @@
                                                     </c:choose>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <div class="view-text">Renter</div> <!-- Or empty -->
+                                                    <div class="view-text">Renter</div>
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
@@ -411,7 +419,7 @@
                                         <div>
                                             <label class="form-label">Email</label>
                                             <c:choose>
-                                                <c:when test="${mode == 'view'}">
+                                                <c:when test="${mode == 'view' && !isAdminView}">
                                                     <div class="view-text">${targetUser.email}</div>
                                                 </c:when>
                                                 <c:otherwise>
@@ -426,7 +434,7 @@
                                         <div>
                                             <label class="form-label">Phone</label>
                                             <c:choose>
-                                                <c:when test="${mode == 'view'}">
+                                                <c:when test="${mode == 'view' && !isAdminView}">
                                                     <div class="view-text">${targetUser.phone}</div>
                                                 </c:when>
                                                 <c:otherwise>
@@ -446,7 +454,7 @@
                                             <div>
                                                 <label class="form-label">ID Card</label>
                                                 <c:choose>
-                                                    <c:when test="${mode == 'view'}">
+                                                    <c:when test="${mode == 'view' && !isAdminView}">
                                                         <div class="view-text">${targetUser.idCard}</div>
                                                     </c:when>
                                                     <c:otherwise>
@@ -476,7 +484,7 @@
                                         <div class="mb-3">
                                             <label class="form-label">Address</label>
                                             <c:choose>
-                                                <c:when test="${mode == 'view'}">
+                                                <c:when test="${mode == 'view' && !isAdminView}">
                                                     <div class="view-text">${targetUser.address}</div>
                                                 </c:when>
                                                 <c:otherwise>
@@ -502,19 +510,19 @@
 
                                     <!-- Actions -->
                                     <div class="nav-actions">
-                                        <!-- UPDATE BUTTON (Admin viewing details) -->
-                                        <c:if test="${mode == 'view' && loginUser.role == 'Admin'}">
-                                            <a class="btn-custom btn-primary-custom btn-width-auto"
-                                                style="text-decoration: none; display: inline-block;"
-                                                href="${pageContext.request.contextPath}/user/list?action=edit&id=${targetUser.id}&type=${targetUser.type}">
-                                                Edit User
-                                            </a>
-                                        </c:if>
-
-                                        <!-- SAVE BUTTON (Add/Edit mode) -->
-                                        <c:if test="${mode != 'view'}">
+                                        <!-- SAVE BUTTON (Add/Edit mode or Admin viewing) -->
+                                        <c:if test="${mode != 'view' || isAdminView}">
                                             <button class="btn-custom btn-primary-custom btn-width-auto" type="submit">
                                                 Save Changes
+                                            </button>
+                                        </c:if>
+
+                                        <!-- RESET PASSWORD BUTTON (Admin viewing) -->
+                                        <c:if test="${isAdminView}">
+                                            <button type="button" class="btn-custom btn-width-auto"
+                                                style="background-color: #f59e0b; color: white; border: none;"
+                                                onclick="if(confirm('Reset password to default (123456)?')) { document.getElementById('resetPwdForm').submit(); }">
+                                                <i class="fa-solid fa-key"></i> Reset Password
                                             </button>
                                         </c:if>
 
@@ -530,6 +538,15 @@
                             </div>
                         </div>
                     </form>
+
+                    <!-- Hidden form for Reset Password -->
+                    <c:if test="${isAdminView}">
+                        <form id="resetPwdForm" action="${pageContext.request.contextPath}/user/list" method="post">
+                            <input type="hidden" name="action" value="resetPassword">
+                            <input type="hidden" name="id" value="${targetUser.id}">
+                            <input type="hidden" name="type" value="${targetUser.type}">
+                        </form>
+                    </c:if>
                 </div>
             </div>
 

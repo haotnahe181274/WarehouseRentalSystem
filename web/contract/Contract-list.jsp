@@ -29,9 +29,6 @@
                     
                 </h2>
 
-                <a href="contract?action=add" class="btn btn-primary shadow-sm">
-                    <i class="bi bi-plus-lg"></i> Thêm hợp đồng mới
-                </a>
             </div>
 
             <!-- Message -->

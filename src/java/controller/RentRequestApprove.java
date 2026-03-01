@@ -90,12 +90,9 @@ public class RentRequestApprove extends HttpServlet {
         dao.updateStatusByManager(requestId, 1, user.getId());
 
         // 2. Redirect sang trang tạo contract
-        if ("detail".equals(redirect)) {
             response.sendRedirect(request.getContextPath()
-                    + "/rentDetail?id=" + requestId);
-        } else {
-            response.sendRedirect(request.getContextPath() + "/rentList");
-        }
+                    + "/contract-detail?id=" + requestId);
+        
     }
 
     /**
