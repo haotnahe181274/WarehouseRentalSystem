@@ -44,20 +44,6 @@
         .fc-day:not(.fc-day-other) { cursor: pointer; }
         .fc-day-other .fc-bg-event { display: none !important; }
         .fc-day-other .fc-event-title { display: none !important; }
-         .warehouse-button {
-        margin-top: 16px;
-        text-align: center;
-        padding: 12px;
-        background: #111827;
-        color: #fff;
-        border-radius: 999px;
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .warehouse-button:hover {
-        background: #000;
-    }
     </style>
 </head>
 
@@ -222,45 +208,13 @@
                                 </div>
                             </div>
 
-                            <div class="card-custom p-4">
-                                <h5 class="fw-bold mb-4">Booking Request</h5>
-                                <form action="rent-request" method="POST">
-                                    <input type="hidden" name="warehouseId" value="${w.warehouseId}">
-
-                                    <div class="row">
-                                        <div class="col-6 mb-3">
-                                            <label class="small fw-bold text-muted mb-1">Start Date</label>
-                                            <input type="date" id="formStartDate" name="startDate" class="form-control form-control-sm" required>
-                                        </div>
-                                        <div class="col-6 mb-3">
-                                            <label class="small fw-bold text-muted mb-1">End Date</label>
-                                            <input type="date" id="formEndDate" name="endDate" class="form-control form-control-sm" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="small fw-bold text-muted mb-1">Selected Zones</label>
-                                        <div class="border rounded p-2 bg-light" style="max-height:120px; overflow-y:auto;">
-                                            <c:forEach items="${units}" var="u">
-                                                <c:if test="${u.status == 1}">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input zone-checkbox" type="checkbox" name="selectedUnits" id="chk-zone-${u.unitId}" value="${u.unitId}">
-                                                        <label class="form-check-label small" for="chk-zone-${u.unitId}">${u.unitCode} (<fmt:formatNumber value="${u.area}" /> sq ft)</label>
-                                                    </div>
-                                                </c:if>
-                                            </c:forEach>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="small fw-bold text-muted mb-1">Note / Requirements</label>
-                                        <textarea name="note" class="form-control form-control-sm" rows="2" placeholder="VD: Cần lưu trữ hàng dễ vỡ..."></textarea>
-                                    </div>
-                                    
-                                   <a href="${pageContext.request.contextPath}/createRentRequest?id=${w.warehouseId}" class="warehouse-button">
-                    Submit Request
-                </a>
-                                </form>
+                            <div class="card-custom p-4 text-center">
+                                <h5 class="fw-bold mb-2">Bạn muốn thuê kho này?</h5>
+                                <p class="text-muted small mb-4">Nhấn vào nút bên dưới để chuyển sang trang tạo yêu cầu Đặt thuê chi tiết.</p>
+                                
+                                <a href="${pageContext.request.contextPath}/createRentRequest?id=${w.warehouseId}" class="btn btn-submit rounded-pill fw-bold">
+                                    <i class="fas fa-file-contract me-2"></i> Đi tới trang Đặt Thuê
+                                </a>
                             </div>
 
                         </div> 
@@ -334,10 +288,12 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             
-            // 1. Tự động sinh danh sách Năm (Từ năm nay )
+            // 1. Tự động sinh danh sách Năm
             var yearSelect = document.getElementById('selectYear');
             var currentYear = new Date().getFullYear();
-            for (var i = currentYear; i <= currentYear + 11; i++) {
+            
+            // Cho phép chọn lên tới 15 năm (Tùy chỉnh số 15 này nếu cần dài hơn/ngắn hơn)
+            for (var i = currentYear - 1; i <= currentYear + 15; i++) { 
                 var opt = document.createElement('option');
                 opt.value = i;
                 opt.innerHTML = 'Năm ' + i;
@@ -353,20 +309,18 @@
                 showNonCurrentDates: false, 
                 fixedWeekCount: false,
                 
-                // Thay đổi tên Nút tiếng Anh thành tiếng Việt
                 buttonText: {
                     today: 'Hôm nay'
                 },
                 
                 headerToolbar: {
-                    // Đưa nút "Hôm nay" sang trái, ẩn cái tiêu đề tiếng Anh mặc định đi để tiết kiệm diện tích
                     left: 'today', 
                     center: '',
                     right: 'prev,next' 
                 },
                 events: [],
                 
-                // Đồng bộ Dropdown khi người dùng bấm nút prev/next/hôm nay
+                // Đồng bộ Dropdown khi bấm nút
                 datesSet: function(info) {
                     var date = info.view.currentStart;
                     var m = date.getMonth() + 1;
@@ -380,16 +334,15 @@
                 dateClick: function(info) {
                     var clickedDate = info.dateStr; 
                     
-                    // Không cho chọn ngày trong quá khứ
                     var today = new Date();
                     today.setHours(0,0,0,0);
                     var clicked = new Date(clickedDate);
+                    
                     if(clicked < today) {
                         alert("Không thể chọn ngày trong quá khứ!");
                         return;
                     }
 
-                    // Kiểm tra xem ngày này có bị tô hồng không
                     var isBooked = false;
                     if(currentSelectedUnitId && allZoneEvents[currentSelectedUnitId]) {
                         var events = allZoneEvents[currentSelectedUnitId];
@@ -408,8 +361,7 @@
                         return;
                     }
 
-                    // Hợp lệ -> Điền vào form và báo hiệu bằng màu nền
-                    document.getElementById('formStartDate').value = clickedDate;
+                    // Báo hiệu bằng màu nền chớp tắt nhẹ
                     info.dayEl.style.backgroundColor = '#d1fae5'; 
                     setTimeout(function(){
                         info.dayEl.style.backgroundColor = '';
@@ -419,18 +371,18 @@
 
             calendar.render();
 
-            // 3. Xử lý khi người dùng chọn Dropdown Tháng/Năm
+            // 3. Dropdown Tháng/Năm
             function jumpToDate() {
                 var m = document.getElementById('selectMonth').value;
                 var y = document.getElementById('selectYear').value;
-                calendar.gotoDate(y + '-' + m + '-01'); // Nhảy Lịch đến ngày 1 của tháng/năm được chọn
+                calendar.gotoDate(y + '-' + m + '-01'); 
             }
             
             document.getElementById('selectMonth').addEventListener('change', jumpToDate);
             document.getElementById('selectYear').addEventListener('change', jumpToDate);
 
 
-            // 4. Đổi icon Mũi tên khi Đóng/Mở lịch
+            // 4. Đổi icon Mũi tên
             var myCollapsible = document.getElementById('collapseCalendar')
             myCollapsible.addEventListener('hide.bs.collapse', function () {
                 document.getElementById('toggleIcon').className = 'fas fa-chevron-down';
@@ -444,13 +396,11 @@
         function viewCalendarForUnit(unitId, unitCode) {
             currentSelectedUnitId = unitId; 
 
+            // Đổi viền Zone
             document.querySelectorAll('.zone-card').forEach(card => card.style.borderColor = '#e5e7eb');
             document.getElementById('zone-card-' + unitId).style.borderColor = '#3b82f6';
-            
-            document.querySelectorAll('.zone-checkbox').forEach(chk => chk.checked = false);
-            var chkBox = document.getElementById('chk-zone-' + unitId);
-            if(chkBox) chkBox.checked = true;
 
+            // Hiện widget lịch
             var widget = document.getElementById('calendarWidget');
             widget.style.display = 'block'; 
             
