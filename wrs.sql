@@ -693,9 +693,14 @@ INSERT INTO Feedback
 (rating, comment, is_anonymous, feedback_date, renter_id, contract_id)
 VALUES
 (5, 'Dịch vụ rất tốt', 0, NOW(), 1, 1),
-(5, 'Dịch vụ tốt', 0, NOW(), 6, 1),
-(4, 'Kho ổn', 1, NOW(), 2, 2),
-(3, 'Giá hơi cao', 0, NOW(), 3, 3);
+(4, 'Kho sạch và an toàn', 1, NOW(), 2, 2),
+(3, 'Giá hơi cao', 0, NOW(), 3, 3),
+(5, 'Nhân viên hỗ trợ nhiệt tình', 0, NOW(), 4, 4),
+(4, 'Vị trí thuận tiện', 1, NOW(), 5, 5),
+(5, 'Hệ thống bảo mật tốt', 0, NOW(), 6, 6),
+(4, 'Không gian rộng rãi', 0, NOW(), 7, 7),
+(3, 'Thủ tục hơi lâu', 1, NOW(), 8, 8);
+
 
 INSERT INTO Feedback_response
 (response_text, response_date, feedback_id, internal_user_id)

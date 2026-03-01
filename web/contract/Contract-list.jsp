@@ -16,7 +16,7 @@
 
 <body class="d-flex flex-column min-vh-100 bg-light">
 
-    <jsp:include page="/Common/Layout/header.jsp"/>
+<jsp:include page="/Common/Layout/header.jsp"/>
 
     <div class="d-flex flex-grow-1">
 
@@ -31,6 +31,38 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="fw-bold text-primary">Danh sách hợp đồng</h2>
             </div>
+            <c:remove var="message" scope="session"/>
+        </c:if>
+
+        <!-- ERROR -->
+        <c:if test="${not empty sessionScope.error}">
+            <div class="alert alert-danger alert-dismissible fade show">
+                ${sessionScope.error}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <c:remove var="error" scope="session"/>
+        </c:if>
+
+        <div class="card shadow-lg border-0 rounded-3">
+            <div class="card-body">
+
+                <table class="table table-hover table-striped align-middle">
+
+                    <thead class="table-dark text-center">
+                    <tr>
+                        <th>ID</th>
+
+                        <c:if test="${role == 'manager'}">
+                            <th>Người thuê</th>
+                        </c:if>
+
+                        <th>Ngày bắt đầu</th>
+                        <th>Ngày kết thúc</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
 
             <!-- SUCCESS -->
             <c:if test="${not empty sessionScope.message}">
@@ -170,13 +202,15 @@
 
                     </table>
 
-                </div>
             </div>
-
         </div>
-    </div>
 
-    <jsp:include page="/Common/Layout/footer.jsp"/>
+    </div>
+</div>
+
+<jsp:include page="/Common/Layout/footer.jsp"/>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

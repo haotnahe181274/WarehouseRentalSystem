@@ -62,15 +62,16 @@ public class ContractServlet extends HttpServlet {
         request.getRequestDispatcher("/contract/Contract-list.jsp")
                .forward(request, response);
     }
-
     // ======================================
     // POST
     // ======================================
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request,
+                          HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
+
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
