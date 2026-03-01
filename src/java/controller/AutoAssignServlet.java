@@ -13,7 +13,7 @@ import model.InternalUser;
 import model.UserView;
 import model.Warehouse;
 
-@WebServlet(name = "AutoAssignServlet", urlPatterns = {"/Management/auto-assign"})
+@WebServlet(name = "AutoAssignServlet", urlPatterns = {"/Management/autoAssign"})
 public class AutoAssignServlet extends HttpServlet {
 
     @Override

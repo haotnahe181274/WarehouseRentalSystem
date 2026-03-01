@@ -112,7 +112,7 @@
                     <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses</a></li>
                     <li><a href="${pageContext.request.contextPath}/rentList">📩 Rental Requests</a></li>
                     <li><a href="${pageContext.request.contextPath}/contract"> Contracts</a></li>
-                    <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment</a></li>
+                    <li><a href="${pageContext.request.contextPath}/Management/autoAssign">Staff Assignment</a></li>
                     <li><a href="${pageContext.request.contextPath}/feedbackManagement">Feedback</a></li>
                     <li><a href="${pageContext.request.contextPath}/incident">Reports</a></li>
                 </c:if>
