@@ -35,7 +35,7 @@
         .btn-submit { background: #111827; color: white; width: 100%; padding: 12px; transition: 0.2s; }
         .btn-submit:hover { background: #1f2937; color: white; transform: translateY(-1px); }
 
-        /* Tùy chỉnh Calendar Nhỏ Gọn (Compact Mode) */
+        /* Tùy chỉnh Calendar Nhỏ Gọn */
         .fc { font-size: 0.85rem; } 
         .fc .fc-button { padding: 0.3rem 0.6rem !important; font-size: 0.8rem !important; text-transform: capitalize; }
         .fc-daygrid-day-frame { min-height: 2.5rem !important; } 
@@ -53,7 +53,6 @@
 
     <div class="layout">
 
-        <jsp:include page="/Common/Layout/sidebar.jsp" />
 
         <div class="main-content">
 
@@ -123,11 +122,14 @@
 
                         <div class="mb-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="fw-bold mb-0">Floor Plan View <span class="text-muted fs-6 fw-normal ms-2">(Nhấn vào Zone để xem lịch trống)</span></h5>
-                                <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#addZoneModal">
-                                    <i class="fa fa-plus"></i> Add New Zone
-                                </button>
-                            </div>
+                                <h5 class="fw-bold mb-0">Floor Plan View <span class="text-muted fs-6 fw-normal ms-2">(Nhấn vào Storage Unit để xem lịch trống)</span></h5>
+                                
+                                <c:if test="${sessionScope.user.role == 'Manager' || sessionScope.user.role == 'manager'}">
+                                    <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#addZoneModal">
+                                        <i class="fa fa-plus"></i> Add New Storage Unit
+                                    </button>
+                                </c:if>
+                                </div>
 
                             <div class="row g-3">
                                 <c:forEach items="${units}" var="u">
@@ -199,6 +201,7 @@
                                             <select id="selectYear" class="form-select form-select-sm border-secondary text-dark fw-bold"></select>
                                         </div>
                                     </div>
+
                                     <div class="d-flex justify-content-center align-items-center mb-2" style="font-size: 0.75rem;">
                                         <span class="me-3"><i class="fa fa-square text-white border border-secondary me-1"></i> Ngày trống</span>
                                         <span><i class="fa fa-square me-1" style="color: #ffb3ba;"></i> Đã được thuê</span>
@@ -208,16 +211,19 @@
                                 </div>
                             </div>
 
-                            <div class="card-custom p-4 text-center">
-                                <h5 class="fw-bold mb-2">Bạn muốn thuê kho này?</h5>
-                                <p class="text-muted small mb-4">Nhấn vào nút bên dưới để chuyển sang trang tạo yêu cầu Đặt thuê chi tiết.</p>
+                            <c:if test="${sessionScope.user.role != 'Admin' && sessionScope.user.role != 'admin' && sessionScope.user.role != 'Manager' && sessionScope.user.role != 'manager'}">
                                 
-                                <a href="${pageContext.request.contextPath}/createRentRequest?id=${w.warehouseId}" class="btn btn-submit rounded-pill fw-bold">
-                                    <i class="fas fa-file-contract me-2"></i> Đi tới trang Đặt Thuê
-                                </a>
-                            </div>
+                                <div class="card-custom p-4 text-center mt-3">
+                                    <h5 class="fw-bold mb-2">Bạn muốn thuê kho này?</h5>
+                                    <p class="text-muted small mb-4">Nhấn vào nút bên dưới để chuyển sang trang tạo yêu cầu Đặt thuê chi tiết.</p>
+                                    
+                                    <a href="rent-request?warehouseId=${w.warehouseId}" class="btn btn-submit rounded-pill fw-bold">
+                                        <i class="fas fa-file-contract me-2"></i> Đi tới trang Đặt Thuê
+                                    </a>
+                                </div>
 
-                        </div> 
+                            </c:if>
+                            </div> 
                     </div> 
 
                 </div> 
@@ -236,7 +242,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">Thêm Ô Chứa Mới (Zone)</h5>
+                    <h5 class="modal-title">Thêm Ô Chứa Mới (Storage Unit)</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="${pageContext.request.contextPath}/warehouse/unit" method="post">
@@ -244,7 +250,7 @@
                         <input type="hidden" name="action" value="add">
                         <input type="hidden" name="warehouseId" value="${w.warehouseId}">
                         <div class="mb-3">
-                            <label class="form-label">Mã Zone (Ví dụ: ZONE-A1)</label>
+                            <label class="form-label">Mã Storage Unit (Ví dụ: SU-A1)</label>
                             <input type="text" name="unitCode" class="form-control" required>
                         </div>
                         <div class="row">
@@ -271,7 +277,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                        <button type="submit" class="btn btn-primary">Lưu Zone</button>
+                        <button type="submit" class="btn btn-primary">Lưu Storage Unit</button>
                     </div>
                 </form>
             </div>
@@ -288,11 +294,9 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             
-            // 1. Tự động sinh danh sách Năm
             var yearSelect = document.getElementById('selectYear');
             var currentYear = new Date().getFullYear();
             
-            // Cho phép chọn lên tới 15 năm (Tùy chỉnh số 15 này nếu cần dài hơn/ngắn hơn)
             for (var i = currentYear - 1; i <= currentYear + 15; i++) { 
                 var opt = document.createElement('option');
                 opt.value = i;
@@ -300,7 +304,6 @@
                 yearSelect.appendChild(opt);
             }
 
-            // 2. Khởi tạo Lịch
             var calendarEl = document.getElementById('bookingCalendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
@@ -320,7 +323,6 @@
                 },
                 events: [],
                 
-                // Đồng bộ Dropdown khi bấm nút
                 datesSet: function(info) {
                     var date = info.view.currentStart;
                     var m = date.getMonth() + 1;
@@ -328,50 +330,11 @@
                     
                     document.getElementById('selectMonth').value = m < 10 ? '0' + m : m;
                     document.getElementById('selectYear').value = y;
-                },
-                
-                // Xử lý khi Click ngày
-                dateClick: function(info) {
-                    var clickedDate = info.dateStr; 
-                    
-                    var today = new Date();
-                    today.setHours(0,0,0,0);
-                    var clicked = new Date(clickedDate);
-                    
-                    if(clicked < today) {
-                        alert("Không thể chọn ngày trong quá khứ!");
-                        return;
-                    }
-
-                    var isBooked = false;
-                    if(currentSelectedUnitId && allZoneEvents[currentSelectedUnitId]) {
-                        var events = allZoneEvents[currentSelectedUnitId];
-                        for(var i=0; i < events.length; i++) {
-                            var start = events[i].start.split('T')[0];
-                            var end = events[i].end.split('T')[0];
-                            if(clickedDate >= start && clickedDate <= end) {
-                                isBooked = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if(isBooked) {
-                        alert("Ngày này đã có người thuê, vui lòng chọn ngày khác!");
-                        return;
-                    }
-
-                    // Báo hiệu bằng màu nền chớp tắt nhẹ
-                    info.dayEl.style.backgroundColor = '#d1fae5'; 
-                    setTimeout(function(){
-                        info.dayEl.style.backgroundColor = '';
-                    }, 400);
                 }
             });
 
             calendar.render();
 
-            // 3. Dropdown Tháng/Năm
             function jumpToDate() {
                 var m = document.getElementById('selectMonth').value;
                 var y = document.getElementById('selectYear').value;
@@ -382,7 +345,6 @@
             document.getElementById('selectYear').addEventListener('change', jumpToDate);
 
 
-            // 4. Đổi icon Mũi tên
             var myCollapsible = document.getElementById('collapseCalendar')
             myCollapsible.addEventListener('hide.bs.collapse', function () {
                 document.getElementById('toggleIcon').className = 'fas fa-chevron-down';
@@ -392,15 +354,12 @@
             })
         });
 
-        // Hàm xử lý Click thẻ Zone
         function viewCalendarForUnit(unitId, unitCode) {
             currentSelectedUnitId = unitId; 
 
-            // Đổi viền Zone
             document.querySelectorAll('.zone-card').forEach(card => card.style.borderColor = '#e5e7eb');
             document.getElementById('zone-card-' + unitId).style.borderColor = '#3b82f6';
 
-            // Hiện widget lịch
             var widget = document.getElementById('calendarWidget');
             widget.style.display = 'block'; 
             
@@ -409,7 +368,7 @@
             
             setTimeout(function() { calendar.updateSize(); }, 200); 
 
-            document.getElementById('calendarTitle').innerHTML = 'Lịch: <span class="text-primary">' + unitCode + '</span>';
+            document.getElementById('calendarTitle').innerHTML = 'Lịch Storage Unit: <span class="text-primary">' + unitCode + '</span>';
 
             calendar.removeAllEvents();
             if (allZoneEvents[unitId] && allZoneEvents[unitId].length > 0) {
@@ -423,7 +382,6 @@
             }
         }
 
-        // Đổi ảnh Gallery
         function changeImage(src) {
             document.getElementById('displayImg').src = src;
         }
