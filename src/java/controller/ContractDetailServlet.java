@@ -45,7 +45,9 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         if ("agree".equals(action)
                 && "Manager".equals(session.getAttribute("role"))) {
 
-            UserView user = (UserView) session.getAttribute("user");
+            UserView user =(UserView) request.getSession().getAttribute("user");
+
+            request.setAttribute("currentUser", user);
 
             dao.managerUpdateStatus(
                     contractId,
