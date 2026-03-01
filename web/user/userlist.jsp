@@ -318,14 +318,7 @@
 
                                         <!-- Role -->
                                         <td>
-                                            <c:choose>
-                                                <c:when test="${u.type == 'INTERNAL'}">
-                                                    <span class="badge-role">${u.role}</span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span style="color:#9ca3af;">-</span>
-                                                </c:otherwise>
-                                            </c:choose>
+                                            <span class="badge-role">${u.role}</span>
                                         </td>
 
                                         <!-- Type -->
@@ -358,12 +351,7 @@
                                                     <i class="fa-solid fa-eye"></i> View
                                                 </a>
 
-                                                <c:if test="${u.type == 'INTERNAL' && sessionScope.role == 'Admin'}">
-                                                    <a href="${pageContext.request.contextPath}/user/list?action=edit&id=${u.id}&type=${u.type}"
-                                                        class="btn btn-sm btn-outline-primary">
-                                                        <i class="fa-solid fa-pen"></i> Edit
-                                                    </a>
-                                                </c:if>
+
 
                                                 <c:if test="${sessionScope.role == 'Admin'}">
                                                     <form action="${pageContext.request.contextPath}/user/list"
@@ -444,7 +432,7 @@
                             }
                         </script>
 
-                    </div><!-- end main-content -->
+                    </div>
 
                 </div><!-- end layout -->
                 <jsp:include page="/Common/Layout/footer.jsp" />
