@@ -212,7 +212,7 @@
                                 <h5 class="fw-bold mb-2">Bạn muốn thuê kho này?</h5>
                                 <p class="text-muted small mb-4">Nhấn vào nút bên dưới để chuyển sang trang tạo yêu cầu Đặt thuê chi tiết.</p>
                                 
-                                <a href="rent-request?warehouseId=${w.warehouseId}" class="btn btn-submit rounded-pill fw-bold">
+                                <a href="${pageContext.request.contextPath}/createRentRequest?id=${w.warehouseId}" class="btn btn-submit rounded-pill fw-bold">
                                     <i class="fas fa-file-contract me-2"></i> Đi tới trang Đặt Thuê
                                 </a>
                             </div>

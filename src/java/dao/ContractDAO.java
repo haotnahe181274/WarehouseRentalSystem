@@ -89,38 +89,38 @@ public class ContractDAO extends DBContext {
 
         String sql = """
             SELECT 
-                c.contract_id,
-                c.start_date,
-                c.end_date,
-                c.status,
-                c.price,
-
-                r.full_name AS renter_name,
-                r.email AS renter_email,
-                r.phone AS renter_phone,
-
-                w.name AS warehouse_name,
-                w.address AS warehouse_address,
-
-                iu.full_name AS manager_name,
-                iu.email AS manager_email,
-                iu.phone AS manager_phone
-
-            FROM Contract c
-
-            LEFT JOIN Renter r 
-                ON c.renter_id = r.renter_id
-
-            LEFT JOIN Warehouse w 
-                ON c.warehouse_id = w.warehouse_id
-
-            LEFT JOIN Rent_request ru 
-                ON c.request_id = ru.request_id
-
-            LEFT JOIN Internal_user iu 
-                ON ru.internal_user_id = iu.internal_user_id
-
-            WHERE c.contract_id = ?
+                        c.contract_id,
+                        c.start_date,
+                        c.end_date,
+                        c.status,
+                        c.price,
+                
+                        r.full_name AS renter_name,
+                        r.email AS renter_email,
+                        r.phone AS renter_phone,
+                
+                        w.name AS warehouse_name,
+                        w.address AS warehouse_address,
+                
+                        iu.full_name AS manager_name,
+                        iu.email AS manager_email,
+                        iu.phone AS manager_phone
+                
+                    FROM Contract c
+                
+                    LEFT JOIN Renter r 
+                        ON c.renter_id = r.renter_id
+                
+                    LEFT JOIN Warehouse w 
+                        ON c.warehouse_id = w.warehouse_id
+                
+                    LEFT JOIN Rent_request rr
+                        ON c.request_id = rr.request_id
+                
+                    LEFT JOIN Internal_user iu
+                        ON rr.internal_user_id = iu.internal_user_id
+                
+                    WHERE c.contract_id = ?
         """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -162,28 +162,34 @@ public class ContractDAO extends DBContext {
     // ===============================
     // MANAGER APPROVE
     // ===============================
-    public boolean managerUpdateStatus(int contractId,
-                                   int status,
-                                   int managerId) {
+   public boolean managerUpdateStatus(int contractId, int status, int managerId) {
 
-        String sql = """
-            UPDATE Contract
-            SET status = ?
-            WHERE contract_id = ?
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, status);
-            ps.setInt(2, contractId);
-
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    if (status != 1 && status != 2) {
         return false;
     }
+
+    String sql = """
+        UPDATE Rent_request rr
+        JOIN Contract c ON c.request_id = rr.request_id
+        SET rr.internal_user_id = ?,
+            c.status = ?
+        WHERE c.contract_id = ?
+        AND c.status = 0
+    """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+        ps.setInt(1, managerId);
+        ps.setInt(2, status);
+        ps.setInt(3, contractId);
+
+        return ps.executeUpdate() > 0;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+}
 
     // ===============================
     // RENTER CONFIRM
@@ -213,7 +219,7 @@ public class ContractDAO extends DBContext {
     }
     return false;
 }
-
+    
 
    
     

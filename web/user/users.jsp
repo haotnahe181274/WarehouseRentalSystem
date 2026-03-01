@@ -14,7 +14,7 @@
             </title>
 
             <style>
-                /* Custom Reset/Utilities */
+               
                 * {
                     box-sizing: border-box;
                 }
@@ -72,7 +72,7 @@
                     border-radius: 12px;
                     padding: 24px;
                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-                    /* Match profile.jsp */
+                   
                 }
 
                 .avatar-section {
@@ -94,7 +94,7 @@
                     margin-bottom: 8px;
                     font-size: 14px;
                     display: block;
-                    /* Ensure label behaves like block */
+                    
                 }
 
                 .form-control-custom,
@@ -107,7 +107,7 @@
                     transition: all 0.2s;
                     background-color: #f9fafb;
                     display: block;
-                    /* Ensure input behaves like block */
+                    
                 }
 
                 .form-control-custom:focus,
@@ -252,7 +252,7 @@
                                             class="avatar-img">
                                     </c:if>
 
-                                    <!-- Upload Button (for Add, Edit, or Admin viewing) -->
+                                    
                                     <c:if test="${mode != 'view' || isAdminView}">
                                         <label class="btn-custom btn-outline"
                                             style="cursor: pointer; display: block; margin-top: 10px;">
@@ -278,7 +278,7 @@
                                                     return;
                                                 }
 
-                                                // Client-side Validation to reject .exe or non-image
+                                                
                                                 const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
                                                 const validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
                                                 const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -292,7 +292,7 @@
 
                                                 fileNameDisplay.textContent = file.name;
 
-                                                // Preview image
+                                                
                                                 if (file) {
                                                     const reader = new FileReader();
                                                     reader.onload = function (e) {
@@ -307,7 +307,7 @@
                                 </div>
                             </div>
 
-                            <!-- Right Column: User Info -->
+                            
                             <div class="profile-right">
                                 <div class="card-custom">
                                     <div class="section-title">User Information</div>
@@ -341,7 +341,7 @@
                                             </div>
                                         </c:if>
                                         <c:if test="${mode != 'add'}">
-                                            <!-- Empty div or Status can go here -->
+                                            
                                             <div>
                                                 <label class="form-label">Status</label>
                                                 <c:choose>
@@ -354,7 +354,7 @@
                                                         </div>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <!-- If Editing allow changing status? Usually status change is a separate action (Block/Unblock) but let's keep it view-only or as is -->
+                                                        
                                                         <div class="view-text">
                                                             <c:choose>
                                                                 <c:when test="${targetUser.status == 1}">Active</c:when>
@@ -396,8 +396,7 @@
                                                         </c:when>
                                                         <c:otherwise>
                                                             <select name="roleId" class="form-select-custom">
-                                                                <option value="1" ${targetUser.role=='Admin'
-                                                                    ? 'selected' : '' }>Admin</option>
+                                                                
                                                                 <option value="2" ${targetUser.role=='Manager'
                                                                     ? 'selected' : '' }>Manager</option>
                                                                 <option value="3" ${targetUser.role=='Staff'
