@@ -1,6 +1,9 @@
 package controller;
 
 import jakarta.servlet.annotation.MultipartConfig;
+import dao.ContractDAO;
+import dao.FeedbackDAO;
+import dao.FeedbackResponseDAO;
 import dao.WarehouseImageDAO;
 import dao.WarehouseManagementDAO;
 import java.io.IOException;
@@ -13,16 +16,18 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import model.Feedback;
+import model.FeedbackResponse;
 import model.StorageUnit;
+import model.UserView;
 import model.Warehouse;
 import model.WarehouseImage;
 
-@MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-    maxFileSize = 1024 * 1024 * 10,      // 10MB
-    maxRequestSize = 1024 * 1024 * 50    // 50MB
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50 // 50MB
 )
-@WebServlet(name = "WarehouseController", urlPatterns = {"/warehouse"})
+@WebServlet(name = "WarehouseController", urlPatterns = { "/warehouse" })
 public class WarehouseManagerController extends HttpServlet {
 
     // ================== PHẦN GET (HIỂN THỊ & ĐIỀU HƯỚNG) ==================
@@ -49,58 +54,97 @@ public class WarehouseManagerController extends HttpServlet {
         // ========================================================================
         // --- ACTION: VIEW (SỬA ĐỔI: Chuyển tiếp sang WarehouseDetailController) ---
         // ========================================================================
-       if ("view".equals(action)) {
+        if ("view".equals(action)) {
             String idStr = request.getParameter("id");
             if (idStr != null) {
                 try {
                     int id = Integer.parseInt(idStr);
-                    
+
                     Warehouse w = dao.getWarehouseById(id);
                     List<WarehouseImage> images = dao.getWarehouseImages(id);
                     List<StorageUnit> units = dao.getStorageUnits(id);
 
-                  // ==========================================
+                    // ==========================================
                     // TẠO DỮ LIỆU LỊCH CHO TỪNG ZONE
                     // ==========================================
                     Map<Integer, List<String[]>> unitBookedDates = dao.getUnitBookedDates(id);
                     StringBuilder jsonBuilder = new StringBuilder("{");
-                    
+
                     int count = 0;
                     for (Map.Entry<Integer, List<String[]>> entry : unitBookedDates.entrySet()) {
                         jsonBuilder.append("\"").append(entry.getKey()).append("\": [");
                         List<String[]> dates = entry.getValue();
-                        
+
                         for (int i = 0; i < dates.size(); i++) {
-                           // Sửa lại đoạn nối chuỗi sự kiện trong Java
-jsonBuilder.append("{")
-           .append("\"title\": \"Đã Thuê\",") // Thêm tiêu đề sự kiện
-           .append("\"start\": \"").append(dates.get(i)[0]).append("\",")
-           .append("\"end\": \"").append(dates.get(i)[1]).append("T23:59:59\",")
-           .append("\"color\": \"#dc3545\",") // Đổi sang màu đỏ đậm (Danger) cho nổi bật
-           .append("\"textColor\": \"#ffffff\"") // Chữ màu trắng
-           .append("}");
-                            if (i < dates.size() - 1) jsonBuilder.append(",");
+                            // Sửa lại đoạn nối chuỗi sự kiện trong Java
+                            jsonBuilder.append("{")
+                                    .append("\"title\": \"Đã Thuê\",") // Thêm tiêu đề sự kiện
+                                    .append("\"start\": \"").append(dates.get(i)[0]).append("\",")
+                                    .append("\"end\": \"").append(dates.get(i)[1]).append("T23:59:59\",")
+                                    .append("\"color\": \"#dc3545\",") // Đổi sang màu đỏ đậm (Danger) cho nổi bật
+                                    .append("\"textColor\": \"#ffffff\"") // Chữ màu trắng
+                                    .append("}");
+                            if (i < dates.size() - 1)
+                                jsonBuilder.append(",");
                         }
                         jsonBuilder.append("]");
-                        if (count < unitBookedDates.size() - 1) jsonBuilder.append(",");
+                        if (count < unitBookedDates.size() - 1)
+                            jsonBuilder.append(",");
                         count++;
                     }
                     jsonBuilder.append("}");
-                    
+
                     // Gửi chuỗi JSON siêu to khổng lồ này sang JSP
                     // Nếu kho chưa có ai thuê, chuỗi sẽ là "{}"
-                    request.setAttribute("unitEventsJson", jsonBuilder.toString().equals("{}") ? "{}" : jsonBuilder.toString());
+                    request.setAttribute("unitEventsJson",
+                            jsonBuilder.toString().equals("{}") ? "{}" : jsonBuilder.toString());
                     // ==========================================
                     request.setAttribute("w", w);
                     request.setAttribute("images", images);
                     request.setAttribute("units", units);
 
+                    // ==========================================
+                    // LOAD FEEDBACK DATA (RESTORE)
+                    // ==========================================
+                    FeedbackDAO feedbackDAO = new FeedbackDAO();
+                    List<Feedback> feedbackList = feedbackDAO.getFeedbackByWarehouseId(id);
+                    request.setAttribute("feedbackList", feedbackList);
+                    request.setAttribute("warehouseId", id);
+
+                    // Fetch responses
+                    FeedbackResponseDAO responseDAO = new FeedbackResponseDAO();
+                    Map<Integer, FeedbackResponse> feedbackResponses = responseDAO.getResponsesByWarehouseId(id);
+                    request.setAttribute("feedbackResponses", feedbackResponses);
+
+                    // Check permissions
+                    UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
+                    boolean canFeedback = false;
+                    boolean canReply = false;
+
+                    if (user != null) {
+                        if ("RENTER".equalsIgnoreCase(user.getType())) {
+                            ContractDAO contractDAO = new ContractDAO();
+                            int contractId = contractDAO.getValidContractId(user.getId(), id);
+                            if (contractId != -1) {
+                                canFeedback = true;
+                            }
+                        }
+                        if ("MANAGER".equalsIgnoreCase(user.getRole())
+                                || "ADMIN".equalsIgnoreCase(user.getRole())
+                                || "Internal".equalsIgnoreCase(user.getType())) {
+                            canReply = true;
+                        }
+                    }
+                    request.setAttribute("canFeedback", canFeedback);
+                    request.setAttribute("canReply", canReply);
+                    // ==========================================
+
                     request.getRequestDispatcher("/Management/warehouse-detail.jsp").forward(request, response);
                     return;
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
         }
-        
 
         // --- ACTION: EDIT ---
         if ("edit".equals(action)) {
@@ -116,30 +160,31 @@ jsonBuilder.append("{")
 
         // --- ACTION: LIST (MẶC ĐỊNH) ---
         List<Warehouse> list = dao.getAll();
-        
+
         // Lọc theo Status
         String statusStr = request.getParameter("status");
         if (statusStr != null && !statusStr.isEmpty() && !statusStr.equals("All")) {
             try {
                 int status = Integer.parseInt(statusStr);
                 list = list.stream()
-                           .filter(w -> w.getStatus() == status)
-                           .collect(Collectors.toList());
-            } catch (NumberFormatException e) {}
+                        .filter(w -> w.getStatus() == status)
+                        .collect(Collectors.toList());
+            } catch (NumberFormatException e) {
+            }
         }
 
         // Lấy ảnh đại diện
         Map<Integer, String> imageMap = new HashMap<>();
         WarehouseImageDAO imgDao = new WarehouseImageDAO();
-        for (Warehouse w : list) { 
+        for (Warehouse w : list) {
             String imgUrl = imgDao.getPrimaryImage(w.getWarehouseId());
             imageMap.put(w.getWarehouseId(), imgUrl);
         }
 
         // Gửi dữ liệu sang JSP danh sách
         request.setAttribute("warehouseImages", imageMap);
-        request.setAttribute("warehouseList", list); 
-        request.setAttribute("filterStatus", statusStr); 
+        request.setAttribute("warehouseList", list);
+        request.setAttribute("filterStatus", statusStr);
 
         request.getRequestDispatcher("Management/warehouse.jsp").forward(request, response);
     }
@@ -150,7 +195,7 @@ jsonBuilder.append("{")
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -163,7 +208,10 @@ jsonBuilder.append("{")
             String address = request.getParameter("address");
             String desc = request.getParameter("description");
             int status = 1;
-            try { status = Integer.parseInt(request.getParameter("status")); } catch (Exception e) {}
+            try {
+                status = Integer.parseInt(request.getParameter("status"));
+            } catch (Exception e) {
+            }
 
             Warehouse w = new Warehouse();
             w.setName(name);
@@ -214,10 +262,11 @@ jsonBuilder.append("{")
                 String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
                 String uniqueFileName = currentWarehouseId + "_" + System.currentTimeMillis() + "_" + fileName;
                 String uploadPath = request.getServletContext().getRealPath("/resources/warehouse/image");
-                
+
                 File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) uploadDir.mkdirs();
-                
+                if (!uploadDir.exists())
+                    uploadDir.mkdirs();
+
                 filePart.write(uploadPath + File.separator + uniqueFileName);
 
                 WarehouseImageDAO imgDao = new WarehouseImageDAO();
@@ -225,20 +274,20 @@ jsonBuilder.append("{")
                 img.setImageUrl(uniqueFileName);
                 img.setPrimary(true);
                 img.setStatus(1);
-                
+
                 String ext = "jpg";
                 if (fileName.contains(".")) {
                     ext = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
                 }
                 img.setImageType(ext);
-                
+
                 Warehouse linkW = new Warehouse();
                 linkW.setWarehouseId(currentWarehouseId);
                 img.setWarehouse(linkW);
-                
+
                 imgDao.insertImage(img);
             }
-            
+
             response.sendRedirect(request.getContextPath() + "/warehouse");
 
         } catch (Exception e) {
@@ -247,4 +296,4 @@ jsonBuilder.append("{")
             request.getRequestDispatcher("/Management/warehouse-form.jsp").forward(request, response);
         }
     }
-}   
+}

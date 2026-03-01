@@ -8,6 +8,7 @@
             <head>
                 <title>Feedback Warehouse ${warehouseId}</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
         </c:if>
 
         <style>
@@ -245,6 +246,36 @@
                 color: #92400e;
                 font-size: 14px;
             }
+
+            /* feedback form style overrides */
+            .feedback-form-container label {
+                display: block;
+                font-size: 14px;
+                font-weight: 600;
+                color: #374151;
+                margin-bottom: 4px;
+            }
+
+            .feedback-form-container select,
+            .feedback-form-container textarea {
+                width: 100%;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                padding: 10px 12px;
+                font-size: 14px;
+                font-family: inherit;
+                outline: none;
+                transition: border-color 0.2s;
+            }
+
+            .feedback-form-container textarea {
+                min-height: 120px;
+            }
+
+            .feedback-form-container select:focus,
+            .feedback-form-container textarea:focus {
+                border-color: #3b82f6;
+            }
         </style>
 
         <c:if test="${param.embedded != 'true'}">
@@ -261,8 +292,54 @@
 
         <!-- Feedback List -->
         <div class="reviews-card">
-            <div class="reviews-header"><i class="fas fa-comments"></i> Reviews</div>
+            <div class="reviews-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-comments"></i> Reviews</span>
+                <c:if test="${canFeedback}">
+                    <button class="btn btn-sm btn-outline-primary" onclick="toggleFeedbackForm()">
+                        <i class="fas fa-edit"></i> Leave a Feedback
+                    </button>
+                </c:if>
+            </div>
             <div class="reviews-body">
+
+                <!-- Leave a Feedback Form (Inside Reviews) -->
+                <c:if test="${canFeedback}">
+                    <div id="feedbackForm" class="feedback-form-container d-none border-bottom mb-4 pb-4">
+                        <form action="${pageContext.request.contextPath}/feedback" method="post">
+                            <input type="hidden" name="warehouseId" value="${warehouseId}">
+
+                            <div class="mb-3">
+                                <label class="fw-bold">Rating (1-5)</label>
+                                <select name="rating" required>
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Good</option>
+                                    <option value="3">3 - Average</option>
+                                    <option value="2">2 - Poor</option>
+                                    <option value="1">1 - Terrible</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="comment" class="fw-bold">Comment</label>
+                                <textarea name="comment" id="comment" required
+                                    placeholder="Tell us about your experience..."></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="checkbox-row m-0">
+                                    <input type="checkbox" name="anonymous" id="anonymous">
+                                    <label for="anonymous" class="m-0">Post anonymously</label>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="toggleFeedbackForm()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                            </div>
+                        </form>
+                    </div>
+                </c:if>
                 <c:if test="${empty feedbackList}">
                     <p class="empty-text">No feedback yet.</p>
                 </c:if>
@@ -312,39 +389,17 @@
             </div>
         </div>
 
-        <!-- Feedback Form -->
         <c:if test="${canFeedback}">
-            <div class="submit-card">
-                <div class="submit-header"><i class="fas fa-pen"></i> Leave a Feedback</div>
-                <div class="submit-body">
-                    <form action="${pageContext.request.contextPath}/feedback" method="post">
-                        <input type="hidden" name="warehouseId" value="${warehouseId}">
-
-                        <div class="form-group">
-                            <label for="fb-rating">Rating (1-5)</label>
-                            <select name="rating" id="fb-rating" required>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Good</option>
-                                <option value="3">3 - Average</option>
-                                <option value="2">2 - Poor</option>
-                                <option value="1">1 - Terrible</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="fb-comment">Comment</label>
-                            <textarea name="comment" id="fb-comment" rows="3" required></textarea>
-                        </div>
-
-                        <div class="checkbox-row">
-                            <input type="checkbox" name="anonymous" id="fb-anonymous">
-                            <label for="fb-anonymous" style="font-weight:normal;">Post anonymously</label>
-                        </div>
-
-                        <button type="submit" class="fb-btn-submit">Submit Feedback</button>
-                    </form>
-                </div>
-            </div>
+            <script>
+                function toggleFeedbackForm() {
+                    const form = document.getElementById('feedbackForm');
+                    if (form.classList.contains('d-none')) {
+                        form.classList.remove('d-none');
+                    } else {
+                        form.classList.add('d-none');
+                    }
+                }
+            </script>
         </c:if>
 
         <c:if test="${not canFeedback and not canReply}">
