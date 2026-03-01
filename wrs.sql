@@ -223,6 +223,7 @@ CREATE TABLE Staff_assignment (
     assigned_date DATE,
     assigned_to INT,
     warehouse_id INT,
+    unit_id INT NULL, -- Đã thêm cột unit_id trực tiếp vào đây
     assigned_by INT,
     assignment_type INT,
     description TEXT,
@@ -234,9 +235,9 @@ CREATE TABLE Staff_assignment (
     is_overdue INT,
     FOREIGN KEY (assigned_to) REFERENCES Internal_user(internal_user_id),
     FOREIGN KEY (assigned_by) REFERENCES Internal_user(internal_user_id),
-    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id)
+    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
+    FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id) -- Khóa ngoại tới Storage_unit
 );
-
 CREATE TABLE Staff_assignment_item (
     assignment_item_id INT AUTO_INCREMENT PRIMARY KEY,
     assignment_id INT,
@@ -428,8 +429,6 @@ VALUES
 ('staff09', '123456', 'Trần Đức Thắng', 'staff27@mail.com', '0923234545', 1, NOW(), 3, 'default.jpg', '060323454545', 'Quảng Ninh', 'S55739'),
 ('staff10', '123456', 'Lê Thị Kim Oanh', 'staff28@mail.com', '0934345656', 1, NOW(), 3, 'default.jpg', '060434565656', 'Vũng Tàu', 'S77410');
 
-
--- Insert vào Renter thay vì Customer
 INSERT INTO Renter
 (user_name, password, full_name, email, phone, status, created_at, image)
 VALUES
@@ -675,12 +674,17 @@ VALUES
 (12000000, NOW(), 'BANK', 1, 8);
 
 INSERT INTO Staff_assignment
-(assigned_date, assigned_to, warehouse_id, assigned_by, assignment_type,
+(assigned_date, assigned_to, warehouse_id, unit_id, assigned_by, assignment_type,
  description, assigned_at, due_date, started_at, completed_at, status, is_overdue)
 VALUES
-(CURDATE(), 3, 1, 2, 1, 'Kiểm kê kho A', NOW(), DATE_ADD(NOW(), INTERVAL 2 DAY), NOW(), NULL, 1, 0),
-(CURDATE(), 4, 2, 2, 2, 'Dọn kho B', NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), NOW(), NOW(), 2, 0),
-(CURDATE(), 3, 3, 1, 1, 'Kiểm tra an ninh', NOW(), DATE_ADD(NOW(), INTERVAL 3 DAY), NULL, NULL, 1, 0);
+-- Giao bởi manager01 (ID: 2) cho staff01 (ID: 3) tại Warehouse 1, Unit 1 (HN-A1)
+(CURDATE(), 3, 1, 1, 2, 1, 'Kiểm kê kho A (Ô nhỏ HN-A1)', NOW(), DATE_ADD(NOW(), INTERVAL 2 DAY), NOW(), NULL, 1, 0),
+
+-- Giao bởi manager02 (ID: 7) cho staff02 (ID: 4) tại Warehouse 2, Unit 2 (VP-A1)
+(CURDATE(), 4, 2, 2, 7, 2, 'Dọn kho B (Ô tiêu chuẩn VP-A1)', NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), NOW(), NOW(), 2, 0),
+
+-- Giao bởi manager03 (ID: 8) cho staff03 (ID: 9) tại Warehouse 19, Unit 19 (HCM-A1)
+(CURDATE(), 9, 19, 19, 8, 1, 'Kiểm tra an ninh (Kho trung tâm HCM-A1)', NOW(), DATE_ADD(NOW(), INTERVAL 3 DAY), NULL, NULL, 1, 0);
 
 INSERT INTO Staff_assignment_item
 (assignment_id, item_id, item_name, quantity, note)
