@@ -13,14 +13,17 @@
                 width: 220px;
                 background: black;
                 color: white;
-
-                min-height: 80vh;
                 flex-shrink: 0;
-                /* không bị co */
-
             }
 
-            /* ===== LOGO ===== */
+            .sidebar-inner {
+                /* Sticky positioning so it stops when the flex container (layout) ends */
+                position: sticky;
+                top: 60px;
+                /* sit just below the header */
+                max-height: calc(100vh - 60px);
+                overflow-y: auto;
+            }
 
 
             /* ===== MENU ===== */
@@ -58,7 +61,7 @@
                 background: #1e293b;
             }
 
-            /* Active (nếu sau này muốn) */
+            /* Active */
             .sidebar-menu li a.active {
                 background: #1f2937;
                 font-weight: 600;
@@ -73,59 +76,57 @@
             .logout a {
                 color: white;
             }
-
-
-            /* ===== CONTENT FIX ===== */
         </style>
 
         <!-- ===== SIDEBAR ===== -->
         <div class="sidebar">
-
-            <!-- LOGO -->
-
-
-            <!-- MENU -->
-            <ul class="sidebar-menu">
-
-                <li>
-                    <a href="${pageContext.request.contextPath}/dashboard">
-                        Overview
-                    </a>
-                </li>
-
-                <!-- ADMIN -->
-                <c:if test="${sessionScope.role == 'Admin'}">
-                    <div class="menu-title">Admin</div>
-                    <li><a href="${pageContext.request.contextPath}/user/list">Users</a></li>
-                    <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses</a></li>
-                    <li><a href="${pageContext.request.contextPath}/rentList">📩 Rental Requests</a></li>
-                    <li><a href="${pageContext.request.contextPath}/contract"> Contracts</a></li>
-                    <li><a href="${pageContext.request.contextPath}/feedbackManagement">Feedback</a></li>
-                    <li><a href="${pageContext.request.contextPath}/incident">Reports</a></li>
-                </c:if>
-
-                <!-- MANAGER -->
-                <c:if test="${sessionScope.role == 'Manager'}">
-                    <div class="menu-title">Manager</div>
-                    <li><a href="${pageContext.request.contextPath}/user/list">Users</a></li>
-                    <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses</a></li>
-                    <li><a href="${pageContext.request.contextPath}/rentList">📩 Rental Requests</a></li>
-                    <li><a href="${pageContext.request.contextPath}/contract"> Contracts</a></li>
-                    <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment</a></li>
-                    <li><a href="${pageContext.request.contextPath}/feedbackManagement">Feedback</a></li>
-                    <li><a href="${pageContext.request.contextPath}/incident">Reports</a></li>
-                </c:if>
-
-                <!-- STAFF -->
-                <c:if test="${sessionScope.role == 'Staff'}">
-                    <div class="menu-title">Staff</div>
-                    <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
-                    <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
-                    <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>
-                </c:if>
-
-            </ul>
+            <div class="sidebar-inner">
+                <!-- LOGO -->
 
 
+                <!-- MENU -->
+                <ul class="sidebar-menu">
 
+                    <li>
+                        <a href="${pageContext.request.contextPath}/dashboard">
+                            Overview
+                        </a>
+                    </li>
+
+                    <!-- ADMIN -->
+                    <c:if test="${sessionScope.role == 'Admin'}">
+                        
+                        <li><a href="${pageContext.request.contextPath}/user/list">Users Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/rentList">Rental Requests</a></li>
+                        <li><a href="${pageContext.request.contextPath}/contract"> Contracts Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/feedbackManagement">Feedback Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/incident">Reports Management</a></li>
+                    </c:if>
+
+                    <!-- MANAGER -->
+                    <c:if test="${sessionScope.role == 'Manager'}">
+                        
+                        <li><a href="${pageContext.request.contextPath}/user/list">Users Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/rentList">Rental Requests</a></li>
+                        <li><a href="${pageContext.request.contextPath}/contract"> Contracts Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/feedbackManagement">Feedback Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/incident">Reports Management</a></li>
+                    </c:if>
+
+                    <!-- STAFF -->
+                    <c:if test="${sessionScope.role == 'Staff'}">
+                        
+                        <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
+                        <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
+                        <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>
+                    </c:if>
+
+                </ul>
+
+
+
+            </div>
         </div>

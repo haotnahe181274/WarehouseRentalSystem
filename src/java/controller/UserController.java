@@ -243,6 +243,14 @@ public class UserController extends HttpServlet {
             return;
         }
 
+        if ("resetPassword".equals(action)) {
+            int id = Integer.parseInt(idRaw);
+            String type = request.getParameter("type");
+            userDAO.changePassword(id, type, "123456");
+            response.sendRedirect(request.getContextPath() + "/user/list?action=view&id=" + id + "&type=" + type);
+            return;
+        }
+
         if ("save".equals(action)) {
 
             String email = request.getParameter("email");

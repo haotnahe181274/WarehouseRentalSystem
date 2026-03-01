@@ -283,9 +283,30 @@
                                                         Reply
                                                     </button>
                                                 </div>
-                                            </form>
-                                        </div>
-                                    </c:if>
+                                            </td>
+                                            <td>${f.comment}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${not empty resp}">
+                                                        <span class="status-badge-replied">Replied</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="status-badge-pending">Pending</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>
+                                                <a href="${pageContext.request.contextPath}/warehouse/detail?id=${f.contract.warehouse.warehouseId}#feedback-${f.feedbackId}"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa-solid fa-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <!-- Inline reply removed -->
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </c:if>
 
                                 </div>
 
@@ -296,14 +317,26 @@
                 </div>
                     
                 <script>
-                    function filterFeedback() {
-                        const status = document.getElementById('filterStatus').value;
-                        const rating = document.getElementById('filterRating').value;
-                        const search = document.getElementById('filterSearch').value.toLowerCase();
-                        const cards = document.querySelectorAll('.feedback-card');
-
-                        cards.forEach(card => {
-                            let show = true;
+                    $(document).ready(function () {
+                        var table = $('#feedbackTable').DataTable({
+                            pageLength: 10,
+                            lengthMenu: [5, 10, 25, 50],
+                            order: [[2, 'desc']],
+                            language: {
+                                search: "Search:",
+                                lengthMenu: "Show _MENU_ entries",
+                                info: "Showing _START_ to _END_ of _TOTAL_ feedback",
+                                paginate: {
+                                    first: "First",
+                                    last: "Last",
+                                    next: "Next",
+                                    previous: "Previous"
+                                }
+                            },
+                            columnDefs: [
+                                { orderable: false, targets: [5] }
+                            ]
+                        });
 
                             if (status !== 'all' && card.dataset.status !== status) show = false;
                             if (rating !== 'all' && card.dataset.rating !== rating) show = false;
@@ -311,7 +344,21 @@
 
                             card.style.display = show ? '' : 'none';
                         });
-                    }
+
+                        // Filter by Rating (column 2)
+                        $('#filterRating').on('change', function () {
+                            table.column(2).search(this.value).draw();
+                            toggleResetBtn();
+                        });
+
+                        // Reset all filters
+                        $('#btnReset').on('click', function () {
+                            $('#filterStatus').val('');
+                            $('#filterRating').val('');
+                            table.columns().search('').draw();
+                            $(this).hide();
+                        });
+                    });
                 </script>
                 <jsp:include page="/Common/Layout/footer.jsp" />
             </body>
