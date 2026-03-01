@@ -39,50 +39,126 @@ public class ContractDAO extends DBContext {
     return 0;
 }
 
-    public List<Contract> getAllContracts() {
+    public List<ContractDetail> getAllContracts() {
 
-        List<Contract> list = new ArrayList<>();
+    List<ContractDetail> list = new ArrayList<>();
 
-        String sql = "SELECT c.*, r.full_name, w.name AS warehouse_name "
-                + "FROM Contract c "
-                + "JOIN Renter r ON c.renter_id = r.renter_id "
-                + "JOIN Warehouse w ON c.warehouse_id = w.warehouse_id";
+    String sql = """
+        SELECT 
+            c.contract_id,
+            c.start_date,
+            c.end_date,
+            c.status,
+            c.price,
+                 
+            r.full_name AS renter_name,
+            w.name AS warehouse_name,
 
-        try {
+            iu.full_name AS manager_name
 
-            PreparedStatement st = connection.prepareStatement(sql);
-            ResultSet rs = st.executeQuery();
+        FROM Contract c
+        JOIN Renter r ON c.renter_id = r.renter_id
+        JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
+        LEFT JOIN Rent_request rr ON c.request_id = rr.request_id
+        LEFT JOIN Internal_user iu ON rr.internal_user_id = iu.internal_user_id
+        ORDER BY c.contract_id DESC
+    """;
 
-            while (rs.next()) {
+    try (PreparedStatement st = connection.prepareStatement(sql);
+         ResultSet rs = st.executeQuery()) {
 
-                Contract c = new Contract();
-                c.setContractId(rs.getInt("contract_id"));
-                c.setStartDate(rs.getTimestamp("start_date"));
-                c.setEndDate(rs.getTimestamp("end_date"));
-                c.setStatus(rs.getInt("status"));
-                c.setPrice(rs.getDouble("price"));
+        while (rs.next()) {
 
-                Renter renter = new Renter();
-                renter.setRenterId(rs.getInt("renter_id"));
-                renter.setFullName(rs.getString("full_name"));
+            ContractDetail c = new ContractDetail();
 
-                Warehouse warehouse = new Warehouse();
-                warehouse.setWarehouseId(rs.getInt("warehouse_id"));
-                warehouse.setName(rs.getString("warehouse_name"));
+            c.setContractId(rs.getInt("contract_id"));
+            c.setStartDate(rs.getDate("start_date"));
+            c.setEndDate(rs.getDate("end_date"));
+            c.setStatus(rs.getInt("status"));
+            c.setPrice(rs.getDouble("price"));
 
-                c.setRenter(renter);
-                c.setWarehouse(warehouse);
+            c.setRenterName(rs.getString("renter_name"));
+            c.setWarehouseName(rs.getString("warehouse_name"));
+            c.setManagerName(rs.getString("manager_name"));
 
-                list.add(c);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            list.add(c);
         }
 
-        return list;
-    }  
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
     
+    
+
+public List<ContractDetail> getContractsByRenter(int renterId) {
+
+    List<ContractDetail> list = new ArrayList<>();
+
+    String sql = """
+        SELECT c.contract_id,
+               c.start_date,
+               c.end_date,
+               c.price,
+               c.status,
+
+               r.full_name AS renter_name,
+               r.email AS renter_email,
+               r.phone AS renter_phone,
+
+               w.name AS warehouse_name,
+               w.address AS warehouse_address,
+
+               u.full_name AS manager_name
+        FROM Contract c
+        LEFT JOIN Renter r ON c.renter_id = r.renter_id
+        LEFT JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
+        LEFT JOIN Rent_request rr ON c.request_id = rr.request_id
+        LEFT JOIN Internal_user u ON rr.internal_user_id = u.internal_user_id
+        WHERE c.renter_id = ?
+        ORDER BY c.contract_id DESC
+    """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+        ps.setInt(1, renterId);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+
+            ContractDetail cd = new ContractDetail();
+
+            // ===== CONTRACT =====
+            cd.setContractId(rs.getInt("contract_id"));
+            cd.setStartDate(rs.getDate("start_date"));
+            cd.setEndDate(rs.getDate("end_date"));
+            cd.setPrice(rs.getDouble("price"));
+            cd.setStatus(rs.getInt("status"));
+
+            // ===== RENTER =====
+            cd.setRenterName(rs.getString("renter_name"));
+            cd.setRenterEmail(rs.getString("renter_email"));
+            cd.setRenterPhone(rs.getString("renter_phone"));
+
+            // ===== WAREHOUSE =====
+            cd.setWarehouseName(rs.getString("warehouse_name"));
+            cd.setWarehouseAddress(rs.getString("warehouse_address"));
+
+            // ===== MANAGER =====
+            cd.setManagerName(rs.getString("manager_name"));
+
+            list.add(cd);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
     
     // 1. LẤY CHI TIẾT HỢP ĐỒNG (Full thông tin 3 bên)
    public ContractDetail getContractDetail(int id) {
@@ -221,11 +297,6 @@ public class ContractDAO extends DBContext {
 }
     
 
-   
-    
-    
-    
-
     public Contract getContractById(int id) {
 
         String sql = "SELECT * FROM Contract WHERE contract_id = ?";
@@ -274,6 +345,7 @@ public class ContractDAO extends DBContext {
         }
         return -1;
     }
+    
    public static void main(String[] args) {
 
     ContractDAO dao = new ContractDAO();
@@ -298,18 +370,17 @@ public class ContractDAO extends DBContext {
     ===================================================== */
     System.out.println("\n[2] TEST GET ALL CONTRACTS");
 
-    List<Contract> contracts = dao.getAllContracts();
+    List<ContractDetail> contracts = dao.getAllContracts();
 
-    for (Contract c : contracts) {
+    for (ContractDetail c : contracts) {
         System.out.println(
                 "ID: " + c.getContractId()
-                + " | Renter: " + c.getRenter().getFullName()
-                + " | Warehouse: " + c.getWarehouse().getName()
+                + " | Renter: " + c.getRenterName()
+                + " | Warehouse: " + c.getWarehouseName()
                 + " | Price: " + c.getPrice()
                 + " | Status: " + c.getStatus()
         );
     }
-
 
     /* =====================================================
        3. TEST GET CONTRACT DETAIL
