@@ -302,52 +302,13 @@
                                                 </c:choose>
                                             </td>
                                             <td>
-                                                <c:choose>
-                                                    <c:when test="${not empty resp}">
-                                                        <button
-                                                            class="btn btn-sm btn-outline-secondary btn-toggle-response"
-                                                            type="button" onclick="toggleResponse(this)">
-                                                            <i class="fa-solid fa-eye"></i> View
-                                                        </button>
-                                                        <div class="fc-response" style="display:none;margin-top:8px;">
-                                                            <strong>${resp.internalUser.fullName}</strong>
-                                                            <p class="mb-0">${resp.responseText}</p>
-                                                        </div>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <button class="btn btn-sm btn-outline-primary btn-toggle-reply"
-                                                            type="button" onclick="toggleReply(this)">
-                                                            <i class="fa-solid fa-reply"></i> Reply
-                                                        </button>
-                                                    </c:otherwise>
-                                                </c:choose>
+                                                <a href="${pageContext.request.contextPath}/warehouse/detail?id=${f.contract.warehouse.warehouseId}#feedback-${f.feedbackId}"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa-solid fa-eye"></i> View
+                                                </a>
                                             </td>
                                         </tr>
-                                        <!-- Reply form row (hidden by default, shown below comment) -->
-                                        <c:if test="${empty resp}">
-                                            <tr class="reply-row" style="display:none;">
-                                                <td colspan="6" style="padding:0 14px 14px 14px; background:#f9fafb;">
-                                                    <div class="reply-form">
-                                                        <form
-                                                            action="${pageContext.request.contextPath}/feedbackManagement"
-                                                            method="post">
-                                                            <input type="hidden" name="action" value="reply">
-                                                            <input type="hidden" name="feedbackId"
-                                                                value="${f.feedbackId}">
-                                                            <div class="d-flex gap-2 align-items-start"
-                                                                style="padding-top:8px;">
-                                                                <textarea name="responseText" class="form-control"
-                                                                    rows="2" placeholder="Type your reply..."
-                                                                    required></textarea>
-                                                                <button type="submit" class="btn-reply">
-                                                                    Reply
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </c:if>
+                                        <!-- Inline reply removed -->
                                     </c:forEach>
                                 </tbody>
                             </table>
@@ -361,14 +322,6 @@
 
                 <script>
                     $(document).ready(function () {
-                        // Store reply rows before DataTables init (they have colspan and break DT)
-                        var replyRows = {};
-                        $('#feedbackTable .reply-row').each(function () {
-                            var prevTr = $(this).prev('tr');
-                            var idx = prevTr.index();
-                            replyRows[idx] = $(this).detach();
-                        });
-
                         var table = $('#feedbackTable').DataTable({
                             pageLength: 10,
                             lengthMenu: [5, 10, 25, 50],
@@ -386,18 +339,7 @@
                             },
                             columnDefs: [
                                 { orderable: false, targets: [5] }
-                            ],
-                            drawCallback: function () {
-                                // Re-attach reply rows after each draw
-                                var api = this.api();
-                                api.rows({ page: 'current' }).every(function () {
-                                    var row = this.node();
-                                    var origIdx = this.index();
-                                    if (replyRows[origIdx]) {
-                                        $(row).after(replyRows[origIdx]);
-                                    }
-                                });
-                            }
+                            ]
                         });
 
                         // Show/hide reset button
@@ -426,19 +368,6 @@
                             $(this).hide();
                         });
                     });
-
-                    function toggleResponse(btn) {
-                        var div = btn.nextElementSibling;
-                        div.style.display = div.style.display === 'none' ? 'block' : 'none';
-                    }
-
-                    function toggleReply(btn) {
-                        var currentRow = btn.closest('tr');
-                        var replyRow = currentRow.nextElementSibling;
-                        if (replyRow && replyRow.classList.contains('reply-row')) {
-                            replyRow.style.display = replyRow.style.display === 'none' ? 'table-row' : 'none';
-                        }
-                    }
                 </script>
                 <jsp:include page="/Common/Layout/footer.jsp" />
             </body>
