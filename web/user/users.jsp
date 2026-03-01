@@ -12,9 +12,10 @@
                     <c:otherwise>User Detail</c:otherwise>
                 </c:choose>
             </title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
 
             <style>
-               
                 * {
                     box-sizing: border-box;
                 }
@@ -25,17 +26,6 @@
                     margin: 0;
                 }
 
-                .mb-3 {
-                    margin-bottom: 1rem !important;
-                }
-
-                .mb-4 {
-                    margin-bottom: 1.5rem !important;
-                }
-
-                .d-none {
-                    display: none !important;
-                }
 
                 .layout {
                     display: flex;
@@ -72,7 +62,7 @@
                     border-radius: 12px;
                     padding: 24px;
                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-                   
+
                 }
 
                 .avatar-section {
@@ -94,7 +84,7 @@
                     margin-bottom: 8px;
                     font-size: 14px;
                     display: block;
-                    
+
                 }
 
                 .form-control-custom,
@@ -107,7 +97,7 @@
                     transition: all 0.2s;
                     background-color: #f9fafb;
                     display: block;
-                    
+
                 }
 
                 .form-control-custom:focus,
@@ -252,7 +242,7 @@
                                             class="avatar-img">
                                     </c:if>
 
-                                    
+
                                     <c:if test="${mode != 'view' || isAdminView}">
                                         <label class="btn-custom btn-outline"
                                             style="cursor: pointer; display: block; margin-top: 10px;">
@@ -278,7 +268,7 @@
                                                     return;
                                                 }
 
-                                                
+
                                                 const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
                                                 const validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
                                                 const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -292,7 +282,7 @@
 
                                                 fileNameDisplay.textContent = file.name;
 
-                                                
+
                                                 if (file) {
                                                     const reader = new FileReader();
                                                     reader.onload = function (e) {
@@ -307,7 +297,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="profile-right">
                                 <div class="card-custom">
                                     <div class="section-title">User Information</div>
@@ -341,7 +331,7 @@
                                             </div>
                                         </c:if>
                                         <c:if test="${mode != 'add'}">
-                                            
+
                                             <div>
                                                 <label class="form-label">Status</label>
                                                 <c:choose>
@@ -354,7 +344,7 @@
                                                         </div>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        
+
                                                         <div class="view-text">
                                                             <c:choose>
                                                                 <c:when test="${targetUser.status == 1}">Active</c:when>
@@ -396,7 +386,7 @@
                                                         </c:when>
                                                         <c:otherwise>
                                                             <select name="roleId" class="form-select-custom">
-                                                                
+
                                                                 <option value="2" ${targetUser.role=='Manager'
                                                                     ? 'selected' : '' }>Manager</option>
                                                                 <option value="3" ${targetUser.role=='Staff'

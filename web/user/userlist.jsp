@@ -7,8 +7,8 @@
             <html>
 
             <head>
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
                 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
                 <style>
@@ -213,7 +213,7 @@
                                         <td>
                                             <div class="action-buttons">
                                                 <a href="${pageContext.request.contextPath}/user/list?action=view&id=${u.id}&type=${u.type}"
-                                                    class="btn btn-sm btn-outline-secondary">
+                                                    class="btn btn-sm btn-outline-primary">
                                                     <i class="fa-solid fa-eye"></i> View
                                                 </a>
 
