@@ -13,19 +13,15 @@
                 width: 220px;
                 background: black;
                 color: white;
-                overflow-y: auto;
 
-                position: fixed;
-                top: 57px;
-                left: 0;
-                height: calc(100vh - 57px);
-                z-index: 900;
+                min-height: 80vh;
+                flex-shrink: 0;
+                /* không bị co */
+
             }
 
+            /* ===== LOGO ===== */
 
-            .main-content {
-                margin-left: 220px;
-            }
 
             /* ===== MENU ===== */
             .sidebar-menu {
@@ -62,7 +58,7 @@
                 background: #1e293b;
             }
 
-            /* Active */
+            /* Active (nếu sau này muốn) */
             .sidebar-menu li a.active {
                 background: #1f2937;
                 font-weight: 600;
@@ -77,6 +73,9 @@
             .logout a {
                 color: white;
             }
+
+
+            /* ===== CONTENT FIX ===== */
         </style>
 
         <!-- ===== SIDEBAR ===== -->

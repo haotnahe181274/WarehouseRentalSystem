@@ -267,7 +267,7 @@
                     <p class="empty-text">No feedback yet.</p>
                 </c:if>
                 <c:forEach items="${feedbackList}" var="f">
-                    <div class="feedback-item" id="feedback-${f.feedbackId}">
+                    <div class="feedback-item">
                         <div class="feedback-top">
                             <span class="feedback-author">
                                 <c:choose>

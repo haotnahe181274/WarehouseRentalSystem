@@ -11,7 +11,7 @@
 
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
                 <style>
                     body {
                         margin: 0;
@@ -19,12 +19,13 @@
                         font-family: 'Inter', sans-serif;
                     }
 
-                    /* ===== Layout ===== */
+                    /* ===== Layout giống các trang management khác ===== */
                     .layout {
                         display: flex;
                         min-height: 100vh;
                     }
 
+                    /* Main content nằm bên phải sidebar */
                     .main-content {
                         flex: 1;
                         padding: 30px;
@@ -44,7 +45,7 @@
                         margin-bottom: 24px;
                     }
 
-                    /* ===== Filter bar ===== */
+                    /* ===== Filter ===== */
                     .filter-bar {
                         display: flex;
                         gap: 12px;
@@ -52,7 +53,8 @@
                         align-items: center;
                     }
 
-                    .filter-bar select {
+                    .filter-bar select,
+                    .filter-bar input {
                         border: 1px solid #d1d5db;
                         border-radius: 8px;
                         padding: 8px 12px;
@@ -60,73 +62,35 @@
                         background: #fff;
                     }
 
-                    /* Reset button */
-                    #btnReset {
-                        background: #111827;
-                        color: #fff;
-                        border: none;
-                        border-radius: 20px;
-                        padding: 8px 20px;
-                        font-size: 13px;
-                        cursor: pointer;
-                        transition: all .2s;
+                    /* ===== Feedback card ===== */
+                    .feedback-card {
+                        background: #fff;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 12px;
+                        padding: 20px 24px;
+                        margin-bottom: 16px;
                     }
 
-                    #btnReset:hover {
-                        background: #1f2937;
+                    .fc-top {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 10px;
                     }
 
-                    /* ===== DataTable overrides ===== */
-                    #feedbackTable {
-                        border-collapse: collapse;
-                        width: 100%;
-                        font-size: 14px;
+                    .fc-user {
+                        display: flex;
+                        gap: 12px;
                     }
 
-                    #feedbackTable thead th {
-                        background: #f9fafb;
-                        color: #374151;
-                        font-weight: 600;
-                        padding: 12px 14px;
-                        border-bottom: 2px solid #e5e7eb;
-                    }
-
-                    #feedbackTable tbody td {
-                        padding: 12px 14px;
-                        border-bottom: 1px solid #f3f4f6;
-                        vertical-align: middle;
-                    }
-
-                    #feedbackTable tbody tr:hover {
-                        background: #f0f4ff;
-                    }
-
-                    .dataTables_wrapper .dataTables_filter input {
-                        border: 1px solid #d1d5db;
-                        border-radius: 8px;
-                        padding: 6px 12px;
-                        font-size: 14px;
-                        outline: none;
-                    }
-
-                    .dataTables_wrapper .dataTables_length select {
-                        border: 1px solid #d1d5db;
-                        border-radius: 6px;
-                        padding: 4px 8px;
-                        font-size: 14px;
-                    }
-
-                    /* ===== Table cell elements ===== */
                     .fc-avatar {
-                        width: 32px;
-                        height: 32px;
+                        width: 40px;
+                        height: 40px;
                         border-radius: 50%;
                         background: #f3f4f6;
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         color: #9ca3af;
-                        font-size: 13px;
                     }
 
                     .fc-name {
@@ -148,36 +112,35 @@
                         font-size: 14px;
                     }
 
+                    .fc-comment {
+                        font-size: 14px;
+                        color: #374151;
+                    }
+
                     /* Response */
                     .fc-response {
                         background: #f9fafb;
                         border: 1px solid #e5e7eb;
                         border-radius: 8px;
                         padding: 12px;
-                        font-size: 13px;
+                        margin-top: 12px;
+                        font-size: 14px;
                     }
 
-                    /* Reply form */
-                    .reply-form textarea {
-                        font-size: 13px;
+                    /* Reply */
+                    .reply-form {
+                        margin-top: 12px;
                     }
 
                     .btn-reply {
-                        background: #4f46e5;
+                        background: #111827;
                         color: #fff;
                         border: none;
                         border-radius: 8px;
                         padding: 8px 16px;
-                        font-size: 13px;
-                        cursor: pointer;
-                        transition: background .2s;
+                        font-size: 14px;
                     }
 
-                    .btn-reply:hover {
-                        background: #4338ca;
-                    }
-
-                    /* Status badges */
                     .status-badge-replied {
                         background: #d1fae5;
                         color: #065f46;
@@ -223,24 +186,23 @@
 
                         <!-- Filter -->
                         <div class="filter-bar">
-                            <select id="filterStatus">
-                                <option value="">All Status</option>
-                                <option value="Pending">Pending Reply</option>
-                                <option value="Replied">Replied</option>
+                            <select id="filterStatus" onchange="filterFeedback()">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending Reply</option>
+                                <option value="replied">Replied</option>
                             </select>
 
-                            <select id="filterRating">
-                                <option value="">All Ratings</option>
+                            <select id="filterRating" onchange="filterFeedback()">
+                                <option value="all">All Ratings</option>
                                 <option value="5">5 Stars</option>
                                 <option value="4">4 Stars</option>
                                 <option value="3">3 Stars</option>
                                 <option value="2">2 Stars</option>
                                 <option value="1">1 Star</option>
                             </select>
-                            <button id="btnReset" class="btn btn-sm btn-outline-danger" style="display:none;"
-                                type="button">
-                                <i class="fa-solid fa-rotate-left"></i> Reset
-                            </button>
+
+                            <input type="text" id="filterSearch" placeholder="Search by warehouse or renter..."
+                                oninput="filterFeedback()" style="max-width:300px;">
                         </div>
 
                         <!-- Empty -->
@@ -251,123 +213,105 @@
                             </div>
                         </c:if>
 
-                        <!-- Feedback Table -->
-                        <c:if test="${not empty feedbackList}">
-                            <table id="feedbackTable" class="display" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>Renter</th>
-                                        <th>Warehouse</th>
-                                        <th>Rating</th>
-                                        <th>Comment</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:forEach items="${feedbackList}" var="f">
-                                        <c:set var="resp" value="${feedbackResponses[f.feedbackId]}" />
-                                        <tr>
-                                            <td>
-                                                <div class="fc-user" style="display:flex;gap:8px;align-items:center;">
-                                                    <div class="fc-avatar"><i class="fa-solid fa-user"></i></div>
-                                                    <div class="fc-name">
-                                                        <c:choose>
-                                                            <c:when test="${f.anonymous}">Anonymous</c:when>
-                                                            <c:otherwise>${f.renter.fullName}</c:otherwise>
-                                                        </c:choose>
-                                                    </div>
+                        <!-- Feedback list -->
+                        <div id="feedbackContainer">
+                            <c:forEach items="${feedbackList}" var="f">
+
+                                <div class="feedback-card" data-rating="${f.rating}"
+                                    data-status="${not empty feedbackResponses[f.feedbackId] ? 'replied' : 'pending'}"
+                                    data-search="${f.contract.warehouse.name} ${f.anonymous ? 'Anonymous' : f.renter.fullName}">
+
+                                    <div class="fc-top">
+                                        <div class="fc-user">
+                                            <div class="fc-avatar">
+                                                <i class="fa-solid fa-user"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fc-name">
+                                                    <c:choose>
+                                                        <c:when test="${f.anonymous}">Anonymous</c:when>
+                                                        <c:otherwise>${f.renter.fullName}</c:otherwise>
+                                                    </c:choose>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <span class="fc-warehouse-badge">${f.contract.warehouse.name}</span>
-                                            </td>
-                                            <td data-order="${f.rating}">
-                                                <div class="fc-stars">
-                                                    <c:forEach begin="1" end="5" var="i">
-                                                        <i class="fa-solid fa-star"
-                                                            style="${i <= f.rating ? '' : 'opacity:0.2'}"></i>
-                                                    </c:forEach>
+                                                <span class="fc-warehouse-badge">
+                                                    ${f.contract.warehouse.name}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div style="text-align:right;">
+                                            <div class="fc-stars">
+                                                <c:forEach begin="1" end="5" var="i">
+                                                    <i class="fa-solid fa-star"
+                                                        style="${i <= f.rating ? '' : 'opacity:0.2'}"></i>
+                                                </c:forEach>
+                                            </div>
+
+                                            <c:choose>
+                                                <c:when test="${not empty feedbackResponses[f.feedbackId]}">
+                                                    <span class="status-badge-replied">Replied</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="status-badge-pending">Pending</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+
+                                    <p class="fc-comment">${f.comment}</p>
+
+                                    <!-- Response -->
+                                    <c:set var="resp" value="${feedbackResponses[f.feedbackId]}" />
+                                    <c:if test="${not empty resp}">
+                                        <div class="fc-response">
+                                            <strong>${resp.internalUser.fullName}</strong>
+                                            <p class="mb-0">${resp.responseText}</p>
+                                        </div>
+                                    </c:if>
+
+                                    <!-- Reply -->
+                                    <c:if test="${empty resp}">
+                                        <div class="reply-form">
+                                            <form action="${pageContext.request.contextPath}/feedbackManagement"
+                                                method="post">
+                                                <input type="hidden" name="action" value="reply">
+                                                <input type="hidden" name="feedbackId" value="${f.feedbackId}">
+                                                <div class="d-flex gap-2">
+                                                    <textarea name="responseText" class="form-control" rows="2"
+                                                        required></textarea>
+                                                    <button type="submit" class="btn-reply">
+                                                        Reply
+                                                    </button>
                                                 </div>
-                                            </td>
-                                            <td>${f.comment}</td>
-                                            <td>
-                                                <c:choose>
-                                                    <c:when test="${not empty resp}">
-                                                        <span class="status-badge-replied">Replied</span>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <span class="status-badge-pending">Pending</span>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </td>
-                                            <td>
-                                                <a href="${pageContext.request.contextPath}/warehouse/detail?id=${f.contract.warehouse.warehouseId}#feedback-${f.feedbackId}"
-                                                    class="btn btn-sm btn-outline-primary">
-                                                    <i class="fa-solid fa-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <!-- Inline reply removed -->
-                                    </c:forEach>
-                                </tbody>
-                            </table>
-                        </c:if>
+                                            </form>
+                                        </div>
+                                    </c:if>
+
+                                </div>
+
+                            </c:forEach>
+                        </div>
 
                     </div>
                 </div>
-
-                <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-                <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
+                    
                 <script>
-                    $(document).ready(function () {
-                        var table = $('#feedbackTable').DataTable({
-                            pageLength: 10,
-                            lengthMenu: [5, 10, 25, 50],
-                            order: [[2, 'desc']],
-                            language: {
-                                search: "Search:",
-                                lengthMenu: "Show _MENU_ entries",
-                                info: "Showing _START_ to _END_ of _TOTAL_ feedback",
-                                paginate: {
-                                    first: "First",
-                                    last: "Last",
-                                    next: "Next",
-                                    previous: "Previous"
-                                }
-                            },
-                            columnDefs: [
-                                { orderable: false, targets: [5] }
-                            ]
-                        });
+                    function filterFeedback() {
+                        const status = document.getElementById('filterStatus').value;
+                        const rating = document.getElementById('filterRating').value;
+                        const search = document.getElementById('filterSearch').value.toLowerCase();
+                        const cards = document.querySelectorAll('.feedback-card');
 
-                        // Show/hide reset button
-                        function toggleResetBtn() {
-                            var hasFilter = $('#filterStatus').val() !== '' || $('#filterRating').val() !== '';
-                            $('#btnReset').toggle(hasFilter);
-                        }
+                        cards.forEach(card => {
+                            let show = true;
 
-                        // Filter by Status (column 4)
-                        $('#filterStatus').on('change', function () {
-                            table.column(4).search(this.value).draw();
-                            toggleResetBtn();
-                        });
+                            if (status !== 'all' && card.dataset.status !== status) show = false;
+                            if (rating !== 'all' && card.dataset.rating !== rating) show = false;
+                            if (search && !card.dataset.search.toLowerCase().includes(search)) show = false;
 
-                        // Filter by Rating (column 2)
-                        $('#filterRating').on('change', function () {
-                            table.column(2).search(this.value).draw();
-                            toggleResetBtn();
+                            card.style.display = show ? '' : 'none';
                         });
-
-                        // Reset all filters
-                        $('#btnReset').on('click', function () {
-                            $('#filterStatus').val('');
-                            $('#filterRating').val('');
-                            table.columns().search('').draw();
-                            $(this).hide();
-                        });
-                    });
+                    }
                 </script>
                 <jsp:include page="/Common/Layout/footer.jsp" />
             </body>

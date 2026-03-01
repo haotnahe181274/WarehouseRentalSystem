@@ -21,15 +21,8 @@ public class ContractDetail {
     private String managerName;
     private String managerEmail;
     private String managerPhone;
-    private int renterId;
 
-    public int getRenterId() {
-        return renterId;
-    }
-
-    public void setRenterId(int renterId) {
-        this.renterId = renterId;
-    }
+    // ===== GETTER & SETTER =====
 
     public int getContractId() {
         return contractId;

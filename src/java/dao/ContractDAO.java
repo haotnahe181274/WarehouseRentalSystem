@@ -76,7 +76,7 @@ public class ContractDAO extends DBContext {
         try (PreparedStatement st = connection.prepareStatement(sql);
              ResultSet rs = st.executeQuery()) {
 
-            ContractDetail c = new ContractDetail();
+            while (rs.next()) {
 
                 ContractDetail c = new ContractDetail();
 
@@ -159,64 +159,8 @@ public class ContractDAO extends DBContext {
                 list.add(cd);
             }
 
-public List<ContractDetail> getContractsByRenter(int renterId) {
-
-    List<ContractDetail> list = new ArrayList<>();
-
-    String sql = """
-        SELECT c.contract_id,
-               c.start_date,
-               c.end_date,
-               c.price,
-               c.status,
-
-               r.full_name AS renter_name,
-               r.email AS renter_email,
-               r.phone AS renter_phone,
-
-               w.name AS warehouse_name,
-               w.address AS warehouse_address,
-
-               u.full_name AS manager_name
-        FROM Contract c
-        LEFT JOIN Renter r ON c.renter_id = r.renter_id
-        LEFT JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
-        LEFT JOIN Rent_request rr ON c.request_id = rr.request_id
-        LEFT JOIN Internal_user u ON rr.internal_user_id = u.internal_user_id
-        WHERE c.renter_id = ?
-        ORDER BY c.contract_id DESC
-    """;
-
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-        ps.setInt(1, renterId);
-
-        ResultSet rs = ps.executeQuery();
-
-        while (rs.next()) {
-
-            ContractDetail cd = new ContractDetail();
-
-            // ===== CONTRACT =====
-            cd.setContractId(rs.getInt("contract_id"));
-            cd.setStartDate(rs.getDate("start_date"));
-            cd.setEndDate(rs.getDate("end_date"));
-            cd.setPrice(rs.getDouble("price"));
-            cd.setStatus(rs.getInt("status"));
-
-            // ===== RENTER =====
-            cd.setRenterName(rs.getString("renter_name"));
-            cd.setRenterEmail(rs.getString("renter_email"));
-            cd.setRenterPhone(rs.getString("renter_phone"));
-
-            // ===== WAREHOUSE =====
-            cd.setWarehouseName(rs.getString("warehouse_name"));
-            cd.setWarehouseAddress(rs.getString("warehouse_address"));
-
-            // ===== MANAGER =====
-            cd.setManagerName(rs.getString("manager_name"));
-
-            list.add(cd);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return list;
@@ -448,6 +392,7 @@ public List<ContractDetail> getContractsByRenter(int renterId) {
                 + c.getStatus()
         );
     }
+
 
     /* =====================================================
        3. TEST GET CONTRACT DETAIL

@@ -54,7 +54,7 @@ public class UserDAO extends DBContext {
                     email,
                     full_name,
                     phone,
-                    'Renter' as role,
+                    null as role,
                     'Renter' as type,
                     status,
                     image,
@@ -172,7 +172,7 @@ public class UserDAO extends DBContext {
                         + "join role r on iu.role_id = r.role_id "
                         + "union all "
                         + "select re.renter_id as id, re.user_name as name, re.email, "
-                        + "re.full_name, re.phone, re.image, 'Renter' as role, "
+                        + "re.full_name, re.phone, re.image, null as role, "
                         + "'RENTER' as type, re.status, re.created_at as createdAt, "
                         + "null as id_card, null as address, null as internal_user_code "
                         + "from renter re "
@@ -200,6 +200,12 @@ public class UserDAO extends DBContext {
             params.add(filterStatus);
         }
 
+        // Role filter applies only if filtering by INTERNAL or it matches one of the
+        // internal
+        // roles.
+        // If filterType is RENTER, role filter shouldn't match anything usually, but
+        // sql handles
+        // it.
         if (filterRole != null && !filterRole.isEmpty()) {
             sql.append(" AND u.role = ? ");
             params.add(filterRole);
