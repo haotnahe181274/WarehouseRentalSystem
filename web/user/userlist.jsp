@@ -7,8 +7,12 @@
             <html>
 
             <head>
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
                 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
                 <style>
@@ -19,14 +23,13 @@
 
                     .main-content {
                         flex: 1;
-                        padding: 24px;
-                        background: #f5f7fb;
+                        padding: 30px;
                     }
 
                     body {
-                        font-family: Arial, sans-serif;
-
-                        background: #f5f6fa;
+                        margin: 0;
+                        font-family: 'Inter', sans-serif;
+                        background: #f5f7fb;
                     }
 
                     h3 {
@@ -86,9 +89,26 @@
 
                     table.dataTable {
                         width: 100% !important;
-                        background: #fff;
-                        border-radius: 6px;
+                        background: white;
+                        border-radius: 12px;
                         overflow: hidden;
+                        border: 1px solid #e5e7eb;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                    }
+
+                    table.dataTable thead th {
+                        background: #f9fafb;
+                        color: #4b5563;
+                        font-weight: 600;
+                        border-bottom: 1px solid #e5e7eb !important;
+                        padding: 12px 16px;
+                    }
+
+                    table.dataTable tbody td {
+                        padding: 16px;
+                        border-bottom: 1px solid #f3f4f6;
+                        vertical-align: top;
                     }
 
                     .btn-add:hover {
@@ -112,7 +132,9 @@
                             </c:if>
                         </div>
 
-                        <h3 style="font-weight: 600; color: #111827;">User List</h3>
+                        <h1 class="page-title">User List</h1>
+                        <p class="page-subtitle" style="color: #6b7280; font-size: 14px; margin-bottom: 24px;">Manage
+                            internal users and renters in the system</p>
 
                         <!-- Filter Section -->
                         <!-- Filter Section -->
@@ -124,7 +146,7 @@
                                 <input type="hidden" name="pageSize" id="pageSizeInput">
 
                                 <select name="filterType" onchange="submitFilter()"
-                                    style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
+                                    style="padding: 8px 12px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
                                     <option value="All">All Types</option>
                                     <option value="INTERNAL" ${filterType=='INTERNAL' ? 'selected' : '' }>Internal
                                     </option>
@@ -132,7 +154,7 @@
                                 </select>
 
                                 <select name="filterStatus" onchange="submitFilter()"
-                                    style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
+                                    style="padding: 8px 12px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
                                     <option value="All">All Status</option>
                                     <option value="1" ${filterStatus==1 ? 'selected' : '' }>Active</option>
                                     <option value="0" ${filterStatus==0 ? 'selected' : '' }>Blocked</option>
@@ -140,7 +162,7 @@
 
                                 <c:if test="${filterType == 'INTERNAL'}">
                                     <select name="filterRole" onchange="submitFilter()"
-                                        style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
+                                        style="padding: 8px 12px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
                                         <option value="All">All Roles</option>
                                         <option value="Admin" ${filterRole=='Admin' ? 'selected' : '' }>Admin</option>
                                         <option value="Manager" ${filterRole=='Manager' ? 'selected' : '' }>Manager
@@ -152,7 +174,7 @@
                                 <c:if
                                     test="${(filterType != null && filterType != 'All') || (filterStatus != null) || (filterRole != null && filterRole != 'All')}">
                                     <a href="${pageContext.request.contextPath}/user/list"
-                                        style="padding: 8px 16px; border-radius: 6px; background-color: black; color: white; text-decoration: none; font-size: 14px; font-weight: 500; transition: background-color 0.2s;">
+                                        style="padding: 8px 16px; border-radius: 8px; background-color: black; color: white; text-decoration: none; font-size: 14px; font-weight: 500; transition: background-color 0.2s;">
                                         Reset
                                     </a>
                                 </c:if>
@@ -213,7 +235,7 @@
                                         <td>
                                             <div class="action-buttons">
                                                 <a href="${pageContext.request.contextPath}/user/list?action=view&id=${u.id}&type=${u.type}"
-                                                    class="btn btn-sm btn-outline-secondary">
+                                                    class="btn btn-sm btn-outline-primary">
                                                     <i class="fa-solid fa-eye"></i> View
                                                 </a>
 
@@ -258,7 +280,7 @@
                                         { "orderable": false, "targets": [0, 6] }
                                     ],
                                     "order": [[1, "asc"]],
-                                    "pageLength": ${ not empty param.pageSize ? param.pageSize : 10 },
+                                    "pageLength": ${ not empty param.pageSize ? param.pageSize : 5 },
                                     "language": {
                                     "search": "Search:",
                                     "lengthMenu": "_MENU_",
@@ -272,20 +294,20 @@
                                 }
                                 });
 
-                            // Move Add New User button next to Search
+
                             var addBtn = $('.top-bar .btn-add');
                             if (addBtn.length) {
                                 addBtn.detach();
                                 $('#userTable_filter').append(addBtn);
                             }
 
-                            // Move Filter Section next to Show Entries
+
                             var filterSec = $('.filter-section');
                             var lengthDiv = $('#userTable_length');
 
                             if (filterSec.length && lengthDiv.length) {
                                 filterSec.detach();
-                                // Wrap length and filter in a container
+
                                 var wrapper = $('<div class="dt-controls-left"></div>');
                                 lengthDiv.before(wrapper);
                                 wrapper.append(lengthDiv);
@@ -304,7 +326,7 @@
                     </div>
 
 
-                    </div>
+                </div>
 
 
                 </div>
