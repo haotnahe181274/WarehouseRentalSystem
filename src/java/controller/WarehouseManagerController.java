@@ -5,6 +5,7 @@ import dao.WarehouseImageDAO;
 import dao.WarehouseManagementDAO;
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -47,7 +48,7 @@ public class WarehouseManagerController extends HttpServlet {
         }
 
         // ========================================================================
-        // --- ACTION: VIEW (SỬA ĐỔI: Chuyển tiếp sang WarehouseDetailController) ---
+        // --- ACTION: VIEW ---
         // ========================================================================
        if ("view".equals(action)) {
             String idStr = request.getParameter("id");
@@ -72,13 +73,13 @@ public class WarehouseManagerController extends HttpServlet {
                         
                         for (int i = 0; i < dates.size(); i++) {
                            // Sửa lại đoạn nối chuỗi sự kiện trong Java
-jsonBuilder.append("{")
-           .append("\"title\": \"Đã Thuê\",") // Thêm tiêu đề sự kiện
-           .append("\"start\": \"").append(dates.get(i)[0]).append("\",")
-           .append("\"end\": \"").append(dates.get(i)[1]).append("T23:59:59\",")
-           .append("\"color\": \"#dc3545\",") // Đổi sang màu đỏ đậm (Danger) cho nổi bật
-           .append("\"textColor\": \"#ffffff\"") // Chữ màu trắng
-           .append("}");
+                            jsonBuilder.append("{")
+                                       .append("\"title\": \"Đã Thuê\",") // Thêm tiêu đề sự kiện
+                                       .append("\"start\": \"").append(dates.get(i)[0]).append("\",")
+                                       .append("\"end\": \"").append(dates.get(i)[1]).append("T23:59:59\",")
+                                       .append("\"color\": \"#dc3545\",") // Đổi sang màu đỏ đậm (Danger) cho nổi bật
+                                       .append("\"textColor\": \"#ffffff\"") // Chữ màu trắng
+                                       .append("}");
                             if (i < dates.size() - 1) jsonBuilder.append(",");
                         }
                         jsonBuilder.append("]");
@@ -88,7 +89,6 @@ jsonBuilder.append("{")
                     jsonBuilder.append("}");
                     
                     // Gửi chuỗi JSON siêu to khổng lồ này sang JSP
-                    // Nếu kho chưa có ai thuê, chuỗi sẽ là "{}"
                     request.setAttribute("unitEventsJson", jsonBuilder.toString().equals("{}") ? "{}" : jsonBuilder.toString());
                     // ==========================================
                     request.setAttribute("w", w);
@@ -144,37 +144,54 @@ jsonBuilder.append("{")
         request.getRequestDispatcher("Management/warehouse.jsp").forward(request, response);
     }
 
-    // (Đã xóa hàm handleViewDetails vì không còn cần thiết)
-
-    // ================== PHẦN POST (GIỮ NGUYÊN) ==================
-    @Override
+    // ================== PHẦN POST (ĐÃ CẬP NHẬT UP NHIỀU ẢNH) ==================
+  @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        HttpSession session = request.getSession();
+        if (session.getAttribute("user") == null) {
+            response.sendRedirect("login");
             return;
         }
 
         try {
+            // 1. Nhận dữ liệu text từ form
             String idStr = request.getParameter("id");
             String name = request.getParameter("name");
             String address = request.getParameter("address");
             String desc = request.getParameter("description");
+            
             int status = 1;
+            int typeId = 1; 
+            
             try { status = Integer.parseInt(request.getParameter("status")); } catch (Exception e) {}
+            try { typeId = Integer.parseInt(request.getParameter("warehouseTypeId")); } catch (Exception e) {}
 
+            boolean isEdit = (idStr != null && !idStr.trim().isEmpty());
+
+            // 2. Map vào Object Warehouse
             Warehouse w = new Warehouse();
             w.setName(name);
             w.setAddress(address);
             w.setDescription(desc);
             w.setStatus(status);
-            if (idStr != null && !idStr.isEmpty()) {
-                w.setWarehouseId(Integer.parseInt(idStr));
+            if (isEdit) w.setWarehouseId(Integer.parseInt(idStr));
+            
+            model.WarehouseType type = new model.WarehouseType();
+            type.setWarehouseTypeId(typeId); 
+            w.setWarehouseType(type);
+
+            // ==========================================
+            // 3. XỬ LÝ NHIỀU FILE ẢNH & VALIDATION
+            // ==========================================
+            List<Part> fileParts = new ArrayList<>();
+            for (Part part : request.getParts()) {
+                if ("images".equals(part.getName()) && part.getSize() > 0) {
+                    fileParts.add(part);
+                }
             }
 
-            Part filePart = request.getPart("image");
             String errorMessage = null;
 
             if (name == null || name.trim().isEmpty()) {
@@ -183,15 +200,31 @@ jsonBuilder.append("{")
                 errorMessage = "Địa chỉ không được để trống!";
             }
 
-            if (errorMessage == null && filePart != null && filePart.getSize() > 0) {
-                String mimeType = filePart.getContentType();
-                if (mimeType == null || !mimeType.startsWith("image/")) {
-                    errorMessage = "File tải lên không hợp lệ! Vui lòng chỉ chọn file ảnh.";
-                } else if (filePart.getSize() > 5 * 1024 * 1024) {
-                    errorMessage = "Ảnh quá nặng! Vui lòng chọn ảnh dưới 5MB.";
+            // Logic Validation file ảnh theo yêu cầu
+            if (errorMessage == null && !fileParts.isEmpty()) {
+                for (Part filePart : fileParts) {
+                    // Check dung lượng (5MB = 5 * 1024 * 1024 bytes)
+                    if (filePart.getSize() > 5 * 1024 * 1024) {
+                        errorMessage = "Có ảnh dung lượng lớn hơn 5MB! Vui lòng chọn lại.";
+                        break; // Dừng check nếu có 1 file vi phạm
+                    }
+
+                    // Check định dạng file dựa trên đuôi mở rộng (extension)
+                    String submittedFileName = filePart.getSubmittedFileName();
+                    if (submittedFileName == null || !submittedFileName.contains(".")) {
+                        errorMessage = "File tải lên không hợp lệ!";
+                        break;
+                    }
+                    
+                    String ext = submittedFileName.substring(submittedFileName.lastIndexOf(".") + 1).toLowerCase();
+                    if (!ext.equals("jpg") && !ext.equals("jpeg") && !ext.equals("png")) {
+                        errorMessage = "Chỉ hỗ trợ file ảnh định dạng .png, .jpg, .jpeg";
+                        break;
+                    }
                 }
             }
 
+            // Nếu có lỗi -> Trả về form cùng thông báo
             if (errorMessage != null) {
                 request.setAttribute("warehouse", w);
                 request.setAttribute("errorMessage", errorMessage);
@@ -199,46 +232,66 @@ jsonBuilder.append("{")
                 return;
             }
 
+            // ==========================================
+            // 4. LƯU THÔNG TIN KHO VÀO DB
+            // ==========================================
             WarehouseManagementDAO dao = new WarehouseManagementDAO();
             int currentWarehouseId = 0;
 
-            if (idStr != null && !idStr.trim().isEmpty()) {
-                currentWarehouseId = Integer.parseInt(idStr);
-                w.setWarehouseId(currentWarehouseId);
+            if (isEdit) {
+                currentWarehouseId = w.getWarehouseId();
                 dao.update(w);
             } else {
                 currentWarehouseId = dao.insertReturnId(w);
             }
 
-            if (currentWarehouseId > 0 && filePart != null && filePart.getSize() > 0) {
-                String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                String uniqueFileName = currentWarehouseId + "_" + System.currentTimeMillis() + "_" + fileName;
+            // ==========================================
+            // 5. LƯU TẤT CẢ FILE ẢNH VÀO Ổ CỨNG VÀ DB
+            // ==========================================
+            if (currentWarehouseId > 0 && !fileParts.isEmpty()) {
                 String uploadPath = request.getServletContext().getRealPath("/resources/warehouse/image");
-                
                 File uploadDir = new File(uploadPath);
                 if (!uploadDir.exists()) uploadDir.mkdirs();
-                
-                filePart.write(uploadPath + File.separator + uniqueFileName);
 
                 WarehouseImageDAO imgDao = new WarehouseImageDAO();
-                WarehouseImage img = new WarehouseImage();
-                img.setImageUrl(uniqueFileName);
-                img.setPrimary(true);
-                img.setStatus(1);
-                
-                String ext = "jpg";
-                if (fileName.contains(".")) {
-                    ext = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+                boolean isFirstImage = true; 
+
+                for (int i = 0; i < fileParts.size(); i++) {
+                    Part filePart = fileParts.get(i);
+                    String submittedFileName = filePart.getSubmittedFileName();
+                    
+                    // Nối thêm biến 'i' để không bị trùng tên khi up nhiều file cùng lúc
+                    String uniqueFileName = currentWarehouseId + "_" + System.currentTimeMillis() + "_" + i + "_" + submittedFileName;
+                    
+                    // Lưu file vật lý
+                    filePart.write(uploadPath + File.separator + uniqueFileName);
+
+                    // Insert database
+                    WarehouseImage img = new WarehouseImage();
+                    img.setImageUrl(uniqueFileName);
+                    
+                    if (!isEdit && isFirstImage) {
+                        img.setPrimary(true);
+                        isFirstImage = false;
+                    } else {
+                        img.setPrimary(false);
+                    }
+                    
+                    img.setStatus(1);
+                    
+                    // Lấy đuôi mở rộng lưu vào DB (đã chắc chắn an toàn qua bước validation)
+                    String ext = submittedFileName.substring(submittedFileName.lastIndexOf(".") + 1).toLowerCase();
+                    img.setImageType(ext);
+                    
+                    Warehouse linkW = new Warehouse();
+                    linkW.setWarehouseId(currentWarehouseId);
+                    img.setWarehouse(linkW);
+                    
+                    imgDao.insertImage(img);
                 }
-                img.setImageType(ext);
-                
-                Warehouse linkW = new Warehouse();
-                linkW.setWarehouseId(currentWarehouseId);
-                img.setWarehouse(linkW);
-                
-                imgDao.insertImage(img);
             }
-            
+
+            // 6. Xong -> Redirect về list
             response.sendRedirect(request.getContextPath() + "/warehouse");
 
         } catch (Exception e) {
@@ -247,4 +300,4 @@ jsonBuilder.append("{")
             request.getRequestDispatcher("/Management/warehouse-form.jsp").forward(request, response);
         }
     }
-}   
+}
