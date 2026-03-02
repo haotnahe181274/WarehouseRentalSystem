@@ -119,8 +119,10 @@
                                         </td>
 
                                         <td class="text-center">
-                                            <a href="contract-detail?id=${c.contractId}" 
-                                               class="btn btn-sm btn-light border shadow-sm" 
+                                            <a href="<c:url value='/contract-detail'>
+                                                        <c:param name='contractId' value='${c.contractId}'/>
+                                                     </c:url>"
+                                               class="btn btn-sm btn-light border shadow-sm"
                                                title="Xem chi tiết">
                                                 <i class="bi bi-search text-primary"></i>
                                             </a>

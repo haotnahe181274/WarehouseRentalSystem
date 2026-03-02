@@ -41,7 +41,7 @@ public class ContractDetailServlet extends HttpServlet {
         ContractDetail detail = dao.getContractDetail(contractId);
 
         if (detail == null) {
-            response.sendRedirect("contract");
+            response.sendRedirect(request.getContextPath() + "/contract");
             return;
         }
 
