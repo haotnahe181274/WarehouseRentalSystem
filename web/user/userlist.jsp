@@ -280,7 +280,7 @@
                                         { "orderable": false, "targets": [0, 6] }
                                     ],
                                     "order": [[1, "asc"]],
-                                    "pageLength": ${ not empty param.pageSize ? param.pageSize : 10 },
+                                    "pageLength": ${ not empty param.pageSize ? param.pageSize : 5 },
                                     "language": {
                                     "search": "Search:",
                                     "lengthMenu": "_MENU_",

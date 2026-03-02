@@ -406,7 +406,7 @@ INSERT INTO Warehouse_Type (type_name, description) VALUES
 ('Normal Storage', 'Kho trong nhà'),
 ('High Security', 'Kho ngoài trời');
 
--- Thêm dữ liệu giả cho id_card, address, internal_user_code
+
 INSERT INTO Internal_user
 (user_name, password, full_name, email, phone, status, created_at, role_id, image, id_card, address, internal_user_code)
 VALUES
@@ -414,8 +414,7 @@ VALUES
 ('manager01', '123456', 'Nguyễn Nhật Anh', 'manager@mail.com', '0900000022', 1, NOW(), 2, 'default.jpg', '001001002003', 'Vĩnh Phúc', 'M12345'),
 ('staff01', '123456', 'Lê Thanh Hùng', 'staff1@mail.com', '0900000033', 1, NOW(), 3, 'default.jpg', '001001003003', 'Bắc Ninh', 'S12356'),
 ('staff02', '123456', 'Nguyễn Thị Bừng', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg', '001001004002', 'Hải Phòng', 'S12345'),
-('admin02', '123456', 'Nguyễn Văn Ân', 'admin7@mail.com', '0911010101', 1, NOW(), 1, 'default.jpg', '079101010101', 'Hà Nội', 'A48291'),
-('admin03', '123456', 'Trần Thị Bích Ngọc', 'admin8@mail.com', '0922020202', 1, NOW(), 1, 'default.jpg', '079202020202', 'Hải Phòng', 'A73502'),
+
 
 ('manager02', '123456', 'Lê Hoàng Minh', 'manager7@mail.com', '0933030303', 1, NOW(), 2, 'default.jpg', '051303030303', 'Đà Nẵng', 'M19483'),
 ('manager03', '123456', 'Phạm Quang Huy', 'manager8@mail.com', '0944040404', 1, NOW(), 2, 'default.jpg', '051404040404', 'Cần Thơ', 'M56274'),

@@ -105,6 +105,8 @@ public class VerifyOTPServlet extends HttpServlet {
             session.removeAttribute("tempEmail");
             session.removeAttribute("tempPhone");
 
+            request.setAttribute("username", username);
+            request.setAttribute("password", password);
             request.setAttribute("success", "Verification successful! Account created. Please login.");
             request.getRequestDispatcher("/Common/Login/login.jsp").forward(request, response);
         } else {
