@@ -11,92 +11,70 @@ import model.UserView;
 @WebServlet(name = "ContractDetailServlet", urlPatterns = {"/contract-detail"})
 public class ContractDetailServlet extends HttpServlet {
 
-    /* ================= GET DETAIL ================= */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response)
             throws ServletException, IOException {
 
-        int id = Integer.parseInt(request.getParameter("id"));
+        /* ================= LOGIN CHECK ================= */
+        HttpSession session = request.getSession(false);
 
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        UserView user = (UserView) session.getAttribute("user");
+
+        /* ================= GET PARAM ================= */
+        String idRaw = request.getParameter("contractId");
+
+        if (idRaw == null || idRaw.isEmpty()) {
+            response.sendRedirect("contract");
+            return;
+        }
+
+        int contractId = Integer.parseInt(idRaw);
+
+        /* ================= GET DATA ================= */
         ContractDAO dao = new ContractDAO();
-        ContractDetail detail = dao.getContractDetail(id);
+        ContractDetail detail = dao.getContractDetail(contractId);
 
+        if (detail == null) {
+            response.sendRedirect("contract");
+            return;
+        }
+
+        /* ================= PHÂN QUYỀN ================= */
+        String type = user.getType();
+        String role = user.getRole();
+
+        // INTERNAL (Manager/Admin) xem tất cả
+        if ("INTERNAL".equalsIgnoreCase(type)
+                && ("Manager".equalsIgnoreCase(role)
+                || "Admin".equalsIgnoreCase(role))) {
+
+            request.setAttribute("role", "manager");
+        }
+        // RENTER chỉ xem contract của mình
+        else if ("RENTER".equalsIgnoreCase(type)) {
+
+            if (detail.getRenterId() != user.getId()) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+
+            request.setAttribute("role", "renter");
+        }
+        else {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        /* ================= SEND DATA ================= */
         request.setAttribute("contract", detail);
 
         request.getRequestDispatcher("/contract/Contract-detail.jsp")
-                .forward(request, response);
+               .forward(request, response);
     }
-
-    /* ================= UPDATE STATUS ================= */
-    @Override
-protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-
-    ContractDAO dao = new ContractDAO();
-
-    String action = request.getParameter("action");
-    int contractId = Integer.parseInt(request.getParameter("contractId"));
-
-    HttpSession session = request.getSession();
-
-    try {
-
-        /* ================= MANAGER ================= */
-        if ("agree".equals(action)
-                && "Manager".equals(session.getAttribute("role"))) {
-
-            UserView user =(UserView) request.getSession().getAttribute("user");
-
-            request.setAttribute("currentUser", user);
-
-            dao.managerUpdateStatus(
-                    contractId,
-                    1, // status = 1 (manager approved)
-                    user.getId()
-            );
-
-            response.sendRedirect("contract");
-            return;
-        }
-
-        if ("reject".equals(action)
-                && "Manager".equals(session.getAttribute("role"))) {
-
-            UserView user = (UserView) session.getAttribute("user");
-
-            dao.managerUpdateStatus(
-                    contractId,
-                    2, // rejected
-                    user.getId()
-            );
-
-            response.sendRedirect("contract");
-            return;
-        }
-
-        /* ================= RENTER ================= */
-        if ("agree".equals(action)
-                && "RENTER".equals(session.getAttribute("userType"))) {
-
-            dao.renterUpdateStatus(contractId, 3);
-
-            response.sendRedirect("contract");
-            return;
-        }
-
-        if ("reject".equals(action)
-                && "RENTER".equals(session.getAttribute("userType"))) {
-
-            dao.renterUpdateStatus(contractId, 4);
-
-            response.sendRedirect("contract");
-            return;
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-    response.sendRedirect("contract");
-}
 }
