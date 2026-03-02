@@ -94,7 +94,7 @@ public class RentRequestApprove extends HttpServlet {
         int contractId =contractDAO.insertContractFromRequest(requestId);
         response.sendRedirect(
             request.getContextPath()
-            + "/contract-detail?id=" + contractId);
+            + "/contract-detail?contractId=" + contractId);
     }
 
     /**
