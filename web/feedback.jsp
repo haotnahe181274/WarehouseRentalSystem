@@ -302,7 +302,7 @@
             </div>
             <div class="reviews-body">
 
-                <!-- Leave a Feedback Form (Inside Reviews) -->
+                
                 <c:if test="${canFeedback}">
                     <div id="feedbackForm" class="feedback-form-container d-none border-bottom mb-4 pb-4">
                         <form action="${pageContext.request.contextPath}/feedback" method="post">
