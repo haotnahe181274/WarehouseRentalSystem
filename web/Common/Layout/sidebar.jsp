@@ -2,12 +2,6 @@
     <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
         <style>
-            body {
-                margin: 0;
-                font-family: Arial, sans-serif;
-                background: #f5f7fb;
-            }
-
             /* ===== SIDEBAR ===== */
             .sidebar {
                 width: 220px;
@@ -95,7 +89,7 @@
 
                     <!-- ADMIN -->
                     <c:if test="${sessionScope.role == 'Admin'}">
-                        
+
                         <li><a href="${pageContext.request.contextPath}/user/list">Users Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/rentList">Rental Requests</a></li>
@@ -106,19 +100,20 @@
 
                     <!-- MANAGER -->
                     <c:if test="${sessionScope.role == 'Manager'}">
-                        
+
                         <li><a href="${pageContext.request.contextPath}/user/list">Users Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/rentList">Rental Requests</a></li>
                         <li><a href="${pageContext.request.contextPath}/contract"> Contracts Management</a></li>
-                        <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment Management</a>
+                        </li>
                         <li><a href="${pageContext.request.contextPath}/feedbackManagement">Feedback Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/incident">Reports Management</a></li>
                     </c:if>
 
                     <!-- STAFF -->
                     <c:if test="${sessionScope.role == 'Staff'}">
-                        
+
                         <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
                         <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
                         <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>

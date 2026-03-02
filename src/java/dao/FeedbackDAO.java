@@ -55,8 +55,7 @@ public class FeedbackDAO extends DBContext {
 
                 f.setRenter(r);
 
-                // We don't necessarily need the full Contract object here, but could set ID if
-                // needed
+                
                 model.Contract c = new model.Contract();
                 c.setContractId(rs.getInt("contract_id"));
                 f.setContract(c);
