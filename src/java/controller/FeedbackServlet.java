@@ -59,8 +59,7 @@ public class FeedbackServlet extends HttpServlet {
 
             if (user != null && "RENTER".equalsIgnoreCase(user.getType())) {
                 ContractDAO contractDAO = new ContractDAO();
-                int contractId = contractDAO.getValidContractId(user.getId(), warehouseId); // UserView.id is renter_id
-                                                                                            // for Renter
+                int contractId = contractDAO.getValidContractId(user.getId(), warehouseId);
                 if (contractId != -1) {
                     canFeedback = true;
                 }
