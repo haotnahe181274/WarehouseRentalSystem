@@ -58,9 +58,9 @@
           <div class="mb-3">
                 <label class="form-label">Warehouse Type</label>
                 <select name="warehouseTypeId" class="form-select" required>
-                    <option value="1" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 1 ? 'selected' : ''}>Loại 1 (Trung tâm/Cung ứng)</option>
-                    <option value="2" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 2 ? 'selected' : ''}>Loại 2 (Công nghiệp/Tổng hợp)</option>
-                    <option value="3" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 3 ? 'selected' : ''}>Loại 3 (Cảng biển/An ninh cao)</option>
+                    <option value="1" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 1 ? 'selected' : ''}>Cold Storage</option>
+                    <option value="2" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 2 ? 'selected' : ''}>Normal Storage</option>
+                    <option value="3" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 3 ? 'selected' : ''}>High Security</option>
                 </select>
             </div>
             
@@ -69,7 +69,7 @@
                 <input type="file" name="images" class="form-control" accept="image/*" multiple>
                 <div class="form-text">
                     Accepted formats: .jpg, .png, .jpeg (Max 5MB per image).<br>
-                    <span class="text-danger">* Bạn có thể chọn nhiều ảnh cùng lúc. Ảnh đầu tiên sẽ làm ảnh đại diện.</span>
+                    <span class="text-danger">You can select multiple photos at once. The first one will be your profile picture.</span>
                 </div>
             </div>
 
