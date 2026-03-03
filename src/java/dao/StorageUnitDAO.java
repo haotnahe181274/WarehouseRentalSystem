@@ -11,6 +11,29 @@ public class StorageUnitDAO extends DBContext {
     /**
      * Các unit mà renter đang thuê hợp lệ (Contract + Payment status = 1, ngày trong hạn).
      */
+    
+    
+    
+  /**
+     * Thêm mới một Storage Unit vào Database
+     */
+    public boolean addStorageUnit(int warehouseId, String unitCode, double area, double price, int status, String description) {
+        String sql = "INSERT INTO Storage_unit (warehouse_id, unit_code, area, price_per_unit, status, description) "
+                   + "VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, warehouseId);
+            ps.setString(2, unitCode);
+            ps.setDouble(3, area);
+            ps.setDouble(4, price);
+            ps.setInt(5, status);
+            ps.setString(6, description);
+            
+            return ps.executeUpdate() > 0; // Trả về true nếu insert thành công
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public List<StorageUnit> getActiveUnitsForRenter(int renterId) {
 
         List<StorageUnit> list = new ArrayList<>();
