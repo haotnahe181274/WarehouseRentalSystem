@@ -83,6 +83,22 @@ public class VerifyOTPServlet extends HttpServlet {
         String enteredOtp = request.getParameter("otp");
         String sessionOtp = (String) session.getAttribute("otp");
 
+        if (sessionOtp == null) {
+            request.setAttribute("error", "OTP not found. Please try again.");
+            request.getRequestDispatcher("/Common/Login/verify_otp.jsp").forward(request, response);
+            return;
+        }
+
+        Long otpCreationTime = (Long) session.getAttribute("otpCreationTime");
+        long currentTime = System.currentTimeMillis();
+        if (otpCreationTime != null && (currentTime - otpCreationTime) > (60 * 1000)) {
+            session.removeAttribute("otp");
+            session.removeAttribute("otpCreationTime");
+            request.setAttribute("error", "OTP has expired. Please try again.");
+            request.getRequestDispatcher("/Common/Login/verify_otp.jsp").forward(request, response);
+            return;
+        }
+
         // Retrieve user data from session
         String username = (String) session.getAttribute("tempUsername");
         String password = (String) session.getAttribute("tempPassword");
@@ -90,7 +106,7 @@ public class VerifyOTPServlet extends HttpServlet {
         String email = (String) session.getAttribute("tempEmail");
         String phone = (String) session.getAttribute("tempPhone");
 
-        if (sessionOtp != null && sessionOtp.equals(enteredOtp)) {
+        if (sessionOtp.equals(enteredOtp)) {
             // OTP matches
             UserDAO dao = new UserDAO();
             // Insert user into database

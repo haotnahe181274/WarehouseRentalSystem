@@ -67,7 +67,7 @@
                             <div class="form-group">
                                 <label>Password</label>
                                 <input type="password" name="password" class="form-control"
-                                    placeholder="Create a password" required>
+                                    placeholder="Create a password" value="${password}" required>
                                 <c:if test="${not empty errors.password}">
                                     <div class="error-text">${errors.password}</div>
                                 </c:if>
@@ -76,7 +76,7 @@
                             <div class="form-group">
                                 <label>Confirm Password</label>
                                 <input type="password" name="rePassword" class="form-control"
-                                    placeholder="Confirm your password" required>
+                                    placeholder="Confirm your password" value="${rePassword}" required>
                                 <c:if test="${not empty errors.rePassword}">
                                     <div class="error-text">${errors.rePassword}</div>
                                 </c:if>

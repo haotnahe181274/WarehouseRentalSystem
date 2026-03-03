@@ -103,9 +103,7 @@ public class WarehouseManagerController extends HttpServlet {
                     request.setAttribute("images", images);
                     request.setAttribute("units", units);
 
-                    // ==========================================
-                    // LOAD FEEDBACK DATA (RESTORE)
-                    // ==========================================
+                   
                     FeedbackDAO feedbackDAO = new FeedbackDAO();
                     List<Feedback> feedbackList = feedbackDAO.getFeedbackByWarehouseId(id);
                     request.setAttribute("feedbackList", feedbackList);
