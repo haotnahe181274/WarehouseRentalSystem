@@ -262,8 +262,7 @@ public class ContractDAO extends DBContext {
                         rs.getDouble("price"),
                         null,
                         null,
-                        null
-                );
+                        null);
             }
 
         } catch (Exception e) {
@@ -279,12 +278,13 @@ public class ContractDAO extends DBContext {
     public int getValidContractId(int renterId, int warehouseId) {
 
         String sql = """
-            SELECT contract_id
-            FROM Contract
-            WHERE renter_id = ?
-              AND warehouse_id = ?
-              AND status = 1
-        """;
+                    SELECT c.contract_id
+                    FROM Contract c
+                    JOIN Payment p ON c.contract_id = p.contract_id
+                    WHERE c.renter_id = ?
+                      AND c.warehouse_id = ?
+                      AND p.status = 1
+                """;
 
         try {
 

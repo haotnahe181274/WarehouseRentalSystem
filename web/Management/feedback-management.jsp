@@ -47,10 +47,23 @@
                     }
 
                     /* ===== Filter ===== */
+                    .dt-controls-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-end;
+                        margin-bottom: 20px;
+                        flex-wrap: wrap;
+                        gap: 15px;
+                    }
+
+                    .dt-controls-row label {
+                        margin-bottom: 0 !important;
+                    }
+
                     .filter-bar {
                         display: flex;
                         gap: 12px;
-                        margin-bottom: 24px;
+                        margin-bottom: 20px;
                         align-items: center;
                     }
 
@@ -61,6 +74,20 @@
                         padding: 8px 12px;
                         font-size: 14px;
                         background: #fff;
+                    }
+
+                    .btn-reset {
+                        padding: 8px 16px;
+                        border-radius: 8px;
+                        background-color: black;
+                        color: white;
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-weight: 500;
+                    }
+
+                    .btn-reset:hover {
+                        background-color: #333;
                     }
 
                     /* Table Styling */
@@ -199,6 +226,8 @@
                                 <option value="2">2 Stars</option>
                                 <option value="1">1 Star</option>
                             </select>
+                            <a href="${pageContext.request.contextPath}/feedbackManagement" class="btn-reset"
+                                id="btnReset" style="display: none;">Reset</a>
                         </div>
 
                         <c:if test="${not empty feedbackList}">
@@ -294,21 +323,34 @@
 
                         $('#filterStatus').on('change', function () {
                             table.column(4).search(this.value).draw();
+                            updateResetButtonVisibility();
                         });
 
                         $('#filterRating').on('change', function () {
                             table.column(2).search(this.value).draw();
+                            updateResetButtonVisibility();
                         });
 
-                        // Position filters next to length menu
+                        function updateResetButtonVisibility() {
+                            const status = $('#filterStatus').val();
+                            const rating = $('#filterRating').val();
+                            if (status !== "" || rating !== "") {
+                                $('#btnReset').show();
+                            } else {
+                                $('#btnReset').hide();
+                            }
+                        }
+
+                        // Position filters and search bar properly
                         var filterBar = $('.filter-bar');
                         var lengthDiv = $('#feedbackTable_length');
-                        if (filterBar.length && lengthDiv.length) {
-                            filterBar.detach();
-                            var wrapper = $('<div class="d-flex align-items-center gap-3"></div>');
-                            lengthDiv.before(wrapper);
-                            wrapper.append(lengthDiv);
-                            wrapper.append(filterBar);
+                        var searchDiv = $('#feedbackTable_filter');
+
+                        if (filterBar.length && lengthDiv.length && searchDiv.length) {
+                            var bottomRow = $('<div class="dt-controls-row"></div>');
+                            lengthDiv.before(bottomRow);
+                            bottomRow.append(lengthDiv);
+                            bottomRow.append(searchDiv);
                         }
                     });
                 </script>

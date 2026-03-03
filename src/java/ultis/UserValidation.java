@@ -68,7 +68,7 @@ public class UserValidation {
     // Validate phone: bắt đầu bằng 0, chỉ chứa số, tối đa 10 ký tự
     public static boolean isValidPhone(String phone) {
         if (phone == null || phone.isEmpty()) {
-            return true; // Phone không bắt buộc
+            return true; 
         }
         // Bắt đầu bằng 0, chỉ chứa số, tối đa 10 ký tự
         String regex = "^0\\d{0,9}$";
