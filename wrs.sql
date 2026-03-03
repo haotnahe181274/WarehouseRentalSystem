@@ -666,7 +666,8 @@ VALUES
 INSERT INTO Payment
 (amount, payment_date, method, status, contract_id)
 VALUES
-(12000000, NOW(), 'BANK', 1, 1),
+
+(12000000, NOW(), 'BANK', 0, 1),
 (9000000, NOW(), 'CASH', 1, 2),
 (36000000, NOW(), 'BANK', 1, 3),
 (15000000, NOW(), 'BANK', 1, 7),

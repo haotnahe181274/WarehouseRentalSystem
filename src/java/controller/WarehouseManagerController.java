@@ -95,6 +95,40 @@ public class WarehouseManagerController extends HttpServlet {
                     request.setAttribute("images", images);
                     request.setAttribute("units", units);
 
+                   
+                    FeedbackDAO feedbackDAO = new FeedbackDAO();
+                    List<Feedback> feedbackList = feedbackDAO.getFeedbackByWarehouseId(id);
+                    request.setAttribute("feedbackList", feedbackList);
+                    request.setAttribute("warehouseId", id);
+
+                    // Fetch responses
+                    FeedbackResponseDAO responseDAO = new FeedbackResponseDAO();
+                    Map<Integer, FeedbackResponse> feedbackResponses = responseDAO.getResponsesByWarehouseId(id);
+                    request.setAttribute("feedbackResponses", feedbackResponses);
+
+                    // Check permissions
+                    UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
+                    boolean canFeedback = false;
+                    boolean canReply = false;
+
+                    if (user != null) {
+                        if ("RENTER".equalsIgnoreCase(user.getType())) {
+                            ContractDAO contractDAO = new ContractDAO();
+                            int contractId = contractDAO.getValidContractId(user.getId(), id);
+                            if (contractId != -1) {
+                                canFeedback = true;
+                            }
+                        }
+                        if ("MANAGER".equalsIgnoreCase(user.getRole())
+                                || "ADMIN".equalsIgnoreCase(user.getRole())
+                                || "Internal".equalsIgnoreCase(user.getType())) {
+                            canReply = true;
+                        }
+                    }
+                    request.setAttribute("canFeedback", canFeedback);
+                    request.setAttribute("canReply", canReply);
+                    // ==========================================
+
                     request.getRequestDispatcher("/Management/warehouse-detail.jsp").forward(request, response);
                     return;
                 } catch (Exception e) {}

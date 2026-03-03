@@ -19,6 +19,7 @@ import model.InternalUser;
 import model.UserView;
 import model.Contract;
 import model.Renter;
+import ultis.UserValidation;
 
 @WebServlet(name = "FeedbackServlet", urlPatterns = { "/feedback" })
 public class FeedbackServlet extends HttpServlet {
@@ -53,7 +54,7 @@ public class FeedbackServlet extends HttpServlet {
             request.setAttribute("warehouseId", warehouseId);
 
             // Check if user can feedback
-            
+
             UserView user = session != null ? (UserView) session.getAttribute("user") : null;
             boolean canFeedback = false;
 
@@ -118,6 +119,13 @@ public class FeedbackServlet extends HttpServlet {
             int rating = Integer.parseInt(ratingStr);
             boolean isAnonymous = "on".equals(anonymousStr) || "true".equals(anonymousStr);
 
+            if (!UserValidation.isValidString(comment)) {
+                request.setAttribute("error", "Comment must not have leading/trailing spaces or consecutive spaces.");
+                request.setAttribute("warehouseId", warehouseId);
+                doGet(request, response);
+                return;
+            }
+
             ContractDAO contractDAO = new ContractDAO();
             int contractId = contractDAO.getValidContractId(user.getId(), warehouseId);
 
@@ -136,6 +144,7 @@ public class FeedbackServlet extends HttpServlet {
                 feedback.setContract(contract);
 
                 FeedbackDAO feedbackDAO = new FeedbackDAO();
+
                 feedbackDAO.insertFeedback(feedback);
 
                 // Redirect to avoid resubmission and show updated list
@@ -169,6 +178,13 @@ public class FeedbackServlet extends HttpServlet {
         try {
             int feedbackId = Integer.parseInt(feedbackIdStr);
             int warehouseId = Integer.parseInt(warehouseIdStr);
+
+            if (!UserValidation.isValidString(responseText)) {
+                request.setAttribute("error", "Response must not have leading/trailing spaces or consecutive spaces.");
+                request.setAttribute("warehouseId", warehouseId);
+                doGet(request, response);
+                return;
+            }
 
             FeedbackResponse feedbackResponse = new FeedbackResponse();
             feedbackResponse.setResponseText(responseText);

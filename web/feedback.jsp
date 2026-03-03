@@ -301,8 +301,13 @@
                 </c:if>
             </div>
             <div class="reviews-body">
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger" role="alert">
+                        ${error}
+                    </div>
+                </c:if>
 
-                
+
                 <c:if test="${canFeedback}">
                     <div id="feedbackForm" class="feedback-form-container d-none border-bottom mb-4 pb-4">
                         <form action="${pageContext.request.contextPath}/feedback" method="post">

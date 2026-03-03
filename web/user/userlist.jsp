@@ -53,15 +53,66 @@
                         float: none !important;
                     }
 
-                    .dt-controls-left {
+                    .dt-controls-bottom-row {
                         display: flex;
-                        align-items: center;
+                        justify-content: space-between;
+                        align-items: flex-end;
+                        /* Align bottoms */
+                        margin-bottom: 20px;
+                        flex-wrap: wrap;
                         gap: 15px;
-                        float: left;
                     }
 
-                    .filter-section {
+                    .dt-controls-bottom-row label {
                         margin-bottom: 0 !important;
+                        /* Remove default margin that pushes text up */
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+
+                    .dt-controls-left {
+                        margin-bottom: 20px;
+                    }
+
+                    .filter-bar {
+                        display: flex;
+                        gap: 12px;
+                        align-items: center;
+                        flex-wrap: wrap;
+                    }
+
+                    .filter-bar select,
+                    .filter-bar input {
+                        border: 1px solid #d1d5db;
+                        border-radius: 8px;
+                        padding: 8px 12px;
+                        font-size: 14px;
+                        background: #fff;
+                        color: #374151;
+                        outline: none;
+                        cursor: pointer;
+                        transition: border-color 0.2s;
+                    }
+
+                    .filter-bar select:focus,
+                    .filter-bar input:focus {
+                        border-color: #3b82f6;
+                    }
+
+                    .btn-reset {
+                        padding: 8px 16px;
+                        border-radius: 8px;
+                        background-color: black;
+                        color: white;
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-weight: 500;
+                        transition: background-color 0.2s;
+                    }
+
+                    .btn-reset:hover {
+                        background-color: #333;
                     }
 
                     .btn {
@@ -138,31 +189,29 @@
 
                         <!-- Filter Section -->
                         <!-- Filter Section -->
-                        <div class="filter-section">
+                        <!-- Filter Section -->
+                        <div class="filter-bar">
                             <form action="${pageContext.request.contextPath}/user/list" method="get" id="filterForm"
-                                style="display: flex; gap: 10px; align-items: center;">
+                                class="filter-bar">
 
                                 <!-- Hidden input to store pageLength -->
                                 <input type="hidden" name="pageSize" id="pageSizeInput">
 
-                                <select name="filterType" onchange="submitFilter()"
-                                    style="padding: 8px 12px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
+                                <select name="filterType" onchange="submitFilter()">
                                     <option value="All">All Types</option>
                                     <option value="INTERNAL" ${filterType=='INTERNAL' ? 'selected' : '' }>Internal
                                     </option>
                                     <option value="RENTER" ${filterType=='RENTER' ? 'selected' : '' }>Renter</option>
                                 </select>
 
-                                <select name="filterStatus" onchange="submitFilter()"
-                                    style="padding: 8px 12px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
+                                <select name="filterStatus" onchange="submitFilter()">
                                     <option value="All">All Status</option>
                                     <option value="1" ${filterStatus==1 ? 'selected' : '' }>Active</option>
                                     <option value="0" ${filterStatus==0 ? 'selected' : '' }>Blocked</option>
                                 </select>
 
                                 <c:if test="${filterType == 'INTERNAL'}">
-                                    <select name="filterRole" onchange="submitFilter()"
-                                        style="padding: 8px 12px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #fff; color: #374151; font-size: 14px; outline: none; cursor: pointer;">
+                                    <select name="filterRole" onchange="submitFilter()">
                                         <option value="All">All Roles</option>
                                         <option value="Admin" ${filterRole=='Admin' ? 'selected' : '' }>Admin</option>
                                         <option value="Manager" ${filterRole=='Manager' ? 'selected' : '' }>Manager
@@ -173,8 +222,7 @@
 
                                 <c:if
                                     test="${(filterType != null && filterType != 'All') || (filterStatus != null) || (filterRole != null && filterRole != 'All')}">
-                                    <a href="${pageContext.request.contextPath}/user/list"
-                                        style="padding: 8px 16px; border-radius: 8px; background-color: black; color: white; text-decoration: none; font-size: 14px; font-weight: 500; transition: background-color 0.2s;">
+                                    <a href="${pageContext.request.contextPath}/user/list" class="btn-reset">
                                         Reset
                                     </a>
                                 </c:if>
@@ -280,39 +328,38 @@
                                         { "orderable": false, "targets": [0, 6] }
                                     ],
                                     "order": [[1, "asc"]],
-                                    "pageLength": ${ not empty param.pageSize ? param.pageSize : 5 },
+                                    lengthMenu: [5, 10, 25, 50],
                                     "language": {
-                                    "search": "Search:",
-                                    "lengthMenu": "_MENU_",
-                                    "info": "Showing _START_ to _END_ of _TOTAL_ users",
-                                    "paginate": {
-                                        "first": "First",
-                                        "last": "Last",
-                                        "next": "Next",
-                                        "previous": "Previous"
+                                        "search": "Search:",
+                                        "lengthMenu": "_MENU_",
+                                        "info": "Showing _START_ to _END_ of _TOTAL_ users",
+                                        "paginate": {
+                                            "first": "First",
+                                            "last": "Last",
+                                            "next": "Next",
+                                            "previous": "Previous"
+                                        }
                                     }
-                                }
                                 });
 
 
-                            var addBtn = $('.top-bar .btn-add');
-                            if (addBtn.length) {
-                                addBtn.detach();
-                                $('#userTable_filter').append(addBtn);
-                            }
+                                var addBtn = $('.top-bar .btn-add');
+                                if (addBtn.length) {
+                                    addBtn.detach();
+                                    $('#userTable_filter').append(addBtn);
+                                }
 
 
-                            var filterSec = $('.filter-section');
-                            var lengthDiv = $('#userTable_length');
+                                var filterBar = $('.filter-bar').first();
+                                var lengthDiv = $('#userTable_length');
+                                var filterDiv = $('#userTable_filter');
 
-                            if (filterSec.length && lengthDiv.length) {
-                                filterSec.detach();
-
-                                var wrapper = $('<div class="dt-controls-left"></div>');
-                                lengthDiv.before(wrapper);
-                                wrapper.append(lengthDiv);
-                                wrapper.append(filterSec);
-                            }
+                                if (filterBar.length && lengthDiv.length && filterDiv.length) {
+                                    var bottomRow = $('<div class="dt-controls-bottom-row"></div>');
+                                    lengthDiv.before(bottomRow);
+                                    bottomRow.append(lengthDiv);
+                                    bottomRow.append(filterDiv);
+                                }
                             });
 
                             function submitFilter() {
