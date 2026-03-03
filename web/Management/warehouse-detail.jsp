@@ -24,7 +24,7 @@
         .main-img-frame img { width: 100%; height: 100%; object-fit: cover; }
         .thumb-img { height: 80px; width: 100%; object-fit: cover; border-radius: 8px; cursor: pointer; opacity: 0.6; transition: 0.2s; }
         .thumb-img:hover { opacity: 1; border: 2px solid #3b82f6; }
-        .zone-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; background: #fff; transition: 0.2s; }
+        .zone-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; background: #fff; transition: 0.2s; position: relative; }
         .zone-card:hover { border-color: #3b82f6; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
 
         /* Form Sidebar */
@@ -53,9 +53,29 @@
             <jsp:include page="/Common/Layout/sidebar.jsp" />                
         </c:if>
 
-
         <div class="main-content">
 
+            <c:if test="${not empty sessionScope.successMsg}">
+                <div class="container mt-2 mb-3">
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
+                        <i class="fas fa-check-circle me-2 fs-5 align-middle"></i> 
+                        <span class="align-middle fw-bold">${sessionScope.successMsg}</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                </div>
+                <c:remove var="successMsg" scope="session" />
+            </c:if>
+            
+            <c:if test="${not empty sessionScope.errorMsg}">
+                <div class="container mt-2 mb-3">
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2 fs-5 align-middle"></i> 
+                        <span class="align-middle fw-bold">${sessionScope.errorMsg}</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                </div>
+                <c:remove var="errorMsg" scope="session" />
+            </c:if>
             <div class="bg-white border-bottom py-4 mb-4">
                 <div class="container d-flex justify-content-between align-items-center">
                     <div>
@@ -141,6 +161,7 @@
                                     </div>
                                 </form>
                             </div>
+
                             <div class="row g-3">
                                 <c:choose>
                                     <c:when test="${empty units}">
@@ -152,28 +173,41 @@
                                     </c:when>
                                     <c:otherwise>
                                         <c:forEach items="${units}" var="u">
-                                            <div class="col-md-4">
-                                                <div class="zone-card h-100 d-flex flex-column justify-content-between"
-                                                     id="zone-card-${u.unitId}"
-                                                     style="cursor: pointer;"
-                                                     onclick="viewCalendarForUnit(${u.unitId}, '${u.unitCode}')">
-                                                    <div>
-                                                        <div class="d-flex justify-content-between mb-2">
-                                                            <h6 class="fw-bold text-dark">${u.unitCode}</h6>
+                                            
+                                            <c:if test="${u.status != 0}">
+                                                <div class="col-md-4">
+                                                    <div class="zone-card h-100 d-flex flex-column justify-content-between"
+                                                         id="zone-card-${u.unitId}"
+                                                         style="cursor: pointer;"
+                                                         onclick="viewCalendarForUnit(${u.unitId}, '${u.unitCode}')">
+                                                        <div>
+                                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                                <h6 class="fw-bold text-dark mt-1">${u.unitCode}</h6>
+                                                                
+                                                                <c:if test="${sessionScope.user.role == 'Manager' || sessionScope.user.role == 'manager'}">
+                                                                    <a href="${pageContext.request.contextPath}/warehouse/detail?action=editUnit&unitId=${u.unitId}&warehouseId=${w.warehouseId}" 
+                                                                       class="btn btn-sm btn-outline-primary py-0 px-2" 
+                                                                       title="Edit Storage Unit"
+                                                                       onclick="event.stopPropagation();">
+                                                                        <i class="fas fa-edit fs-7"></i>
+                                                                    </a>
+                                                                </c:if>
+                                                                </div>
+                                                            <p class="small text-muted mb-3" style="min-height: 40px;">${u.description}</p>
+                                                            <h5 class="fw-bold text-dark mb-0">
+                                                                <fmt:formatNumber value="${u.area}" />
+                                                                <span class="fs-6 text-muted">sq ft</span>
+                                                            </h5>
                                                         </div>
-                                                        <p class="small text-muted mb-3" style="min-height: 40px;">${u.description}</p>
-                                                        <h5 class="fw-bold text-dark mb-0">
-                                                            <fmt:formatNumber value="${u.area}" />
-                                                            <span class="fs-6 text-muted">sq ft</span>
-                                                        </h5>
-                                                    </div>
-                                                    <div class="mt-3 pt-3 border-top">
-                                                        <small class="fw-bold text-primary fs-6">
-                                                            <fmt:formatNumber value="${u.pricePerUnit}" /> VND <span class="text-muted fw-normal">/month</span>
-                                                        </small>
+                                                        <div class="mt-3 pt-3 border-top">
+                                                            <small class="fw-bold text-primary fs-6">
+                                                                <fmt:formatNumber value="${u.pricePerUnit}" /> VND <span class="text-muted fw-normal">/month</span>
+                                                            </small>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </c:if>
+                                            
                                         </c:forEach>
                                     </c:otherwise>
                                 </c:choose>
@@ -230,7 +264,7 @@
                                     <h5 class="fw-bold mb-2">Want to rent this warehouse?</h5>
                                     <p class="text-muted small mb-4">Click the button below to navigate to the detailed rent request page.</p>
 
-                                    <a href="createRentRequest?id=${w.warehouseId}" class="btn btn-submit rounded-pill fw-bold">
+                                    <a href="${pageContext.request.contextPath}/createRentRequest?id=${w.warehouseId}" class="btn btn-submit rounded-pill fw-bold">
                                         <i class="fas fa-file-contract me-2"></i> Go to Rent Request
                                     </a>
                                 </div>
@@ -297,6 +331,7 @@
         </div>
     </div>
 
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 
@@ -314,23 +349,17 @@
             const searchEnd = document.getElementById('searchEnd');
 
             if (searchStart && searchEnd) {
-                // Lấy ngày hôm nay theo format YYYY-MM-DD
                 const today = new Date();
                 const yyyy = today.getFullYear();
                 const mm = String(today.getMonth() + 1).padStart(2, '0');
                 const dd = String(today.getDate()).padStart(2, '0');
                 const minDate = yyyy + '-' + mm + '-' + dd;
 
-                // 1. Chặn chọn ngày trong quá khứ (Đặt thuộc tính min = hôm nay)
                 searchStart.setAttribute('min', minDate);
                 searchEnd.setAttribute('min', minDate);
 
-                // 2. Ép End Date phải luôn lớn hơn hoặc bằng Start Date
                 searchStart.addEventListener('change', function() {
-                    // Cập nhật min của End Date bằng chính ngày Start vừa chọn
                     searchEnd.setAttribute('min', this.value);
-                    
-                    // Nếu End Date đang chọn 1 ngày trước Start Date, tự động đổi End Date = Start Date
                     if (searchEnd.value && searchEnd.value < this.value) {
                         searchEnd.value = this.value;
                     }

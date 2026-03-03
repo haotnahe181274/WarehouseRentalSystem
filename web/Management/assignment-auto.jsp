@@ -43,7 +43,7 @@
                                     <div class="step-icon bg-primary text-white mb-0 me-3"><i class="fas fa-robot"></i></div>
                                     <h5 class="mb-0 fw-bold">Thiết lập Nhiệm vụ mới</h5>
                                 </div>
-                            </div>
+                            </div>      ưdq
                             <div class="card-body p-4 pt-0">
                                 <form action="${pageContext.request.contextPath}/Management/autoAssign" method="POST">
                                     <div class="row g-4">

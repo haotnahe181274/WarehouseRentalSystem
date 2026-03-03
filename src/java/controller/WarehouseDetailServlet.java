@@ -23,27 +23,18 @@ public class WarehouseDetailServlet extends HttpServlet {
         
         StorageUnitDAO suDao = new StorageUnitDAO();
         String action = request.getParameter("action");
-        
-        // 1. XỬ LÝ ACTION TỪ GIAO DIỆN TRƯỚC (NẾU CÓ)
-       if ("disable".equals(action)) {
-            try {
-                int unitId = Integer.parseInt(request.getParameter("unitId"));
-                int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
-
-                // Gọi hàm DAO
-                suDao.changeStorageUnit(unitId, 0); 
-                
-                // ==============================================================
-                // THÊM DÒNG NÀY ĐỂ GỬI LỜI NHẮN THÀNH CÔNG VÀO SESSION
-                request.getSession().setAttribute("successMsg", "Storage Unit has been successfully disabled!");
-                // ==============================================================
-
-                // Trở về trang cũ
-                response.sendRedirect(request.getContextPath() + "/warehouse/detail?id=" + warehouseId);
-                return; 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if ("editUnit".equals(action)) {
+            int unitId = Integer.parseInt(request.getParameter("unitId"));
+            String warehouseId = request.getParameter("warehouseId");
+            
+            StorageUnit unit = suDao.getStorageUnitById(unitId);
+            
+            request.setAttribute("u", unit);
+            request.setAttribute("warehouseId", warehouseId);
+            
+            // Thay đường dẫn này bằng thư mục thực tế chứa file edit của bạn
+            request.getRequestDispatcher("/Management/edit-storage-unit.jsp").forward(request, response);
+            return;
         }
 
         // 2. LOGIC LOAD TRANG CHI TIẾT (VIEW)
@@ -116,6 +107,68 @@ public class WarehouseDetailServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/warehouse");
+        }
+       
+    }
+   
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        String action = request.getParameter("action");
+        StorageUnitDAO suDao = new StorageUnitDAO();
+
+        // XỬ LÝ CẬP NHẬT (EDIT)
+        if ("update".equals(action)) {
+            String warehouseIdRaw = request.getParameter("warehouseId");
+            try {
+                int warehouseId = Integer.parseInt(warehouseIdRaw);
+                int unitId = Integer.parseInt(request.getParameter("unitId"));
+                
+                // Lấy dữ liệu và loại bỏ khoảng trắng thừa ở 2 đầu
+                String unitCode = request.getParameter("unitCode").trim();
+                String description = request.getParameter("description").trim();
+                int status = Integer.parseInt(request.getParameter("status"));
+
+                // ==========================================
+                // BACKEND VALIDATION (Chống hack/nhập sai)
+                // ==========================================
+                if (unitCode.isEmpty()) {
+                    throw new Exception("Storage Unit Code cannot be empty!");
+                }
+
+                double area = Double.parseDouble(request.getParameter("area"));
+                double price = Double.parseDouble(request.getParameter("price"));
+
+                if (area <= 0) {
+                    throw new Exception("Area must be greater than 0!");
+                }
+                if (price < 0) {
+                    throw new Exception("Price cannot be negative!");
+                }
+                // ==========================================
+
+                // Gọi DAO để update
+                boolean isSuccess = suDao.updateStorageUnit(unitId, unitCode, area, price, status, description);
+                
+                if (isSuccess) {
+                    request.getSession().setAttribute("successMsg", "Storage Unit updated successfully!");
+                } else {
+                    request.getSession().setAttribute("errorMsg", "Failed to update. System error!");
+                }
+                
+                // Thành công thì quay lại trang Detail
+                response.sendRedirect(request.getContextPath() + "/warehouse/detail?id=" + warehouseId);
+                return;
+
+            } catch (Exception e) {
+                // Nếu lỗi Validate, gửi thông báo lỗi màu đỏ về giao diện
+                e.printStackTrace();
+                request.getSession().setAttribute("errorMsg", "Update failed: " + e.getMessage());
+                response.sendRedirect(request.getContextPath() + "/warehouse/detail?id=" + warehouseIdRaw);
+                return;
+            }
         }
     }
 }
