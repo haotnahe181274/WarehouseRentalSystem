@@ -1,5 +1,6 @@
 package controller;
 
+import dao.AssignmentDAO;
 import dao.CheckRequestDAO;
 import dao.ItemDAO;
 import dao.StorageUnitDAO;
@@ -72,8 +73,7 @@ public class CreateCheckRequest extends HttpServlet {
         request.setAttribute("selectedUnitId", selectedUnitId);
         request.getRequestDispatcher("/Rental/checkRequest.jsp").forward(request, response);
     }
-
-    @Override
+@Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -142,21 +142,51 @@ public class CreateCheckRequest extends HttpServlet {
             doGet(request, response);
             return;
         }
-       
+        
 
         String requestType = "OUT".equalsIgnoreCase(mode) ? "CHECK_OUT" : "CHECK_IN";
         CheckRequestDAO checkDao = new CheckRequestDAO();
+        
+        // 1. Tạo đơn Check Request
         int checkRequestId = checkDao.insertCheckRequest(user.getId(), warehouseId, unitId, requestType);
 
         if (checkRequestId > 0) {
+            // 2. Lưu các mặt hàng vào đơn
             for (int[] pair : selectedItems) {
                 checkDao.insertCheckRequestItem(checkRequestId, pair[0], pair[1]);
             }
-            // Sau khi tạo xong, chuyển sang trang view chi tiết request đó
+            
+            // ==========================================
+            // 3. TÍCH HỢP TỰ ĐỘNG GIAO VIỆC (AUTO ASSIGN)
+            // ==========================================
+            AssignmentDAO assignmentDAO = new AssignmentDAO();
+            boolean isTaskAssigned = false;
+            
+            // Lấy ID của người Renter đang tạo đơn để lưu vết người yêu cầu (hoặc bạn có thể dùng ID của 1 Admin hệ thống)
+            int assignedBy = user.getId(); 
+            
+            if ("CHECK_OUT".equals(requestType)) {
+                // Gọi hàm tạo Task Xuất kho (mà bạn vừa viết ban nãy)
+                isTaskAssigned = assignmentDAO.createCheckOutTaskFromRequest(checkRequestId, assignedBy);
+            } else {
+                // (Tùy chọn) Nếu bạn muốn làm luôn luồng tự động nhập kho khi Renter bấm Check-in
+                isTaskAssigned = assignmentDAO.createCheckInTaskFromRequest(checkRequestId, assignedBy);
+            }
+            
+            // Thông báo kết quả cho Renter biết
+            if (isTaskAssigned) {
+                session.setAttribute("MESSAGE", "Tạo đơn thành công! Nhân viên kho đã nhận được lệnh và đang chuẩn bị.");
+            } else {
+                session.setAttribute("MESSAGE", "Tạo đơn thành công! Quản lý kho sẽ sớm điều phối nhân viên hỗ trợ bạn.");
+            }
+            // ==========================================
+
+            // 4. Chuyển sang trang view chi tiết request đó
             response.sendRedirect(request.getContextPath() + "/checkRequestDetail?id=" + checkRequestId);
         } else {
             response.sendRedirect(request.getContextPath() + "/itemList");
         }
     }
+    
 }
 

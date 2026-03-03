@@ -74,7 +74,7 @@ public List<StorageUnit> getUnitsByWarehouse(int warehouseId) {
     /**
      * Kích hoạt giao việc Check-in tự động khi duyệt đơn
      */
-    public boolean createCheckTaskFromPayment(int contractId, int systemAssignedBy) {
+    public boolean createCheckOutTaskFromRequest(int contractId, int systemAssignedBy) {
         boolean isTaskAssignedSuccessfully = false;
         System.out.println("========== BẮT ĐẦU LUỒNG TẠO TASK TỰ ĐỘNG ==========");
         System.out.println("1. Đang xử lý Contract ID: " + contractId);
@@ -208,15 +208,22 @@ public List<StorageUnit> getUnitsByWarehouse(int warehouseId) {
      * Kích hoạt giao việc Check-out tự động khi Quản lý duyệt đơn xin Xuất Kho.
      * Hạn chót (Due date) được set là 2 ngày tính từ thời điểm duyệt.
      */
-    public boolean createCheckOutTaskFromRequest(int checkRequestId, int systemAssignedBy) {
+  // ==========================================
+    // HÀM XỬ LÝ LUỒNG CHECK-IN (NHẬP KHO) TỪ REQUEST
+    // ==========================================
+
+    /**
+     * Kích hoạt giao việc Check-in tự động khi Renter tạo đơn xin Nhập Kho.
+     */
+    public boolean createCheckInTaskFromRequest(int checkRequestId, int systemAssignedBy) {
         boolean isTaskAssignedSuccessfully = false;
-        System.out.println("========== BẮT ĐẦU LUỒNG TẠO TASK CHECK-OUT TỰ ĐỘNG ==========");
+        System.out.println("========== BẮT ĐẦU LUỒNG TẠO TASK CHECK-IN TỰ ĐỘNG ==========");
         System.out.println("1. Đang xử lý Check Request ID: " + checkRequestId);
 
-        // Lấy thông tin từ bảng check_request. Set hạn chót là 2 ngày kể từ hôm nay.
+        // Lấy thông tin từ bảng check_request với type là CHECK_IN. Set hạn chót là 2 ngày.
         String requestQuery = "SELECT warehouse_id, unit_id, DATE_ADD(CURDATE(), INTERVAL 2 DAY) AS task_due_date " +
                               "FROM check_request " +
-                              "WHERE id = ? AND request_type = 'CHECK_OUT'";
+                              "WHERE id = ? AND request_type = 'CHECK_IN'";
 
         try (PreparedStatement psReq = connection.prepareStatement(requestQuery)) {
             psReq.setInt(1, checkRequestId);
@@ -225,23 +232,22 @@ public List<StorageUnit> getUnitsByWarehouse(int warehouseId) {
                 if (rsReq.next()) {
                     int warehouseId = rsReq.getInt("warehouse_id");
                     
-                    // Lấy unit_id (có thể null nếu xuất nhiều nơi, nhưng thường là có)
                     Integer unitId = rsReq.getInt("unit_id");
                     if (rsReq.wasNull()) { unitId = null; }
                     
                     String dueDate = rsReq.getString("task_due_date");
                     int assignmentType = 3; // Loại 3: Hỗ trợ Check-in / Check-out
 
-                    System.out.println("2. Tìm thấy Đơn xuất kho. Warehouse ID: " + warehouseId + ", Unit ID: " + unitId);
+                    System.out.println("2. Tìm thấy Đơn nhập kho. Warehouse ID: " + warehouseId + ", Unit ID: " + unitId);
 
-                    // Tìm staff phù hợp rảnh việc nhất ở Kho này
                     int assignedTo = getOptimalStaffId(warehouseId);
                     if (assignedTo == -1) {
                         System.out.println("-> THẤT BẠI: Hủy quá trình do không tìm thấy nhân viên nào ở kho này.");
                         return false;
                     }
 
-                    String description = "[HỆ THỐNG TỰ ĐỘNG] Hỗ trợ Check-out (Xuất kho) cho Đơn #" + checkRequestId;
+                    // Đổi mô tả thành Nhập Kho
+                    String description = "[HỆ THỐNG TỰ ĐỘNG] Hỗ trợ Check-in (Nhập kho) cho Đơn #" + checkRequestId;
                     String insertAssignmentSQL = "INSERT INTO Staff_assignment " +
                             "(assigned_date, assigned_to, warehouse_id, unit_id, assigned_by, " +
                             "assignment_type, description, assigned_at, due_date, status, is_overdue) " +
@@ -262,7 +268,7 @@ public List<StorageUnit> getUnitsByWarehouse(int warehouseId) {
                         psInsertAssignment.setString(6, description);
                         psInsertAssignment.setString(7, dueDate);
 
-                        System.out.println("3. Đang tạo Task Xuất kho cho nhân viên...");
+                        System.out.println("3. Đang tạo Task Nhập kho cho nhân viên...");
                         int rowsAffected = psInsertAssignment.executeUpdate();
 
                         if (rowsAffected > 0) {
@@ -270,26 +276,63 @@ public List<StorageUnit> getUnitsByWarehouse(int warehouseId) {
                             try (ResultSet generatedKeys = psInsertAssignment.getGeneratedKeys()) {
                                 if (generatedKeys.next()) {
                                     int newAssignmentId = generatedKeys.getInt(1);
-                                    System.out.println("4. Đã tạo Task ID: " + newAssignmentId + ". Đang copy mặt hàng xuất kho...");
+                                    System.out.println("4. Đã tạo Task ID: " + newAssignmentId + ". Đang copy mặt hàng nhập kho...");
                                     
-                                    // Gọi hàm lấy chính xác số lượng hàng cần xuất
-                                    fillCheckOutAssignmentItems(newAssignmentId, checkRequestId);
+                                    fillCheckInAssignmentItems(newAssignmentId, checkRequestId);
                                 }
                             }
                         }
                     }
                 } else {
-                    System.out.println("-> THẤT BẠI: Không tìm thấy Đơn Check-out ID " + checkRequestId);
+                    System.out.println("-> THẤT BẠI: Không tìm thấy Đơn Check-in ID " + checkRequestId);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("-> LỖI SQL TẠO TASK CHECK-OUT: " + e.getMessage());
+            System.err.println("-> LỖI SQL TẠO TASK CHECK-IN: " + e.getMessage());
             e.printStackTrace();
         }
-        System.out.println("========== KẾT THÚC LUỒNG CHECK-OUT ==========");
+        System.out.println("========== KẾT THÚC LUỒNG CHECK-IN ==========");
         return isTaskAssignedSuccessfully;
     }
 
+    /**
+     * Hàm nội bộ bổ trợ cho Check-in: Copy danh sách Item kèm theo số lượng
+     */
+    private void fillCheckInAssignmentItems(int newAssignmentId, int checkRequestId) {
+        String itemQuery = "SELECT cri.item_id, i.item_name, cri.quantity " +
+                           "FROM check_request_item cri " +
+                           "JOIN Item i ON cri.item_id = i.item_id " +
+                           "WHERE cri.check_request_id = ?";
+
+        try (PreparedStatement psItems = connection.prepareStatement(itemQuery)) {
+            psItems.setInt(1, checkRequestId);
+
+            try (ResultSet rsItems = psItems.executeQuery()) {
+                String insertItemSQL = "INSERT INTO Staff_assignment_item " +
+                                       "(assignment_id, item_id, item_name, quantity, note) " +
+                                       "VALUES (?, ?, ?, ?, ?)";
+
+                try (PreparedStatement psInsertItem = connection.prepareStatement(insertItemSQL)) {
+                    int count = 0;
+                    while (rsItems.next()) {
+                        psInsertItem.setInt(1, newAssignmentId);
+                        psInsertItem.setInt(2, rsItems.getInt("item_id"));
+                        psInsertItem.setString(3, rsItems.getString("item_name"));
+                        psInsertItem.setInt(4, rsItems.getInt("quantity")); 
+                        psInsertItem.setString(5, "Yêu cầu nhập kho #" + checkRequestId);
+
+                        psInsertItem.addBatch();
+                        count++;
+                    }
+                    psInsertItem.executeBatch();
+                    System.out.println("   -> Thành công! Đã đẩy " + count + " loại mặt hàng vào lệnh Nhập kho.");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi insert Items cho Check-in: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     /**
      * Hàm nội bộ bổ trợ cho Check-out: Copy danh sách Item kèm theo số lượng (Quantity)
      */
