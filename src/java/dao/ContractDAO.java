@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.sql.Statement;
 import model.Contract;
 import model.ContractDetail;
 import model.InternalUser;
@@ -16,45 +16,71 @@ public class ContractDAO extends DBContext {
     // =====================================================
     // CREATE CONTRACT FROM REQUEST
     // =====================================================
-    public int insertContractFromRequest(int requestId) {
+   public int insertContractFromRequest(int requestId) {
+        int newContractId = -1;
 
-    String sql = """
-        INSERT INTO Contract
-        (start_date, end_date, status,
-         renter_id, warehouse_id, request_id, price)
+        // 1. TẠO HỢP ĐỒNG (BẢNG CONTRACT)
+        String sqlContract = """
+            INSERT INTO Contract
+            (start_date, end_date, status, renter_id, warehouse_id, request_id, price)
+            SELECT
+                MIN(ru.start_date),
+                MAX(ru.end_date),
+                1,
+                rr.renter_id,
+                rr.warehouse_id,
+                rr.request_id,
+                SUM(ru.rent_price)
+            FROM Rent_request rr
+            JOIN rent_request_unit ru
+                ON rr.request_id = ru.request_id
+            WHERE rr.request_id = ?
+            GROUP BY rr.request_id, rr.renter_id, rr.warehouse_id
+        """;
 
-        SELECT
-            MIN(ru.start_date),
-            MAX(ru.end_date),
-            1,
-            rr.renter_id,
-            rr.warehouse_id,
-            rr.request_id,
-            SUM(ru.rent_price)
-        FROM Rent_request rr
-        JOIN rent_request_unit ru
-            ON rr.request_id = ru.request_id
-        WHERE rr.request_id = ?
-        GROUP BY rr.request_id, rr.renter_id, rr.warehouse_id
-    """;
+        try (PreparedStatement ps = connection.prepareStatement(sqlContract, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, requestId);
+            ps.executeUpdate();
 
-    try (PreparedStatement ps =
-            connection.prepareStatement(sql)) {
-
-        ps.setInt(1, requestId);
-        ps.executeUpdate();
-
-        ResultSet rs = ps.getGeneratedKeys();
-        if (rs.next()) {
-            return rs.getInt(1);
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                newContractId = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi tạo Contract: " + e.getMessage());
+            e.printStackTrace();
+            return -1; // Nếu tạo hợp đồng thất bại thì dừng luôn
         }
 
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+        // 2. NẾU TẠO HỢP ĐỒNG THÀNH CÔNG -> TỰ ĐỘNG GÁN UNIT_ID (BẢNG CONTRACT_STORAGE_UNIT)
+        if (newContractId != -1) {
+            String sqlInsertUnit = """
+                INSERT INTO Contract_Storage_unit (contract_id, unit_id, start_date, end_date, status)
+                SELECT
+                    ?,
+                    (SELECT unit_id FROM Storage_unit WHERE warehouse_id = rr.warehouse_id AND status = 1 LIMIT 1),
+                    MIN(ru.start_date),
+                    MAX(ru.end_date),
+                    1
+                FROM Rent_request rr
+                JOIN rent_request_unit ru ON rr.request_id = ru.request_id
+                WHERE rr.request_id = ?
+                GROUP BY rr.request_id, rr.warehouse_id
+            """;
+            
+            try (PreparedStatement psUnit = connection.prepareStatement(sqlInsertUnit)) {
+                psUnit.setInt(1, newContractId);
+                psUnit.setInt(2, requestId);
+                int rows = psUnit.executeUpdate();
+                System.out.println("Đã tự động gán " + rows + " Storage Unit cho Hợp đồng " + newContractId);
+            } catch (Exception e) {
+                System.out.println("Lỗi khi gán Unit cho Contract: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
 
-    return -1;
-}
+        return newContractId;
+    }
 
     // =====================================================
     // GET ALL CONTRACTS

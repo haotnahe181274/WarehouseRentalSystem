@@ -1,5 +1,6 @@
 package controller;
 
+import dao.AssignmentDAO;
 import dao.ContractDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -76,5 +77,27 @@ public class ContractDetailServlet extends HttpServlet {
 
         request.getRequestDispatcher("/contract/Contract-detail.jsp")
                .forward(request, response);
+    }
+    @Override
+    protected void doPost(HttpServletRequest request,
+                         HttpServletResponse response)
+            throws ServletException, IOException {
+          HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        UserView user = (UserView) session.getAttribute("user");
+            String idRaw = request.getParameter("contractId");
+             int contractId = Integer.parseInt(idRaw);
+        /* ================= GET PARAM ================= */
+        AssignmentDAO assignmentDAO = new AssignmentDAO();
+        // Lệnh này sẽ quét các Unit trong Contract vừa tạo để phân công cho Staff
+        boolean isTaskAssigned = assignmentDAO.createCheckTaskFromPayment(contractId,user.getId());
+    
+      
+       
     }
 }

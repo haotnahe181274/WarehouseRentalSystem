@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.AssignmentDAO;
 import dao.ContractDAO;
 import dao.RentRequestDAO;
 import java.io.IOException;
@@ -73,30 +74,34 @@ public class RentRequestApprove extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    @Override
+  @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String redirect = request.getParameter("redirect");
+        
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+        
         UserView user = (UserView) session.getAttribute("user");
         int requestId = Integer.parseInt(request.getParameter("requestId"));
 
         RentRequestDAO dao = new RentRequestDAO();
         ContractDAO contractDAO = new ContractDAO();
-        // 1. Update status
+        
+        // 1. Cập nhật trạng thái Request thành Approved
         dao.updateStatusByManager(requestId, 1, user.getId());
-
-        // 2. Redirect sang trang tạo contract
-        int contractId =contractDAO.insertContractFromRequest(requestId);
-        response.sendRedirect(
-            request.getContextPath()
-            + "/contract-detail?contractId=" + contractId);
+              
+        // 2. Tạo Contract từ Request
+        int contractId = contractDAO.insertContractFromRequest(requestId);
+        
+        // 3. Gọi hệ thống tự động giao việc
+      
+        
+        // 5. Redirect sang trang chi tiết hợp đồng
+        response.sendRedirect(request.getContextPath() + "/contract-detail?contractId=" + contractId);
     }
-
     /**
      * Returns a short description of the servlet.
      *
