@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.ContractDAO;
 import dao.RentRequestDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -85,17 +86,15 @@ public class RentRequestApprove extends HttpServlet {
         int requestId = Integer.parseInt(request.getParameter("requestId"));
 
         RentRequestDAO dao = new RentRequestDAO();
-
+        ContractDAO contractDAO = new ContractDAO();
         // 1. Update status
         dao.updateStatusByManager(requestId, 1, user.getId());
 
         // 2. Redirect sang trang tạo contract
-        if ("detail".equals(redirect)) {
-            response.sendRedirect(request.getContextPath()
-                    + "/rentDetail?id=" + requestId);
-        } else {
-            response.sendRedirect(request.getContextPath() + "/rentList");
-        }
+        int contractId =contractDAO.insertContractFromRequest(requestId);
+        response.sendRedirect(
+            request.getContextPath()
+            + "/contract-detail?contractId=" + contractId);
     }
 
     /**

@@ -10,7 +10,7 @@ public class ContractDetail {
     private Date endDate;
     private int status;
     private double price;
-
+    private int renterId;
     private String renterName;
     private String renterEmail;
     private String renterPhone;
@@ -21,8 +21,15 @@ public class ContractDetail {
     private String managerName;
     private String managerEmail;
     private String managerPhone;
-
-    // ===== GETTER & SETTER =====
+    
+        // ===== GETTER & SETTER =====
+    public int getRenterId() {
+        return renterId;
+    }
+    
+    public void setRenterId(int renterId) {    
+        this.renterId = renterId;
+    }
 
     public int getContractId() {
         return contractId;
