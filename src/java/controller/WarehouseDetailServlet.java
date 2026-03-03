@@ -1,41 +1,53 @@
 package controller;
 
-import dao.ContractDAO;
-import dao.FeedbackDAO;
-import dao.FeedbackResponseDAO;
 import dao.WarehouseManagementDAO;
+import dao.StorageUnitDAO; 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import model.Feedback;
-import model.FeedbackResponse;
 import model.StorageUnit;
-import model.UserView;
 import model.Warehouse;
 import model.WarehouseImage;
+import java.util.Map;
 
-// Định nghĩa đường dẫn URL cho trang chi tiết
-@WebServlet(name = "WarehouseDetailController", urlPatterns = { "/warehouse/detail" })
+@WebServlet(name = "WarehouseDetailController", urlPatterns = {"/warehouse/detail"})
 public class WarehouseDetailServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        StorageUnitDAO suDao = new StorageUnitDAO();
+        String action = request.getParameter("action");
+        
+        // 1. XỬ LÝ ACTION TỪ GIAO DIỆN TRƯỚC (NẾU CÓ)
+       if ("disable".equals(action)) {
+            try {
+                int unitId = Integer.parseInt(request.getParameter("unitId"));
+                int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
 
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
+                // Gọi hàm DAO
+                suDao.changeStorageUnit(unitId, 0); 
+                
+                // ==============================================================
+                // THÊM DÒNG NÀY ĐỂ GỬI LỜI NHẮN THÀNH CÔNG VÀO SESSION
+                request.getSession().setAttribute("successMsg", "Storage Unit has been successfully disabled!");
+                // ==============================================================
+
+                // Trở về trang cũ
+                response.sendRedirect(request.getContextPath() + "/warehouse/detail?id=" + warehouseId);
+                return; 
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
+        // 2. LOGIC LOAD TRANG CHI TIẾT (VIEW)
         try {
-            // 1. Lấy ID từ URL (ví dụ: /warehouse/detail?id=5)
             String idRaw = request.getParameter("id");
             if (idRaw == null || idRaw.isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/warehouse");
@@ -43,68 +55,66 @@ public class WarehouseDetailServlet extends HttpServlet {
             }
             int id = Integer.parseInt(idRaw);
 
-            // 2. Gọi DAO
             WarehouseManagementDAO dao = new WarehouseManagementDAO();
 
-            // A. Lấy thông tin cơ bản của kho (Tên, địa chỉ, mô tả, min_price...)
             Warehouse w = dao.getWarehouseById(id);
-
-            // Kiểm tra nếu không tìm thấy kho thì quay về trang danh sách
             if (w == null) {
                 response.sendRedirect(request.getContextPath() + "/warehouse");
                 return;
             }
 
-            // B. Lấy danh sách ảnh (WarehouseImage object)
             List<WarehouseImage> images = dao.getWarehouseImages(id);
 
-            // C. Lấy danh sách các ô chứa/Zone (StorageUnit object)
-            List<StorageUnit> units = dao.getStorageUnits(id);
+            // ==============================================================
+            // LOGIC MỚI: TÌM KIẾM STORAGE UNIT TRỐNG THEO NGÀY
+            // ==============================================================
+            String searchStart = request.getParameter("searchStart");
+            String searchEnd = request.getParameter("searchEnd");
 
-            // 3. Đẩy dữ liệu sang JSP
-            request.setAttribute("w", w); // Để hiển thị tên, địa chỉ, giá...
-            request.setAttribute("images", images); // Để hiển thị Gallery ảnh
-            request.setAttribute("units", units); // Để hiển thị sơ đồ Zone và Form đặt thuê
+            List<StorageUnit> units;
 
-            // D. Load feedback data
-            FeedbackDAO feedbackDAO = new FeedbackDAO();
-            List<Feedback> feedbackList = feedbackDAO.getFeedbackByWarehouseId(id);
-            request.setAttribute("feedbackList", feedbackList);
-            request.setAttribute("warehouseId", id);
+            if (searchStart != null && !searchStart.isEmpty() && searchEnd != null && !searchEnd.isEmpty()) {
+                units = suDao.searchAvailableUnits(id, searchStart, searchEnd);
+                request.setAttribute("searchStart", searchStart);
+                request.setAttribute("searchEnd", searchEnd);
+            } else {
+                units = dao.getStorageUnits(id);
+            }
+            // ==============================================================
 
-            // E. Load feedback responses
-            FeedbackResponseDAO responseDAO = new FeedbackResponseDAO();
-            Map<Integer, FeedbackResponse> feedbackResponses = responseDAO.getResponsesByWarehouseId(id);
-            request.setAttribute("feedbackResponses", feedbackResponses);
-
-            // F. Check user permissions for feedback
-            
-            UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
-            boolean canFeedback = false;
-            boolean canReply = false;
-
-            if (user != null) {
-                if ("RENTER".equalsIgnoreCase(user.getType())) {
-                    ContractDAO contractDAO = new ContractDAO();
-                    int contractId = contractDAO.getValidContractId(user.getId(), id);
-                    if (contractId != -1) {
-                        canFeedback = true;
+            // Tạo dữ liệu cho Lịch (Calendar JSON)
+            Map<Integer, List<String[]>> unitBookedDates = dao.getUnitBookedDates(id);
+            StringBuilder jsonBuilder = new StringBuilder("{");
+            int count = 0;
+            for (Map.Entry<Integer, List<String[]>> entry : unitBookedDates.entrySet()) {
+                jsonBuilder.append("\"").append(entry.getKey()).append("\": [");
+                List<String[]> dates = entry.getValue();
+                for (int i = 0; i < dates.size(); i++) {
+                    jsonBuilder.append("{")
+                            .append("\"start\": \"").append(dates.get(i)[0]).append("\",")
+                            .append("\"end\": \"").append(dates.get(i)[1]).append("T23:59:59\"")
+                            .append("}");
+                    if (i < dates.size() - 1) {
+                        jsonBuilder.append(",");
                     }
                 }
-                if ("MANAGER".equalsIgnoreCase(user.getRole())
-                        || "ADMIN".equalsIgnoreCase(user.getRole())
-                        || "Internal".equalsIgnoreCase(user.getType())) {
-                    canReply = true;
+                jsonBuilder.append("]");
+                if (count < unitBookedDates.size() - 1) {
+                    jsonBuilder.append(",");
                 }
+                count++;
             }
-            request.setAttribute("canFeedback", canFeedback);
-            request.setAttribute("canReply", canReply);
+            jsonBuilder.append("}");
 
-            // 4. Chuyển hướng đến file giao diện
+            request.setAttribute("unitEventsJson", jsonBuilder.toString().equals("{}") ? "{}" : jsonBuilder.toString());
+            request.setAttribute("w", w);
+            request.setAttribute("images", images);
+            request.setAttribute("units", units);
+
             request.getRequestDispatcher("/Management/warehouse-detail.jsp").forward(request, response);
 
-        } catch (NumberFormatException e) {
-            // Nếu id không phải số, quay về trang danh sách
+        } catch (Exception e) {
+            e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/warehouse");
         }
     }

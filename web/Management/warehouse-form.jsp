@@ -55,11 +55,22 @@
                     <option value="0" ${warehouse.status == 0 ? 'selected' : ''}>Inactive</option>
                 </select>
             </div>
-
+          <div class="mb-3">
+                <label class="form-label">Warehouse Type</label>
+                <select name="warehouseTypeId" class="form-select" required>
+                    <option value="1" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 1 ? 'selected' : ''}>Loại 1 (Trung tâm/Cung ứng)</option>
+                    <option value="2" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 2 ? 'selected' : ''}>Loại 2 (Công nghiệp/Tổng hợp)</option>
+                    <option value="3" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 3 ? 'selected' : ''}>Loại 3 (Cảng biển/An ninh cao)</option>
+                </select>
+            </div>
+            
             <div class="mb-3">
-                <label class="form-label">Warehouse Image</label>
-                <input type="file" name="image" class="form-control" accept="image/*">
-                <div class="form-text">Accepted formats: .jpg, .png, .jpeg</div>
+                <label class="form-label">Warehouse Images</label>
+                <input type="file" name="images" class="form-control" accept="image/*" multiple>
+                <div class="form-text">
+                    Accepted formats: .jpg, .png, .jpeg (Max 5MB per image).<br>
+                    <span class="text-danger">* Bạn có thể chọn nhiều ảnh cùng lúc. Ảnh đầu tiên sẽ làm ảnh đại diện.</span>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary">Save</button>
