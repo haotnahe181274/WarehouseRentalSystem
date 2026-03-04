@@ -341,7 +341,7 @@
                             }
                         }
 
-                        // Position filters and search bar properly
+                        
                         var filterBar = $('.filter-bar');
                         var lengthDiv = $('#feedbackTable_length');
                         var searchDiv = $('#feedbackTable_filter');
