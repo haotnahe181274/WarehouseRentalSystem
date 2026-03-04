@@ -121,7 +121,7 @@ public List<StorageUnit> getUnitsByWarehouse(int warehouseId) {
                     }
 
                     for (Integer currentUnitId : unitIds) {
-                        String description = "[HỆ THỐNG TỰ ĐỘNG] Hỗ trợ Check-in.";
+                        String description = "Check Out.";
                         String insertAssignmentSQL = "INSERT INTO Staff_assignment " +
                                 "(assigned_date, assigned_to, warehouse_id, unit_id, assigned_by, " +
                                 "assignment_type, description, assigned_at, due_date, status, is_overdue) " +
@@ -247,11 +247,11 @@ public List<StorageUnit> getUnitsByWarehouse(int warehouseId) {
                     }
 
                     // Đổi mô tả thành Nhập Kho
-                    String description = "[HỆ THỐNG TỰ ĐỘNG] Hỗ trợ Check-in (Nhập kho) cho Đơn #" + checkRequestId;
+                    String description = "Check In ";
                     String insertAssignmentSQL = "INSERT INTO Staff_assignment " +
                             "(assigned_date, assigned_to, warehouse_id, unit_id, assigned_by, " +
                             "assignment_type, description, assigned_at, due_date, status, is_overdue) " +
-                            "VALUES (CURDATE(), ?, ?, ?, ?, ?, ?, NOW(), ?, 1, 0)";
+                            "VALUES (CURDATE(), ?, ?, ?, ?, ?, ?, NOW(),DATE_ADD(NOW(), INTERVAL 2 DAY), 1, 0)";
 
                     try (PreparedStatement psInsertAssignment = connection.prepareStatement(insertAssignmentSQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
                         psInsertAssignment.setInt(1, assignedTo);
