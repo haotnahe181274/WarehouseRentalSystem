@@ -49,6 +49,12 @@
                                 <c:when test="${rr.status == 3}"><span class="status-badge status-cancelled">Cancelled</span></c:when>
                             </c:choose>
                         </p>
+                        <!-- Thêm thông báo khi Approved -->
+                        <c:if test="${rr.status == 1}">
+                            <p style="color: green; font-weight: 500;">
+                                Please go to the Contract section to review your contract.
+                            </p>
+                        </c:if>
                         <c:if test="${rr.processedDate != null}">
                             <p><strong>Processed Date:</strong> <fmt:formatDate value="${rr.processedDate}" pattern="dd-MM-yyyy HH:mm"/></p>
                         </c:if>

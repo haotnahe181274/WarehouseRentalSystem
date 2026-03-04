@@ -105,8 +105,7 @@
                         <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/rentList">Rental Requests</a></li>
                         <li><a href="${pageContext.request.contextPath}/contract"> Contracts Management</a></li>
-                        <li><a href="${pageContext.request.contextPath}/staffAssignment">Staff Assignment Management</a>
-                        </li>
+                      
                         <li><a href="${pageContext.request.contextPath}/feedbackManagement">Feedback Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/incident">Reports Management</a></li>
                     </c:if>
