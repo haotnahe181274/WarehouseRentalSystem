@@ -23,30 +23,35 @@ public class WarehouseDetailServlet extends HttpServlet {
         
         StorageUnitDAO suDao = new StorageUnitDAO();
         String action = request.getParameter("action");
+
+        // =========================================================
+        // 1. ĐIỀU HƯỚNG SANG TRANG FORM (DÙNG CHUNG CHO ADD & EDIT)
+        // =========================================================
+        if ("addUnit".equals(action)) {
+            String warehouseId = request.getParameter("warehouseId");
+            request.setAttribute("warehouseId", warehouseId);
+            // Bỏ trống thuộc tính 'u', JSP sẽ tự hiểu là chức năng Thêm mới
+            request.getRequestDispatcher("/Management/storage-unit-form.jsp").forward(request, response);
+            return;
+        }
         
-        // 1. XỬ LÝ ACTION TỪ GIAO DIỆN TRƯỚC (NẾU CÓ)
-       if ("disable".equals(action)) {
-            try {
-                int unitId = Integer.parseInt(request.getParameter("unitId"));
-                int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
-
-                // Gọi hàm DAO
-                suDao.changeStorageUnit(unitId, 0); 
-                
-                // ==============================================================
-                // THÊM DÒNG NÀY ĐỂ GỬI LỜI NHẮN THÀNH CÔNG VÀO SESSION
-                request.getSession().setAttribute("successMsg", "Storage Unit has been successfully disabled!");
-                // ==============================================================
-
-                // Trở về trang cũ
-                response.sendRedirect(request.getContextPath() + "/warehouse/detail?id=" + warehouseId);
-                return; 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if ("editUnit".equals(action)) {
+            int unitId = Integer.parseInt(request.getParameter("unitId"));
+            String warehouseId = request.getParameter("warehouseId");
+            
+            StorageUnit unit = suDao.getStorageUnitById(unitId);
+            
+            // Có thuộc tính 'u', JSP sẽ điền dữ liệu và hiểu là chức năng Edit
+            request.setAttribute("u", unit);
+            request.setAttribute("warehouseId", warehouseId);
+            
+            request.getRequestDispatcher("/Management/storage-unit-form.jsp").forward(request, response);
+            return;
         }
 
-        // 2. LOGIC LOAD TRANG CHI TIẾT (VIEW)
+        // =========================================================
+        // 2. LOGIC LOAD TRANG CHI TIẾT WAREHOUSE (VIEW DEFAULT)
+        // =========================================================
         try {
             String idRaw = request.getParameter("id");
             if (idRaw == null || idRaw.isEmpty()) {
@@ -65,9 +70,7 @@ public class WarehouseDetailServlet extends HttpServlet {
 
             List<WarehouseImage> images = dao.getWarehouseImages(id);
 
-            // ==============================================================
-            // LOGIC MỚI: TÌM KIẾM STORAGE UNIT TRỐNG THEO NGÀY
-            // ==============================================================
+            // LOGIC TÌM KIẾM STORAGE UNIT TRỐNG THEO NGÀY
             String searchStart = request.getParameter("searchStart");
             String searchEnd = request.getParameter("searchEnd");
 
@@ -80,9 +83,8 @@ public class WarehouseDetailServlet extends HttpServlet {
             } else {
                 units = dao.getStorageUnits(id);
             }
-            // ==============================================================
 
-            // Tạo dữ liệu cho Lịch (Calendar JSON)
+            // TẠO DỮ LIỆU LỊCH (CALENDAR JSON)
             Map<Integer, List<String[]>> unitBookedDates = dao.getUnitBookedDates(id);
             StringBuilder jsonBuilder = new StringBuilder("{");
             int count = 0;
@@ -116,6 +118,76 @@ public class WarehouseDetailServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/warehouse");
+        }
+    }
+   
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        String action = request.getParameter("action");
+        StorageUnitDAO suDao = new StorageUnitDAO();
+        String warehouseIdRaw = request.getParameter("warehouseId");
+        
+        try {
+            int warehouseId = Integer.parseInt(warehouseIdRaw);
+            
+            // Lấy các dữ liệu dùng chung cho cả Insert và Update
+            String unitCode = request.getParameter("unitCode").trim();
+            double area = Double.parseDouble(request.getParameter("area"));
+            double price = Double.parseDouble(request.getParameter("price"));
+            int status = Integer.parseInt(request.getParameter("status"));
+            String description = request.getParameter("description").trim();
+
+            // ==========================================
+            // BACKEND VALIDATION (Kiểm tra dữ liệu đầu vào)
+            // ==========================================
+            if (unitCode.isEmpty()) {
+                throw new Exception("Storage Unit Code cannot be empty!");
+            }
+            if (area < 10) {
+                throw new Exception("Area must be at least 10 sq ft!");
+            }
+            if (price < 1000000) {
+                throw new Exception("Rent Price must be at least 1,000,000 VND!");
+            }
+
+            // XỬ LÝ THÊM MỚI (INSERT)
+            if ("insert".equals(action)) {
+                boolean isSuccess = suDao.addStorageUnit(warehouseId, unitCode, area, price, status, description);
+                if (isSuccess) {
+                    request.getSession().setAttribute("successMsg", "New Storage Unit added successfully!");
+                } else {
+                    throw new Exception("Database error while adding new unit.");
+                }
+            }
+            // XỬ LÝ CẬP NHẬT (UPDATE)
+            else if ("update".equals(action)) {
+                int unitId = Integer.parseInt(request.getParameter("unitId"));
+                boolean isSuccess = suDao.updateStorageUnit(unitId, unitCode, area, price, status, description);
+                if (isSuccess) {
+                    request.getSession().setAttribute("successMsg", "Storage Unit updated successfully!");
+                } else {
+                    throw new Exception("Database error while updating unit.");
+                }
+            }
+
+            // Thành công thì quay lại trang Detail
+            response.sendRedirect(request.getContextPath() + "/warehouse/detail?id=" + warehouseId);
+
+        } catch (Exception e) {
+            // Nếu có lỗi Validate, bắt tại đây và báo về giao diện FORM
+            e.printStackTrace();
+            request.getSession().setAttribute("errorMsg", e.getMessage());
+            
+            // Trả ngược lại đúng form đang thực hiện (Add hoặc Edit)
+            if ("update".equals(action)) {
+                String unitIdRaw = request.getParameter("unitId");
+                response.sendRedirect(request.getContextPath() + "/warehouse/detail?action=editUnit&unitId=" + unitIdRaw + "&warehouseId=" + warehouseIdRaw);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/warehouse/detail?action=addUnit&warehouseId=" + warehouseIdRaw);
+            }
         }
     }
 }

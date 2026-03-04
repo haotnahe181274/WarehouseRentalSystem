@@ -95,6 +95,8 @@ public class RegisterServlet extends HttpServlet {
             request.setAttribute("email", email);
             request.setAttribute("phone", phone);
             request.setAttribute("username", username);
+            request.setAttribute("password", password);
+            request.setAttribute("rePassword", rePassword);
             request.getRequestDispatcher("/Common/Login/signup.jsp").forward(request, response);
         } else {
             // Instead of inserting directly, send OTP
@@ -121,6 +123,8 @@ public class RegisterServlet extends HttpServlet {
                 request.setAttribute("email", email);
                 request.setAttribute("phone", phone);
                 request.setAttribute("username", username);
+                request.setAttribute("password", password);
+                request.setAttribute("rePassword", rePassword);
                 request.getRequestDispatcher("/Common/Login/signup.jsp").forward(request, response);
             }
         }

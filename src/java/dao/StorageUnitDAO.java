@@ -6,12 +6,34 @@ import java.util.ArrayList;
 import java.util.List;
 import model.StorageUnit;
 import model.Warehouse;
-
 public class StorageUnitDAO extends DBContext {
     
     /**
      * Các unit mà renter đang thuê hợp lệ (Contract + Payment status = 1, ngày trong hạn).
      */
+    
+    
+    
+  /**
+     * Thêm mới một Storage Unit vào Database
+     */
+    public boolean addStorageUnit(int warehouseId, String unitCode, double area, double price, int status, String description) {
+        String sql = "INSERT INTO Storage_unit (warehouse_id, unit_code, area, price_per_unit, status, description) "
+                   + "VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, warehouseId);
+            ps.setString(2, unitCode);
+            ps.setDouble(3, area);
+            ps.setDouble(4, price);
+            ps.setInt(5, status);
+            ps.setString(6, description);
+            
+            return ps.executeUpdate() > 0; // Trả về true nếu insert thành công
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public List<StorageUnit> getActiveUnitsForRenter(int renterId) {
 
         List<StorageUnit> list = new ArrayList<>();
@@ -111,13 +133,35 @@ public class StorageUnitDAO extends DBContext {
         return list;
     }
     
-    // =========================================================================
-    // 2 HÀM MỚI ĐỂ UPDATE VÀ DELETE STORAGE UNIT
-    // =========================================================================
-
-    /**
-     * Cập nhật thông tin của một Storage Unit
+ /**
+     * Lấy thông tin 1 Storage Unit theo ID để hiển thị lên form Edit
+     * @param unitId
+     * @return 
      */
+    public StorageUnit getStorageUnitById(int unitId) {
+        WarehouseManagementDAO dao = new WarehouseManagementDAO();
+        String sql = "SELECT * FROM Storage_unit WHERE unit_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, unitId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                StorageUnit unit = new StorageUnit();
+                unit.setUnitId(rs.getInt("unit_id"));
+                Warehouse w;
+                w = dao.getWarehouseById(rs.getInt("warehouse_id"));
+                unit.setWarehouse(w); // Giả sử model của bạn có setWarehouseId
+                unit.setUnitCode(rs.getString("unit_code"));
+                unit.setArea(rs.getDouble("area"));
+                unit.setPricePerUnit(rs.getDouble("price_per_unit"));
+                unit.setStatus(rs.getInt("status"));
+                unit.setDescription(rs.getString("description"));
+                return unit;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     public boolean updateStorageUnit(int unitId, String unitCode, double area, double price, int status, String description) {
         String sql = "UPDATE Storage_unit SET unit_code = ?, area = ?, price_per_unit = ?, status = ?, description = ? WHERE unit_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -132,23 +176,6 @@ public class StorageUnitDAO extends DBContext {
             return rowsAffected > 0;
         } catch (Exception e) {
             System.out.println("Lỗi updateStorageUnit: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /**
-     * Xóa một Storage Unit khỏi cơ sở dữ liệu
-     */
-  public boolean changeStorageUnit(int unitId, int status) {
-        String sql = "UPDATE Storage_unit SET status = ? WHERE unit_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, status);
-            ps.setInt(2, unitId);
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
-        } catch (Exception e) {
-            System.out.println("Lỗi disableStorageUnit: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

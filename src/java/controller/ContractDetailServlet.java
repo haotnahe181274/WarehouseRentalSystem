@@ -1,5 +1,6 @@
 package controller;
 
+import dao.AssignmentDAO;
 import dao.ContractDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -77,4 +78,7 @@ public class ContractDetailServlet extends HttpServlet {
         request.getRequestDispatcher("/contract/Contract-detail.jsp")
                .forward(request, response);
     }
+    
+       
+    
 }

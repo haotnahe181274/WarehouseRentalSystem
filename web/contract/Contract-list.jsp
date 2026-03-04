@@ -147,6 +147,12 @@
         </div>
     </div>
 
+<c:if test="${not empty sessionScope.MESSAGE}">
+    <div class="alert alert-success">
+        ${sessionScope.MESSAGE}
+    </div>
+    <c:remove var="MESSAGE" scope="session"/>
+</c:if>
     <jsp:include page="/Common/Layout/footer.jsp"/>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
