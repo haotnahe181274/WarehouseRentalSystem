@@ -54,6 +54,9 @@
                             </li>
                         </c:if>
                     </c:if>
+                    <li class="app-header__menu-item">
+                        <a class="app-header__menu-link" href="${pageContext.request.contextPath}/blog">Blog</a>
+                    </li>
                     <c:if test="${sessionScope.userType == 'RENTER' || isHomepage}">
                         <li class="app-header__menu-item">
                             <a class="app-header__menu-link"
