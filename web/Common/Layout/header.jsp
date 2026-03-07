@@ -56,14 +56,62 @@
             <c:when test="${not empty sessionScope.user}">
                 
                 <li class="app-header__notification">
-                    <a href="${pageContext.request.contextPath}/notifications" class="app-header__noti-trigger">
+                    <div class="app-header__noti-trigger">
                         <i class="fa-solid fa-bell fs-5"></i>
-                        
                         <%-- <c:if test="${not empty sessionScope.unreadNotiCount && sessionScope.unreadNotiCount > 0}"> --%>
                             <span class="app-header__noti-badge">3</span>
                         <%-- </c:if> --%>
-                    </a>
+                    </div>
+
+                    <div class="app-header__noti-dropdown">
+                        <div class="app-header__noti-header">
+                            <h6 class="m-0 fw-bold">Notifications</h6>
+                            <a href="#" style="font-size: 12px; color: #3b82f6; text-decoration: none;">Mark all as read</a>
+                        </div>
+                        
+                        <ul class="app-header__noti-list">
+                            <li class="app-header__noti-item unread">
+                                <a href="#" class="app-header__noti-link">
+                                    <div class="app-header__noti-icon bg-primary text-white">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div class="app-header__noti-content">
+                                        <p class="app-header__noti-text">Your rent request for <strong>SU-01</strong> has been approved.</p>
+                                        <span class="app-header__noti-time">2 mins ago</span>
+                                    </div>
+                                </a>
+                            </li>
+
+                            <li class="app-header__noti-item">
+                                <a href="#" class="app-header__noti-link">
+                                    <div class="app-header__noti-icon bg-warning text-white">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="app-header__noti-content">
+                                        <p class="app-header__noti-text">Maintenance scheduled for <strong>Warehouse A</strong> tomorrow.</p>
+                                        <span class="app-header__noti-time">1 hour ago</span>
+                                    </div>
+                                </a>
+                            </li>
+                             <li class="app-header__noti-item">
+                                <a href="#" class="app-header__noti-link">
+                                    <div class="app-header__noti-icon bg-success text-white">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="app-header__noti-content">
+                                        <p class="app-header__noti-text">Payment for <strong>SU-02</strong> received successfully.</p>
+                                        <span class="app-header__noti-time">1 day ago</span>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                        
+                        <div class="app-header__noti-footer">
+                            <a href="${pageContext.request.contextPath}/notifications">View all notifications</a>
+                        </div>
+                    </div>
                 </li>
+
                 <li class="app-header__user-info">
                     <div class="app-header__user-trigger app-header__user-box">
                         <img class="app-header__avatar"
@@ -113,7 +161,6 @@
         z-index: 1000;
     }
 
-    /* ===== LOGO ===== */
     .app-header__logo {
         font-weight: 700;
         font-size: 20px;
@@ -122,7 +169,6 @@
         margin-right: 40px;
     }
 
-    /* ===== MENU & USER LIST ===== */
     .app-header__menu,
     .app-header__user {
         display: flex;
@@ -146,17 +192,16 @@
         background-color: #f2f2f2;
     }
 
-    /* ===== USER (RIGHT SIDE) ===== */
     .app-header__user {
         margin-left: auto;
-        gap: 16px; /* Tăng khoảng cách giữa chuông và avatar */
+        gap: 16px; 
     }
 
-
     /* ==========================================
-       START CSS CHO NOTIFICATION BELL
+       START NOTIFICATION DROPDOWN
        ========================================== */
     .app-header__notification {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -170,22 +215,21 @@
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        color: #4b5563; /* Màu xám đen */
-        text-decoration: none;
+        color: #4b5563; 
+        cursor: pointer;
         transition: background-color 0.2s;
     }
 
     .app-header__noti-trigger:hover {
-        background-color: #f3f4f6; /* Nền xám nhạt khi hover */
-        color: #111827; /* Đổi màu icon đậm lên */
+        background-color: #f3f4f6; 
+        color: #111827; 
     }
 
-    /* Chấm đỏ báo số lượng */
     .app-header__noti-badge {
         position: absolute;
         top: 0px;
         right: 0px;
-        background-color: #ef4444; /* Đỏ */
+        background-color: #ef4444; 
         color: white;
         font-size: 10px;
         font-weight: bold;
@@ -193,10 +237,118 @@
         border-radius: 10px;
         min-width: 16px;
         text-align: center;
-        border: 2px solid #ffffff; /* Viền trắng để cắt nền */
+        border: 2px solid #ffffff; 
+    }
+
+    /* DROPDOWN CONTAINER */
+    .app-header__noti-dropdown {
+        position: absolute;
+        top: 120%;
+        right: -10px;
+        width: 320px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        display: none;
+        flex-direction: column;
+        z-index: 10000;
+        overflow: hidden;
+    }
+
+    /* Show dropdown on hover */
+    .app-header__notification:hover .app-header__noti-dropdown {
+        display: flex;
+    }
+
+    .app-header__noti-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid #eee;
+        background-color: #fafafa;
+    }
+
+    .app-header__noti-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .app-header__noti-item {
+        border-bottom: 1px solid #f1f1f1;
+    }
+    
+    .app-header__noti-item.unread {
+        background-color: #f0f7ff; /* Highlight unread messages */
+    }
+
+    .app-header__noti-item:last-child {
+        border-bottom: none;
+    }
+
+    .app-header__noti-link {
+        display: flex;
+        align-items: flex-start;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #333;
+        transition: background-color 0.2s;
+    }
+
+    .app-header__noti-link:hover {
+        background-color: #f9fafb;
+    }
+
+    .app-header__noti-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+        font-size: 14px;
+    }
+
+    .app-header__noti-content {
+        flex: 1;
+    }
+
+    .app-header__noti-text {
+        font-size: 13px;
+        margin: 0 0 4px 0;
+        line-height: 1.4;
+    }
+
+    .app-header__noti-time {
+        font-size: 11px;
+        color: #888;
+    }
+
+    .app-header__noti-footer {
+        padding: 10px;
+        text-align: center;
+        border-top: 1px solid #eee;
+        background-color: #fafafa;
+    }
+
+    .app-header__noti-footer a {
+        font-size: 13px;
+        font-weight: 600;
+        color: #3b82f6;
+        text-decoration: none;
+    }
+
+    .app-header__noti-footer a:hover {
+        text-decoration: underline;
     }
     /* ==========================================
-       END CSS CHO NOTIFICATION BELL
+       END NOTIFICATION DROPDOWN
        ========================================== */
 
 
