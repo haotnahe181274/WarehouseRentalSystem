@@ -11,17 +11,22 @@ package model;
 public class BlogPost {
     private int postId;
     private String title;
+    private String content;
     private int viewCount;
+    private int categoryId;
     private String categoryName;
     private String createdAt;
 
     public BlogPost() {
     }
 
-    public BlogPost(int postId, String title, int viewCount, String categoryName, String createdAt) {
+    public BlogPost(int postId, String title, String content, int viewCount, int categoryId, String categoryName,
+            String createdAt) {
         this.postId = postId;
         this.title = title;
+        this.content = content;
         this.viewCount = viewCount;
+        this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.createdAt = createdAt;
     }
@@ -42,6 +47,14 @@ public class BlogPost {
         this.title = title;
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     public int getViewCount() {
         return viewCount;
     }
@@ -58,6 +71,14 @@ public class BlogPost {
         this.categoryName = categoryName;
     }
 
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
+
     public String getCreatedAt() {
         return createdAt;
     }
@@ -65,6 +86,5 @@ public class BlogPost {
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
-    
-    
+
 }
