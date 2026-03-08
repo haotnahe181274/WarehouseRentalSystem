@@ -45,6 +45,34 @@ public class BlogDAO extends DBContext {
         return list;
     }
 
+    public List<BlogPost> getPostsByUser(int userId, String userType) throws SQLException {
+        List<BlogPost> list = new ArrayList<>();
+        String column = "RENTER".equals(userType) ? "renter_id" : "internal_user_id";
+        String sql = "select p.post_id, p.title, p.view_count, p.created_at, p.category_id, c.category_name "
+                + "from Blog_Post p "
+                + "left join Blog_Category c on p.category_id = c.category_id "
+                + "where p.status = 1 and p." + column + " = ? "
+                + "order by p.created_at desc";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                BlogPost post = new BlogPost();
+                post.setPostId(rs.getInt("post_id"));
+                post.setTitle(rs.getString("title"));
+                post.setViewCount(rs.getInt("view_count"));
+                post.setCategoryId(rs.getInt("category_id"));
+                post.setCategoryName(rs.getString("category_name"));
+                post.setCreatedAt(rs.getString("created_at"));
+                list.add(post);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
     public BlogPost getPostById(int id) {
         String sql = """
                 select p.post_id,
@@ -79,17 +107,15 @@ public class BlogDAO extends DBContext {
         return null;
     }
 
-    public void createPost(String title, String content, int categoryId, int renter) {
-        String sql = """
-                insert into Blog_Post(title, content, category_id, renter_id)
-                values(?,?,?,?)
-                """;
+    public void createPost(String title, String content, int categoryId, int userId, String userType) {
+        String column = "RENTER".equals(userType) ? "renter_id" : "internal_user_id";
+        String sql = "insert into Blog_Post(title, content, category_id, " + column + ") values(?,?,?,?)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, title);
             ps.setString(2, content);
             ps.setInt(3, categoryId);
-            ps.setInt(4, renter);
+            ps.setInt(4, userId);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
