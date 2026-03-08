@@ -10,6 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import model.BlogPost;
@@ -110,10 +111,17 @@ public class BlogServlet extends HttpServlet {
         String action = request.getParameter("action");
         String tilte = request.getParameter("title");
         String content = request.getParameter("content");
-        int categoryId = Integer.parseInt(request.getParameter("categoryId"));
-        if (action.equalsIgnoreCase("create"))
-            dao.createPost(tilte, content, categoryId, 1);
-        else if (action.equalsIgnoreCase("update")) {
+        String catIdStr = request.getParameter("categoryId");
+        int categoryId = (catIdStr != null && !catIdStr.isEmpty()) ? Integer.parseInt(catIdStr) : 0;
+
+        HttpSession session = request.getSession();
+        model.UserView user = (model.UserView) session.getAttribute("user");
+        int userId = (user != null) ? user.getId() : 1;
+        String userType = (user != null) ? user.getType() : "RENTER";
+
+        if (action != null && action.equalsIgnoreCase("create")) {
+            dao.createPost(tilte, content, categoryId, userId, userType);
+        } else if (action != null && action.equalsIgnoreCase("update")) {
             int id = Integer.parseInt(request.getParameter("id"));
             dao.updatePost(id, tilte, content, categoryId);
         }

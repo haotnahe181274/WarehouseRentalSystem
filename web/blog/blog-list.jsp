@@ -51,10 +51,12 @@
         <body style="background-color: #f8f9fa;">
             <div class="blog-container">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1>Blog Management</h1>
-                    <a href="blog-crud?action=create" class="btn btn-primary btn-create">
-                        <i class="fas fa-plus"></i> Create New Blog
-                    </a>
+                    <h1>${pageTitle != null ? pageTitle : "Blog Management"}</h1>
+                    <c:if test="${canManage}">
+                        <a href="blog-crud?action=create" class="btn btn-primary btn-create">
+                            <i class="fas fa-plus"></i> Create New Blog
+                        </a>
+                    </c:if>
                 </div>
 
                 <c:if test="${empty blogList}">
@@ -87,15 +89,17 @@
                                                 class="btn btn-sm btn-outline-primary" title="View">
                                                 View
                                             </a>
-                                            <a href="blog-crud?action=edit&id=${post.postId}"
-                                                class="btn btn-sm btn-outline-secondary" title="Edit">
-                                                Edit
-                                            </a>
-                                            <a href="blog-crud?action=delete&id=${post.postId}"
-                                                class="btn btn-sm btn-outline-danger" title="Delete"
-                                                onclick="return confirm('Are you sure you want to delete this post?')">
-                                                Delete
-                                            </a>
+                                            <c:if test="${canManage}">
+                                                <a href="blog-crud?action=edit&id=${post.postId}"
+                                                    class="btn btn-sm btn-outline-secondary" title="Edit">
+                                                    Edit
+                                                </a>
+                                                <a href="blog-crud?action=delete&id=${post.postId}"
+                                                    class="btn btn-sm btn-outline-danger" title="Delete"
+                                                    onclick="return confirm('Are you sure you want to delete this post?')">
+                                                    Delete
+                                                </a>
+                                            </c:if>
                                         </div>
                                     </td>
                                 </tr>
