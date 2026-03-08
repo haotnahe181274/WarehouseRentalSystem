@@ -63,7 +63,7 @@ public class AssignmentDAO extends DBContext {
                 staffId = rs.getInt("internal_user_id");
                 System.out.println("   [SYSTEM] Đã tìm thấy Staff phù hợp. ID: " + staffId + " (Đang có " + rs.getInt("active_tasks") + " task)");
             } else {
-                System.out.println("   [SYSTEM] LỖI: Không tìm thấy Staff nào có role_id=3, status=1 và ở CÙNG ĐỊA CHỈ với kho này!");
+                System.out.println("   [SYSTEM] LỖI: Không tìm thấy Staff nào ở CÙNG ĐỊA CHỈ với kho này!");
             }
             rs.close();
             ps.close();
@@ -74,17 +74,16 @@ public class AssignmentDAO extends DBContext {
     }
 
     // ==========================================
-    // LUỒNG 1: CHECK-IN KHI DUYỆT HỢP ĐỒNG MỚI (TỪ BẢNG CONTRACT)
+    // LUỒNG 1: CHECK-IN KHI DUYỆT HỢP ĐỒNG (TỪ BẢNG CONTRACT)
+    // (Đã cập nhật theo schema mới: Bỏ assigned_at, thêm started_date)
     // ==========================================
 
     public boolean createCheckTaskFromPayment(int contractId, int systemAssignedBy) {
         boolean isTaskAssignedSuccessfully = false;
         System.out.println("========== BẮT ĐẦU LUỒNG TẠO TASK CHECK-IN (TỪ HỢP ĐỒNG) ==========");
-        System.out.println("1. Đang xử lý Contract ID: " + contractId);
 
-        String contractQuery = "SELECT c.warehouse_id, DATE_ADD(c.start_date, INTERVAL 2 DAY) AS task_due_date, c.request_id " +
-                               "FROM Contract c " +
-                               "WHERE c.contract_id = ?";
+        String contractQuery = "SELECT c.warehouse_id, c.start_date, DATE_ADD(c.start_date, INTERVAL 2 DAY) AS task_due_date, c.request_id " +
+                               "FROM Contract c WHERE c.contract_id = ?";
                                
         try (PreparedStatement psContract = connection.prepareStatement(contractQuery)) {
             psContract.setInt(1, contractId);
@@ -92,127 +91,101 @@ public class AssignmentDAO extends DBContext {
             try (ResultSet rsContract = psContract.executeQuery()) {
                 if (rsContract.next()) {
                     int warehouseId = rsContract.getInt("warehouse_id");
+                    String startedDate = rsContract.getString("start_date"); // Lấy ngày bắt đầu HĐ làm started_date
                     String dueDate = rsContract.getString("task_due_date"); 
                     int requestId = rsContract.getInt("request_id");
                     int assignmentType = 1; // 1 là Check-in
-                    System.out.println("2. Đã tìm thấy Contract. Warehouse ID: " + warehouseId + ", Due Date mới: " + dueDate);
 
                     int assignedTo = getOptimalStaffId(warehouseId);
-                    if (assignedTo == -1) {
-                        System.out.println("-> THẤT BẠI: Hủy quá trình vì không có Staff nhận việc.");
-                        return false; 
-                    }
+                    if (assignedTo == -1) return false; 
 
                     List<Integer> unitIds = new ArrayList<>();
                     String unitQuery = "SELECT unit_id FROM Contract_Storage_unit WHERE contract_id = ?";
                     try (PreparedStatement psUnits = connection.prepareStatement(unitQuery)) {
                         psUnits.setInt(1, contractId);
                         try (ResultSet rsUnits = psUnits.executeQuery()) {
-                            while (rsUnits.next()) {
-                                unitIds.add(rsUnits.getInt("unit_id"));
-                            }
+                            while (rsUnits.next()) { unitIds.add(rsUnits.getInt("unit_id")); }
                         }
                     }
-                    System.out.println("3. Số lượng Unit thuộc hợp đồng này là: " + unitIds.size());
 
-                    if (unitIds.isEmpty()) {
-                        System.out.println("   [CẢNH BÁO] Hợp đồng này chưa liên kết với Storage Unit nào. Vẫn sẽ tạo task với unit_id = NULL.");
-                        unitIds.add(null); 
-                    }
+                    if (unitIds.isEmpty()) { unitIds.add(null); }
 
                     for (Integer currentUnitId : unitIds) {
                         String description = "[HỆ THỐNG TỰ ĐỘNG] Hỗ trợ Check-in. Hợp đồng #" + contractId;
+                        
+                        // Câu lệnh Insert đã sửa theo DB mới
                         String insertAssignmentSQL = "INSERT INTO Staff_assignment " +
-                                "(assigned_date, assigned_to, warehouse_id, unit_id, assigned_by, " +
-                                "assignment_type, description, assigned_at, due_date, status, is_overdue) " +
-                                "VALUES (CURDATE(), ?, ?, ?, ?, ?, ?, NOW(), ?, 1, 0)";
+                                "(assigned_to, warehouse_id, unit_id, assigned_by, " +
+                                "assignment_type, description, started_date, due_date, status, is_overdue) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, DATE(?), ?, 1, 0)";
                                 
                         try (PreparedStatement psInsertAssignment = connection.prepareStatement(insertAssignmentSQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
                             psInsertAssignment.setInt(1, assignedTo);
                             psInsertAssignment.setInt(2, warehouseId);
                             
-                            if (currentUnitId != null) {
-                                psInsertAssignment.setInt(3, currentUnitId);
-                            } else {
-                                psInsertAssignment.setNull(3, Types.INTEGER); 
-                            }
+                            if (currentUnitId != null) psInsertAssignment.setInt(3, currentUnitId);
+                            else psInsertAssignment.setNull(3, Types.INTEGER); 
                             
                             psInsertAssignment.setInt(4, systemAssignedBy);
                             psInsertAssignment.setInt(5, assignmentType);
                             psInsertAssignment.setString(6, description);
-                            psInsertAssignment.setString(7, dueDate);
+                            psInsertAssignment.setString(7, startedDate); // Chuyển thành started_date (DATE)
+                            psInsertAssignment.setString(8, dueDate);
                             
-                            System.out.println("4. Đang thực thi Insert vào Staff_assignment...");
                             int rowsAffected = psInsertAssignment.executeUpdate();
-                            System.out.println("   -> Kết quả Insert: " + rowsAffected + " dòng thành công.");
-                            
                             if (rowsAffected > 0) {
                                 isTaskAssignedSuccessfully = true; 
                                 try (ResultSet generatedKeys = psInsertAssignment.getGeneratedKeys()) {
                                     if (generatedKeys.next()) {
-                                        int newAssignmentId = generatedKeys.getInt(1);
-                                        System.out.println("5. Đã tạo xong Task ID: " + newAssignmentId + ". Bắt đầu copy Item...");
-                                        fillAssignmentItems(newAssignmentId, requestId);
+                                        fillItemsFromRentRequest(generatedKeys.getInt(1), requestId);
                                     }
                                 }
                             }
                         }
                     }
-                } else {
-                    System.out.println("-> THẤT BẠI: Không tìm thấy Contract ID " + contractId);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("-> CÓ LỖI SQL: " + e.getMessage());
             e.printStackTrace();
         }
-        System.out.println("========== KẾT THÚC LUỒNG ==========");
         return isTaskAssignedSuccessfully;
     }
 
-    private void fillAssignmentItems(int newAssignmentId, int requestId) {
-         String itemQuery = "SELECT rri.item_id, i.item_name " +
-                            "FROM rent_request_item rri " +
-                            "JOIN Item i ON rri.item_id = i.item_id " +
-                            "WHERE rri.request_id = ?";
+    private void fillItemsFromRentRequest(int newAssignmentId, int requestId) {
+         String itemQuery = "SELECT rri.item_id, i.item_name FROM rent_request_item rri JOIN Item i ON rri.item_id = i.item_id WHERE rri.request_id = ?";
          try (PreparedStatement psItems = connection.prepareStatement(itemQuery)) {
              psItems.setInt(1, requestId);
              try (ResultSet rsItems = psItems.executeQuery()) {
-                 String insertItemSQL = "INSERT INTO Staff_assignment_item " +
-                                        "(assignment_id, item_id, item_name, quantity, note) " +
-                                        "VALUES (?, ?, ?, ?, ?)";
+                 String insertItemSQL = "INSERT INTO Staff_assignment_item (assignment_id, item_id, item_name, quantity, note) VALUES (?, ?, ?, ?, ?)";
                  try (PreparedStatement psInsertItem = connection.prepareStatement(insertItemSQL)) {
-                     int count = 0;
                      while (rsItems.next()) {
                          psInsertItem.setInt(1, newAssignmentId);
                          psInsertItem.setInt(2, rsItems.getInt("item_id"));
                          psInsertItem.setString(3, rsItems.getString("item_name"));
                          psInsertItem.setInt(4, 1); 
-                         psInsertItem.setString(5, "Từ Request #" + requestId);
+                         psInsertItem.setString(5, "Từ Đơn thuê #" + requestId);
                          psInsertItem.addBatch();
-                         count++;
                      }
                      psInsertItem.executeBatch();
-                     System.out.println("   -> Đã copy thành công " + count + " mặt hàng vào Task.");
                  }
              }
-         } catch (SQLException e) {
-             e.printStackTrace();
-         }
+         } catch (SQLException e) { e.printStackTrace(); }
     }
 
     // ==========================================
-    // LUỒNG 2: CHECK-IN KHI RENTER TẠO YÊU CẦU (TỪ BẢNG CHECK_REQUEST)
+    // LUỒNG 2: GOM CHUNG CHECK-IN / CHECK-OUT (TỪ BẢNG CHECK_REQUEST)
     // ==========================================
 
-    public boolean createCheckInTaskFromRequest(int checkRequestId, int systemAssignedBy) {
+    /**
+     * Hàm đa năng xử lý cả Nhập và Xuất kho dựa vào bảng check_request
+     */
+    public boolean createTaskFromCheckRequest(int checkRequestId, int systemAssignedBy) {
         boolean isTaskAssignedSuccessfully = false;
-        System.out.println("========== BẮT ĐẦU LUỒNG TẠO TASK CHECK-IN TỪ YÊU CẦU ==========");
-        System.out.println("1. Đang xử lý Check Request ID: " + checkRequestId);
+        System.out.println("========== BẮT ĐẦU TẠO TASK (GOM CHUNG IN/OUT) ==========");
 
-        String requestQuery = "SELECT warehouse_id, unit_id, DATE_ADD(CURDATE(), INTERVAL 2 DAY) AS task_due_date " +
-                              "FROM check_request " +
-                              "WHERE id = ? AND request_type = 'CHECK_IN'";
+        // Lấy ngày tạo đơn làm started_date. Hạn chót là ngày tạo đơn + 2 ngày
+        String requestQuery = "SELECT warehouse_id, unit_id, request_type, request_date, DATE_ADD(request_date, INTERVAL 2 DAY) AS task_due_date " +
+                              "FROM check_request WHERE id = ?";
 
         try (PreparedStatement psReq = connection.prepareStatement(requestQuery)) {
             psReq.setInt(1, checkRequestId);
@@ -220,43 +193,43 @@ public class AssignmentDAO extends DBContext {
             try (ResultSet rsReq = psReq.executeQuery()) {
                 if (rsReq.next()) {
                     int warehouseId = rsReq.getInt("warehouse_id");
+                    String requestType = rsReq.getString("request_type");
+                    String startedDate = rsReq.getString("request_date"); // Lấy request_date
+                    String dueDate = rsReq.getString("task_due_date");
                     
                     Integer unitId = rsReq.getInt("unit_id");
                     if (rsReq.wasNull()) { unitId = null; }
-                    
-                    String dueDate = rsReq.getString("task_due_date");
-                    int assignmentType = 1; // Loại 1: Check-in
 
-                    System.out.println("2. Tìm thấy Đơn nhập kho. Warehouse ID: " + warehouseId + ", Unit ID: " + unitId);
+                    // Phân loại task và nội dung
+                    int assignmentType = requestType.equalsIgnoreCase("CHECK_OUT") ? 2 : 1; 
+                    String actionName = requestType.equalsIgnoreCase("CHECK_OUT") ? "Xuất kho" : "Nhập kho";
+                    String description = "Hỗ trợ khách hàng " + actionName + " (Đơn #" + checkRequestId + ")";
 
                     int assignedTo = getOptimalStaffId(warehouseId);
                     if (assignedTo == -1) {
-                        System.out.println("-> THẤT BẠI: Hủy quá trình do không tìm thấy nhân viên nào ở kho này.");
+                        System.out.println("-> THẤT BẠI: Không có nhân viên.");
                         return false;
                     }
 
-                    String description = "Hỗ trợ khách hàng Nhập kho (Đơn #" + checkRequestId + ")";
+                    // Câu lệnh Insert theo Database mới (không có assigned_at)
                     String insertAssignmentSQL = "INSERT INTO Staff_assignment " +
-                            "(assigned_date, assigned_to, warehouse_id, unit_id, assigned_by, " +
-                            "assignment_type, description, assigned_at, due_date, status, is_overdue) " +
-                            "VALUES (CURDATE(), ?, ?, ?, ?, ?, ?, NOW(), ?, 1, 0)";
+                            "(assigned_to, warehouse_id, unit_id, assigned_by, " +
+                            "assignment_type, description, started_date, due_date, status, is_overdue) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, DATE(?), ?, 1, 0)";
 
                     try (PreparedStatement psInsertAssignment = connection.prepareStatement(insertAssignmentSQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
                         psInsertAssignment.setInt(1, assignedTo);
                         psInsertAssignment.setInt(2, warehouseId);
 
-                        if (unitId != null) {
-                            psInsertAssignment.setInt(3, unitId);
-                        } else {
-                            psInsertAssignment.setNull(3, Types.INTEGER);
-                        }
+                        if (unitId != null) psInsertAssignment.setInt(3, unitId);
+                        else psInsertAssignment.setNull(3, Types.INTEGER);
 
                         psInsertAssignment.setInt(4, systemAssignedBy);
                         psInsertAssignment.setInt(5, assignmentType);
                         psInsertAssignment.setString(6, description);
-                        psInsertAssignment.setString(7, dueDate);
+                        psInsertAssignment.setString(7, startedDate); // Ép DATE() trong SQL
+                        psInsertAssignment.setString(8, dueDate);
 
-                        System.out.println("3. Đang tạo Task Nhập kho cho nhân viên...");
                         int rowsAffected = psInsertAssignment.executeUpdate();
 
                         if (rowsAffected > 0) {
@@ -264,29 +237,25 @@ public class AssignmentDAO extends DBContext {
                             try (ResultSet generatedKeys = psInsertAssignment.getGeneratedKeys()) {
                                 if (generatedKeys.next()) {
                                     int newAssignmentId = generatedKeys.getInt(1);
-                                    System.out.println("4. Đã tạo Task ID: " + newAssignmentId + ". Đang copy mặt hàng nhập kho...");
-                                    
-                                    fillCheckInAssignmentItems(newAssignmentId, checkRequestId);
+                                    fillItemsFromCheckRequest(newAssignmentId, checkRequestId, actionName);
                                 }
                             }
                         }
                     }
-                } else {
-                    System.out.println("-> THẤT BẠI: Không tìm thấy Đơn Check-in ID " + checkRequestId);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("-> LỖI SQL TẠO TASK CHECK-IN: " + e.getMessage());
             e.printStackTrace();
         }
-        System.out.println("========== KẾT THÚC LUỒNG CHECK-IN ==========");
         return isTaskAssignedSuccessfully;
     }
 
-    private void fillCheckInAssignmentItems(int newAssignmentId, int checkRequestId) {
+    /**
+     * Hàm bổ trợ gom chung cho cả IN và OUT
+     */
+    private void fillItemsFromCheckRequest(int newAssignmentId, int checkRequestId, String actionName) {
         String itemQuery = "SELECT cri.item_id, i.item_name, cri.quantity " +
-                           "FROM check_request_item cri " +
-                           "JOIN Item i ON cri.item_id = i.item_id " +
+                           "FROM check_request_item cri JOIN Item i ON cri.item_id = i.item_id " +
                            "WHERE cri.check_request_id = ?";
 
         try (PreparedStatement psItems = connection.prepareStatement(itemQuery)) {
@@ -294,145 +263,21 @@ public class AssignmentDAO extends DBContext {
 
             try (ResultSet rsItems = psItems.executeQuery()) {
                 String insertItemSQL = "INSERT INTO Staff_assignment_item " +
-                                       "(assignment_id, item_id, item_name, quantity, note) " +
-                                       "VALUES (?, ?, ?, ?, ?)";
+                                       "(assignment_id, item_id, item_name, quantity, note) VALUES (?, ?, ?, ?, ?)";
 
                 try (PreparedStatement psInsertItem = connection.prepareStatement(insertItemSQL)) {
-                    int count = 0;
                     while (rsItems.next()) {
                         psInsertItem.setInt(1, newAssignmentId);
                         psInsertItem.setInt(2, rsItems.getInt("item_id"));
                         psInsertItem.setString(3, rsItems.getString("item_name"));
                         psInsertItem.setInt(4, rsItems.getInt("quantity")); 
-                        psInsertItem.setString(5, "Yêu cầu nhập kho #" + checkRequestId);
-
+                        psInsertItem.setString(5, "Yêu cầu " + actionName + " #" + checkRequestId);
                         psInsertItem.addBatch();
-                        count++;
                     }
                     psInsertItem.executeBatch();
-                    System.out.println("   -> Thành công! Đã đẩy " + count + " loại mặt hàng vào lệnh Nhập kho.");
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi insert Items cho Check-in: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // ==========================================
-    // LUỒNG 3: CHECK-OUT KHI RENTER TẠO YÊU CẦU (TỪ BẢNG CHECK_REQUEST)
-    // ==========================================
-
-    public boolean createCheckOutTaskFromRequest(int checkRequestId, int systemAssignedBy) {
-        boolean isTaskAssignedSuccessfully = false;
-        System.out.println("========== BẮT ĐẦU LUỒNG TẠO TASK CHECK-OUT TỪ YÊU CẦU ==========");
-        System.out.println("1. Đang xử lý Check Request ID: " + checkRequestId);
-
-        String requestQuery = "SELECT warehouse_id, unit_id, DATE_ADD(CURDATE(), INTERVAL 2 DAY) AS task_due_date " +
-                              "FROM check_request " +
-                              "WHERE id = ? AND request_type = 'CHECK_OUT'";
-
-        try (PreparedStatement psReq = connection.prepareStatement(requestQuery)) {
-            psReq.setInt(1, checkRequestId);
-
-            try (ResultSet rsReq = psReq.executeQuery()) {
-                if (rsReq.next()) {
-                    int warehouseId = rsReq.getInt("warehouse_id");
-                    
-                    Integer unitId = rsReq.getInt("unit_id");
-                    if (rsReq.wasNull()) { unitId = null; }
-                    
-                    String dueDate = rsReq.getString("task_due_date");
-                    int assignmentType = 2; // Loại 2: Check-out (Hoặc đổi lại theo quy định db của bạn)
-
-                    System.out.println("2. Tìm thấy Đơn xuất kho. Warehouse ID: " + warehouseId + ", Unit ID: " + unitId);
-
-                    int assignedTo = getOptimalStaffId(warehouseId);
-                    if (assignedTo == -1) {
-                        System.out.println("-> THẤT BẠI: Hủy quá trình do không tìm thấy nhân viên nào ở kho này.");
-                        return false;
-                    }
-
-                    String description = "Hỗ trợ khách hàng Xuất kho (Đơn #" + checkRequestId + ")";
-                    String insertAssignmentSQL = "INSERT INTO Staff_assignment " +
-                            "(assigned_date, assigned_to, warehouse_id, unit_id, assigned_by, " +
-                            "assignment_type, description, assigned_at, due_date, status, is_overdue) " +
-                            "VALUES (CURDATE(), ?, ?, ?, ?, ?, ?, NOW(), ?, 1, 0)";
-
-                    try (PreparedStatement psInsertAssignment = connection.prepareStatement(insertAssignmentSQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                        psInsertAssignment.setInt(1, assignedTo);
-                        psInsertAssignment.setInt(2, warehouseId);
-
-                        if (unitId != null) {
-                            psInsertAssignment.setInt(3, unitId);
-                        } else {
-                            psInsertAssignment.setNull(3, Types.INTEGER);
-                        }
-
-                        psInsertAssignment.setInt(4, systemAssignedBy);
-                        psInsertAssignment.setInt(5, assignmentType);
-                        psInsertAssignment.setString(6, description);
-                        psInsertAssignment.setString(7, dueDate);
-
-                        System.out.println("3. Đang tạo Task Xuất kho cho nhân viên...");
-                        int rowsAffected = psInsertAssignment.executeUpdate();
-
-                        if (rowsAffected > 0) {
-                            isTaskAssignedSuccessfully = true;
-                            try (ResultSet generatedKeys = psInsertAssignment.getGeneratedKeys()) {
-                                if (generatedKeys.next()) {
-                                    int newAssignmentId = generatedKeys.getInt(1);
-                                    System.out.println("4. Đã tạo Task ID: " + newAssignmentId + ". Đang copy mặt hàng xuất kho...");
-                                    
-                                    fillCheckOutAssignmentItems(newAssignmentId, checkRequestId);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    System.out.println("-> THẤT BẠI: Không tìm thấy Đơn Check-out ID " + checkRequestId);
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("-> LỖI SQL TẠO TASK CHECK-OUT: " + e.getMessage());
-            e.printStackTrace();
-        }
-        System.out.println("========== KẾT THÚC LUỒNG CHECK-OUT ==========");
-        return isTaskAssignedSuccessfully;
-    }
-
-    private void fillCheckOutAssignmentItems(int newAssignmentId, int checkRequestId) {
-        String itemQuery = "SELECT cri.item_id, i.item_name, cri.quantity " +
-                           "FROM check_request_item cri " +
-                           "JOIN Item i ON cri.item_id = i.item_id " +
-                           "WHERE cri.check_request_id = ?";
-
-        try (PreparedStatement psItems = connection.prepareStatement(itemQuery)) {
-            psItems.setInt(1, checkRequestId);
-
-            try (ResultSet rsItems = psItems.executeQuery()) {
-                String insertItemSQL = "INSERT INTO Staff_assignment_item " +
-                                       "(assignment_id, item_id, item_name, quantity, note) " +
-                                       "VALUES (?, ?, ?, ?, ?)";
-
-                try (PreparedStatement psInsertItem = connection.prepareStatement(insertItemSQL)) {
-                    int count = 0;
-                    while (rsItems.next()) {
-                        psInsertItem.setInt(1, newAssignmentId);
-                        psInsertItem.setInt(2, rsItems.getInt("item_id"));
-                        psInsertItem.setString(3, rsItems.getString("item_name"));
-                        psInsertItem.setInt(4, rsItems.getInt("quantity")); 
-                        psInsertItem.setString(5, "Yêu cầu xuất kho #" + checkRequestId);
-
-                        psInsertItem.addBatch();
-                        count++;
-                    }
-                    psInsertItem.executeBatch();
-                    System.out.println("   -> Thành công! Đã đẩy " + count + " loại mặt hàng vào lệnh Xuất kho.");
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Lỗi insert Items cho Check-out: " + e.getMessage());
             e.printStackTrace();
         }
     }
