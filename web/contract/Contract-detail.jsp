@@ -68,6 +68,7 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
 </head>
 
 <body>
+    <jsp:include page="/Common/Layout/header.jsp"/>
 
 <c:choose>
 <c:when test="${not empty contract}">
@@ -252,7 +253,7 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
     </h2>
     </c:otherwise>
     </c:choose>
-
+ <jsp:include page="/Common/Layout/footer.jsp"/>
 
 </body>
 </html>
