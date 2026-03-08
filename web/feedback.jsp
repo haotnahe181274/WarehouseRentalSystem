@@ -409,7 +409,14 @@
 
         <c:if test="${not canFeedback and not canReply}">
             <div class="warning-box">
-                You can only leave feedback if you have an active contract for this warehouse.
+                <c:choose>
+                    <c:when test="${empty sessionScope.user}">
+                        Please <a href="${pageContext.request.contextPath}/login">login</a> to leave feedback.
+                    </c:when>
+                    <c:otherwise>
+                        You can only leave feedback if you have an active and paid contract for this warehouse.
+                    </c:otherwise>
+                </c:choose>
             </div>
         </c:if>
 

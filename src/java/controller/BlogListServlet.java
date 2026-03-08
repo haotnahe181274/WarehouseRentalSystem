@@ -65,6 +65,8 @@ public class BlogListServlet extends HttpServlet {
         try {
             List<BlogPost> list = dao.getAllPosts();
             request.setAttribute("blogList", list);
+            request.setAttribute("pageTitle", "Blog Discussion");
+            request.setAttribute("canManage", false);
         } catch (Exception e) {
             e.printStackTrace();
         }

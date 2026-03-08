@@ -34,14 +34,13 @@ public class FeedbackServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+        UserView user = session != null ? (UserView) session.getAttribute("user") : null;
 
         String warehouseIdStr = request.getParameter("warehouseId");
         if (warehouseIdStr == null || warehouseIdStr.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/homepage");
+            if (request.getAttribute("jakarta.servlet.include.request_uri") == null) {
+                response.sendRedirect(request.getContextPath() + "/homepage");
+            }
             return;
         }
 
@@ -54,8 +53,6 @@ public class FeedbackServlet extends HttpServlet {
             request.setAttribute("warehouseId", warehouseId);
 
             // Check if user can feedback
-
-            UserView user = session != null ? (UserView) session.getAttribute("user") : null;
             boolean canFeedback = false;
 
             if (user != null && "RENTER".equalsIgnoreCase(user.getType())) {
@@ -80,10 +77,13 @@ public class FeedbackServlet extends HttpServlet {
             }
             request.setAttribute("canReply", canReply);
 
-            request.getRequestDispatcher("feedback.jsp").forward(request, response);
+            request.getRequestDispatcher("/feedback.jsp").include(request, response);
 
-        } catch (NumberFormatException e) {
-            response.sendRedirect(request.getContextPath() + "/homepage");
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (request.getAttribute("jakarta.servlet.include.request_uri") == null) {
+                response.sendRedirect(request.getContextPath() + "/homepage");
+            }
         }
     }
 
