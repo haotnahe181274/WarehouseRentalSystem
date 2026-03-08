@@ -6,6 +6,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.util.UUID;
 import model.ContractDetail;
 import model.UserView;
 
@@ -66,6 +67,10 @@ public class ContractDetailServlet extends HttpServlet {
             }
 
             request.setAttribute("role", "renter");
+            // Token một lần để tránh double-submit; mỗi lần xem trang là mã mới (VNPay cần TxnRef mới mỗi lần)
+            if (detail.getStatus() == 1) {
+                session.setAttribute("paymentToken_" + contractId, UUID.randomUUID().toString());
+            }
         }
         else {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);

@@ -209,9 +209,15 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
 </c:if>
 
 
+<c:if test="${param.paymentError == '1'}">
+    <p style="color: red; margin-bottom: 15px;">Có lỗi khi tạo giao dịch thanh toán. Vui lòng thử lại hoặc liên hệ hỗ trợ.</p>
+</c:if>
+<c:if test="${param.paymentError == '2'}">
+    <p style="color: orange; margin-bottom: 15px;">Phiên thanh toán đã dùng hoặc hết hạn. Vui lòng tải lại trang và bấm "Đồng ý hợp đồng" lại.</p>
+</c:if>
 <!-- ===== RENTER ===== -->
 <c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1}">
-<form action="contract-detail" method="post" style="display:inline;">
+<form action="${pageContext.request.contextPath}/payment" method="post" style="display:inline;" onsubmit="var b=this.querySelector('button[type=submit]');if(b){b.disabled=true;}">
     <input type="hidden" name="contractId"
            value="${contract.contractId}"/>
 
@@ -219,6 +225,13 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
             value="agree" class="btn agree">
         Đồng ý hợp đồng
     </button>
+</form>
+</c:if>
+
+<c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1}">
+<form action="contract-detail-demo" method="post" style="display:inline;">
+    <input type="hidden" name="contractId"
+           value="${contract.contractId}"/>
 
     <button type="submit" name="action"
             value="reject" class="btn reject">
