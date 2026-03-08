@@ -83,7 +83,7 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
 
             <c:when test="${contract.status == 0}">
                 <span class="status" style="background:#f39c12">
-                    Chờ Manager duyệt
+                    Thanh Toán Thành công
                 </span>
             </c:when>
 
@@ -120,25 +120,18 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
     <div class="box">
     <h3>BÊN CHO THUÊ (BÊN A)</h3>
 
-    <c:choose>
 
 
-        <c:when test="${contract.status >= 1}">
+
+
             <div class="info">
                 <p><b>Công ty:</b> Warehouse Rental System</p>
                 <p><b>Đại diện:</b> ${contract.managerName}</p>
                 <p><b>Email:</b> ${contract.managerEmail}</p>
                 <p><b>Điện thoại:</b> ${contract.managerPhone}</p>
             </div>
-        </c:when>
 
-        <c:otherwise>
-            <p style="color:#f39c12;">
-                Hợp đồng đang chờ Manager xác nhận
-            </p>
-        </c:otherwise>
 
-    </c:choose>
     </div>
 
 
@@ -190,7 +183,10 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
     <!-- ================= ACTION BUTTON ================= -->
     <!-- ================= ACTION BUTTON ================= -->
 <div class="actions">
-
+    <!-- Back to List -->
+<a href="${pageContext.request.contextPath}/contract">
+    <button class="btn pdf">← Back to List</button>
+</a>
 <!-- ===== MANAGER ===== -->
 <c:if test="${sessionScope.role eq 'Manager' and contract.status == 0}">
 <form action="contract-detail" method="post" style="display:inline;">
