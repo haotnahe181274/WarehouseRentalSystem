@@ -218,26 +218,32 @@ CREATE TABLE Payment (
 -- ==============================
 -- STAFF ASSIGNMENT
 -- ==============================
+-- ==============================
+-- STAFF ASSIGNMENT (UPDATED)
+-- ==============================
+DROP TABLE IF EXISTS Staff_assignment_item; 
+DROP TABLE IF EXISTS Staff_assignment;
+
 CREATE TABLE Staff_assignment (
     assignment_id INT AUTO_INCREMENT PRIMARY KEY,
-    assigned_date DATE,
     assigned_to INT,
     warehouse_id INT,
-    unit_id INT NULL, -- Đã thêm cột unit_id trực tiếp vào đây
+    unit_id INT NULL,
     assigned_by INT,
     assignment_type INT,
     description TEXT,
-    assigned_at DATETIME,
-    due_date DATETIME,
-    started_at DATETIME,
-    completed_at DATETIME,
+    started_date DATE,      -- Chỉ lưu ngày (YYYY-MM-DD), đã chuyển lên trên
+    due_date DATETIME,      -- Hạn chót hoàn thành
+    completed_at DATETIME,  -- Thời điểm thực tế hoàn tất
     status INT,
     is_overdue INT,
     FOREIGN KEY (assigned_to) REFERENCES Internal_user(internal_user_id),
     FOREIGN KEY (assigned_by) REFERENCES Internal_user(internal_user_id),
     FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id),
-    FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id) -- Khóa ngoại tới Storage_unit
+    FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id)
 );
+
+-- Bảng chi tiết item đi kèm công việc
 CREATE TABLE Staff_assignment_item (
     assignment_item_id INT AUTO_INCREMENT PRIMARY KEY,
     assignment_id INT,
@@ -736,19 +742,15 @@ VALUES
 (15000000, NOW(), 'BANK', 1, 7),
 (12000000, NOW(), 'BANK', 1, 8);
 
-INSERT INTO Staff_assignment
-(assigned_date, assigned_to, warehouse_id, unit_id, assigned_by, assignment_type,
- description, assigned_at, due_date, started_at, completed_at, status, is_overdue)
+INSERT INTO Staff_assignment 
+(assigned_to, warehouse_id, unit_id, assigned_by, assignment_type, 
+ description, due_date, started_date, completed_at, status, is_overdue)
 VALUES
--- Giao bởi manager01 (ID: 2) cho staff01 (ID: 3) tại Warehouse 1, Unit 1 (HN-A1)
-(CURDATE(), 3, 1, 1, 2, 1, 'Kiểm kê kho A (Ô nhỏ HN-A1)', NOW(), DATE_ADD(NOW(), INTERVAL 2 DAY), NOW(), NULL, 1, 0),
+-- Đang làm: Đã có started_date nhưng chưa có completed_at
+(3, 1, 1, 2, 1, 'Kiểm kê kho A (Ô nhỏ HN-A1)', DATE_ADD(NOW(), INTERVAL 2 DAY), NOW(), NULL, 1, 0),
 
--- Giao bởi manager02 (ID: 7) cho staff02 (ID: 4) tại Warehouse 2, Unit 2 (VP-A1)
-(CURDATE(), 4, 2, 2, 7, 2, 'Dọn kho B (Ô tiêu chuẩn VP-A1)', NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), NOW(), NOW(), 2, 0),
-
--- Giao bởi manager03 (ID: 8) cho staff03 (ID: 9) tại Warehouse 19, Unit 19 (HCM-A1)
-(CURDATE(), 9, 19, 19, 8, 1, 'Kiểm tra an ninh (Kho trung tâm HCM-A1)', NOW(), DATE_ADD(NOW(), INTERVAL 3 DAY), NULL, NULL, 1, 0);
-
+-- Đã xong: Có cả started_date và completed_at
+(4, 2, 2, 7, 2, 'Dọn kho B (Ô tiêu chuẩn VP-A1)', DATE_ADD(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY), NOW(), 2, 0);
 INSERT INTO Staff_assignment_item
 (assignment_id, item_id, item_name, quantity, note)
 VALUES
