@@ -61,13 +61,13 @@
                                     <th class="text-center py-3">Mã HĐ</th>
                                     <%-- Hiển thị cột Người Thuê nếu là Manager --%>
                                     <c:if test="${role == 'manager'}">
-                                        <th>Khách hàng</th>
+                                        <th>Renter</th>
                                     </c:if>
-                                    <th class="text-center">Ngày bắt đầu</th>
-                                    <th class="text-center">Ngày kết thúc</th>
-                                    <th class="text-end">Tổng giá trị</th>
-                                    <th class="text-center">Trạng thái</th>
-                                    <th class="text-center">Chi tiết</th>
+                                    <th class="text-center">Start Date</th>
+                                    <th class="text-center">End Date</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -99,22 +99,19 @@
 
                                         <td class="text-center">
                                             <c:choose>
-                                                <c:when test="${c.status == 1}">
-                                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill status-badge">
-                                                        proccess
-                                                    </span>
-                                                </c:when>
-                                                <c:when test="${c.status == 0}">
+
+                                                <c:when test="${c.paymentStatus == 1}">
                                                     <span class="badge bg-warning-subtle text-warning-emphasis border border-warning px-3 py-2 rounded-pill status-badge">
                                                         done
                                                     </span>
                                                 </c:when>
 
                                                 <c:otherwise>
-                                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary px-3 py-2 rounded-pill status-badge">
-                                                        Kết thúc
+                                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill status-badge">
+                                                        process
                                                     </span>
                                                 </c:otherwise>
+
                                             </c:choose>
                                         </td>
 
