@@ -22,6 +22,8 @@ public class ContractDetail {
     private String managerEmail;
     private String managerPhone;
     
+    private int paymentStatus;
+    
         // ===== GETTER & SETTER =====
     public int getRenterId() {
         return renterId;
@@ -135,5 +137,13 @@ public class ContractDetail {
         this.managerPhone = managerPhone;
     }
 
+    public int getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(int paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+    
     
 }
