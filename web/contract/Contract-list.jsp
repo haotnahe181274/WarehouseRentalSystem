@@ -21,7 +21,7 @@
 
     <div class="d-flex flex-grow-1">
 
-        <c:if test="${role != 'renter'}">
+        <c:if test="${sessionScope.userType ne 'RENTER'}">
             <jsp:include page="/Common/Layout/sidebar.jsp"/>
         </c:if>
 
@@ -56,7 +56,7 @@
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead class="table-dark">
+                            <thead class="table-white">
                                 <tr>
                                     <th class="text-center py-3">Mã HĐ</th>
                                     <%-- Hiển thị cột Người Thuê nếu là Manager --%>

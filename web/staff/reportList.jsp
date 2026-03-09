@@ -76,8 +76,8 @@
         }
 
         thead {
-            background-color:black;
-            color: #fff;
+            background-color:white;
+            color: black;
         }
 
         th, td {

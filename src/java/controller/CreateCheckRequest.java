@@ -164,14 +164,10 @@ public class CreateCheckRequest extends HttpServlet {
             
             // Lấy ID của người Renter đang tạo đơn để lưu vết người yêu cầu (hoặc bạn có thể dùng ID của 1 Admin hệ thống)
             int assignedBy = user.getId(); 
-            
-            if ("CHECK_OUT".equals(requestType)) {
-                // Gọi hàm tạo Task Xuất kho (mà bạn vừa viết ban nãy)
-                isTaskAssigned = assignmentDAO.createCheckOutTaskFromRequest(checkRequestId, assignedBy);
-            } else {
-                // (Tùy chọn) Nếu bạn muốn làm luôn luồng tự động nhập kho khi Renter bấm Check-in
-                isTaskAssigned = assignmentDAO.createCheckInTaskFromRequest(checkRequestId, assignedBy);
-            }
+                  
+
+// Hàm tự động nhận diện IN hay OUT từ trong Database
+         isTaskAssigned = assignmentDAO.createTaskFromCheckRequest(checkRequestId, assignedBy);
             
             // Thông báo kết quả cho Renter biết
             if (isTaskAssigned) {
