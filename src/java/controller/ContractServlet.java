@@ -50,4 +50,21 @@ public class ContractServlet extends HttpServlet {
         request.getRequestDispatcher("/contract/Contract-list.jsp")
                .forward(request, response);
     }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+    String action = request.getParameter("action");
+
+    if ("endEarly".equals(action)) {
+
+        int contractId = Integer.parseInt(request.getParameter("contractId"));
+
+        ContractDAO dao = new ContractDAO();
+        dao.endContractEarly(contractId);
+
+        response.sendRedirect(request.getContextPath() + "/contract");
+        return;
+    }
+}
 }

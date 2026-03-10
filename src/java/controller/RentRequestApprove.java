@@ -96,8 +96,8 @@ public class RentRequestApprove extends HttpServlet {
         // 2. Tạo Contract từ Request
         int contractId = contractDAO.insertContractFromRequest(requestId);
         
-        // 3. Gọi hệ thống tự động giao việc
-      
+        // 3. Insert vào Contract_Storage_unit
+        contractDAO.insertContractStorageUnit(contractId);
         
         // 5. Redirect sang trang chi tiết hợp đồng
         response.sendRedirect(request.getContextPath() + "/contract-detail?contractId=" + contractId);
