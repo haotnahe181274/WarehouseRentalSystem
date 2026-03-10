@@ -12,20 +12,26 @@ public class BlogPost {
     private int postId;
     private String title;
     private String content;
-    private int viewCount;
     private int categoryId;
     private String categoryName;
     private String createdAt;
 
+    // Extended fields for Discuss page
+    private int likeCount;
+    private int commentCount;
+    private String authorName;
+    private String authorImage;
+    private boolean isLikedByUser;
+    private String authorType;
+
     public BlogPost() {
     }
 
-    public BlogPost(int postId, String title, String content, int viewCount, int categoryId, String categoryName,
+    public BlogPost(int postId, String title, String content, int categoryId, String categoryName,
             String createdAt) {
         this.postId = postId;
         this.title = title;
         this.content = content;
-        this.viewCount = viewCount;
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.createdAt = createdAt;
@@ -55,14 +61,6 @@ public class BlogPost {
         this.content = content;
     }
 
-    public int getViewCount() {
-        return viewCount;
-    }
-
-    public void setViewCount(int viewCount) {
-        this.viewCount = viewCount;
-    }
-
     public String getCategoryName() {
         return categoryName;
     }
@@ -85,6 +83,54 @@ public class BlogPost {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    public String getAuthorImage() {
+        return authorImage;
+    }
+
+    public void setAuthorImage(String authorImage) {
+        this.authorImage = authorImage;
+    }
+
+    public boolean isIsLikedByUser() {
+        return isLikedByUser;
+    }
+
+    public void setIsLikedByUser(boolean isLikedByUser) {
+        this.isLikedByUser = isLikedByUser;
+    }
+
+    public String getAuthorType() {
+        return authorType;
+    }
+
+    public void setAuthorType(String authorType) {
+        this.authorType = authorType;
     }
 
 }

@@ -7,107 +7,69 @@
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>Blog Management - WareSpace</title>
             <%@ include file="/Common/Layout/header.jsp" %>
-                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
-                <style>
-                    .blog-container {
-                        max-width: 1200px;
-                        margin: 40px auto;
-                        padding: 20px;
-                    }
-
-                    .blog-table {
-                        width: 100%;
-                        background: #fff;
-                        border-radius: 8px;
-                        overflow: hidden;
-                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                        border-collapse: collapse;
-                    }
-
-                    .blog-table th,
-                    .blog-table td {
-                        padding: 15px;
-                        text-align: left;
-                        border-bottom: 1px solid #eee;
-                    }
-
-                    .blog-table th {
-                        background-color: #f8f9fa;
-                        font-weight: 600;
-                        color: #2c3e50;
-                    }
-
-                    .action-btns {
-                        display: flex;
-                        gap: 10px;
-                    }
-
-                    .btn-create {
-                        margin-bottom: 20px;
-                    }
-                </style>
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/blog-fb.css">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         </head>
 
-        <body style="background-color: #f8f9fa;">
-            <div class="blog-container">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1>${pageTitle != null ? pageTitle : "Blog Management"}</h1>
+        <body style="background-color: #f0f2f5;">
+            <div style="max-width: 680px; margin: 40px auto; padding: 0 16px;">
+                <!-- Header Card -->
+                <div class="post-card" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-weight: 700; color: var(--fb-text);">
+                        <i class="fas fa-newspaper"></i> ${pageTitle != null ? pageTitle : "My Posts"}
+                    </h3>
                     <c:if test="${canManage}">
-                        <a href="blog-crud?action=create" class="btn btn-primary btn-create">
-                            <i class="fas fa-plus"></i> Create New Blog
+                        <a href="blog-crud?action=create" class="btn-post"
+                            style="width: auto; padding: 8px 20px; font-size: 14px;">
+                            <i class="fas fa-plus"></i> New Post
                         </a>
                     </c:if>
                 </div>
 
                 <c:if test="${empty blogList}">
-                    <div class="alert alert-info text-center">No blog posts available at the moment.</div>
+                    <div class="post-card" style="text-align: center; color: var(--fb-secondary-text); padding: 40px;">
+                        <i class="far fa-newspaper" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                        <p style="margin: 0;">No blog posts available at the moment.</p>
+                    </div>
                 </c:if>
 
-                <c:if test="${not empty blogList}">
-                    <table class="blog-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 50px;">ID</th>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Views</th>
-                                <th>Published Date</th>
-                                <th style="width: 200px;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach items="${blogList}" var="post">
-                                <tr>
-                                    <td>${post.postId}</td>
-                                    <td><strong>${post.title}</strong></td>
-                                    <td><span class="badge bg-secondary">${post.categoryName}</span></td>
-                                    <td>${post.viewCount}</td>
-                                    <td class="text-muted">${post.createdAt}</td>
-                                    <td>
-                                        <div class="action-btns">
-                                            <a href="blog-crud?action=view&id=${post.postId}"
-                                                class="btn btn-sm btn-outline-primary" title="View">
-                                                View
-                                            </a>
-                                            <c:if test="${canManage}">
-                                                <a href="blog-crud?action=edit&id=${post.postId}"
-                                                    class="btn btn-sm btn-outline-secondary" title="Edit">
-                                                    Edit
-                                                </a>
-                                                <a href="blog-crud?action=delete&id=${post.postId}"
-                                                    class="btn btn-sm btn-outline-danger" title="Delete"
-                                                    onclick="return confirm('Are you sure you want to delete this post?')">
-                                                    Delete
-                                                </a>
-                                            </c:if>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </c:if>
+                <c:forEach items="${blogList}" var="post">
+                    <div class="post-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <h4 style="margin: 0 0 6px 0; font-weight: 600; color: var(--fb-text);">${post.title}
+                                </h4>
+                                <div style="font-size: 13px; color: var(--fb-secondary-text);">
+                                    <span class="badge"
+                                        style="background: #e7f3ff; color: var(--fb-accent); padding: 3px 10px; border-radius: 12px; font-weight: 500;">${post.categoryName}</span>
+                                    &bull; ${post.createdAt}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--fb-hover);">
+                            <a href="blog-crud?action=view&id=${post.postId}"
+                                style="flex: 1; text-align: center; padding: 8px; border-radius: 6px; background: var(--fb-bg); color: var(--fb-accent); text-decoration: none; font-weight: 600; font-size: 14px; transition: background 0.2s;">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <c:if test="${canManage}">
+                                <a href="blog-crud?action=edit&id=${post.postId}"
+                                    style="flex: 1; text-align: center; padding: 8px; border-radius: 6px; background: var(--fb-bg); color: var(--fb-secondary-text); text-decoration: none; font-weight: 600; font-size: 14px; transition: background 0.2s;">
+                                    <i class="fas fa-pen"></i> Edit
+                                </a>
+                                <a href="blog-crud?action=delete&id=${post.postId}"
+                                    onclick="return confirm('Are you sure you want to delete this post?')"
+                                    style="flex: 1; text-align: center; padding: 8px; border-radius: 6px; background: #ffebee; color: #d32f2f; text-decoration: none; font-weight: 600; font-size: 14px; transition: background 0.2s;">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </c:if>
+                        </div>
+                    </div>
+                </c:forEach>
             </div>
+
+            <jsp:include page="/Common/Layout/footer.jsp" />
         </body>
 
         </html>

@@ -10,10 +10,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import model.BlogPost;
+import model.UserView;
 
 /**
  *
@@ -61,12 +63,20 @@ public class BlogListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        UserView user = (UserView) session.getAttribute("user");
+
+        if (user == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
         BlogDAO dao = new BlogDAO();
         try {
-            List<BlogPost> list = dao.getAllPosts();
+            List<BlogPost> list = dao.getPostsByUser(user.getId(), user.getType());
             request.setAttribute("blogList", list);
-            request.setAttribute("pageTitle", "Blog Discussion");
-            request.setAttribute("canManage", false);
+            request.setAttribute("pageTitle", "My Blog Posts");
+            request.setAttribute("canManage", true);
         } catch (Exception e) {
             e.printStackTrace();
         }

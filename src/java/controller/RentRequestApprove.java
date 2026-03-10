@@ -109,6 +109,9 @@ public class RentRequestApprove extends HttpServlet {
     noti.setRenterId(ren.getRenter().getRenterId());
 new NotificationDAO().insertNotification(noti);
         
+        // 3. Insert vào Contract_Storage_unit
+        contractDAO.insertContractStorageUnit(contractId);
+        
         // 5. Redirect sang trang chi tiết hợp đồng
         response.sendRedirect(request.getContextPath() + "/contract-detail?contractId=" + contractId);
     }

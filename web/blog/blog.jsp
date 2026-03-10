@@ -7,92 +7,67 @@
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>${post != null ? 'Edit Blog' : 'Create Blog'} - WareSpace</title>
             <%@ include file="/Common/Layout/header.jsp" %>
-                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
-                <style>
-                    .form-container {
-                        max-width: 700px;
-                        margin: 40px auto;
-                        padding: 30px;
-                        background: #fff;
-                        border-radius: 8px;
-                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                    }
-
-                    .form-group {
-                        margin-bottom: 20px;
-                    }
-
-                    .form-group label {
-                        display: block;
-                        margin-bottom: 8px;
-                        font-weight: 600;
-                        color: #2c3e50;
-                    }
-
-                    .form-control {
-                        width: 100%;
-                        padding: 10px;
-                        border: 1px solid var(--border-color);
-                        border-radius: 4px;
-                        font-size: 1rem;
-                    }
-
-                    .form-control:focus {
-                        outline: none;
-                        border-color: var(--primary-color);
-                        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
-                    }
-
-                    textarea.form-control {
-                        min-height: 200px;
-                        resize: vertical;
-                    }
-
-                    .btn-submit {
-                        width: 100%;
-                        margin-top: 20px;
-                    }
-                </style>
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/blog-fb.css">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         </head>
 
-        <body style="background-color: #f8f9fa;">
-            <div class="form-container">
-                <h2 class="mb-4">${post != null ? 'Edit' : 'Create'} Blog Post</h2>
-                <form action="blog-crud" method="post">
-                    <input type="hidden" name="id" value="${post.postId}">
-                    <input type="hidden" name="action" value="${post != null ? 'update' : 'create'}">
-
-                    <div class="form-group">
-                        <label for="title">Title</label>
-                        <input type="text" id="title" name="title" class="form-control" value="${post.title}" required
-                            placeholder="Enter blog title">
+        <body style="background-color: #f0f2f5;">
+            <div style="max-width: 680px; margin: 40px auto; padding: 0 16px;">
+                <!-- Post Card -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <img src="${pageContext.request.contextPath}/resources/user/image/${sessionScope.user.image != null ? sessionScope.user.image : 'default.jpg'}"
+                            class="author-img" alt="Author">
+                        <div class="author-info">
+                            <span class="author-name">${sessionScope.user.fullName}</span>
+                            <span class="post-meta">${post != null ? 'Editing Post' : 'Creating New Post'}</span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="categoryId">Category</label>
-                        <select id="categoryId" name="categoryId" class="form-control" required>
-                            <option value="" disabled selected>Select a category</option>
-                            <c:forEach items="${categories}" var="cat">
-                                <option value="${cat.categoryId}" ${post.categoryId==cat.categoryId ? 'selected' : '' }>
-                                    ${cat.categoryName}
-                                </option>
-                            </c:forEach>
-                        </select>
-                    </div>
+                    <form action="blog-crud" method="post">
+                        <input type="hidden" name="id" value="${post.postId}">
+                        <input type="hidden" name="action" value="${post != null ? 'update' : 'create'}">
 
-                    <div class="form-group">
-                        <label for="content">Content</label>
-                        <textarea id="content" name="content" class="form-control" required
-                            placeholder="Write your blog content here...">${post.content}</textarea>
-                    </div>
+                        <!-- Title -->
+                        <div style="margin-bottom: 12px;">
+                            <input type="text" name="title" value="${post.title}" required
+                                placeholder="Put a title here..." class="modal-title-input">
+                        </div>
 
-                    <button type="submit" class="btn btn-primary btn-submit">
-                        ${post != null ? 'Update Post' : 'Create Post'}
-                    </button>
-                    <a href="blog" class="btn btn-outline-secondary btn-submit"
-                        style="display: block; text-align: center; margin-top: 10px;">Cancel</a>
-                </form>
+                        <!-- Category -->
+                        <div style="margin-bottom: 12px;">
+                            <select name="categoryId" required class="category-select"
+                                style="width: 100%; padding: 8px 12px; font-size: 14px;">
+                                <option value="" disabled selected>Select a category</option>
+                                <c:forEach items="${categories}" var="cat">
+                                    <option value="${cat.categoryId}" ${post.categoryId==cat.categoryId ? 'selected'
+                                        : '' }>
+                                        ${cat.categoryName}
+                                    </option>
+                                </c:forEach>
+                            </select>
+                        </div>
+
+                        <!-- Content -->
+                        <div style="margin-bottom: 16px;">
+                            <textarea name="content" required
+                                placeholder="What's on your mind, ${sessionScope.user.fullName}?" class="modal-textarea"
+                                style="min-height: 200px;">${post.content}</textarea>
+                        </div>
+
+                        <button type="submit" class="btn-post">
+                            <i class="fas ${post != null ? 'fa-save' : 'fa-paper-plane'}"></i>
+                            ${post != null ? 'Update Post' : 'Create Post'}
+                        </button>
+                        <a href="blog" class="btn-post"
+                            style="display: block; text-align: center; margin-top: 10px; background: #e4e6eb; color: #050505; text-decoration: none;">
+                            Cancel
+                        </a>
+                    </form>
+                </div>
             </div>
+
+            <jsp:include page="/Common/Layout/footer.jsp" />
         </body>
 
         </html>
