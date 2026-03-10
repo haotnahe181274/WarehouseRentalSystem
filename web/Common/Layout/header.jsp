@@ -14,12 +14,12 @@
                         <a class="app-header__menu-link" href="${pageContext.request.contextPath}/homepage">Homepage</a>
                     </li>
                     <li class="app-header__menu-item">
-                        <a class="app-header__menu-link" href="${pageContext.request.contextPath}/blog">Discussion</a>
+                        <a class="app-header__menu-link" href="${pageContext.request.contextPath}/discuss">Discuss</a>
                     </li>
                     <c:if test="${not empty sessionScope.user}">
                         <li class="app-header__menu-item">
-                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/my-posts">My
-                                Posts</a>
+                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/blog">My
+                                Blog</a>
                         </li>
                     </c:if>
                     <c:if test="${sessionScope.userType == 'RENTER'}">
@@ -95,7 +95,8 @@
                                                 </div>
                                                 <div class="app-header__noti-content">
                                                     <p class="app-header__noti-text">Your rent request for
-                                                        <strong>SU-01</strong> has been approved.</p>
+                                                        <strong>SU-01</strong> has been approved.
+                                                    </p>
                                                     <span class="app-header__noti-time">2 mins ago</span>
                                                 </div>
                                             </a>
@@ -108,7 +109,8 @@
                                                 </div>
                                                 <div class="app-header__noti-content">
                                                     <p class="app-header__noti-text">Maintenance scheduled for
-                                                        <strong>Warehouse A</strong> tomorrow.</p>
+                                                        <strong>Warehouse A</strong> tomorrow.
+                                                    </p>
                                                     <span class="app-header__noti-time">1 hour ago</span>
                                                 </div>
                                             </a>

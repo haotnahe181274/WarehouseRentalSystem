@@ -327,7 +327,7 @@ CREATE TABLE Blog_Post (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     status INT DEFAULT 1,
-    view_count INT DEFAULT 0,
+    
     created_at DATETIME DEFAULT NOW(),
     updated_at DATETIME,
 
@@ -348,7 +348,7 @@ CREATE TABLE Blog_Comment (
     content TEXT NOT NULL,
     status INT DEFAULT 1,
     created_at DATETIME DEFAULT NOW(),
-    updated_at DATETIME,
+    
 
     post_id INT NOT NULL,
     parent_comment_id INT,
@@ -382,70 +382,7 @@ CREATE TABLE Blog_Like (
     UNIQUE(target_type, target_id, internal_user_id)
 );
 
--- =========================
--- BLOG TAG
--- =========================
-CREATE TABLE Blog_Tag (
-    tag_id INT AUTO_INCREMENT PRIMARY KEY,
-    tag_name VARCHAR(50) NOT NULL UNIQUE
-);
 
--- =========================
--- BLOG POST TAG
--- =========================
-CREATE TABLE Blog_Post_Tag (
-    post_id INT NOT NULL,
-    tag_id INT NOT NULL,
-
-    PRIMARY KEY (post_id, tag_id),
-
-    FOREIGN KEY (post_id) REFERENCES Blog_Post(post_id),
-    FOREIGN KEY (tag_id) REFERENCES Blog_Tag(tag_id)
-);
-
--- =========================
--- BLOG BOOKMARK
--- =========================
-CREATE TABLE Blog_Bookmark (
-    bookmark_id INT AUTO_INCREMENT PRIMARY KEY,
-
-    post_id INT NOT NULL,
-    renter_id INT,
-    internal_user_id INT,
-
-    created_at DATETIME DEFAULT NOW(),
-
-    FOREIGN KEY (post_id) REFERENCES Blog_Post(post_id),
-    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id),
-
-    UNIQUE(post_id, renter_id),
-    UNIQUE(post_id, internal_user_id)
-);
-
--- =========================
--- BLOG REPORT
--- =========================
-CREATE TABLE Blog_Report (
-    report_id INT AUTO_INCREMENT PRIMARY KEY,
-
-    target_type VARCHAR(10) NOT NULL,
-    target_id INT NOT NULL,
-
-    reason TEXT NOT NULL,
-    status INT DEFAULT 0,
-
-    created_at DATETIME DEFAULT NOW(),
-    resolved_at DATETIME,
-
-    renter_id INT,
-    internal_user_id INT,
-    resolved_by INT,
-
-    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
-    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id),
-    FOREIGN KEY (resolved_by) REFERENCES Internal_user(internal_user_id)
-);
 
 -- =========================
 -- INDEX FOR PERFORMANCE
@@ -459,8 +396,7 @@ ON Blog_Comment(post_id);
 CREATE INDEX idx_like_target
 ON Blog_Like(target_type, target_id);
 
-CREATE INDEX idx_bookmark_post
-ON Blog_Bookmark(post_id);
+
 -- ==============================
 -- INSERT DATA
 -- ==============================
@@ -871,50 +807,33 @@ INSERT INTO Blog_Category (category_name, description) VALUES
 -- 2. BLOG POSTS
 -- giả sử renter_id = 1 đã tồn tại trong bảng Renter
 
-INSERT INTO Blog_Post (title, content, category_id, renter_id, view_count) VALUES
+INSERT INTO Blog_Post (title, content, category_id, renter_id) VALUES
 ('5 Tips to Manage Warehouse Efficiently',
 'Managing a warehouse efficiently requires proper layout, good inventory control, and trained staff.',
-1, 1, 23),
+1, 1),
 
 ('How Logistics is Changing in 2025',
 'Logistics industry is evolving rapidly with automation and AI technologies.',
-2, 1, 15),
+2, 1),
 
 ('Starting a Warehouse Rental Business',
 'Warehouse rental business is growing due to the demand for storage space.',
-3, 1, 9),
+3, 1),
 
 ('Technology in Modern Warehouses',
 'Modern warehouses use robotics, IoT devices, and automated systems.',
-4, 1, 31),
+4, 1),
 
 ('Best Practices for Inventory Management',
 'Inventory management is crucial to avoid overstocking and shortages.',
-1, 1, 18),
+1, 1),
 
 ('Future of Supply Chain',
 'Supply chains are becoming smarter with data-driven decision making.',
-2, 1, 12);
+2, 1);
 
 
--- 3. BLOG TAG
-INSERT INTO Blog_Tag (tag_name) VALUES
-('warehouse'),
-('logistics'),
-('business'),
-('technology'),
-('inventory');
 
-
--- 4. BLOG POST TAG
-INSERT INTO Blog_Post_Tag (post_id, tag_id) VALUES
-(1,1),
-(1,5),
-(2,2),
-(3,3),
-(4,4),
-(5,5),
-(6,2);
 
 
 -- 5. BLOG COMMENTS
@@ -933,7 +852,3 @@ INSERT INTO Blog_Like (target_type, target_id, renter_id) VALUES
 ('comment', 1, 1);
 
 
--- 7. BLOG BOOKMARK
-INSERT INTO Blog_Bookmark (post_id, renter_id) VALUES
-(1,1),
-(4,1);

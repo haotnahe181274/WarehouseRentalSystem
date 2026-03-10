@@ -73,7 +73,6 @@ public class BlogServlet extends HttpServlet {
                 break;
             case "view":
                 int viewId = Integer.parseInt(request.getParameter("id"));
-                dao.incrementViewCount(viewId);
                 BlogPost viewPost = dao.getPostById(viewId);
                 request.setAttribute("post", viewPost);
                 request.getRequestDispatcher("blog/blog-view.jsp").forward(request, response);

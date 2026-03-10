@@ -2,10 +2,13 @@ package dao;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import model.Feedback;
 import model.Renter;
+import model.Contract;
+import model.Warehouse;
 
 public class FeedbackDAO extends DBContext {
 
@@ -27,14 +30,12 @@ public class FeedbackDAO extends DBContext {
 
     public List<Feedback> getFeedbackByWarehouseId(int warehouseId) {
         List<Feedback> list = new ArrayList<>();
-        String sql = """
-                SELECT f.*, r.user_name, r.full_name, r.image
-                FROM Feedback f
-                JOIN Contract c ON f.contract_id = c.contract_id
-                JOIN Renter r ON f.renter_id = r.renter_id
-                WHERE c.warehouse_id = ?
-                ORDER BY f.feedback_date DESC
-                """;
+        String sql = "SELECT f.*, r.user_name, r.full_name, r.image "
+                + "FROM Feedback f "
+                + "JOIN Contract c ON f.contract_id = c.contract_id "
+                + "JOIN Renter r ON f.renter_id = r.renter_id "
+                + "WHERE c.warehouse_id = ? "
+                + "ORDER BY f.feedback_date DESC";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, warehouseId);
@@ -52,11 +53,9 @@ public class FeedbackDAO extends DBContext {
                 r.setUsername(rs.getString("user_name"));
                 r.setFullName(rs.getString("full_name"));
                 r.setImage(rs.getString("image"));
-
                 f.setRenter(r);
 
-                
-                model.Contract c = new model.Contract();
+                Contract c = new Contract();
                 c.setContractId(rs.getInt("contract_id"));
                 f.setContract(c);
 
@@ -70,15 +69,13 @@ public class FeedbackDAO extends DBContext {
 
     public List<Feedback> getAllFeedback() {
         List<Feedback> list = new ArrayList<>();
-        String sql = """
-                SELECT f.*, r.user_name, r.full_name, r.image,
-                       c.warehouse_id, w.name as warehouse_name
-                FROM Feedback f
-                JOIN Contract c ON f.contract_id = c.contract_id
-                JOIN Renter r ON f.renter_id = r.renter_id
-                JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
-                ORDER BY f.feedback_date DESC
-                """;
+        String sql = "SELECT f.*, r.user_name, r.full_name, r.image, "
+                + "c.warehouse_id, w.name as warehouse_name "
+                + "FROM Feedback f "
+                + "JOIN Contract c ON f.contract_id = c.contract_id "
+                + "JOIN Renter r ON f.renter_id = r.renter_id "
+                + "JOIN Warehouse w ON c.warehouse_id = w.warehouse_id "
+                + "ORDER BY f.feedback_date DESC";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
@@ -97,9 +94,9 @@ public class FeedbackDAO extends DBContext {
                 r.setImage(rs.getString("image"));
                 f.setRenter(r);
 
-                model.Contract c = new model.Contract();
+                Contract c = new Contract();
                 c.setContractId(rs.getInt("contract_id"));
-                model.Warehouse w = new model.Warehouse();
+                Warehouse w = new Warehouse();
                 w.setWarehouseId(rs.getInt("warehouse_id"));
                 w.setName(rs.getString("warehouse_name"));
                 c.setWarehouse(w);
@@ -111,5 +108,20 @@ public class FeedbackDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public boolean hasFeedbackBeenGiven(int contractId) {
+        String sql = "SELECT COUNT(*) FROM Feedback WHERE contract_id = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, contractId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
