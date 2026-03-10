@@ -796,6 +796,20 @@ CREATE TABLE Blog_Report (
 );
 
 
+CREATE TABLE Notification (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255),
+    message TEXT NOT NULL,
+    type VARCHAR(50) DEFAULT 'INFO', -- 'INFO' (primary), 'WARNING' (warning), 'SUCCESS' (success)
+    link_url VARCHAR(255), -- Link để click vào thông báo (vd: /rentRequestDetail?id=1)
+    is_read BOOLEAN DEFAULT 0,
+    created_at DATETIME DEFAULT NOW(),
+    renter_id INT NULL,
+    internal_user_id INT NULL,
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
+);
+
 
 -- =========================
 
@@ -1362,6 +1376,8 @@ VALUES
 ('Water Leak', 'Rò rỉ nước', NOW(), 2, 2, 4),
 
 ('Power Outage', 'Mất điện', NOW(), 3, 3, 2);
+
+
 
 
 

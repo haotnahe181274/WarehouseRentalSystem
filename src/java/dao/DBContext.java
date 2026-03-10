@@ -16,7 +16,7 @@ public class DBContext {
 
     public DBContext() {
         try {
-            String url = "jdbc:mysql://localhost:3306/wrs?useSSL=false&serverTimezone=UTC";
+            String url = "jdbc:mysql://localhost:3306/wrs?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=UTF-8";
             String user = "root";
             String password = "123456";
             Class.forName("com.mysql.cj.jdbc.Driver"); // Thêm dòng này để nạp Driver
