@@ -413,6 +413,9 @@
                     <c:when test="${empty sessionScope.user}">
                         Please <a href="${pageContext.request.contextPath}/login">login</a> to leave feedback.
                     </c:when>
+                    <c:when test="${hasAlreadyFeedback}">
+                        You have already submitted feedback for this contract.
+                    </c:when>
                     <c:otherwise>
                         You can only leave feedback if you have an active and paid contract for this warehouse.
                     </c:otherwise>

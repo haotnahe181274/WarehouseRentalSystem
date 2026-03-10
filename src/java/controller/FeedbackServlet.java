@@ -59,7 +59,8 @@ public class FeedbackServlet extends HttpServlet {
                 ContractDAO contractDAO = new ContractDAO();
                 int contractId = contractDAO.getValidContractId(user.getId(), warehouseId);
                 if (contractId != -1) {
-                    canFeedback = true;
+                    canFeedback = !feedbackDAO.hasFeedbackBeenGiven(contractId);
+                    request.setAttribute("hasAlreadyFeedback", !canFeedback);
                 }
             }
             request.setAttribute("canFeedback", canFeedback);
@@ -144,7 +145,11 @@ public class FeedbackServlet extends HttpServlet {
                 feedback.setContract(contract);
 
                 FeedbackDAO feedbackDAO = new FeedbackDAO();
-
+                if (feedbackDAO.hasFeedbackBeenGiven(contractId)) {
+                    request.setAttribute("error", "You have already submitted feedback for this contract.");
+                    doGet(request, response);
+                    return;
+                }
                 feedbackDAO.insertFeedback(feedback);
 
                 // Redirect to avoid resubmission and show updated list

@@ -6,7 +6,7 @@
         <head>
             <meta charset="UTF-8">
             <title>Profile</title>
-            
+
             <style>
                 /* Custom Reset/Utilities */
                 * {
@@ -170,7 +170,9 @@
             <jsp:include page="/Common/Layout/header.jsp" />
 
             <div class="layout">
-                <jsp:include page="/Common/Layout/sidebar.jsp" />
+                <c:if test="${sessionScope.userType == 'INTERNAL'}">
+                    <jsp:include page="/Common/Layout/sidebar.jsp" />
+                </c:if>
 
                 <div class="main-content">
                     <h2 class="mb-4" style="font-weight: 600; color: #111827;">Account Settings</h2>
