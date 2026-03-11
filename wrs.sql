@@ -574,9 +574,6 @@ CREATE TABLE Blog_Category (
     description TEXT,
 
     status INT DEFAULT 1,
-<<<<<<< HEAD
-    
-=======
 
     created_at DATETIME DEFAULT NOW()
 
