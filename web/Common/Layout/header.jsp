@@ -18,7 +18,7 @@
                     </li>
                     <c:if test="${not empty sessionScope.user}">
                         <li class="app-header__menu-item">
-                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/post">My
+                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/blog">My
                                 Posts</a>
                         </li>
                     </c:if>
