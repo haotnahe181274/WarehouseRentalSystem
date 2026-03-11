@@ -14,11 +14,11 @@
                         <a class="app-header__menu-link" href="${pageContext.request.contextPath}/homepage">Homepage</a>
                     </li>
                     <li class="app-header__menu-item">
-                        <a class="app-header__menu-link" href="${pageContext.request.contextPath}/blog">Discussion</a>
+                        <a class="app-header__menu-link" href="${pageContext.request.contextPath}/discuss">Discussion</a>
                     </li>
                     <c:if test="${not empty sessionScope.user}">
                         <li class="app-header__menu-item">
-                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/my-posts">My
+                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/post">My
                                 Posts</a>
                         </li>
                     </c:if>
