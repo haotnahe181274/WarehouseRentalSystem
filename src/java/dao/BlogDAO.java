@@ -4,13 +4,10 @@
  */
 package dao;
 
-import java.sql.PreparedStatement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.BlogPost;
-import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
 import model.UserView;
 
 /**
@@ -429,6 +426,42 @@ public class BlogDAO extends DBContext {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void addCategory(String name) {
+        String sql = "INSERT INTO Blog_Category (category_name) VALUES (?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateCategory(int id, String name) {
+        String sql = "UPDATE Blog_Category SET category_name = ? WHERE category_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean deleteCategory(int id) {
+        String sql = "DELETE FROM Blog_Category WHERE category_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            int affected = ps.executeUpdate();
+            return affected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

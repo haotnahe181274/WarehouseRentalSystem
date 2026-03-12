@@ -219,8 +219,8 @@
                                                 <div class="comment-text">\${c.content}</div>
                                             </div>
                                             <div class="comment-actions">
-                                                <span class="reply-btn" onclick="toggleReplyForm(\${c.commentId}, \${postId})">Reply</span>
                                                 <span>\${c.createdAt}</span>
+                                                <span class="reply-btn" onclick="toggleReplyForm(\${c.commentId}, \${postId})">Reply</span>
                                             </div>
                                             <div id="reply-form-\${c.commentId}" class="reply-form mt-2" style="display:none; margin-left: 12px;">
                                                 <div class="input-group input-group-sm">
@@ -235,13 +235,19 @@
                                                     const rImgName = (r.userImage && r.userImage !== 'null' && r.userImage !== '') ? r.userImage : 'default.jpg';
                                                     const rImgPath = '${pageContext.request.contextPath}/resources/user/image/' + rImgName;
                                                     return `
-                                    < div class="comment-item" >
+                                    <div class="comment-item">
                                         <img src="\${rImgPath}" alt="User" class="author-img" style="width:24px; height:24px;">
+                                        <div class="comment-body-wrapper">
                                             <div class="comment-bubble">
                                                 <div class="comment-author" style="font-size:12px;">\${r.userName}</div>
                                                 <div class="comment-text" style="font-size:13px;">\${r.content}</div>
                                             </div>
+                                            <div class="comment-actions" style="margin-left: 0; font-size: 11px;">
+                                                <span>\${r.createdAt}</span>
+                                                <span class="reply-btn" style="margin-left: 8px;" onclick="toggleReplyForm(\${c.commentId}, \${postId})">Reply</span>
+                                            </div>
                                         </div>
+                                    </div>
                                 `;
                                                 }).join('')}
                                             </div>
