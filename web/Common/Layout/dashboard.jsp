@@ -26,15 +26,14 @@
             }
             
             /* Cố định Sidebar bên trái */
-            /* Lưu ý: Nếu thẻ bao ngoài cùng trong sidebar.jsp không phải class này, hãy đảm bảo CSS này áp dụng cho phần tử gốc của sidebar */
             .wrapper > :first-child { 
-                width: 260px; /* Điều chỉnh lại theo chiều rộng thực tế của sidebar */
+                width: 260px; 
                 min-width: 260px;
                 height: 100vh;
                 position: sticky;
                 top: 0;
                 z-index: 1020;
-                background-color: #0b0f19; /* Giữ màu nền sidebar như trong hình */
+                background-color: #0b0f19; 
             }
 
             /* Main panel chứa Header và Content */
@@ -50,8 +49,8 @@
                 position: sticky;
                 top: 0;
                 z-index: 1010;
-                background-color: #ffffff; /* Giữ màu nền header để che content khi cuộn */
-                box-shadow: 0 2px 4px rgba(0,0,0,0.02); /* Thêm bóng đổ nhẹ cho header phân cách */
+                background-color: #ffffff; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
             }
 
             .main-content { padding: 24px; flex: 1; }
@@ -68,11 +67,11 @@
     </head>
     <body>
         <div class="wrapper">
-                  <jsp:include page="/Common/Layout/header.jsp" />
             <jsp:include page="/Common/Layout/sidebar.jsp" />
 
             <div class="main-panel">
-          
+                
+                <jsp:include page="/Common/Layout/header.jsp" />
 
                 <div class="main-content">
                     <h2 class="mb-4 fw-bold">Dashboard</h2>
