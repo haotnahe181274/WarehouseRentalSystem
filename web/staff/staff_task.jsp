@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <title>Staff Task Board</title>
 
-```
+
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/Staff-tasks.css">
 
 <style>
@@ -100,13 +100,13 @@
     }
 
 </style>
-```
+
 
 </head>
 
 <body>
 
-```
+
 <!-- HEADER -->
 <jsp:include page="/Common/Layout/header.jsp"/>
 
@@ -187,11 +187,8 @@
                             </td>
 
                             <td>
-                                <a 
-                                    href="staffCheck?assignmentId=${t.assignmentId}" 
-                                    class="btn"
-                                >
-                                    Process
+                                <a href="${pageContext.request.contextPath}/staffCheck?assignmentId=${t.assignmentId}">
+                                    Check
                                 </a>
                             </td>
 

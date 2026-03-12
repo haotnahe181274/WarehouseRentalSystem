@@ -1,65 +1,92 @@
 package controller;
 
-import dao.StaffCheckDAO;
+import dao.StaffTaskDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
 import java.io.IOException;
 import java.util.List;
-import model.UnitContractView;
+import model.CheckRequest;
+import model.CheckRequestItem;
+import model.UserView;
 
 @WebServlet("/staffCheck")
 public class StaffCheckServlet extends HttpServlet {
 
+    // ==============================
+    // LOAD PAGE
+    // ==============================
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        HttpSession session = request.getSession();
+        UserView staff = (UserView) session.getAttribute("user");
+
+        if (staff == null) {
+            response.sendRedirect("login");
             return;
         }
 
-        String csuIdRaw = request.getParameter("csuId");
-        if (csuIdRaw == null) {
-            response.sendRedirect(request.getContextPath() + "/staffTask");
-            return;
-        }
+        int assignmentId = Integer.parseInt(request.getParameter("assignmentId"));
 
-        int csuId = Integer.parseInt(csuIdRaw);
+        StaffTaskDAO dao = new StaffTaskDAO();
 
-        StaffCheckDAO dao = new StaffCheckDAO();
-        List<UnitContractView> detail =
-                dao.getUnitContractDetailNoNewTable(csuId);
+        int requestId = dao.getRequestIdByAssignment(assignmentId);
 
-        request.setAttribute("detail", detail);
-        request.getRequestDispatcher("/staff_check.jsp")
-               .forward(request, response);
+        CheckRequest checkRequest = dao.getCheckRequestById(requestId);
+
+        request.setAttribute("checkRequest", checkRequest);
+        request.setAttribute("assignmentId", assignmentId);
+
+        request.getRequestDispatcher("/staff/staff_check.jsp").forward(request, response);
     }
 
+    // ==============================
+    // SUBMIT CHECK
+    // ==============================
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
 
-        String csuIdRaw = request.getParameter("csuId");
-        String action = request.getParameter("action");
+    StaffTaskDAO dao = new StaffTaskDAO();
 
-        if (csuIdRaw == null || action == null) {
-            response.sendRedirect("staffTask");
-            return;
+    try {
+
+        int assignmentId = Integer.parseInt(request.getParameter("assignmentId"));
+        int requestId = Integer.parseInt(request.getParameter("requestId"));
+
+        CheckRequest checkRequest = dao.getCheckRequestById(requestId);
+
+        for (CheckRequestItem item : checkRequest.getItems()) {
+
+            String raw = request.getParameter("processed_" + item.getId());
+
+            int processedQty = 0;
+
+            if (raw != null && !raw.isEmpty()) {
+                processedQty = Integer.parseInt(raw);
+            }
+
+            int requiredQty = item.getQuantity();
+
+            String status;
+
+            if (processedQty >= requiredQty) {
+                status = "done";
+            } else {
+                status = "fail";
+            }
+
+            dao.updateCheckRequestItem(item.getId(), processedQty, status);
         }
-
-        int csuId = Integer.parseInt(csuIdRaw);
-        StaffCheckDAO dao = new StaffCheckDAO();
-
-        if ("checkin".equals(action)) {
-            dao.checkIn(csuId);
-        } else if ("checkout".equals(action)) {
-            dao.checkOut(csuId);
-        }
-
+            dao.completeAssignment(assignmentId);
+        // quay lại staff task
         response.sendRedirect("staffTask");
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
+
 }
