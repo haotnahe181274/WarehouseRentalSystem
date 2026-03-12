@@ -41,19 +41,19 @@
                         <c:if test="${sessionScope.role == 'Admin'}">
                             <li class="app-header__menu-item">
                                 <a class="app-header__menu-link"
-                                    href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Admin</a>
+                                    href="dashboard">Admin</a>
                             </li>
                         </c:if>
                         <c:if test="${sessionScope.role == 'Staff'}">
                             <li class="app-header__menu-item">
                                 <a class="app-header__menu-link"
-                                    href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Staff</a>
+                                    href="dashboard">Staff</a>
                             </li>
                         </c:if>
                         <c:if test="${sessionScope.role == 'Manager'}">
                             <li class="app-header__menu-item">
                                 <a class="app-header__menu-link"
-                                    href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Manager</a>
+                                    href="dashboard">Manager</a>
                             </li>
                         </c:if>
                     </c:if>

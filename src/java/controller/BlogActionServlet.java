@@ -1,6 +1,7 @@
 package controller;
 
 import dao.BlogDAO;
+import dao.NotificationDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,6 +13,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import model.UserView;
 import model.BlogComment;
+import model.Notification;
 
 @WebServlet(name = "BlogActionServlet", urlPatterns = { "/blog-action" })
 public class BlogActionServlet extends HttpServlet {
@@ -55,7 +57,7 @@ public class BlogActionServlet extends HttpServlet {
         HttpSession session = request.getSession();
         UserView user = (UserView) session.getAttribute("user");
 
-        if (user == null) {
+        if (user == null) { 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -65,11 +67,23 @@ public class BlogActionServlet extends HttpServlet {
         if ("like".equals(action)) {
             int postId = Integer.parseInt(request.getParameter("postId"));
             boolean isLiked = dao.toggleLike(postId, user.getId(), user.getType());
-
+         
             response.setContentType("application/json");
             PrintWriter out = response.getWriter();
             out.print("{\"success\": true, \"isLiked\": " + isLiked + "}");
+            if (isLiked)
+            {
+                 UserView userV = dao.getUserInfoByLikeId(postId);
+            Notification noti = new Notification();
+            noti.setMessage("Your blog have a new like.");
+            noti.setType("SUCCESS");
+            noti.setLinkUrl("/discuss");
+            noti.setRenterId(userV.getId());
+            new NotificationDAO().insertNotification(noti);
+            }
+            
             out.flush();
+          
         } else if ("create".equals(action)) {
             String title = request.getParameter("title");
             String content = request.getParameter("content");

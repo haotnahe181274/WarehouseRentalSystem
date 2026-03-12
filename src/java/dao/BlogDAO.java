@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import model.BlogPost;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
+import model.UserView;
 
 /**
  *
@@ -341,7 +344,9 @@ public class BlogDAO extends DBContext {
         }
         return list;
     }
-
+    
+    
+    
     public boolean toggleLike(int postId, int userId, String userType) {
         String column = "RENTER".equals(userType) ? "renter_id" : "internal_user_id";
         String checkSql = "SELECT 1 FROM Blog_Like WHERE target_type = 'POST' AND target_id = ? AND " + column + " = ?";
@@ -375,6 +380,38 @@ public class BlogDAO extends DBContext {
         return false;
     }
 
+    public UserView getUserInfoByLikeId(int likeId) {
+        UserView userInfo = new UserView();
+        UserDAO dao = new UserDAO();
+        String sql = "SELECT renter_id, internal_user_id FROM Blog_Like WHERE like_id = ?";
+        
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, likeId);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                // Kiểm tra xem có phải Renter không
+                int renterId = rs.getInt("renter_id");
+                if (!rs.wasNull()) { // rs.wasNull() kiểm tra xem cột vừa get có phải là NULL trong DB không
+                    userInfo = dao.getUserById(renterId, "renter");
+                    return userInfo;
+                }
+                
+                // Nếu không phải Renter, kiểm tra Internal User
+                int internalUserId = rs.getInt("internal_user_id");
+                if (!rs.wasNull()) {
+                    userInfo =  dao.getUserById(renterId, "internal");
+                    return userInfo;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return null; // Trả về null nếu không tìm thấy like_id
+    }
+    
     public void addComment(int postId, int userId, String userType, String content, Integer parentCommentId) {
         String column = "RENTER".equals(userType) ? "renter_id" : "internal_user_id";
         String sql = "INSERT INTO Blog_Comment (post_id, " + column

@@ -37,7 +37,7 @@ public class PaymentListServlet extends HttpServlet {
         List<Payment> payments = paymentDAO.getPaymentsByRenterId(user.getId());
 
         request.setAttribute("payments", payments);
-
+        
         // Forward tới trang JSP hiển thị danh sách
         request.getRequestDispatcher("/Payment/paymentList.jsp").forward(request, response);
     }

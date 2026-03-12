@@ -99,13 +99,13 @@ public class LoginServlet extends HttpServlet {
 
             switch (user.getRole()) {
                 case "Admin":
-                    response.sendRedirect("Common/Layout/dashboard.jsp");
+                    response.sendRedirect("dashboard");
                     break;
                 case "Manager":
-                    response.sendRedirect("Common/Layout/dashboard.jsp");
+                    response.sendRedirect("dashboard");
                     break;
                 case "Staff":
-                    response.sendRedirect("Common/Layout/dashboard.jsp");
+                    response.sendRedirect("dashboard");
                     break;
                 default:
                     response.sendRedirect("homepage");
