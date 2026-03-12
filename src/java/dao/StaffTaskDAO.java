@@ -2,72 +2,62 @@ package dao;
 
 import java.sql.*;
 import java.util.*;
-import model.CheckInTask;
+import model.StaffTask;
+
 
 public class StaffTaskDAO extends DBContext {
+    
+    public List<StaffTask> getTasksByStaff(int staffId) {
 
-    // =============================
-    // CHECK-IN COLUMN
-    // status = 0 : Waiting Check-In
-    // status = 1 : Checked-In
-    // status = 2 : Completed (Checked-Out)
-    // =============================
+        List<StaffTask> list = new ArrayList<>();
 
-    public List<CheckInTask> getCheckInList() {
-        return getTasksByStatuses(0, 1, 2);
-    }
+        String sql = """
+            SELECT 
+                sa.assignment_id,
+                cr.id AS request_id,
+                cr.request_type,
+                cr.request_date,
+                w.name AS warehouse_name,
+                su.unit_code AS unit_name,
+                sa.due_date
 
-    public List<CheckInTask> getCheckOutList() {
-        return getTasksByStatuses(1, 2);
-    }
+            FROM Staff_assignment sa
 
-    // =============================
-    // CORE QUERY (FIXED)
-    // =============================
-    private List<CheckInTask> getTasksByStatuses(int... statuses) {
-        List<CheckInTask> list = new ArrayList<>();
+            JOIN check_request cr 
+            ON sa.check_request_id = cr.id
 
-        StringBuilder sql = new StringBuilder("""
-            SELECT
-                csu.id            AS csu_id,
-                c.contract_id     AS contract_id,
-                r.full_name       AS renter_name,
-                su.unit_code      AS unit_code,
-                csu.start_date,
-                csu.end_date,
-                csu.status
-            FROM Contract_Storage_unit csu
-            JOIN Contract c ON c.contract_id = csu.contract_id
-            JOIN Renter r ON r.renter_id = c.renter_id
-            JOIN Storage_unit su ON su.unit_id = csu.unit_id
-            WHERE csu.status IN (
-        """);
+            JOIN Warehouse w 
+            ON sa.warehouse_id = w.warehouse_id
 
-        for (int i = 0; i < statuses.length; i++) {
-            sql.append("?");
-            if (i < statuses.length - 1) {
-                sql.append(",");
-            }
-        }
-        sql.append(") ORDER BY csu.start_date");
+            LEFT JOIN Storage_unit su 
+            ON sa.unit_id = su.unit_id
 
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            WHERE sa.assigned_to = ?
+            AND sa.completed_at IS NULL
 
-            for (int i = 0; i < statuses.length; i++) {
-                ps.setInt(i + 1, statuses[i]);
-            }
+            ORDER BY cr.request_date DESC
+        """;
+
+        try {
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, staffId);
 
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
-                list.add(new CheckInTask(
-                        rs.getInt("csu_id"),          // 🔥 QUAN TRỌNG
-                        rs.getInt("contract_id"),
-                        rs.getString("renter_name"),
-                        rs.getString("unit_code"),
-                        rs.getTimestamp("start_date"),
-                        rs.getTimestamp("end_date"),
-                        rs.getInt("status")
-                ));
+
+                StaffTask t = new StaffTask();
+
+                t.setAssignmentId(rs.getInt("assignment_id"));
+                t.setRequestId(rs.getInt("request_id"));
+                t.setRequestType(rs.getString("request_type"));
+                t.setWarehouseName(rs.getString("warehouse_name"));
+                t.setUnitName(rs.getString("unit_name"));
+                t.setRequestDate(rs.getDate("request_date"));
+                t.setDueDate(rs.getDate("due_date"));
+
+                list.add(t);
             }
 
         } catch (Exception e) {
@@ -76,58 +66,5 @@ public class StaffTaskDAO extends DBContext {
 
         return list;
     }
-
-    // =============================
-    // CHECK-IN (1 UNIT ONLY)
-    // =============================
-    public boolean checkIn(int csuId) {
-        String sql = """
-            UPDATE Contract_Storage_unit
-            SET status = 1
-            WHERE id = ?
-              AND status = 0
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, csuId);
-            return ps.executeUpdate() == 1;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    // =============================
-    // CHECK-OUT (1 UNIT ONLY)
-    // =============================
-    public boolean checkOut(int csuId) {
-        String sql = """
-            UPDATE Contract_Storage_unit
-            SET status = 2
-            WHERE id = ?
-              AND status = 1
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, csuId);
-            return ps.executeUpdate() == 1;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    // =============================
-    // COUNT COMPLETED (UNCHANGED)
-    // =============================
-    public int countCompleted() {
-        String sql = "SELECT COUNT(*) FROM Contract_Storage_unit WHERE status = 2";
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) return rs.getInt(1);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
+   
 }
