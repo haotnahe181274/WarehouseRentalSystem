@@ -350,22 +350,21 @@ public class ContractDAO extends DBContext {
     public void insertContractStorageUnit(int contractId) {
 
     String sql = """
-        INSERT INTO Contract_Storage_unit
-        (contract_id, unit_id, start_date, end_date, status)
-
-        SELECT
-            c.contract_id,
-            su.unit_id,
-            rru.start_date,
-            rru.end_date,
-            1
-
-        FROM Contract c
-        JOIN Rent_request rr ON c.request_id = rr.request_id
-        JOIN rent_request_unit rru ON rr.request_id = rru.request_id
-        JOIN Storage_unit su ON su.warehouse_id = rr.warehouse_id
-
-        WHERE c.contract_id = ?
+         SELECT
+                    c.contract_id,
+                    su.unit_id,
+                    rru.start_date,
+                    rru.end_date,
+                    1
+        
+                FROM Contract c
+                JOIN Rent_request rr ON c.request_id = rr.request_id
+                JOIN rent_request_unit rru ON rr.request_id = rru.request_id
+                JOIN Storage_unit su ON su.warehouse_id = rr.warehouse_id
+        
+                WHERE c.contract_id = ?
+                AND su.status = 1
+                LIMIT 1
         """;
 
     try {
