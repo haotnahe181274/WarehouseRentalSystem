@@ -13,7 +13,7 @@
 
         <body style="background-color: #f0f2f5; font-family: Arial, sans-serif;">
             <div style="max-width: 680px; margin: 40px auto; padding: 0 16px;">
-                <!-- Post Card -->
+
                 <div class="post-card">
                     <div class="post-header">
                         <img src="${pageContext.request.contextPath}/resources/user/image/${post.authorImage != null ? post.authorImage : 'default.jpg'}"
@@ -29,20 +29,25 @@
                         <div class="post-text" style="white-space: pre-wrap;">${post.content}</div>
                     </div>
 
-                    <!-- Comment Count -->
-                    <div class="post-stats" style="border-top: 1px solid var(--fb-hover);">
+
+                    <div class="post-stats"
+                        style="border-top: 1px solid var(--fb-hover); padding-top: 12px; padding-bottom: 12px; display: flex; gap: 20px; color: var(--fb-secondary-text); font-weight: 500;">
+                        <div>
+                            <i class="far fa-thumbs-up"></i>
+                            <span id="like-count-${post.postId}">${post.likeCount}</span> likes
+                        </div>
                         <div>
                             <i class="far fa-comment"></i>
                             <span id="comment-count-${post.postId}">${post.commentCount}</span> comments
                         </div>
                     </div>
 
-                    <!-- Comment Section -->
+
                     <div style="border-top: 1px solid #e4e6eb; padding-top: 8px;">
-                        <!-- Comment List -->
+
                         <div id="comment-list-${post.postId}"></div>
 
-                        <!-- Comment Input -->
+
                         <div
                             style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px; margin-top: 8px;">
                             <img src="${pageContext.request.contextPath}/resources/user/image/${sessionScope.user.image != null ? sessionScope.user.image : 'default.jpg'}"
@@ -52,7 +57,7 @@
                                 <input type="text" class="comment-input" placeholder="Write a comment..."
                                     id="comment-input-${post.postId}" onkeypress="handleComment(event, ${post.postId})"
                                     style="flex: 1; min-width: 0; border: none; background: #f0f2f5; border-radius: 20px; padding: 8px 12px; font-size: 14px;">
-                                <button onclick="submitComment(${post.postId})"
+                                <button type="button" onclick="submitComment(${post.postId})"
                                     style="background: none; border: none; color: #1877f2; cursor: pointer; padding: 6px; font-size: 16px;">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
@@ -61,7 +66,7 @@
                     </div>
                 </div>
 
-                <!-- Back Button -->
+
                 <a href="blog"
                     style="display: block; text-align: center; margin-top: 16px; background: #e4e6eb; color: #050505; text-decoration: none; border-radius: 8px; padding: 10px; font-weight: 600;">
                     <i class="fas fa-arrow-left"></i> Back to My Posts
@@ -90,7 +95,13 @@
                                     const rImgPath = ctx + '/resources/user/image/' + rImgName;
                                     repliesHtml += '<div style="display:flex;gap:8px;margin-top:8px;margin-left:40px;">'
                                         + '<img src="' + rImgPath + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0;">'
-                                        + '<div><div style="background:#f0f2f5;padding:6px 10px;border-radius:14px;"><strong style="font-size:12px;">' + r.userName + '</strong><div style="font-size:13px;">' + r.content + '</div></div></div>'
+                                        + '<div style="flex:1;">'
+                                        + '<div style="background:#f0f2f5;padding:6px 10px;border-radius:14px;display:inline-block;"><strong style="font-size:12px;">' + r.userName + '</strong><div style="font-size:13px;">' + r.content + '</div></div>'
+                                        + '<div style="font-size:11px;color:#65676b;margin-top:2px;padding-left:10px;">'
+                                        + '<span style="cursor:pointer;font-weight:600;" onclick="toggleReplyForm(' + c.commentId + ',' + postId + ', \'' + r.userName.replace(/'/g, "\\'") + '\')">Reply</span> &middot; '
+                                        + '<span>' + r.createdAt + '</span>'
+                                        + '</div>'
+                                        + '</div>'
                                         + '</div>';
                                 });
 
@@ -119,11 +130,20 @@
                         });
                 }
 
-                function toggleReplyForm(commentId, postId) {
+                function toggleReplyForm(commentId, postId, replyToUser) {
                     const form = document.getElementById('reply-form-' + commentId);
-                    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-                    if (form.style.display === 'block') {
-                        document.getElementById('reply-input-' + commentId).focus();
+                    if (replyToUser) {
+                        form.style.display = 'block';
+                        const input = document.getElementById('reply-input-' + commentId);
+                        input.focus();
+                        if (!input.value.startsWith('@' + replyToUser)) {
+                            input.value = '@' + replyToUser + ' ' + input.value;
+                        }
+                    } else {
+                        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                        if (form.style.display === 'block') {
+                            document.getElementById('reply-input-' + commentId).focus();
+                        }
                     }
                 }
 
