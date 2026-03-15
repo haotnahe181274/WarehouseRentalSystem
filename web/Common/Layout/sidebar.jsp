@@ -115,7 +115,7 @@
                     <c:if test="${sessionScope.role == 'Staff'}">
 
                         <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
-                        <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
+
                         <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>
                     </c:if>
 
