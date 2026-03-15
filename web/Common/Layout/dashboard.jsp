@@ -11,48 +11,10 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-       <style>
-            body { 
-                background-color: #f8f9fa; 
-                margin: 0; 
-                overflow-x: hidden; 
-            }
-            
-            /* Cấu trúc chia đôi màn hình: Trái (Sidebar) - Phải (Main Panel) */
-            .wrapper { 
-                display: flex; 
-                width: 100%; 
-                min-height: 100vh; 
-            }
-            
-            /* Cố định Sidebar bên trái */
-            .wrapper > :first-child { 
-                width: 260px; 
-                min-width: 260px;
-                height: 100vh;
-                position: sticky;
-                top: 0;
-                z-index: 1020;
-                background-color: #0b0f19; 
-            }
-
-            /* Main panel chứa Header và Content */
-            .main-panel { 
-                flex: 1; 
-                min-width: 0; 
-                display: flex; 
-                flex-direction: column; 
-            }
-
-            /* Đảm bảo Header không tràn sang Sidebar */
-            .main-panel > :first-child {
-                position: sticky;
-                top: 0;
-                z-index: 1010;
-                background-color: #ffffff; 
-                box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
-            }
-
+        <style>
+            body { background-color: #f8f9fa; overflow-x: hidden; }
+            .wrapper { display: flex; width: 100%; min-height: 100vh; }
+            .main-panel { flex: 1; min-width: 0; display: flex; flex-direction: column; }
             .main-content { padding: 24px; flex: 1; }
             .stat-card { border: 1px solid #eef0f2; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); background: #fff; padding: 20px; height: 100%; }
             .icon-box { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background-color: #f3f4f6; border-radius: 8px; color: #4b5563; font-size: 1.2rem; }
@@ -70,7 +32,6 @@
             <jsp:include page="/Common/Layout/sidebar.jsp" />
 
             <div class="main-panel">
-                
                 <jsp:include page="/Common/Layout/header.jsp" />
 
                 <div class="main-content">
@@ -81,7 +42,10 @@
                             
                             <div class="row g-4">
                                 <div class="col-md-3">
-                                    <div class="stat-card">                                       
+                                    <div class="stat-card">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="icon-box"><i class="fa-solid fa-users"></i></div>
+                                            <span class="trend-up">+12.5%</span>
                                         </div>
                                         <div class="stat-value">${totalUsers != null ? totalUsers : '0'}</div>
                                         <div class="stat-label">Total Users</div>
@@ -89,6 +53,9 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="stat-card">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="icon-box"><i class="fa-solid fa-warehouse"></i></div>
+                                            <span class="trend-up">+8.2%</span>
                                         </div>
                                         <div class="stat-value">${activeWarehouses != null ? activeWarehouses : '0'}</div>
                                         <div class="stat-label">Active Warehouses</div>
@@ -96,6 +63,9 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="stat-card">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="icon-box"><i class="fa-regular fa-calendar-check"></i></div>
+                                            <span class="trend-up">+15.3%</span>
                                         </div>
                                         <div class="stat-value">${totalBookings != null ? totalBookings : '0'}</div>
                                         <div class="stat-label">Total Bookings</div>
@@ -103,6 +73,9 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="stat-card">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="icon-box"><i class="fa-solid fa-dollar-sign"></i></div>
+                                            <span class="trend-up">+22.1%</span>
                                         </div>
                                         <div class="stat-value">$${monthlyRevenue != null ? monthlyRevenue : '0'}</div>
                                         <div class="stat-label">Monthly Revenue</div>
