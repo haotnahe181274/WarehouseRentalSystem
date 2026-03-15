@@ -21,15 +21,7 @@
             width: 100%; 
             min-height: 100vh; 
         }
-        .wrapper > :first-child { 
-            width: 260px; 
-            min-width: 260px;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            z-index: 1020;
-            background-color: #0b0f19; 
-        }
+
         .main-panel { 
             flex: 1; 
             min-width: 0; 
@@ -86,12 +78,11 @@
     </style>
 </head>
 <body style="background-color: #f0f2f5;">
+    <jsp:include page="/Common/Layout/header.jsp" />
     <div class="wrapper">
         <jsp:include page="/Common/Layout/sidebar.jsp" />
         
         <div class="main-panel">
-            <jsp:include page="/Common/Layout/header.jsp" />
-            
             <div class="main-content">
                 <div class="management-container">
                     <!-- Add Category Section -->
@@ -116,7 +107,7 @@
                         </form>
                     </div>
 
-                    <!-- Categories Table Section -->
+                   
                     <div class="post-card">
                         <h3 style="margin: 0 0 20px 0; font-weight: 700;">All Categories</h3>
                         <table id="categoryTable" class="display" style="width:100%">
@@ -162,9 +153,9 @@
                 </div>
             </div>
 
-            <jsp:include page="/Common/Layout/footer.jsp" />
         </div>
     </div>
+    <jsp:include page="/Common/Layout/footer.jsp" />
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
