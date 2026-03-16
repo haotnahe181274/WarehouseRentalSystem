@@ -82,11 +82,11 @@
                         </div>
                     </c:forEach>
 
-                    <!-- Pagination -->
+                    
                     <jsp:include page="/Common/homepage/pagination.jsp" />
                 </div>
 
-                <!-- Sidebar column -->
+             
                 <div class="sidebar-column">
                     <div class="category-card">
                         <h4>Categories</h4>
@@ -104,7 +104,7 @@
                 </div>
             </div>
 
-            <!-- Create Post Modal -->
+            
             <div id="createPostModal" class="modal-overlay">
                 <div class="modal-content-fb">
                     <div class="modal-header-fb">
@@ -219,8 +219,9 @@
                                                 <div class="comment-text">\${c.content}</div>
                                             </div>
                                             <div class="comment-actions">
-                                                <span>\${c.createdAt}</span>
                                                 <span class="reply-btn" onclick="toggleReplyForm(\${c.commentId}, \${postId})">Reply</span>
+                                                <span>\${c.createdAt}</span>
+                                                
                                             </div>
                                             <div id="reply-form-\${c.commentId}" class="reply-form mt-2" style="display:none; margin-left: 12px;">
                                                 <div class="input-group input-group-sm">

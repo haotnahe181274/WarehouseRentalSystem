@@ -83,7 +83,8 @@ public class BlogDAO extends DBContext {
                            WHEN p.renter_id IS NOT NULL THEN (SELECT image FROM Renter WHERE renter_id = p.renter_id)
                            WHEN p.internal_user_id IS NOT NULL THEN (SELECT image FROM Internal_user WHERE internal_user_id = p.internal_user_id)
                        END as author_image,
-                       (SELECT COUNT(*) FROM Blog_Comment bc WHERE bc.post_id = p.post_id AND bc.status = 1) as comment_count
+                       (SELECT COUNT(*) FROM Blog_Comment bc WHERE bc.post_id = p.post_id AND bc.status = 1) as comment_count,
+                       (SELECT COUNT(*) FROM Blog_Like WHERE target_type = 'POST' AND target_id = p.post_id) as like_count
                 FROM Blog_Post p
                 JOIN Blog_Category c ON p.category_id = c.category_id
                 WHERE p.post_id = ?
@@ -104,6 +105,7 @@ public class BlogDAO extends DBContext {
                 post.setAuthorName(rs.getString("author_name"));
                 post.setAuthorImage(rs.getString("author_image"));
                 post.setCommentCount(rs.getInt("comment_count"));
+                post.setLikeCount(rs.getInt("like_count"));
                 return post;
             }
         } catch (Exception e) {
