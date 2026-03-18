@@ -17,6 +17,11 @@
     <style>
         .table-responsive { border-radius: 10px; overflow: hidden; }
         .status-badge { width: 100px; display: inline-block; }
+        .action-buttons{
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
     </style>
 </head>
 
@@ -56,7 +61,7 @@
                 </div>
                 <c:remove var="error" scope="session"/>
             </c:if>
-
+            <jsp:useBean id="now" class="java.util.Date"/>
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -66,13 +71,13 @@
                                     <th class="text-center py-3">Mã HĐ</th>
                                     <%-- Hiển thị cột Người Thuê nếu là Manager --%>
                                     <c:if test="${role == 'manager'}">
-                                        <th>Khách hàng</th>
+                                        <th>Renter</th>
                                     </c:if>
-                                    <th class="text-center">Ngày bắt đầu</th>
-                                    <th class="text-center">Ngày kết thúc</th>
-                                    <th class="text-end">Tổng giá trị</th>
-                                    <th class="text-center">Trạng thái</th>
-                                    <th class="text-center">Chi tiết</th>
+                                    <th class="text-center">Start Date</th>
+                                    <th class="text-center">End Date</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-start">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -104,33 +109,68 @@
 
                                         <td class="text-center">
                                             <c:choose>
-                                                <c:when test="${c.status == 1}">
-                                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill status-badge">
-                                                        proccess
+
+                                                <c:when test="${c.status == 0}">
+                                                    <span class="badge bg-secondary px-3 py-2 rounded-pill status-badge">
+                                                        finish-early
                                                     </span>
                                                 </c:when>
-                                                <c:when test="${c.status == 0}">
+                                                
+                                                <c:when test="${c.endDate.time lt now.time}">
+                                                    <span class="badge bg-dark px-3 py-2 rounded-pill status-badge">
+                                                        time-expired
+                                                    </span>
+                                                </c:when>
+
+                                                <c:when test="${c.paymentStatus == 1}">
                                                     <span class="badge bg-warning-subtle text-warning-emphasis border border-warning px-3 py-2 rounded-pill status-badge">
                                                         done
                                                     </span>
                                                 </c:when>
 
+
                                                 <c:otherwise>
-                                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary px-3 py-2 rounded-pill status-badge">
-                                                        Kết thúc
+                                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill status-badge">
+                                                        process
                                                     </span>
                                                 </c:otherwise>
+
                                             </c:choose>
                                         </td>
 
-                                        <td class="text-center">
-                                            <a href="<c:url value='/contract-detail'>
-                                                        <c:param name='contractId' value='${c.contractId}'/>
-                                                     </c:url>"
-                                               class="btn btn-sm btn-light border shadow-sm"
-                                               title="Xem chi tiết">
-                                                <i class="bi bi-search text-primary"></i>
-                                            </a>
+                                       <td>
+                                            <div class="action-buttons">
+
+                                                <!-- View -->
+                                                <a href="<c:url value='/contract-detail'>
+                                                            <c:param name='contractId' value='${c.contractId}'/>
+                                                         </c:url>"
+                                                   class="btn btn-sm btn-primary">
+                                                    View
+                                                </a>
+
+                                                <!-- End Early -->
+                                                <c:if test="${sessionScope.userType eq 'RENTER' 
+                                                             and c.paymentStatus == 1 
+                                                             and c.status == 1}">
+                                                    <form action="${pageContext.request.contextPath}/contract"
+                                                          method="post"
+                                                          class="d-inline">
+
+                                                        <input type="hidden" name="contractId"
+                                                               value="${c.contractId}"/>
+
+                                                        <button type="submit"
+                                                                name="action"
+                                                                value="endEarly"
+                                                                class="btn btn-sm btn-danger">
+                                                            End Early
+                                                        </button>
+
+                                                    </form>
+                                                </c:if>
+
+                                            </div>
                                         </td>
                                     </tr>
                                 </c:forEach>

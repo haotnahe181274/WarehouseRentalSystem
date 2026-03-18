@@ -77,61 +77,84 @@ public class VerifyOTPServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null) {
-            response.sendRedirect(request.getContextPath() + "/register");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+        
         String enteredOtp = request.getParameter("otp");
         String sessionOtp = (String) session.getAttribute("otp");
 
         if (sessionOtp == null) {
-            request.setAttribute("error", "OTP not found. Please try again.");
+            request.setAttribute("error", "Không tìm thấy mã OTP. Vui lòng thử lại.");
             request.getRequestDispatcher("/Common/Login/verify_otp.jsp").forward(request, response);
             return;
         }
 
+        // Kiểm tra thời gian hết hạn của OTP (60 giây)
         Long otpCreationTime = (Long) session.getAttribute("otpCreationTime");
         long currentTime = System.currentTimeMillis();
         if (otpCreationTime != null && (currentTime - otpCreationTime) > (60 * 1000)) {
             session.removeAttribute("otp");
             session.removeAttribute("otpCreationTime");
-            request.setAttribute("error", "OTP has expired. Please try again.");
+            request.setAttribute("error", "Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.");
             request.getRequestDispatcher("/Common/Login/verify_otp.jsp").forward(request, response);
             return;
         }
 
-        // Retrieve user data from session
-        String username = (String) session.getAttribute("tempUsername");
-        String password = (String) session.getAttribute("tempPassword");
-        String fullName = (String) session.getAttribute("tempFullName");
-        String email = (String) session.getAttribute("tempEmail");
-        String phone = (String) session.getAttribute("tempPhone");
-
+        // Kiểm tra mã OTP nhập vào có khớp không
         if (sessionOtp.equals(enteredOtp)) {
-            // OTP matches
-            UserDAO dao = new UserDAO();
-            // Insert user into database
-            dao.insertRenter(username, password, fullName, email, phone);
+            
+            // ==========================================
+            // LUỒNG 1: XÁC THỰC OTP CHO ĐĂNG KÝ TÀI KHOẢN
+            // ==========================================
+            if (session.getAttribute("tempUsername") != null) {
+                String username = (String) session.getAttribute("tempUsername");
+                String password = (String) session.getAttribute("tempPassword");
+                String fullName = (String) session.getAttribute("tempFullName");
+                String email = (String) session.getAttribute("tempEmail");
+                String phone = (String) session.getAttribute("tempPhone");
 
-            // Clear session attributes
-            session.removeAttribute("otp");
-            session.removeAttribute("otpCreationTime");
-            session.removeAttribute("tempUsername");
-            session.removeAttribute("tempPassword");
-            session.removeAttribute("tempFullName");
-            session.removeAttribute("tempEmail");
-            session.removeAttribute("tempPhone");
+                UserDAO dao = new UserDAO();
+                dao.insertRenter(username, password, fullName, email, phone);
 
-            request.setAttribute("username", username);
-            request.setAttribute("password", password);
-            request.setAttribute("success", "Verification successful! Account created. Please login.");
-            request.getRequestDispatcher("/Common/Login/login.jsp").forward(request, response);
+                // Dọn dẹp session đăng ký
+                session.removeAttribute("otp");
+                session.removeAttribute("otpCreationTime");
+                session.removeAttribute("tempUsername");
+                session.removeAttribute("tempPassword");
+                session.removeAttribute("tempFullName");
+                session.removeAttribute("tempEmail");
+                session.removeAttribute("tempPhone");
+
+                request.setAttribute("username", username);
+                request.setAttribute("password", password);
+                request.setAttribute("success", "Xác thực thành công! Tài khoản đã được tạo. Vui lòng đăng nhập.");
+                request.getRequestDispatcher("/Common/Login/login.jsp").forward(request, response);
+            } 
+            // ==========================================
+            // LUỒNG 2: XÁC THỰC OTP CHO QUÊN MẬT KHẨU
+            // ==========================================
+            else if (session.getAttribute("resetEmail") != null) {
+                // OTP đúng, dọn dẹp session OTP để tránh dùng lại mã cũ
+                session.removeAttribute("otp");
+                session.removeAttribute("otpCreationTime");
+                
+                // Đánh dấu là đã xác thực thành công để cho phép vào trang đổi mật khẩu
+                session.setAttribute("canResetPassword", true);
+                
+                response.sendRedirect("reset-password");
+            } 
+            // Trường hợp không xác định
+            else {
+                response.sendRedirect("login");
+            }
+
         } else {
-            // Invalid OTP
-            request.setAttribute("error", "Invalid OTP. Please try again.");
+            // Báo lỗi sai OTP
+            request.setAttribute("error", "Mã OTP không chính xác. Vui lòng thử lại.");
             request.getRequestDispatcher("/Common/Login/verify_otp.jsp").forward(request, response);
         }
     }
-
     /**
      * Returns a short description of the servlet.
      *

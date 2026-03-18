@@ -384,4 +384,28 @@ public class UserDAO extends DBContext {
         }
     }
 
+   public UserView getUserByEmail(String email) {
+        String sql = """
+                select * from (
+                    select internal_user_id as id, email, 'INTERNAL' as type from internal_user
+                    union all
+                    select renter_id as id, email, 'RENTER' as type from renter
+                ) u where u.email = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                UserView u = new UserView();
+                u.setId(rs.getInt("id"));
+                u.setEmail(rs.getString("email"));
+                u.setType(rs.getString("type"));
+                return u;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
 }

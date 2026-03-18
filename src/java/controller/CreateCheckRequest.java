@@ -162,12 +162,10 @@ public class CreateCheckRequest extends HttpServlet {
             AssignmentDAO assignmentDAO = new AssignmentDAO();
             boolean isTaskAssigned = false;
             
-            // Lấy ID của người Renter đang tạo đơn để lưu vết người yêu cầu (hoặc bạn có thể dùng ID của 1 Admin hệ thống)
-            int assignedBy = user.getId(); 
                   
 
 // Hàm tự động nhận diện IN hay OUT từ trong Database
-         isTaskAssigned = assignmentDAO.createTaskFromCheckRequest(checkRequestId, assignedBy);
+         isTaskAssigned = assignmentDAO.createTaskFromCheckRequest(checkRequestId);
             
             // Thông báo kết quả cho Renter biết
             if (isTaskAssigned) {

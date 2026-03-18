@@ -6,6 +6,7 @@ package controller;
 
 import dao.AssignmentDAO;
 import dao.ContractDAO;
+import dao.NotificationDAO;
 import dao.RentRequestDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,6 +17,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.InternalUser;
+import model.Notification;
+import model.RentRequest;
 import model.UserView;
 
 /**
@@ -86,18 +89,28 @@ public class RentRequestApprove extends HttpServlet {
         
         UserView user = (UserView) session.getAttribute("user");
         int requestId = Integer.parseInt(request.getParameter("requestId"));
-
+        
         RentRequestDAO dao = new RentRequestDAO();
         ContractDAO contractDAO = new ContractDAO();
-        
+        RentRequest ren = dao.getRentRequestDetailById(requestId);
         // 1. Cập nhật trạng thái Request thành Approved
         dao.updateStatusByManager(requestId, 1, user.getId());
               
         // 2. Tạo Contract từ Request
         int contractId = contractDAO.insertContractFromRequest(requestId);
+    
+        // ... logic duyệt thành công ...
+
+    Notification noti = new Notification();
+    String notif =  ren.getWarehouse().getName() ;
+    noti.setMessage("Your rent request for warehouse "+ notif +" has been approved.");
+    noti.setType("SUCCESS");
+    noti.setLinkUrl("/rentRequestDetail?id=" + requestId);
+    noti.setRenterId(ren.getRenter().getRenterId());
+new NotificationDAO().insertNotification(noti);
         
-        // 3. Gọi hệ thống tự động giao việc
-      
+        // 3. Insert vào Contract_Storage_unit
+        contractDAO.insertContractStorageUnit(contractId);
         
         // 5. Redirect sang trang chi tiết hợp đồng
         response.sendRedirect(request.getContextPath() + "/contract-detail?contractId=" + contractId);

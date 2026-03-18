@@ -14,11 +14,11 @@
                         <a class="app-header__menu-link" href="${pageContext.request.contextPath}/homepage">Homepage</a>
                     </li>
                     <li class="app-header__menu-item">
-                        <a class="app-header__menu-link" href="${pageContext.request.contextPath}/blog">Discussion</a>
+                        <a class="app-header__menu-link" href="${pageContext.request.contextPath}/discuss">Discussion</a>
                     </li>
                     <c:if test="${not empty sessionScope.user}">
                         <li class="app-header__menu-item">
-                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/my-posts">My
+                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/blog">My
                                 Posts</a>
                         </li>
                     </c:if>
@@ -41,19 +41,19 @@
                         <c:if test="${sessionScope.role == 'Admin'}">
                             <li class="app-header__menu-item">
                                 <a class="app-header__menu-link"
-                                    href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Admin</a>
+                                    href="dashboard">Admin</a>
                             </li>
                         </c:if>
                         <c:if test="${sessionScope.role == 'Staff'}">
                             <li class="app-header__menu-item">
                                 <a class="app-header__menu-link"
-                                    href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Staff</a>
+                                    href="dashboard">Staff</a>
                             </li>
                         </c:if>
                         <c:if test="${sessionScope.role == 'Manager'}">
                             <li class="app-header__menu-item">
                                 <a class="app-header__menu-link"
-                                    href="${pageContext.request.contextPath}/Common/Layout/dashboard.jsp">Manager</a>
+                                    href="dashboard">Manager</a>
                             </li>
                         </c:if>
                     </c:if>
@@ -71,68 +71,46 @@
                         <c:when test="${not empty sessionScope.user}">
 
                             <li class="app-header__notification">
-                                <div class="app-header__noti-trigger">
-                                    <i class="fa-solid fa-bell fs-5"></i>
-                                    <%-- <c:if
-                                        test="${not empty sessionScope.unreadNotiCount && sessionScope.unreadNotiCount > 0}">
-                                        --%>
-                                        <span class="app-header__noti-badge">3</span>
-                                        <%-- </c:if> --%>
+    <div class="app-header__noti-trigger">
+        <i class="fa-solid fa-bell fs-5"></i>
+        <c:if test="${unreadCount > 0}">
+            <span class="app-header__noti-badge">${unreadCount}</span>
+        </c:if>
+    </div>
+
+    <div class="app-header__noti-dropdown">
+        <div class="app-header__noti-header">
+            <h6 class="m-0 fw-bold">Notifications</h6>
+            <a href="${pageContext.request.contextPath}/mark-all-read" style="font-size: 12px; color: #3b82f6; text-decoration: none;">Mark all as read</a>
+        </div>
+
+        <ul class="app-header__noti-list">
+            <c:choose>
+                <c:when test="${empty notiList}">
+                    <li class="p-3 text-center text-muted">No new notifications</li>
+                </c:when>
+                <c:otherwise>
+                    <c:forEach var="noti" items="${notiList}">
+                        <li class="app-header__noti-item ${noti.read ? '' : 'unread'}">
+                            <a href="${pageContext.request.contextPath}${noti.linkUrl}" class="app-header__noti-link">
+                                <div class="app-header__noti-icon ${noti.getIconClass()} text-white">
+                                    <i class="fas ${noti.getIconName()}"></i>
                                 </div>
-
-                                <div class="app-header__noti-dropdown">
-                                    <div class="app-header__noti-header">
-                                        <h6 class="m-0 fw-bold">Notifications</h6>
-                                        <a href="#" style="font-size: 12px; color: #3b82f6; text-decoration: none;">Mark
-                                            all as read</a>
-                                    </div>
-
-                                    <ul class="app-header__noti-list">
-                                        <li class="app-header__noti-item unread">
-                                            <a href="#" class="app-header__noti-link">
-                                                <div class="app-header__noti-icon bg-primary text-white">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </div>
-                                                <div class="app-header__noti-content">
-                                                    <p class="app-header__noti-text">Your rent request for
-                                                        <strong>SU-01</strong> has been approved.</p>
-                                                    <span class="app-header__noti-time">2 mins ago</span>
-                                                </div>
-                                            </a>
-                                        </li>
-
-                                        <li class="app-header__noti-item">
-                                            <a href="#" class="app-header__noti-link">
-                                                <div class="app-header__noti-icon bg-warning text-white">
-                                                    <i class="fas fa-exclamation-triangle"></i>
-                                                </div>
-                                                <div class="app-header__noti-content">
-                                                    <p class="app-header__noti-text">Maintenance scheduled for
-                                                        <strong>Warehouse A</strong> tomorrow.</p>
-                                                    <span class="app-header__noti-time">1 hour ago</span>
-                                                </div>
-                                            </a>
-                                        </li>
-                                        <li class="app-header__noti-item">
-                                            <a href="#" class="app-header__noti-link">
-                                                <div class="app-header__noti-icon bg-success text-white">
-                                                    <i class="fas fa-check-circle"></i>
-                                                </div>
-                                                <div class="app-header__noti-content">
-                                                    <p class="app-header__noti-text">Payment for <strong>SU-02</strong>
-                                                        received successfully.</p>
-                                                    <span class="app-header__noti-time">1 day ago</span>
-                                                </div>
-                                            </a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="app-header__noti-footer">
-                                        <a href="${pageContext.request.contextPath}/notifications">View all
-                                            notifications</a>
-                                    </div>
+                                <div class="app-header__noti-content">
+                                    <p class="app-header__noti-text">${noti.message}</p>
+                                    <span class="app-header__noti-time">${noti.getTimeAgo()}</span>
                                 </div>
-                            </li>
+                            </a>
+                        </li>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
+        </ul>
+        <div class="app-header__noti-footer">
+            <a href="${pageContext.request.contextPath}/notifications">View all notifications</a>
+        </div>
+    </div>
+</li>
 
                             <li class="app-header__user-info">
                                 <div class="app-header__user-trigger app-header__user-box">

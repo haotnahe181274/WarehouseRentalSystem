@@ -1,155 +1,214 @@
-<%@page contentType="text/html" pageEncoding="UTF-8" %>
-    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-        <!DOCTYPE html>
-        <html>
+<!DOCTYPE html>
 
-        <head>
-            <meta charset="UTF-8">
-            <title>Staff Tasks</title>
-            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/Staff-tasks.css">
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Task Board</title>
 
 
-            <style>
-                body {
-                    margin: 0;
-                    display: flex;
-                    flex-direction: column;
-                    min-height: 100vh;
-                    background: #f5f7fb;
-                }
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/Staff-tasks.css">
 
-                .layout {
-                    display: flex;
-                    flex: 1;
-                    align-items: stretch;
-                    background: black;
-                    /* Sidebar background safety net */
-                }
+<style>
 
-                .main-content {
-                    flex: 1;
-                    padding: 24px;
-                    background: #f5f7fb;
-                }
-            </style>
-        </head>
+    body {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background: #f5f7fb;
+    }
 
-        <body>
-            <jsp:include page="/Common/Layout/header.jsp" />
-            <div class="layout">
-                <jsp:include page="/Common/Layout/sidebar.jsp" />
+    .layout {
+        display: flex;
+        flex: 1;
+    }
 
-                <div class="main-content">
-                    <!-- ================= HEADER ================= -->
-                    <div class="content-wrapper">
-                        <div class="header">
-                            <div>
-                                <h1>Today's Tasks</h1>
-                                <span>Staff Task Board</span>
-                            </div>
+    .main-content {
+        flex: 1;
+        padding: 24px;
+    }
 
-                            <div class="user-info">
+    /* HEADER */
 
-                            </div>
-                        </div>
+    .header {
+        margin-bottom: 25px;
+    }
 
-                        <!-- ================= STATS ================= -->
-                        <div class="stats">
-                            <div class="stat-card">
-                                <p>Total Tasks</p>
-                                <h2>${checkInList.size() + checkOutList.size()}</h2>
-                            </div>
+    .header h1 {
+        margin: 0;
+    }
 
-                            <div class="stat-card">
-                                <p>Check-Ins</p>
-                                <h2>${checkInList.size()}</h2>
-                            </div>
+    /* STATISTICS */
 
-                            <div class="stat-card">
-                                <p>Check-Outs</p>
-                                <h2>${checkOutList.size()}</h2>
-                            </div>
+    .stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
 
-                            <div class="stat-card">
-                                <p>Completed</p>
-                                <h2>${completedCount}</h2>
-                            </div>
-                        </div>
+    .stat-card {
+        background: white;
+        padding: 18px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        min-width: 160px;
+    }
 
-                        <div class="main">
+    /* CARD */
 
-                            <!-- ================= CHECK IN ================= -->
-                            <div class="card">
-                                <h3>Expected Check-Ins</h3>
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
 
-                                <c:if test="${empty checkInList}">
-                                    <p>No expected check-ins.</p>
-                                </c:if>
+    /* TABLE */
 
-                                <c:forEach var="t" items="${checkInList}">
-                                    <div class="task">
-                                        <div>
-                                            <strong>${t.renterName}</strong><br>
-                                            <small>
-                                                Unit ${t.unitCode}
-                                                • Start: ${t.startDate}
-                                            </small>
-                                        </div>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-                                        <c:choose>
-                                            <c:when test="${t.status == 0}">
-                                                <a href="staffCheck?action=checkin&csuId=${t.csuId}" class="btn">
-                                                    Check-In
-                                                </a>
-                                            </c:when>
+    th {
+        background: #f1f3f7;
+        text-align: left;
+        padding: 12px;
+    }
 
-                                            <c:otherwise>
-                                                <span class="btn done">Completed</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                </c:forEach>
-                            </div>
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+    }
 
-                            <!-- ================= CHECK OUT ================= -->
-                            <div class="card">
-                                <h3>Expected Check-Outs</h3>
+    /* BUTTON */
 
-                                <c:if test="${empty checkOutList}">
-                                    <p>No expected check-outs.</p>
-                                </c:if>
+    .btn {
+        background: #4CAF50;
+        color: white;
+        padding: 6px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+    }
 
-                                <c:forEach var="t" items="${checkOutList}">
-                                    <div class="task">
-                                        <div>
-                                            <strong>${t.renterName}</strong><br>
-                                            <small>
-                                                Unit ${t.unitCode}
-                                                • End: ${t.endDate}
-                                            </small>
-                                        </div>
+    .btn:hover {
+        background: #3d9140;
+    }
 
-                                        <c:choose>
-                                            <c:when test="${t.status == 1}">
-                                                <a href="staffCheck?action=checkout&csuId=${t.csuId}" class="btn">
-                                                    Check-Out
-                                                </a>
-                                            </c:when>
+</style>
 
-                                            <c:otherwise>
-                                                <span class="btn done">Completed</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                </c:forEach>
-                            </div>
 
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <jsp:include page="/Common/Layout/footer.jsp" />
-        </body>
+</head>
 
-        </html>
+<body>
+
+
+<!-- HEADER -->
+<jsp:include page="/Common/Layout/header.jsp"/>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <jsp:include page="/Common/Layout/sidebar.jsp"/>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- PAGE HEADER -->
+        <div class="header">
+            <h1>Staff Task Board</h1>
+            <span>Today's Assigned Tasks</span>
+        </div>
+
+
+
+
+
+        <!-- TASK TABLE -->
+        <div class="card">
+
+            <h3>Assigned Tasks</h3>
+
+            <c:if test="${empty taskList}">
+                <p>No tasks assigned.</p>
+            </c:if>
+
+
+            <table>
+
+                <!-- TABLE HEADER -->
+                <thead>
+                    <tr>
+                        <th>Assignment ID</th>
+                        <th>Request Type</th>
+                        <th>Warehouse</th>
+                        <th>Unit</th>
+                        <th>Request Date</th>
+                        <th>Due Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+
+                <!-- TABLE BODY -->
+                <tbody>
+
+                    <c:forEach var="t" items="${taskList}">
+
+                        <tr>
+
+                            <td>
+                                ${t.assignmentId}
+                            </td>
+
+                            <td>
+                                ${t.requestType}
+                            </td>
+
+                            <td>
+                                ${t.warehouseName}
+                            </td>
+
+                            <td>
+                                ${t.unitName}
+                            </td>
+
+                            <td>
+                                ${t.requestDate}
+                            </td>
+
+                            <td>
+                                ${t.dueDate}
+                            </td>
+
+                            <td>
+                                <a href="${pageContext.request.contextPath}/staffCheck?assignmentId=${t.assignmentId}">
+                                    Check
+                                </a>
+                            </td>
+
+                        </tr>
+
+                    </c:forEach>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<jsp:include page="/Common/Layout/footer.jsp"/>
+```
+
+</body>
+</html>

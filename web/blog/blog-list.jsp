@@ -7,98 +7,85 @@
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>Blog Management - WareSpace</title>
             <%@ include file="/Common/Layout/header.jsp" %>
-                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/blog-fb.css">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+                <!-- DataTables CSS -->
+                <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
                 <style>
-                    .blog-container {
-                        max-width: 1200px;
-                        margin: 40px auto;
-                        padding: 20px;
+                    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                        background: var(--fb-accent) !important;
+                        color: white !important;
+                        border: none !important;
+                        border-radius: 4px;
                     }
-
-                    .blog-table {
-                        width: 100%;
-                        background: #fff;
-                        border-radius: 8px;
-                        overflow: hidden;
-                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                        border-collapse: collapse;
+                    .dataTables_wrapper .dataTables_filter input {
+                        border: 1px solid var(--fb-border) !important;
+                        border-radius: 20px !important;
+                        padding: 5px 15px !important;
+                        margin-bottom: 10px !important;
                     }
-
-                    .blog-table th,
-                    .blog-table td {
-                        padding: 15px;
-                        text-align: left;
-                        border-bottom: 1px solid #eee;
+                    table.dataTable {
+                        border-collapse: collapse !important;
+                        border: none !important;
                     }
-
-                    .blog-table th {
-                        background-color: #f8f9fa;
-                        font-weight: 600;
-                        color: #2c3e50;
+                    table.dataTable thead th {
+                        border-bottom: 2px solid var(--fb-hover) !important;
+                        padding: 12px 16px !important;
                     }
-
-                    .action-btns {
-                        display: flex;
-                        gap: 10px;
-                    }
-
-                    .btn-create {
-                        margin-bottom: 20px;
+                    table.dataTable tbody td {
+                        border-bottom: 1px solid var(--fb-hover) !important;
+                        padding: 12px 16px !important;
+                        background: transparent !important;
                     }
                 </style>
         </head>
 
-        <body style="background-color: #f8f9fa;">
-            <div class="blog-container">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1>${pageTitle != null ? pageTitle : "Blog Management"}</h1>
+        <body style="background-color: #f0f2f5;">
+            <div style="max-width: 900px; margin: 40px auto; padding: 0 16px;">
+                <!-- Header Card -->
+                <div class="post-card" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-weight: 700; color: var(--fb-text);">
+                        <i class="fas fa-newspaper"></i> ${pageTitle != null ? pageTitle : "My Posts"}
+                    </h3>
                     <c:if test="${canManage}">
-                        <a href="blog-crud?action=create" class="btn btn-primary btn-create">
-                            <i class="fas fa-plus"></i> Create New Blog
+                        <a href="blog-crud?action=create" class="btn-post"
+                            style="width: auto; padding: 8px 20px; font-size: 14px; text-decoration: none;">
+                            <i class="fas fa-plus"></i> New Post
                         </a>
                     </c:if>
                 </div>
 
-                <c:if test="${empty blogList}">
-                    <div class="alert alert-info text-center">No blog posts available at the moment.</div>
-                </c:if>
-
-                <c:if test="${not empty blogList}">
-                    <table class="blog-table">
+                <div class="post-card">
+                    <table id="blogTable" class="display" style="width:100%">
                         <thead>
                             <tr>
-                                <th style="width: 50px;">ID</th>
                                 <th>Title</th>
                                 <th>Category</th>
-                                <th>Views</th>
-                                <th>Published Date</th>
-                                <th style="width: 200px;">Actions</th>
+                                <th>Date</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach items="${blogList}" var="post">
                                 <tr>
-                                    <td>${post.postId}</td>
-                                    <td><strong>${post.title}</strong></td>
-                                    <td><span class="badge bg-secondary">${post.categoryName}</span></td>
-                                    <td>${post.viewCount}</td>
-                                    <td class="text-muted">${post.createdAt}</td>
+                                    <td style="font-weight: 600;">${post.title}</td>
                                     <td>
-                                        <div class="action-btns">
-                                            <a href="blog-crud?action=view&id=${post.postId}"
-                                                class="btn btn-sm btn-outline-primary" title="View">
-                                                View
-                                            </a>
+                                        <span class="badge"
+                                              style="background: #e7f3ff; color: var(--fb-accent); padding: 3px 10px; border-radius: 12px; font-weight: 500;">
+                                              ${post.categoryName}
+                                        </span>
+                                    </td>
+                                    <td style="font-size: 13px; color: var(--fb-secondary-text);">${post.createdAt}</td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <a href="blog-crud?action=view&id=${post.postId}" title="View"
+                                               style="color: var(--fb-accent);"><i class="fas fa-eye"></i></a>
                                             <c:if test="${canManage}">
-                                                <a href="blog-crud?action=edit&id=${post.postId}"
-                                                    class="btn btn-sm btn-outline-secondary" title="Edit">
-                                                    Edit
-                                                </a>
-                                                <a href="blog-crud?action=delete&id=${post.postId}"
-                                                    class="btn btn-sm btn-outline-danger" title="Delete"
-                                                    onclick="return confirm('Are you sure you want to delete this post?')">
-                                                    Delete
-                                                </a>
+                                                <a href="blog-crud?action=edit&id=${post.postId}" title="Edit"
+                                                   style="color: var(--fb-secondary-text);"><i class="fas fa-pen"></i></a>
+                                                <a href="blog-crud?action=delete&id=${post.postId}" 
+                                                   onclick="return confirm('Are you sure you want to delete this post?')" 
+                                                   title="Delete" style="color: #d32f2f;"><i class="fas fa-trash"></i></a>
                                             </c:if>
                                         </div>
                                     </td>
@@ -106,8 +93,27 @@
                             </c:forEach>
                         </tbody>
                     </table>
-                </c:if>
+                </div>
             </div>
+
+            <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+            <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+            <script>
+                $(document).ready(function() {
+                    $('#blogTable').DataTable({
+                        "pageLength": 5,
+                        "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                        "language": {
+                            "search": "_INPUT_",
+                            "searchPlaceholder": "Search posts..."
+                        },
+                        "order": [[2, "desc"]]
+                    });
+                });
+            </script>
+            </div>
+
+            <jsp:include page="/Common/Layout/footer.jsp" />
         </body>
 
         </html>

@@ -48,6 +48,10 @@ public class PaymentDAO extends DBContext {
         }
     }
     
+    
+    
+    
+    
     /**
      * Lấy payment_id của giao dịch đang chờ (status=0) cho contract_id.
      * Tránh tạo nhiều bản ghi khi user double-submit hoặc bấm "Đồng ý" hai lần.

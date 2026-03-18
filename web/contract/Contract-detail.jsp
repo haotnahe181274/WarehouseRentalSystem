@@ -188,22 +188,7 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
     <button class="btn pdf">← Back to List</button>
 </a>
 <!-- ===== MANAGER ===== -->
-<c:if test="${sessionScope.role eq 'Manager' and contract.status == 0}">
-<form action="contract-detail" method="post" style="display:inline;">
-    <input type="hidden" name="contractId"
-           value="${contract.contractId}"/>
 
-    <button type="submit" name="action"
-            value="agree" class="btn agree">
-        Manager Đồng ý
-    </button>
-
-    <button type="submit" name="action"
-            value="reject" class="btn reject">
-        Manager Từ chối
-    </button>
-</form>
-</c:if>
 
 
 <c:if test="${param.paymentError == '1'}">
@@ -213,7 +198,7 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
     <p style="color: orange; margin-bottom: 15px;">Phiên thanh toán đã dùng hoặc hết hạn. Vui lòng tải lại trang và bấm "Đồng ý hợp đồng" lại.</p>
 </c:if>
 <!-- ===== RENTER ===== -->
-<c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1}">
+<c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1 and contract.paymentStatus ==0 }">
 <form action="${pageContext.request.contextPath}/payment" method="post" style="display:inline;" onsubmit="var b=this.querySelector('button[type=submit]');if(b){b.disabled=true;}">
     <input type="hidden" name="contractId"
            value="${contract.contractId}"/>
@@ -225,7 +210,7 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
 </form>
 </c:if>
 
-<c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1}">
+<c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1  and contract.paymentStatus ==0 }">
 <form action="contract-detail-demo" method="post" style="display:inline;">
     <input type="hidden" name="contractId"
            value="${contract.contractId}"/>

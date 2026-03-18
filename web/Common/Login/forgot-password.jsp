@@ -1,4 +1,3 @@
-<%-- Document : login Created on : Feb 3, 2026, 1:52:03 PM Author : ad --%>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -7,20 +6,19 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Forgot Password</title>
 </head>
 
 <body>
 
     <jsp:include page="/Common/Layout/header.jsp" />
 
-
     <div class="login-wrapper">
         <div class="login-card">
 
-            <h3>Sign In</h3>
+            <h3>Forgot Password</h3>
             <div class="login-subtitle">
-                Access your warehouse management portal
+                Nhập email của bạn để nhận mã OTP xác thực
             </div>
 
             <c:if test="${not empty error}">
@@ -28,48 +26,29 @@
                     ${error}
                 </div>
             </c:if>
-            
-            <c:if test="${not empty message}">
-                <div style="background: #dcfce7; color: #166534; padding: 10px; border-radius: 6px; font-size: 14px; margin-bottom: 16px;">
-                    ${message}
-                </div>
-            </c:if>
 
-            <form action="${pageContext.request.contextPath}/login" method="post">
+            <form action="${pageContext.request.contextPath}/forgot-password" method="post">
 
                 <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" class="form-control"
-                        placeholder="Enter your username" required value="${username}">
-                </div>
-
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="password" class="form-control"
-                        placeholder="Enter your password" value="${password}" required>
+                    <label>Email Address</label>
+                    <input type="email" name="email" class="form-control"
+                        placeholder="Enter your registered email" required>
                 </div>
 
                 <div class="options">
-                    <a href="${pageContext.request.contextPath}/forgot-password">Forgot Password?</a>
+                    <a href="${pageContext.request.contextPath}/login">Back to Sign In</a>
                 </div>
 
                 <button type="submit" class="btn-login">
-                    Sign In
+                    Gửi mã OTP
                 </button>
 
             </form>
-
-            <div class="login-footer">
-                <hr>
-                Don’t have an account?
-                <a href="${pageContext.request.contextPath}/register">Sign Up</a>
-            </div>
 
         </div>
     </div>
 
     <jsp:include page="/Common/Layout/footer.jsp" />
-
 
     <style>
         * {
@@ -86,7 +65,6 @@
             flex-direction: column;
         }
 
-        /* ===== CENTER ===== */
         .login-wrapper {
             flex: 1;
             display: flex;
@@ -95,7 +73,6 @@
             padding: 80px 0;
         }
 
-        /* ===== CARD ===== */
         .login-card {
             width: 100%;
             max-width: 420px;
@@ -117,7 +94,6 @@
             margin-bottom: 24px;
         }
 
-        /* ===== FORM ===== */
         .form-group {
             margin-bottom: 18px;
         }
@@ -145,10 +121,9 @@
             background: #fff;
         }
 
-        /* ===== OPTIONS ===== */
         .options {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             font-size: 14px;
             margin: 8px 0 22px;
@@ -160,7 +135,6 @@
             font-weight: 500;
         }
 
-        /* ===== BUTTON ===== */
         .btn-login {
             width: 100%;
             height: 46px;
@@ -177,7 +151,6 @@
             background: #000;
         }
 
-        /* ===== ERROR ===== */
         .error-box {
             background: #fee2e2;
             color: #991b1b;
@@ -185,20 +158,6 @@
             border-radius: 6px;
             font-size: 14px;
             margin-bottom: 16px;
-        }
-        
-        .login-footer {
-            margin-top: 20px;
-            font-size: 14px;
-            text-align: center;
-            color: #6b7280;
-        }
-        
-        .login-footer a {
-            color: #111;
-            font-weight: 600;
-            text-decoration: none;
-            margin-left: 5px;
         }
     </style>
 

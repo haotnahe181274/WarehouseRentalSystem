@@ -91,15 +91,25 @@ public class ContractDAO extends DBContext {
 
         String sql = """
             SELECT
-                        c.contract_id,
-                        c.start_date,
-                        c.end_date,
-                        c.status,
-                        c.price,
-                        r.full_name
-                    FROM Contract c
-                    JOIN Renter r ON c.renter_id = r.renter_id
-                    ORDER BY c.contract_id DESC
+                c.contract_id,
+                c.start_date,
+                c.end_date,
+                c.status,
+                c.price,
+                r.full_name,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM Payment p
+                        WHERE p.contract_id = c.contract_id
+                        AND p.status = 1
+                    )
+                    THEN 1
+                    ELSE 0
+                END AS payment_status
+            FROM Contract c
+            JOIN Renter r ON c.renter_id = r.renter_id
+            ORDER BY c.contract_id DESC
         """;
 
         try {
@@ -115,6 +125,7 @@ public class ContractDAO extends DBContext {
             c.setStatus(rs.getInt("status"));
             c.setPrice(rs.getDouble("price"));
             c.setRenterName(rs.getString("full_name"));
+            c.setPaymentStatus(rs.getInt("payment_status"));
 
             list.add(c);
         }
@@ -135,15 +146,24 @@ public class ContractDAO extends DBContext {
 
         String sql = """
             SELECT
-                        c.contract_id,
-                        c.start_date,
-                        c.end_date,
-                        c.status,
-                        c.price
-                    FROM Contract c
-                    JOIN Renter r ON c.renter_id = r.renter_id
-                    WHERE c.renter_id = ?
-                    ORDER BY c.contract_id DESC
+                c.contract_id,
+                c.start_date,
+                c.end_date,
+                c.status,
+                c.price,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM Payment p
+                        WHERE p.contract_id = c.contract_id
+                        AND p.status = 1
+                    )
+                    THEN 1
+                    ELSE 0
+                END AS payment_status
+            FROM Contract c
+            WHERE c.renter_id = ?
+            ORDER BY c.contract_id DESC
         """;
 
         try {
@@ -160,7 +180,7 @@ public class ContractDAO extends DBContext {
             c.setEndDate(rs.getDate("end_date"));
             c.setStatus(rs.getInt("status"));
             c.setPrice(rs.getDouble("price"));
-
+            c.setPaymentStatus(rs.getInt("payment_status"));
             list.add(c);
         }
 
@@ -178,28 +198,36 @@ public class ContractDAO extends DBContext {
 
         String sql = """
             SELECT
-                        c.contract_id,
-                        c.start_date,
-                        c.end_date,
-                        c.status,
-                        c.price,
-                        c.renter_id,
-                        r.full_name AS renter_name,
-                        r.email As renter_email,
-                        r.phone as renter_phone,
-                        w.name AS warehouse_name,
-                        w.address as warehouse_address,
-                        iu.full_name AS manager_name,
-                        iu.email as manager_email,
-                        iu.phone as manager_phone
-                    FROM Contract c
-                    JOIN Renter r ON c.renter_id = r.renter_id
-                    JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
-                    LEFT JOIN Rent_request rr
-                        ON c.request_id = rr.request_id
-                    LEFT JOIN Internal_user iu
-                        ON rr.internal_user_id = iu.internal_user_id
-                    WHERE c.contract_id = ?
+                c.contract_id,
+                c.start_date,
+                c.end_date,
+                c.status,
+                c.price,
+                c.renter_id,
+                r.full_name AS renter_name,
+                r.email AS renter_email,
+                r.phone AS renter_phone,
+                w.name AS warehouse_name,
+                w.address AS warehouse_address,
+                iu.full_name AS manager_name,
+                iu.email AS manager_email,
+                iu.phone AS manager_phone,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM Payment p 
+                        WHERE p.contract_id = c.contract_id 
+                        AND p.status = 1
+                    )
+                    THEN 1
+                    ELSE 0
+                END AS payment_status
+            FROM Contract c
+            JOIN Renter r ON c.renter_id = r.renter_id
+            JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
+            LEFT JOIN Rent_request rr ON c.request_id = rr.request_id
+            LEFT JOIN Internal_user iu ON rr.internal_user_id = iu.internal_user_id
+            WHERE c.contract_id = ?
         """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -227,7 +255,7 @@ public class ContractDAO extends DBContext {
                 c.setManagerName(rs.getString("manager_name"));
                 c.setManagerEmail(rs.getString("manager_email"));
                 c.setManagerPhone(rs.getString("manager_phone"));
-
+                c.setPaymentStatus(rs.getInt("payment_status"));
                 return c;
             }
 
@@ -304,6 +332,48 @@ public class ContractDAO extends DBContext {
 
         return -1;
     }
+    
+    public void endContractEarly(int contractId) {
 
-   
+        String sql = "UPDATE Contract SET status = 0 WHERE contract_id = ?";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, contractId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    
+    public void insertContractStorageUnit(int contractId) {
+
+    String sql = """
+         SELECT
+                    c.contract_id,
+                    su.unit_id,
+                    rru.start_date,
+                    rru.end_date,
+                    1
+        
+                FROM Contract c
+                JOIN Rent_request rr ON c.request_id = rr.request_id
+                JOIN rent_request_unit rru ON rr.request_id = rru.request_id
+                JOIN Storage_unit su ON su.warehouse_id = rr.warehouse_id
+        
+                WHERE c.contract_id = ?
+                AND su.status = 1
+                LIMIT 1
+        """;
+
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, contractId);
+        ps.executeUpdate();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 }

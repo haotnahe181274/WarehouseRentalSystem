@@ -102,4 +102,16 @@ public class UserValidation {
         return errors;
     }
 
+    public static String validateCategoryName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return "Category name cannot be empty";
+        }
+        if (!isValidString(name)) {
+            return "Category name must not have leading/trailing spaces or multiple consecutive spaces";
+        }
+        if (name.length() > 50) {
+            return "Category name must be less than 50 characters";
+        }
+        return null;
+    }
 }
