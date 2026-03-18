@@ -705,6 +705,76 @@ CREATE TABLE Notification (
     FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
 );
 
+-- =========================
+-- SUPPORT CONVERSATION
+-- =========================
+
+CREATE TABLE Support_conversation (
+    conversation_id INT AUTO_INCREMENT PRIMARY KEY,
+    subject VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'OPEN',
+    renter_id INT NOT NULL,
+    assigned_internal_user_id INT NULL,
+    request_id INT NULL,
+    contract_id INT NULL,
+    created_at DATETIME DEFAULT NOW(),
+    updated_at DATETIME DEFAULT NOW(),
+
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (assigned_internal_user_id) REFERENCES Internal_user(internal_user_id),
+    FOREIGN KEY (request_id) REFERENCES Rent_request(request_id),
+    FOREIGN KEY (contract_id) REFERENCES Contract(contract_id)
+);
+
+-- =========================
+-- SUPPORT MESSAGE
+-- =========================
+
+CREATE TABLE Support_message (
+    message_id INT AUTO_INCREMENT PRIMARY KEY,
+    conversation_id INT NOT NULL,
+    sender_type VARCHAR(20) NOT NULL,
+    renter_id INT NULL,
+    internal_user_id INT NULL,
+    message_content TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT 0,
+    sent_at DATETIME DEFAULT NOW(),
+
+    FOREIGN KEY (conversation_id) REFERENCES Support_conversation(conversation_id) ON DELETE CASCADE,
+    FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
+);
+
+-- =========================
+-- INDEX FOR SUPPORT
+-- =========================
+
+CREATE INDEX idx_support_conversation_renter 
+ON Support_conversation(renter_id);
+
+CREATE INDEX idx_support_conversation_assigned_internal 
+ON Support_conversation(assigned_internal_user_id);
+
+CREATE INDEX idx_support_conversation_request 
+ON Support_conversation(request_id);
+
+CREATE INDEX idx_support_conversation_contract 
+ON Support_conversation(contract_id);
+
+CREATE INDEX idx_support_conversation_status 
+ON Support_conversation(status);
+
+CREATE INDEX idx_support_message_conversation 
+ON Support_message(conversation_id);
+
+CREATE INDEX idx_support_message_renter 
+ON Support_message(renter_id);
+
+CREATE INDEX idx_support_message_internal_user 
+ON Support_message(internal_user_id);
+
+CREATE INDEX idx_support_message_sent_at 
+ON Support_message(sent_at);
 
 -- =========================
 
