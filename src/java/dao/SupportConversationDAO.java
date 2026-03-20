@@ -204,4 +204,31 @@ public class SupportConversationDAO extends DBContext {
         conversation.setUpdatedAt(rs.getTimestamp("updated_at"));
         return conversation;
     }
+    public SupportConversation getDefaultConversationByRenter(int renterId) {
+        String sql = "SELECT * FROM Support_conversation "
+                + "WHERE renter_id = ? AND request_id IS NULL AND contract_id IS NULL "
+                + "ORDER BY conversation_id DESC LIMIT 1";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, renterId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return mapConversation(rs);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public int createDefaultConversation(int renterId) {
+        SupportConversation conversation = new SupportConversation();
+        conversation.setSubject("Support Request");
+        conversation.setStatus("OPEN");
+        conversation.setRenterId(renterId);
+        conversation.setAssignedInternalUserId(null);
+        conversation.setRequestId(null);
+        conversation.setContractId(null);
+        return createConversation(conversation);
+    }
 }
