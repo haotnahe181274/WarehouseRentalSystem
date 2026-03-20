@@ -28,185 +28,19 @@
         </style>
     </head>
     <body>
-        <div class="wrapper">
-            <jsp:include page="/Common/Layout/sidebar.jsp" />
+    <jsp:include page="/Common/Layout/header.jsp" />
 
-            <div class="main-panel">
-                <jsp:include page="/Common/Layout/header.jsp" />
+    <div class="wrapper" style="display: flex; min-height: calc(100vh - [chiều_cao_header]);">
+        <jsp:include page="/Common/Layout/sidebar.jsp" />
 
-                <div class="main-content">
-                    <h2 class="mb-4 fw-bold">Dashboard</h2>
-
-                    <c:choose>
-                        <c:when test="${sessionScope.user.role == 'Manager' || sessionScope.user.role == 'Admin'}">
-                            
-                            <div class="row g-4">
-                                <div class="col-md-3">
-                                    <div class="stat-card">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div class="icon-box"><i class="fa-solid fa-users"></i></div>
-                                            <span class="trend-up">+12.5%</span>
-                                        </div>
-                                        <div class="stat-value">${totalUsers != null ? totalUsers : '0'}</div>
-                                        <div class="stat-label">Total Users</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="stat-card">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div class="icon-box"><i class="fa-solid fa-warehouse"></i></div>
-                                            <span class="trend-up">+8.2%</span>
-                                        </div>
-                                        <div class="stat-value">${activeWarehouses != null ? activeWarehouses : '0'}</div>
-                                        <div class="stat-label">Active Warehouses</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="stat-card">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div class="icon-box"><i class="fa-regular fa-calendar-check"></i></div>
-                                            <span class="trend-up">+15.3%</span>
-                                        </div>
-                                        <div class="stat-value">${totalBookings != null ? totalBookings : '0'}</div>
-                                        <div class="stat-label">Total Bookings</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="stat-card">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div class="icon-box"><i class="fa-solid fa-dollar-sign"></i></div>
-                                            <span class="trend-up">+22.1%</span>
-                                        </div>
-                                        <div class="stat-value">$${monthlyRevenue != null ? monthlyRevenue : '0'}</div>
-                                        <div class="stat-label">Monthly Revenue</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <div class="chart-container">
-                                        <div class="d-flex justify-content-between align-items-center mb-4">
-                                            <div>
-                                                <h5 class="fw-bold mb-1">Monthly Revenue</h5>
-                                                <small class="text-muted">Revenue trends in the current year</small>
-                                            </div>
-                                        </div>
-                                        <canvas id="revenueChart" height="200"></canvas>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="chart-container">
-                                        <div class="d-flex justify-content-between align-items-center mb-4">
-                                            <div>
-                                                <h5 class="fw-bold mb-1">Total Bookings</h5>
-                                                <small class="text-muted">Booking trends in the current year</small>
-                                            </div>
-                                        </div>
-                                        <canvas id="bookingChart" height="200"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <script>
-                                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-                                new Chart(revenueCtx, {
-                                    type: 'line',
-                                    data: {
-                                        labels: ${revenueLabels != null ? revenueLabels : "['No Data']"},
-                                        datasets: [{
-                                            label: 'Revenue (VND)',
-                                            data: ${revenueData != null ? revenueData : "[0]"},
-                                            borderColor: '#10b981',
-                                            backgroundColor: 'rgba(16, 185, 129, 0.05)',
-                                            borderWidth: 2,
-                                            fill: true,
-                                            tension: 0.3
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        plugins: { legend: { display: false } },
-                                        scales: {
-                                            y: { 
-                                                beginAtZero: true,
-                                                ticks: { 
-                                                    callback: function(value) { return (value / 1000000) + 'M'; } 
-                                                }
-                                            }
-                                        }
-                                    }
-                                });
-
-                                const bookingCtx = document.getElementById('bookingChart').getContext('2d');
-                                new Chart(bookingCtx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: ${bookingLabels != null ? bookingLabels : "['No Data']"},
-                                        datasets: [{
-                                            label: 'Bookings',
-                                            data: ${bookingData != null ? bookingData : "[0]"},
-                                            backgroundColor: '#6b7280',
-                                            borderRadius: 4
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        plugins: { legend: { display: false } },
-                                        scales: {
-                                            y: { 
-                                                beginAtZero: true,
-                                                ticks: { stepSize: 1 } // Ép trục Y chỉ hiện số nguyên (1, 2, 3...)
-                                            }
-                                        }
-                                    }
-                                });
-                            </script>
-                        </c:when>
-
-                        <c:when test="${sessionScope.user.role == 'Staff'}">
-                            <div class="row g-4 mt-2">
-                                <div class="col-md-6">
-                                    <div class="stat-card task-card pending">
-                                        <div class="d-flex align-items-center">
-                                            <div class="icon-box" style="background-color: #fef3c7; color: #d97706;">
-                                                <i class="fa-solid fa-spinner fa-spin-pulse"></i>
-                                            </div>
-                                            <div class="ms-4">
-                                                <div class="stat-label text-uppercase fw-bold">Task đang thực hiện</div>
-                                                <div class="stat-value text-warning mb-0">${pendingTasks != null ? pendingTasks : '0'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="stat-card task-card completed">
-                                        <div class="d-flex align-items-center">
-                                            <div class="icon-box" style="background-color: #d1fae5; color: #059669;">
-                                                <i class="fa-solid fa-check-double"></i>
-                                            </div>
-                                            <div class="ms-4">
-                                                <div class="stat-label text-uppercase fw-bold">Task đã hoàn thiện</div>
-                                                <div class="stat-value text-success mb-0">${completedTasks != null ? completedTasks : '0'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="alert alert-info mt-4" role="alert">
-                               <i class="fa-solid fa-circle-info me-2"></i> Chúc bạn một ngày làm việc hiệu quả! Hãy kiểm tra danh sách <a href="staffTask.jsp" class="alert-link">Nhiệm vụ của tôi</a> để biết chi tiết công việc hôm nay.
-                            </div>
-                        </c:when>
-                    </c:choose>
-                </div>
-
-                <jsp:include page="/Common/Layout/footer.jsp" />
+        <div class="main-panel" style="flex: 1;">
+            <div class="main-content">
+                <h2 class="mb-4 fw-bold">Dashboard</h2>
+                <jsp:include page="dashboard_stats_cards.jsp" />
+                <jsp:include page="dashboard_charts.jsp" />
             </div>
+            <jsp:include page="/Common/Layout/footer.jsp" />
         </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+    </div>
+</body>
 </html>
