@@ -166,7 +166,7 @@ public class BlogDAO extends DBContext {
 
     public List<model.BlogCategory> getBlogCategories() {
         List<model.BlogCategory> list = new ArrayList<>();
-        String sql = "SELECT * FROM Blog_Category";
+        String sql = "SELECT * FROM Blog_Category WHERE status = 1";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -390,14 +390,14 @@ public class BlogDAO extends DBContext {
             ResultSet rs = ps.executeQuery();
             
             if (rs.next()) {
-                // Kiểm tra xem có phải Renter không
+               
                 int renterId = rs.getInt("renter_id");
                 if (!rs.wasNull()) { // rs.wasNull() kiểm tra xem cột vừa get có phải là NULL trong DB không
                     userInfo = dao.getUserById(renterId, "renter");
                     return userInfo;
                 }
                 
-                // Nếu không phải Renter, kiểm tra Internal User
+                
                 int internalUserId = rs.getInt("internal_user_id");
                 if (!rs.wasNull()) {
                     userInfo =  dao.getUserById(renterId, "internal");
@@ -408,7 +408,7 @@ public class BlogDAO extends DBContext {
             e.printStackTrace();
         }
         
-        return null; // Trả về null nếu không tìm thấy like_id
+        return null;
     }
     
     public void addComment(int postId, int userId, String userType, String content, Integer parentCommentId) {
@@ -432,7 +432,7 @@ public class BlogDAO extends DBContext {
     }
 
     public void addCategory(String name) {
-        String sql = "INSERT INTO Blog_Category (category_name) VALUES (?)";
+        String sql = "INSERT INTO Blog_Category (category_name, status) VALUES (?, 1)";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, name);
@@ -455,7 +455,7 @@ public class BlogDAO extends DBContext {
     }
 
     public boolean deleteCategory(int id) {
-        String sql = "DELETE FROM Blog_Category WHERE category_id = ?";
+        String sql = "UPDATE Blog_Category SET status = 0 WHERE category_id = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, id);
