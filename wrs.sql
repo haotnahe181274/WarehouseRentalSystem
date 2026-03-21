@@ -350,7 +350,7 @@ CREATE TABLE Contract (
 
     request_id INT, 
 
-    price DECIMAL(12,2),
+    price DECIMAL(18,2),
 
     FOREIGN KEY (renter_id) REFERENCES Renter(renter_id),
 
@@ -394,7 +394,7 @@ CREATE TABLE Payment (
 
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
 
-    amount DECIMAL(10,2),
+    amount DECIMAL(18,2),
 
     payment_date DATETIME,
 
