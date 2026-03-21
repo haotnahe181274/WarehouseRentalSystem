@@ -28,11 +28,15 @@
                 flex: 1;
                 padding: 24px;
                 background: #f5f7fb;
+                width: 100%;
+                box-sizing: border-box;
+                    
             }
 
             body {
                 font-family: Arial, sans-serif;
                 background: #f5f6fa;
+                margin: 0;
             }
 
             h3 {
