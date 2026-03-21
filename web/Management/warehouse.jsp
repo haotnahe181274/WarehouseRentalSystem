@@ -10,12 +10,11 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
     <style>
-        /* Toàn bộ Style Copy từ trang User List */
         .layout {
             display: flex;
             min-height: 100vh;
         }
-
+        
         .main-content {
             flex: 1;
             padding: 30px;
@@ -39,27 +38,14 @@
             gap: 10px;
         }
 
-        #warehouseTable_length {
-            display: flex !important;
-            align-items: center;
-            gap: 15px;
-            float: none !important;
-        }
-
         .dt-controls-bottom-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
             margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 15px;
-        }
-
-        .dt-controls-bottom-row label {
-            margin-bottom: 0 !important;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            width: 100%;
         }
 
         /* Filter Bar Style */
@@ -174,15 +160,19 @@
 
             <div class="filter-bar">
                 <form action="${pageContext.request.contextPath}/warehouse" method="get" id="filterForm" class="filter-bar">
-                    <input type="hidden" name="pageSize" id="pageSizeInput">
+                    
+                    <select name="pageSize" onchange="submitFilter()">
+                        <option value="5" ${param.pageSize == '5' ? 'selected' : ''}>5 records/page</option>
+                        <option value="10" ${(empty param.pageSize or param.pageSize == '10') ? 'selected' : ''}>10 records/page</option>
+                        <option value="25" ${param.pageSize == '25' ? 'selected' : ''}>25 records/page</option>
+                        <option value="50" ${param.pageSize == '50' ? 'selected' : ''}>50 records/page</option>
+                    </select>
 
                     <select name="status" onchange="submitFilter()">
                         <option value="All">All Status</option>
                         <option value="1" ${filterStatus == '1' ? 'selected' : ''}>Active</option>
                         <option value="0" ${filterStatus == '0' ? 'selected' : ''}>Inactive</option>
                     </select>
-
-                    <%-- Add more filters here if needed (e.g. Type) --%>
 
                     <c:if test="${not empty filterStatus && filterStatus != 'All'}">
                         <a href="${pageContext.request.contextPath}/warehouse" class="btn-reset">Reset</a>
@@ -242,6 +232,9 @@
                     </c:forEach>
                 </tbody>
             </table>
+
+            <jsp:include page="/Common/homepage/pagination.jsp" />
+
         </div>
     </div>
 
@@ -251,49 +244,41 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
-            // 1. Initialize DataTable
+            // 1. Khởi tạo DataTable (Đã tắt phân trang)
             var table = $('#warehouseTable').DataTable({
+                "paging": false,       // Tắt phân trang của DataTable
+                "info": false,         // Tắt text "Showing 1 to 10..."
                 "columnDefs": [
                     { "orderable": false, "targets": [1, 6] } // Disable sorting for Image and Actions
                 ],
                 "order": [[0, "desc"]], // Default sort by ID
-                "lengthMenu": [5, 10, 25, 50],
                 "language": {
-                    "search": "Search:",
-                    "lengthMenu": "_MENU_",
-                    "info": "Showing _START_ to _END_ of _TOTAL_ warehouses",
-                    "paginate": {
-                        "next": "Next",
-                        "previous": "Previous"
-                    }
+                    "search": "Search:"
                 }
             });
 
-            // 2. Move "Add" button next to Search Box (Right side)
+            // 2. Di chuyển nút "Add" sang phải cùng thanh Search
             var addBtn = $('.top-bar .btn-add');
             if (addBtn.length) {
                 addBtn.detach();
                 $('#warehouseTable_filter').append(addBtn);
             }
 
-            // 3. Move "Length Menu" and "Filters" to the same row (Bottom control row)
+            // 3. Gom chung Filter Status + PageSize và Search vào cùng một dòng
             var filterBar = $('.filter-bar').first();
-            var lengthDiv = $('#warehouseTable_length');
             var filterDiv = $('#warehouseTable_filter');
 
-            if (filterBar.length && lengthDiv.length && filterDiv.length) {
+            if (filterBar.length && filterDiv.length) {
                 var bottomRow = $('<div class="dt-controls-bottom-row"></div>');
-                lengthDiv.before(bottomRow);
-                bottomRow.append(lengthDiv); // Length menu on the left
-                bottomRow.append(filterDiv); // Search + Add on the right
+                $('#warehouseTable').before(bottomRow);
+                
+                bottomRow.append(filterBar); // Dropdowns bên trái
+                bottomRow.append(filterDiv); // Search + Add bên phải
             }
         });
 
-        // 4. Submit function for dropdown filters
+        // 4. Submit form khi người dùng đổi lựa chọn ở thẻ select
         function submitFilter() {
-            var table = $('#warehouseTable').DataTable();
-            var len = table.page.len();
-            $('#pageSizeInput').val(len);
             document.getElementById('filterForm').submit();
         }
     </script>
