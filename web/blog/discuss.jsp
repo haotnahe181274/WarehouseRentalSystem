@@ -63,7 +63,7 @@
                                 </div>
                             </div>
 
-                            <!-- Comment Section -->
+                            
                             <div class="comment-section" id="comment-section-${post.postId}">
                                 <div class="comment-list" id="comment-list-${post.postId}"></div>
                                 <div class="comment-input-area mt-2">
