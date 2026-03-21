@@ -1091,7 +1091,10 @@ INSERT INTO storage_unit_item (quantity, item_id, unit_id) VALUES
 
 (100, 1, 1), (50, 2, 2), (20, 3, 3), (500, 8, 22), (300, 9, 24),
 
-(800, 10, 25), (200, 11, 1), (150, 12, 1), (100, 13, 1);
+(800, 10, 25), (200, 11, 1), (150, 12, 1), (100, 13, 1),
+
+-- dữ liệu test checkout cho renter 01 (contract active ở unit 4,5)
+(60, 14, 4), (35, 15, 5), (20, 14, 5);
 
 
 
