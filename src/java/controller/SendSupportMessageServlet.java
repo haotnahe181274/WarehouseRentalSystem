@@ -1,5 +1,6 @@
 package controller;
 
+import dao.NotificationDAO;
 import dao.SupportConversationDAO;
 import dao.SupportMessageDAO;
 import jakarta.servlet.ServletException;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
+import model.Notification;
 import model.SupportConversation;
 import model.SupportMessage;
 import model.UserView;
@@ -83,7 +85,7 @@ public class SendSupportMessageServlet extends HttpServlet {
         }
 
         String conversationIdRaw = request.getParameter("conversationId");
-        String messageContent = request.getParameter("messageContent");
+        String messageContent    = request.getParameter("messageContent");
 
         if (conversationIdRaw == null || messageContent == null || messageContent.trim().isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/support");
@@ -106,7 +108,18 @@ public class SendSupportMessageServlet extends HttpServlet {
             message.setMessageContent(messageContent.trim());
             message.setIsRead(false);
 
+            // Cắt ngắn preview tin nhắn cho notification (tối đa 60 ký tự)
+            String preview = messageContent.trim();
+            if (preview.length() > 60) {
+                preview = preview.substring(0, 60) + "...";
+            }
+
+            String subject = conversation.getSubject() != null
+                    ? "\"" + conversation.getSubject() + "\""
+                    : "support conversation #" + conversationId;
+
             if ("RENTER".equalsIgnoreCase(user.getType())) {
+                // ── Renter gửi tin nhắn ──────────────────────────────────
                 if (conversation.getRenterId() != user.getId()) {
                     response.sendRedirect(request.getContextPath() + "/support");
                     return;
@@ -115,13 +128,47 @@ public class SendSupportMessageServlet extends HttpServlet {
                 message.setSenderType("RENTER");
                 message.setRenterId(user.getId());
                 message.setInternalUserId(null);
+
+                // Gửi notification cho Staff/Manager đang phụ trách conversation
+                try {
+                    Integer assignedStaffId = conversation.getAssignedInternalUserId();
+                    if (assignedStaffId != null && assignedStaffId > 0) {
+                        Notification noti = new Notification();
+                        noti.setTitle("New support message");
+                        noti.setMessage("Renter sent a message in " + subject + ": \"" + preview + "\"");
+                        noti.setType("INFO");
+                        noti.setLinkUrl("/support?conversationId=" + conversationId);
+                        noti.setInternalUserId(assignedStaffId);
+                        new NotificationDAO().insertNotification(noti);
+                    }
+                    // Nếu chưa có staff phụ trách thì không gửi
+                    // (staff sẽ thấy conversation trong danh sách unassigned)
+                } catch (Exception e) {
+                    System.err.println("Failed to insert notification (renter→staff): " + e.getMessage());
+                }
+
             } else {
+                // ── Staff / Manager reply ─────────────────────────────────
                 message.setSenderType("INTERNAL_USER");
                 message.setRenterId(null);
                 message.setInternalUserId(user.getId());
 
+                // Tự động assign conversation nếu chưa có staff phụ trách
                 if (conversation.getAssignedInternalUserId() == null) {
                     conversationDAO.assignConversation(conversationId, user.getId());
+                }
+
+                // Gửi notification cho Renter
+                try {
+                    Notification noti = new Notification();
+                    noti.setTitle("New reply from WareSpace support");
+                    noti.setMessage("Staff replied to your " + subject + ": \"" + preview + "\"");
+                    noti.setType("INFO");
+                    noti.setLinkUrl("/send-support-message?conversationId=" + conversationId);
+                    noti.setRenterId(conversation.getRenterId());
+                    new NotificationDAO().insertNotification(noti);
+                } catch (Exception e) {
+                    System.err.println("Failed to insert notification (staff→renter): " + e.getMessage());
                 }
             }
 

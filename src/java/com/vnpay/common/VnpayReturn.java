@@ -1,15 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 package com.vnpay.common;
 
-
+import dao.NotificationDAO;
 import dao.PaymentDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,104 +14,93 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import model.Notification;
 import model.Payment;
 
-
-/**
- * Servlet nhận redirect từ VNPay sau khi thanh toán, cập nhật trạng thái payment và forward sang paymentResult.
- */
 @WebServlet(name = "VnpayReturn", urlPatterns = {"/vnpay-return"})
 public class VnpayReturn extends HttpServlet {
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try ( PrintWriter out = response.getWriter()) {
+        try (PrintWriter out = response.getWriter()) {
+
+            // Thu thập tất cả fields từ VNPay callback
             Map fields = new HashMap();
             for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
-                String fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());
+                String fieldName  = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());
                 String fieldValue = URLEncoder.encode(request.getParameter(fieldName), StandardCharsets.US_ASCII.toString());
-                if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                if (fieldValue != null && fieldValue.length() > 0) {
                     fields.put(fieldName, fieldValue);
                 }
             }
+
             PaymentDAO paymentDao = new PaymentDAO();
 
+            // Xác thực chữ ký VNPay
             String vnp_SecureHash = request.getParameter("vnp_SecureHash");
-            if (fields.containsKey("vnp_SecureHashType")) {
-                fields.remove("vnp_SecureHashType");
-            }
-            if (fields.containsKey("vnp_SecureHash")) {
-                fields.remove("vnp_SecureHash");
-            }
+            if (fields.containsKey("vnp_SecureHashType")) fields.remove("vnp_SecureHashType");
+            if (fields.containsKey("vnp_SecureHash"))     fields.remove("vnp_SecureHash");
+
             String signValue = Config.hashAllFields(fields);
+
             if (signValue.equals(vnp_SecureHash)) {
-                String paymentCode = request.getParameter("vnp_TransactionNo");
-                
-                String paymentId = request.getParameter("vnp_TxnRef");
-                
-                Payment payment =new Payment();
-                payment.setPaymentId(Integer.parseInt(paymentId));
-                
-                boolean transSuccess = false;
-                if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                    //update banking system
-                    payment.setStatus(1);
-                    transSuccess = true;
-                } else {
-                    payment.setStatus(2);
-                }
+                int paymentId = Integer.parseInt(request.getParameter("vnp_TxnRef"));
+                boolean transSuccess = "00".equals(request.getParameter("vnp_TransactionStatus"));
+
+                // Cập nhật trạng thái payment
+                Payment payment = new Payment();
+                payment.setPaymentId(paymentId);
+                payment.setStatus(transSuccess ? 1 : 2);
                 paymentDao.updatePaymentStatus(payment);
+
+                // Gửi notification nếu thanh toán thành công
+                if (transSuccess) {
+                    try {
+                        // Lấy thông tin đầy đủ của payment (có contractId, renterId, amount)
+                        Payment fullPayment = paymentDao.getPaymentById(paymentId);
+
+                        if (fullPayment != null && fullPayment.getContract().getRenter().getRenterId()> 0) {
+                            String amountStr = String.format("%,.0f", fullPayment.getAmount());
+
+                            Notification noti = new Notification();
+                            noti.setTitle("Payment successful");
+                            noti.setMessage("Your payment of " + amountStr
+                                    + " VND for contract #" + fullPayment.getContract().getContractId()
+                                    + " has been received successfully.");
+                            noti.setType("SUCCESS");
+                            noti.setLinkUrl("/payments");
+                            noti.setRenterId(fullPayment.getContract().getRenter().getRenterId());
+                            new NotificationDAO().insertNotification(noti);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Failed to insert notification: " + e.getMessage());
+                    }
+                }
+
                 request.setAttribute("transResult", transSuccess);
                 request.getRequestDispatcher("Payment/paymentResult.jsp").forward(request, response);
+
             } else {
-                //RETURN PAGE ERROR
                 System.out.println("GD KO HOP LE (invalid signature)");
             }
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
-    } 
-
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
-
+    }
 }
-
