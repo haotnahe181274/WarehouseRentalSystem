@@ -4,7 +4,8 @@
 <%-- TÍNH NĂNG PHÂN QUYỀN LỚP COMPONENT: Chỉ hiển thị nếu là Admin hoặc Manager --%>
 <c:if test="${sessionScope.user.role == 'Manager' || sessionScope.user.role == 'Admin'}">
     
-    <div class="row g-4 mb-4"> <div class="col-md-3">
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
             <div class="stat-card">
                 <div class="d-flex justify-content-between align-items-start">
                     <div class="icon-box"><i class="fa-solid fa-users"></i></div>
@@ -21,8 +22,8 @@
                     <div class="icon-box"><i class="fa-solid fa-warehouse"></i></div>
                     <span class="trend-up">+8.2%</span>
                 </div>
-                <div class="stat-value">${activeWarehouses != null ? activeWarehouses : '0'}</div>
-                <div class="stat-label">Active Warehouses</div>
+                <div class="stat-value">${totalWarehouses != null ? totalWarehouses : '0'}</div>
+                <div class="stat-label">Total Warehouses</div>
             </div>
         </div>
 
@@ -50,39 +51,33 @@
     </div>
 </c:if>
 
-<%-- TÍNH NĂNG PHÂN QUYỀN LỚP COMPONENT: Chỉ hiển thị nếu là Admin hoặc Manager --%>
+<%-- TÍNH NĂNG PHÂN QUYỀN LỚP COMPONENT: Cho Staff trong Overview (Overview = Overview) --%>
 <c:if test="${sessionScope.user.role == 'Staff'}">
-    
-    <div class="row g-4 mt-2">
-    <div class="col-md-6">
-        <div class="stat-card task-card pending">
-            <div class="d-flex align-items-center">
-                <div class="icon-box" style="background-color: #fef3c7; color: #d97706;">
-                    <i class="fa-solid fa-spinner fa-spin-pulse"></i>
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card task-card pending">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="icon-box" style="background-color: #fef3c7; color: #d97706;">
+                        <i class="fa-solid fa-spinner fa-spin-pulse"></i>
+                    </div>
                 </div>
-                <div class="ms-4">
-                    <div class="stat-label text-uppercase fw-bold">Task đang thực hiện</div>
-                    <div class="stat-value text-warning mb-0">${pendingTasks != null ? pendingTasks : '0'}</div>
-                </div>
+                <div class="stat-value text-warning">${pendingTasks != null ? pendingTasks : '0'}</div>
+                <div class="stat-label">Task đang thực hiện</div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-6">
-        <div class="stat-card task-card completed">
-            <div class="d-flex align-items-center">
-                <div class="icon-box" style="background-color: #d1fae5; color: #059669;">
-                    <i class="fa-solid fa-check-double"></i>
+        <div class="col-md-3">
+            <div class="stat-card task-card completed">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="icon-box" style="background-color: #d1fae5; color: #059669;">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
                 </div>
-                <div class="ms-4">
-                    <div class="stat-label text-uppercase fw-bold">Task đã hoàn thiện</div>
-                    <div class="stat-value text-success mb-0">${completedTasks != null ? completedTasks : '0'}</div>
-                </div>
+                <div class="stat-value text-success">${completedTasks != null ? completedTasks : '0'}</div>
+                <div class="stat-label">Task đã hoàn thiện</div>
             </div>
         </div>
     </div>
-</div>
-    
 </c:if>
 
 

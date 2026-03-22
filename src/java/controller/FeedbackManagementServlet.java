@@ -43,6 +43,11 @@ public class FeedbackManagementServlet extends HttpServlet {
         Map<Integer, FeedbackResponse> feedbackResponses = responseDAO.getAllResponses();
         request.setAttribute("feedbackResponses", feedbackResponses);
 
+        // Fetch counts for stats cards
+        request.setAttribute("totalFeedback", feedbackDAO.countTotal());
+        request.setAttribute("pendingFeedback", feedbackDAO.countPending());
+        request.setAttribute("repliedFeedback", feedbackDAO.countReplied());
+
         request.getRequestDispatcher("/Management/feedback-management.jsp").forward(request, response);
     }
 

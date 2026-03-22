@@ -155,4 +155,22 @@ public class IncidentReportDAO extends DBContext {
         }
         return false;
     }
+
+    public int countTotal() {
+        String sql = "SELECT COUNT(*) FROM Incident_report";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countByStatus(int status) {
+        String sql = "SELECT COUNT(*) FROM Incident_report WHERE status = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, status);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
 }

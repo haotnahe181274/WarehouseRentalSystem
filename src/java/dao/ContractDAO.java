@@ -371,9 +371,47 @@ public class ContractDAO extends DBContext {
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setInt(1, contractId);
         ps.executeUpdate();
-
     } catch (Exception e) {
         e.printStackTrace();
     }
 }
+    public int countTotal() {
+        String sql = "SELECT COUNT(*) FROM Contract";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countExpired() {
+        String sql = "SELECT COUNT(*) FROM Contract WHERE status != 0 AND end_date < NOW()";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countDone() {
+        String sql = """
+            SELECT COUNT(*) FROM Contract c 
+            WHERE c.status != 0 AND c.end_date >= NOW() 
+            AND EXISTS (SELECT 1 FROM Payment p WHERE p.contract_id = c.contract_id AND p.status = 1)
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countProcess() {
+        String sql = """
+            SELECT COUNT(*) FROM Contract c 
+            WHERE c.status != 0 AND c.end_date >= NOW() 
+            AND NOT EXISTS (SELECT 1 FROM Payment p WHERE p.contract_id = c.contract_id AND p.status = 1)
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
 }
