@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <html>
 <head>
     <title>Chi tiết hợp đồng</title>
@@ -155,17 +155,47 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
 
     <p><b>Tên kho:</b> ${contract.warehouseName}</p>
     <p><b>Địa chỉ:</b> ${contract.warehouseAddress}</p>
+    
+   <table border="1" width="100%" cellpadding="8" style="border-collapse:collapse;">
+    <tr style="background:#ecf0f1;">
+        <th>STT</th>
+        <th>Diện tích (m²)</th>
+        <th>Giá thuê / tháng</th>
+        <th>Thời gian</th>
+    </tr>
 
+    <c:forEach var="u" items="${unitList}" varStatus="st">
+        <tr>
+            <td>${st.index + 1}</td>
+            <td>${u.area}</td>
+            <td>
+                <fmt:formatNumber value="${u.price}" type="number"/>
+                VNĐ
+            </td>
+            <td>
+                <fmt:formatDate value="${u.startDate}" pattern="dd/MM/yyyy"/>
+                →
+                <fmt:formatDate value="${u.endDate}" pattern="dd/MM/yyyy"/>
+            </td>
+        </tr>
+    </c:forEach>
+</table>
     <div class="highlight">
 
     <p>
-    <b>Thời hạn thuê:</b>
-    ${contract.startDate} → ${contract.endDate}
-    </p>
+    <b>Thời hạn thuê: </b>
 
+    <fmt:formatDate value="${contract.startDate}" pattern="dd/MM/yyyy"/>
+    →
+    <fmt:formatDate value="${contract.endDate}" pattern="dd/MM/yyyy"/>
+
+    </p>
     <p>
     <b>Giá thuê:</b>
-    <span class="price">${contract.price} VNĐ/tháng</span>
+    <span class="price">
+    <fmt:formatNumber value="${contract.price}" type="number" groupingUsed="true"/>
+    VNĐ/tháng
+</span>
     </p>
 
     </div>
@@ -211,12 +241,13 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
 </c:if>
 
 <c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1  and contract.paymentStatus ==0 }">
-<form action="contract-detail-demo" method="post" style="display:inline;">
-    <input type="hidden" name="contractId"
-           value="${contract.contractId}"/>
+<form action="${pageContext.request.contextPath}/contract-detail" method="post" style="display:inline;">
+    <input type="hidden" name="contractId" value="${contract.contractId}"/>
 
     <button type="submit" name="action"
-            value="reject" class="btn reject">
+            value="reject"
+            class="btn reject"
+            onclick="return confirm('Bạn có chắc muốn từ chối hợp đồng này không?');">
         Từ chối
     </button>
 </form>
