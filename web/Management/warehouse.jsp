@@ -8,125 +8,18 @@
     <title>Warehouse List</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
 
     <style>
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        .main-content {
-            flex: 1;
-            padding: 30px;
-            background: #f5f7fb;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: #f5f7fb;
-        }
-
-        .top-bar {
-            display: none; /* Hidden - JS will move content */
-        }
-
-        /* DataTables Custom Controls Styling */
-        #warehouseTable_filter {
-            display: flex !important;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .dt-controls-bottom-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-            width: 100%;
-        }
-
-        /* Filter Bar Style */
-        .filter-bar {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .filter-bar select, .filter-bar input {
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 14px;
-            background: #fff;
-            color: #374151;
-            outline: none;
-            cursor: pointer;
-            transition: border-color 0.2s;
-        }
-
-        .filter-bar select:focus { border-color: #3b82f6; }
-
-        /* Buttons */
-        .btn-add {
-            background: black;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-add:hover { background: #333; color: white; }
-
-        .btn-reset {
-            padding: 8px 16px;
-            border-radius: 8px;
-            background-color: black;
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* Table Styling */
-        table.dataTable {
-            width: 100% !important;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #e5e7eb;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        table.dataTable thead th {
-            background: #f9fafb;
-            color: #4b5563;
-            font-weight: 600;
-            border-bottom: 1px solid #e5e7eb !important;
-            padding: 12px 16px;
-        }
-
-        table.dataTable tbody td {
-            padding: 16px;
-            border-bottom: 1px solid #f3f4f6;
-            vertical-align: middle;
-        }
-
+        /* Page-specific styles only — shared styles in management-layout.css */
         .warehouse-thumbnail {
             width: 60px;
             height: 45px;
             object-fit: cover;
             border-radius: 6px;
         }
-
         .badge-status {
             padding: 4px 10px;
             border-radius: 20px;
@@ -145,20 +38,29 @@
         <jsp:include page="/Common/Layout/sidebar.jsp" />
 
         <div class="main-content">
-            <div class="top-bar">
-                <c:if test="${sessionScope.role == 'Manager'}">
-                    <a href="${pageContext.request.contextPath}/warehouse?action=add" class="btn btn-add">
-                        <i class="fa-solid fa-plus"></i> Add New Warehouse
-                    </a>
-                </c:if>
+            <h3>Warehouse Management</h3>
+
+            <div class="stats-container mb-4">
+                <jsp:include page="/Common/Layout/stats_cards.jsp">
+                    <jsp:param name="label1" value="Total Warehouse" />
+                    <jsp:param name="value1" value="${totalWarehouses}" />
+                    <jsp:param name="icon1" value="fa-solid fa-warehouse" />
+                    <jsp:param name="color1" value="primary" />
+
+                    <jsp:param name="label2" value="Active" />
+                    <jsp:param name="value2" value="${activeWarehouses}" />
+                    <jsp:param name="icon2" value="fa-solid fa-circle-check" />
+                    <jsp:param name="color2" value="success" />
+
+                    <jsp:param name="label3" value="Inactive" />
+                    <jsp:param name="value3" value="${inactiveWarehouses}" />
+                    <jsp:param name="icon3" value="fa-solid fa-circle-xmark" />
+                    <jsp:param name="color3" value="danger" />
+                </jsp:include>
             </div>
 
-            <h1 class="page-title" style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">Warehouse List</h1>
-            <p class="page-subtitle" style="color: #6b7280; font-size: 14px; margin-bottom: 24px;">
-                Manage and monitor all warehouse locations in the system
-            </p>
+            <div class="management-card">
 
-            <div class="filter-bar">
                 <form action="${pageContext.request.contextPath}/warehouse" method="get" id="filterForm" class="filter-bar">
                     
                     <select name="pageSize" onchange="submitFilter()">
@@ -178,20 +80,19 @@
                         <a href="${pageContext.request.contextPath}/warehouse" class="btn-reset">Reset</a>
                     </c:if>
                 </form>
-            </div>
 
-            <table id="warehouseTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Thumbnail</th>
-                        <th>Warehouse Name</th>
-                        <th>Type</th>
-                        <th>Address</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+                <table id="warehouseTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Thumbnail</th>
+                            <th>Warehouse Name</th>
+                            <th>Type</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
                 <tbody>
                     <c:forEach var="w" items="${warehouseList}">
                         <tr>
@@ -235,6 +136,7 @@
 
             <jsp:include page="/Common/homepage/pagination.jsp" />
 
+                </div> <!-- End management-card -->
         </div>
     </div>
 
@@ -265,6 +167,7 @@
             }
 
             // 3. Gom chung Filter Status + PageSize và Search vào cùng một dòng
+            // Tương tự user management
             var filterBar = $('.filter-bar').first();
             var filterDiv = $('#warehouseTable_filter');
 
@@ -272,7 +175,7 @@
                 var bottomRow = $('<div class="dt-controls-bottom-row"></div>');
                 $('#warehouseTable').before(bottomRow);
                 
-                bottomRow.append(filterBar); // Dropdowns bên trái
+                bottomRow.append(filterBar); // Dropdowns và Reset bên trái
                 bottomRow.append(filterDiv); // Search + Add bên phải
             }
         });

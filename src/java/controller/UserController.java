@@ -202,6 +202,12 @@ public class UserController extends HttpServlet {
         request.setAttribute("filterStatus", filterStatus);
         request.setAttribute("filterRole", filterRole);
         request.setAttribute("users", users);
+        
+        // Stats Cards
+        request.setAttribute("totalUsers", userDAO.countTotal());
+        request.setAttribute("internalUsers", userDAO.countInternal());
+        request.setAttribute("renterUsers", userDAO.countRenter());
+
         request.getRequestDispatcher("/user/userlist.jsp").forward(request, response);
 
     }

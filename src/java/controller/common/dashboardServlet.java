@@ -34,14 +34,14 @@ public class dashboardServlet extends HttpServlet {
         // Xử lý luồng dữ liệu theo Role
         if ("Manager".equalsIgnoreCase(roleId) || "Admin".equalsIgnoreCase(roleId)) {
             int totalUsers = dao.getTotalUsers();
-            int activeWarehouses = dao.getActiveWarehouses();
+            int totalWarehouses = dao.getTotalWarehouses();
             int totalBookings = dao.getTotalBookings();
             double monthlyRevenue = dao.getMonthlyRevenue();
 
             String formattedRevenue = String.format("%.1fM", monthlyRevenue / 1000000.0);
 
             request.setAttribute("totalUsers", String.format("%,d", totalUsers));
-            request.setAttribute("activeWarehouses", String.format("%,d", activeWarehouses));
+            request.setAttribute("totalWarehouses", String.format("%,d", totalWarehouses));
             request.setAttribute("totalBookings", String.format("%,d", totalBookings));
             request.setAttribute("monthlyRevenue", formattedRevenue);
 

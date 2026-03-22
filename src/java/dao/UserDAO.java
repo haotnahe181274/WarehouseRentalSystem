@@ -407,5 +407,27 @@ public class UserDAO extends DBContext {
         }
         return null;
     }
-    
+    public int countTotal() {
+        String sql = "SELECT (SELECT COUNT(*) FROM internal_user) + (SELECT COUNT(*) FROM renter) as total";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt("total");
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countInternal() {
+        String sql = "SELECT COUNT(*) FROM internal_user";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countRenter() {
+        String sql = "SELECT COUNT(*) FROM renter";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
 }

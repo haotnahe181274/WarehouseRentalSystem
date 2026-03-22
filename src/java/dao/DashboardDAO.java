@@ -38,6 +38,21 @@ public class DashboardDAO extends DBContext {
         return count;
     }
 
+    public int getTotalWarehouses() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM Warehouse";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi getTotalWarehouses: " + e.getMessage());
+        }
+        return count;
+    }
+
     public int getTotalBookings() {
         int count = 0;
         String sql = "SELECT COUNT(*) FROM Rent_request";

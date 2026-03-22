@@ -152,6 +152,14 @@ public class WarehouseManagerController extends HttpServlet {
         // ========================================================================
         // --- ACTION: LIST (MẶC ĐỊNH) CÓ PHÂN TRANG ---
         // ========================================================================
+        // 0. Fetch counts for stats cards
+        int totalWarehousesCount = dao.countTotal();
+        int activeWarehousesCount = dao.countByStatus(1);
+        int inactiveWarehousesCount = dao.countByStatus(0);
+        request.setAttribute("totalWarehouses", totalWarehousesCount);
+        request.setAttribute("activeWarehouses", activeWarehousesCount);
+        request.setAttribute("inactiveWarehouses", inactiveWarehousesCount);
+
         List<Warehouse> list = dao.getAll();
         
         // 1. Lọc theo Status (Giữ nguyên logic của bạn)

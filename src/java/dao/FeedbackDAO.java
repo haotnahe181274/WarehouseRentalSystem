@@ -124,4 +124,28 @@ public class FeedbackDAO extends DBContext {
         }
         return false;
     }
+
+    public int countTotal() {
+        String sql = "SELECT COUNT(*) FROM Feedback";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countReplied() {
+        String sql = "SELECT COUNT(*) FROM Feedback WHERE feedback_id IN (SELECT feedback_id FROM Feedback_Response)";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countPending() {
+        String sql = "SELECT COUNT(*) FROM Feedback WHERE feedback_id NOT IN (SELECT feedback_id FROM Feedback_Response)";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
 }

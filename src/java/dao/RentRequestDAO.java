@@ -428,4 +428,23 @@ public class RentRequestDAO extends DBContext {
             e.printStackTrace();
         }
     }
+
+    public int countTotal() {
+        String sql = "SELECT COUNT(*) FROM rent_request";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countByStatus(int status) {
+        String sql = "SELECT COUNT(*) FROM rent_request WHERE status = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
 }

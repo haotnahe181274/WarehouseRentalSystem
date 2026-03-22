@@ -10,6 +10,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet"
               href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
 
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -25,48 +28,46 @@
     </style>
 </head>
 
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body>
 
     <jsp:include page="/Common/Layout/header.jsp"/>
 
-    <div class="d-flex flex-grow-1">
-
-        <c:if test="${sessionScope.userType ne 'RENTER'}">
+        <div class="layout">
             <jsp:include page="/Common/Layout/sidebar.jsp"/>
-        </c:if>
 
-        <div class="container-fluid p-4">
+            <div class="main-content">
+                <h3>Contracts Management</h3>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="fw-bold text-primary mb-0">
-                        <i class="bi bi-file-earmark-text-fill me-2"></i>Danh sách hợp đồng
-                    </h2>
-                    <small class="text-muted">Quản lý và theo dõi các hợp đồng thuê kho</small>
+                <div class="stats-container">
+                    <jsp:include page="/Common/Layout/stats_cards.jsp">
+                        <jsp:param name="label1" value="Total Contracts" />
+                        <jsp:param name="value1" value="${totalContracts}" />
+                        <jsp:param name="icon1" value="fa-solid fa-file-contract" />
+                        <jsp:param name="color1" value="primary" />
+
+                        <jsp:param name="label2" value="In Process" />
+                        <jsp:param name="value2" value="${processingContracts}" />
+                        <jsp:param name="icon2" value="fa-solid fa-spinner" />
+                        <jsp:param name="color2" value="warning" />
+
+                        <jsp:param name="label3" value="Done" />
+                        <jsp:param name="value3" value="${doneContracts}" />
+                        <jsp:param name="icon3" value="fa-solid fa-circle-check" />
+                        <jsp:param name="color3" value="success" />
+
+                        <jsp:param name="label4" value="Expired" />
+                        <jsp:param name="value4" value="${expiredContracts}" />
+                        <jsp:param name="icon4" value="fa-solid fa-hourglass-end" />
+                        <jsp:param name="color4" value="danger" />
+                    </jsp:include>
                 </div>
-            </div>
 
-            <c:if test="${not empty sessionScope.message}">
-                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm">
-                    <i class="bi bi-check-circle-fill me-2"></i>${sessionScope.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <c:remove var="message" scope="session"/>
-            </c:if>
+                <div class="management-card">
 
-            <c:if test="${not empty sessionScope.error}">
-                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>${sessionScope.error}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <c:remove var="error" scope="session"/>
-            </c:if>
-            <jsp:useBean id="now" class="java.util.Date"/>
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" id="contractTable">
-                            <thead class="table-white">
+                   
+
+                    <table class="table table-hover align-middle mb-0" id="contractTable">
+                        <thead>
                                 <tr>
                                     <th class="text-center py-3">Mã HĐ</th>
                                     <%-- Hiển thị cột Người Thuê nếu là Manager --%>
@@ -186,11 +187,9 @@
                                 </c:if>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                </div> <!-- End management-card -->
+            </div> <!-- End main-content -->
+        </div> <!-- End layout -->
 
 <c:if test="${not empty sessionScope.MESSAGE}">
     <div class="alert alert-success">
@@ -202,12 +201,16 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-            $(document).ready(function () {
-                $('#contractTable').DataTable({
-                    pageLength: 5
-                    
-                });
+        $(document).ready(function () {
+            $('#contractTable').DataTable({
+                pageLength: 10,
+                dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',
+                language: {
+                    search: "Search:",
+                    lengthMenu: "_MENU_ entries per page"
+                }
             });
-        </script>
+        });
+    </script>
 </body>
 </html>

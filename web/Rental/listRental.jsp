@@ -16,92 +16,17 @@
 
         <!-- CSS giống User List -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
 
         <style>
-            .layout {
-                display: flex;
-                min-height: 100vh;
-            }
-
-            .main-content {
-                flex: 1;
-                padding: 24px;
-                background: #f5f7fb;
-                width: 100%;
-                box-sizing: border-box;
-                    
-            }
-
-            body {
-                font-family: Arial, sans-serif;
-                background: #f5f6fa;
-                margin: 0;
-            }
-
-            h3 {
-                margin-bottom: 15px;
-                font-weight: 600;
-                color: #111827;
-            }
-
-            table.dataTable {
-                width: 100% !important;
-                background: #fff;
-                border-radius: 6px;
-                overflow: hidden;
-            }
-
-            #rentRequestTable_filter,
-            #rentRequestTable_length {
-                display: flex !important;
-                align-items: center;
-                gap: 10px;
-                float: none !important;
-            }
-
-            .filter-wrapper {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                float: left;
-            }
-
-            select {
-                padding: 6px 10px;
-                border-radius: 6px;
-                border: 1px solid #d1d5db;
-                background-color: #fff;
-                font-size: 14px;
-            }
-
-            .btn {
-                padding: 6px 12px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                text-decoration: none;
-            }
-
-            .btn-info {
-                background: #1890ff;
-                color: white;
-            }
-
-            .btn-success {
-                background: #52c41a;
-                color: white;
-            }
-
-            .btn-danger {
-                background: #ff4d4f;
-                color: white;
-            }
-
-            .btn-update {
-                background: black;
-                color: white;
-            }
+            /* Page-specific styles only — shared styles in management-layout.css */
+            .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
+            .btn-info { background: #1890ff; color: white; }
+            .btn-success { background: #52c41a; color: white; }
+            .btn-danger { background: #ff4d4f; color: white; }
+            .btn-update { background: black; color: white; }
         </style>
     </head>
 
@@ -119,19 +44,31 @@
 
                 <h3>Rent Request List</h3>
 
-                <!-- STATUS FILTER -->
-                <div class="filter-section">
-                    <label>
-                        Status:
-                        <select id="statusFilter">
-                            <option value="">All</option>
-                            <option value="0">Pending</option>
-                            <option value="1">Approved</option>
-                            <option value="2">Rejected</option>
-                            <option value="3">Cancelled</option>
-                        </select>
-                    </label>
+                <div class="stats-container">
+                    <jsp:include page="/Common/Layout/stats_cards.jsp">
+                        <jsp:param name="label1" value="Total Request" />
+                        <jsp:param name="value1" value="${totalRentRequests}" />
+                        <jsp:param name="icon1" value="fa-solid fa-file-invoice" />
+                        <jsp:param name="color1" value="primary" />
+                        
+                        <jsp:param name="label2" value="Pending" />
+                        <jsp:param name="value2" value="${pendingRentRequests}" />
+                        <jsp:param name="icon2" value="fa-solid fa-clock" />
+                        <jsp:param name="color2" value="warning" />
+                        
+                        <jsp:param name="label3" value="Approved" />
+                        <jsp:param name="value3" value="${approvedRentRequests}" />
+                        <jsp:param name="icon3" value="fa-solid fa-check-double" />
+                        <jsp:param name="color3" value="success" />
+                        
+                        <jsp:param name="label4" value="Cancelled" />
+                        <jsp:param name="value4" value="${cancelledRentRequests}" />
+                        <jsp:param name="icon4" value="fa-solid fa-ban" />
+                        <jsp:param name="color4" value="danger" />
+                    </jsp:include>
                 </div>
+
+                <div class="management-card">
 
                 <table id="rentRequestTable">
                     <thead>
@@ -139,11 +76,9 @@
                             <th>ID</th>
                             <th>Request Date</th>
                             <th>Status</th>
-
                             <c:if test="${sessionScope.userType == 'INTERNAL'}">
                                 <th>Renter</th>
-                                </c:if>
-
+                            </c:if>
                             <th>Warehouse</th>
                             <th>Processed Date</th>
                             <th>Action</th>
@@ -223,7 +158,7 @@
                         </c:forEach>
                     </tbody>
                 </table>
-
+                </div> <!-- End management-card -->
             </div>
         </div>
 
@@ -235,19 +170,33 @@
             $(document).ready(function () {
 
                 let table = $('#rentRequestTable').DataTable({
-                    order: [[0, 'desc']], // sort theo ID
-                    pageLength: 10
+                    order: [[0, 'desc']], 
+                    pageLength: 10,
+                    dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',
+                    language: {
+                        search: "Search:",
+                        lengthMenu: "_MENU_ entries per page"
+                    }
                 });
 
-                // Khi đổi dropdown
+                // Move filters into header if needed or keep standard
+                var filterHtml = `
+                    <div class="filter-wrapper ms-2">
+                        <select id="statusFilter" class="form-select form-select-sm" style="width: auto; display: inline-block;">
+                            <option value="">All Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                `;
+                
+                $('.dataTables_filter').append(filterHtml);
+
                 $('#statusFilter').on('change', function () {
                     let val = $(this).val();
-
-                    if (val === "") {
-                        table.column(2).search("").draw(); // All
-                    } else {
-                        table.column(2).search("^" + val + "$", true, false).draw();
-                    }
+                    table.column(2).search(val).draw();
                 });
 
             });
