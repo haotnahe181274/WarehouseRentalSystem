@@ -47,12 +47,12 @@
                         <jsp:param name="icon1" value="fa-solid fa-triangle-exclamation" />
                         <jsp:param name="color1" value="primary" />
 
-                        <jsp:param name="label2" value="Pending" />
+                        <jsp:param name="label2" value="Processing" />
                         <jsp:param name="value2" value="${pendingReports}" />
                         <jsp:param name="icon2" value="fa-solid fa-clock" />
                         <jsp:param name="color2" value="warning" />
 
-                        <jsp:param name="label3" value="Processing" />
+                        <jsp:param name="label3" value="Resolved" />
                         <jsp:param name="value3" value="${processingReports}" />
                         <jsp:param name="icon3" value="fa-solid fa-gears" />
                         <jsp:param name="color3" value="info" />
@@ -96,10 +96,10 @@
                                 <td>
                                     <c:choose>
                                         <c:when test="${r.status == 1}">
-                                            <span class="status-badge status-pending">Pending</span>
+                                            <span class="status-badge status-pending">Processing</span>
                                         </c:when>
                                         <c:when test="${r.status == 2}">
-                                            <span class="status-badge status-progress">Processing</span>
+                                            <span class="status-badge status-progress">Resolved</span>
                                         </c:when>
                                         <c:when test="${r.status == 3}">
                                             <span class="status-badge status-fail">Reject</span>

@@ -33,7 +33,10 @@
     <jsp:include page="/Common/Layout/header.jsp"/>
 
         <div class="layout">
-            <jsp:include page="/Common/Layout/sidebar.jsp"/>
+
+            <c:if test="${sessionScope.userType == 'INTERNAL'}">
+                <jsp:include page="/Common/Layout/sidebar.jsp"/>
+            </c:if>
 
             <div class="main-content">
                 <h3>Contracts Management</h3>
