@@ -41,6 +41,7 @@
             <div class="main-content">
                 <h3>Contracts Management</h3>
 
+                <c:if test="${sessionScope.userType == 'INTERNAL'}">
                 <div class="stats-container">
                     <jsp:include page="/Common/Layout/stats_cards.jsp">
                         <jsp:param name="label1" value="Total Contracts" />
@@ -64,6 +65,7 @@
                         <jsp:param name="color4" value="danger" />
                     </jsp:include>
                 </div>
+                </c:if>
 
                 <div class="management-card">
 
@@ -73,8 +75,8 @@
                         <thead>
                                 <tr>
                                     <th class="text-center py-3">Mã HĐ</th>
-                                    <%-- Hiển thị cột Người Thuê nếu là Manager --%>
-                                    <c:if test="${role == 'manager'}">
+                                    <%-- Hiển thị cột Người Thuê nếu là INTERNAL --%>
+                                    <c:if test="${sessionScope.userType == 'INTERNAL'}">
                                         <th>Renter</th>
                                     </c:if>
                                     <th class="text-center">Start Date</th>
@@ -89,7 +91,7 @@
                                     <tr>
                                         <td class="fw-bold text-center text-secondary">#${c.contractId}</td>
                                         
-                                        <c:if test="${role == 'manager'}">
+                                        <c:if test="${sessionScope.userType == 'INTERNAL'}">
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
@@ -182,7 +184,7 @@
                                 <%-- Trường hợp danh sách trống --%>
                                 <c:if test="${empty contractList}">
                                     <tr>
-                                        <td colspan="${role == 'manager' ? 7 : 6}" class="text-center py-5 text-muted">
+                                        <td colspan="${sessionScope.userType == 'INTERNAL' ? 7 : 6}" class="text-center py-5 text-muted">
                                             <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="empty" style="width: 80px; opacity: 0.5;" class="mb-3"><br>
                                             Không tìm thấy hợp đồng nào trong hệ thống.
                                         </td>

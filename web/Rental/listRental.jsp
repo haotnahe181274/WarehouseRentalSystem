@@ -44,6 +44,7 @@
 
                 <h3>Rent Request List</h3>
 
+                <c:if test="${sessionScope.userType == 'INTERNAL'}">
                 <div class="stats-container">
                     <jsp:include page="/Common/Layout/stats_cards.jsp">
                         <jsp:param name="label1" value="Total Request" />
@@ -67,6 +68,7 @@
                         <jsp:param name="color4" value="danger" />
                     </jsp:include>
                 </div>
+                </c:if>
 
                 <div class="management-card">
 
