@@ -96,6 +96,7 @@
                         <li><a href="${pageContext.request.contextPath}/contract"> Contracts Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/feedbackManagement">Feedback Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/incident">Reports Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/category-management">Blog Categories</a></li>
                     </c:if>
 
                     <!-- MANAGER -->
@@ -107,13 +108,14 @@
                         <li><a href="${pageContext.request.contextPath}/contract"> Contracts Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/feedbackManagement">Feedback Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/incident">Reports Management</a></li>
+                        <li><a href="${pageContext.request.contextPath}/category-management">Blog Categories</a></li>
                     </c:if>
 
                     <!-- STAFF -->
                     <c:if test="${sessionScope.role == 'Staff'}">
 
                         <li><a href="${pageContext.request.contextPath}/staffTask">Tasks</a></li>
-                        <li><a href="${pageContext.request.contextPath}/staffCheck">Inventory Check</a></li>
+
                         <li><a href="${pageContext.request.contextPath}/incident"> Incidents</a></li>
                     </c:if>
 

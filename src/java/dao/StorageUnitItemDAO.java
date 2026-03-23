@@ -83,6 +83,62 @@ public class StorageUnitItemDAO extends DBContext {
         return list;
     }
 
-    
-    
+    public List<StorageUnitItem> getItemsByUnitAndRenter(int unitId, int renterId) {
+        List<StorageUnitItem> list = new ArrayList<>();
+
+        String sql = "SELECT "
+                + "sui.id, sui.quantity, "
+                + "i.item_id, i.item_name, i.description AS item_description, i.renter_id, "
+                + "su.unit_id, su.unit_code, su.status, su.area, su.price_per_unit, su.description AS unit_description, "
+                + "w.warehouse_id, w.name AS warehouse_name, w.address, w.description AS warehouse_description "
+                + "FROM storage_unit_item sui "
+                + "INNER JOIN item i ON i.item_id = sui.item_id "
+                + "INNER JOIN storage_unit su ON su.unit_id = sui.unit_id "
+                + "INNER JOIN warehouse w ON w.warehouse_id = su.warehouse_id "
+                + "WHERE sui.unit_id = ? "
+                + "  AND i.renter_id = ? "
+                + "  AND sui.quantity > 0 "
+                + "ORDER BY i.item_name";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, unitId);
+            ps.setInt(2, renterId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Item item = new Item();
+                item.setItemId(rs.getInt("item_id"));
+                item.setItemName(rs.getString("item_name"));
+                item.setDescription(rs.getString("item_description"));
+                item.setRenterId(rs.getInt("renter_id"));
+
+                Warehouse warehouse = new Warehouse();
+                warehouse.setWarehouseId(rs.getInt("warehouse_id"));
+                warehouse.setName(rs.getString("warehouse_name"));
+                warehouse.setAddress(rs.getString("address"));
+                warehouse.setDescription(rs.getString("warehouse_description"));
+
+                StorageUnit unit = new StorageUnit();
+                unit.setUnitId(rs.getInt("unit_id"));
+                unit.setUnitCode(rs.getString("unit_code"));
+                unit.setStatus(rs.getInt("status"));
+                unit.setArea(rs.getDouble("area"));
+                unit.setPricePerUnit(rs.getDouble("price_per_unit"));
+                unit.setDescription(rs.getString("unit_description"));
+                unit.setWarehouse(warehouse);
+
+                StorageUnitItem sui = new StorageUnitItem();
+                sui.setId(rs.getInt("id"));
+                sui.setQuantity(rs.getInt("quantity"));
+                sui.setItem(item);
+                sui.setUnit(unit);
+                list.add(sui);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
 }

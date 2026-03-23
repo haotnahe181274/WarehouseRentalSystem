@@ -6,52 +6,128 @@
 <head>
     <title>Report Details - #${report.reportId}</title>
     <style>
-        /* ... copy style từ staff_report ... */
-        body { font-family: Arial, sans-serif; background: #f4f6f8; }
-        .layout {
-            display: flex;
-            align-items: flex-start;
-        }
-        .container {
-            flex: 1;
-            padding: 24px;
-            background: #f5f7fb;
-        h2 { text-align: center; margin-bottom: 25px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-weight: bold; margin-bottom: 6px; }
-        input, select, textarea {
-            width: 100%; padding: 10px;
-            border-radius: 4px; border: 1px solid #ccc;
-        }
-        textarea { resize: vertical; }
-        input[readonly] { background: #f1f1f1; }
-        .btn {
-            background: #007bff; color: #fff;
-            padding: 10px 18px; border: none;
-            border-radius: 4px; cursor: pointer;
-        }
-        .btn:hover { background: #0056b3; }
-        .row { display: flex; gap: 20px; }
-        .row .form-group { flex: 1; }
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            color: white;
-            font-size: 0.9em;
-        }
-        .status-1 { background: #ffc107; } /* Pending */
-        .status-2 { background: #007bff; } /* Processing */
-        .status-3 { background:red; } /* Resolved */
-        
-        .btn-process {
-            background-color: #27ae60; color: white; padding: 10px 20px;
-            border: none; border-radius: 5px; cursor: pointer; font-weight: bold;
-        }
-        .btn-reject {
-            background-color: #e74c3c; color: white; padding: 10px 20px;
-            border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 10px;
-        }
-        .btn-process:hover, .btn-reject:hover { opacity: 0.8; }
+       * {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+
+/* Layout toàn trang để footer luôn ở dưới */
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Phần giữa gồm sidebar + content */
+.layout {
+    display: flex;
+    flex: 1;
+}
+
+/* Sidebar kéo dài full chiều cao */
+.sidebar {
+    width: 220px;
+    background: #000;
+    color: white;
+    min-height: 100%;
+}
+
+/* Nội dung bên phải */
+.container {
+    flex: 1;
+    padding: 24px;
+    background: #f5f7fb;
+}
+
+/* Form */
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[readonly] {
+    background: #f1f1f1;
+}
+
+.row {
+    display: flex;
+    gap: 20px;
+}
+
+.row .form-group {
+    flex: 1;
+}
+
+/* Status badge */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.9em;
+}
+
+.status-1 { background: #ffc107; }
+.status-2 { background: #007bff; }
+.status-3 { background: red; }
+
+/* Buttons */
+.btn {
+    background: #007bff;
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-process {
+    background-color: #27ae60;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-reject {
+    background-color: #e74c3c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 10px;
+}
     </style>
 </head>
 <body>
@@ -65,8 +141,8 @@
         Status: 
         <span class="status-badge status-${report.status}">
             <c:choose>
-                <c:when test="${report.status == 1}">Pending</c:when>
-                <c:when test="${report.status == 2}">Processing</c:when>
+                <c:when test="${report.status == 1}">Processing</c:when>
+                <c:when test="${report.status == 2}">Resolved</c:when>
                 <c:otherwise>reject</c:otherwise>
             </c:choose>
         </span>

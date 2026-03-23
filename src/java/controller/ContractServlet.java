@@ -44,6 +44,12 @@ public class ContractServlet extends HttpServlet {
             return;
         }
 
+        // Fetch counts for stats cards
+        request.setAttribute("totalContracts", dao.countTotal());
+        request.setAttribute("processingContracts", dao.countProcess());
+        request.setAttribute("doneContracts", dao.countDone());
+        request.setAttribute("expiredContracts", dao.countExpired());
+
         request.setAttribute("contractList", contracts);
         request.setAttribute("user", user);
 

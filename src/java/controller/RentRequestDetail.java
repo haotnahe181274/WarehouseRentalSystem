@@ -87,9 +87,17 @@ public class RentRequestDetail extends HttpServlet {
 
         int requestId = Integer.parseInt(idRaw);
 
+        UserView user = (UserView) session.getAttribute("user");
+
         RentRequest rr = dao.getRentRequestDetailById(requestId);
         if (rr == null) {
             response.sendRedirect(request.getContextPath() + "/rentList");
+            return;
+        }
+
+        // Permission check: Renter can only see their own request
+        if (!"INTERNAL".equals(user.getType()) && rr.getRenter().getRenterId() != user.getId()) {
+            response.sendError(403);
             return;
         }
         String action = request.getParameter("action");
@@ -138,6 +146,13 @@ public class RentRequestDetail extends HttpServlet {
         String[] names = request.getParameterValues("itemName");
         String[] descriptions = request.getParameterValues("description");
 
+        jakarta.servlet.http.HttpSession session = request.getSession(false);
+        UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         RentRequestDAO dao = new RentRequestDAO();
         ItemDAO itemDao = new ItemDAO();
         RentRequest x = dao.getRentRequestDetailById(requestId);
@@ -145,6 +160,13 @@ public class RentRequestDetail extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/rentList");
             return;
         }
+
+        // Permission check: Renter can only edit their own request
+        if (!"INTERNAL".equals(user.getType()) && x.getRenter().getRenterId() != user.getId()) {
+            response.sendError(403);
+            return;
+        }
+
         int renterId = x.getRenter().getRenterId();
 
         if (startDates != null && endDates != null && areas != null && prices != null

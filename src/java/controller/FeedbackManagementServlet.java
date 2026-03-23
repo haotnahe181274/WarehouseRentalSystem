@@ -18,7 +18,6 @@ import model.Notification;
 import model.UserView;
 
 @WebServlet(name = "FeedbackManagementServlet", urlPatterns = { "/feedbackManagement" })
-@WebServlet(name = "FeedbackManagementServlet", urlPatterns = {"/feedbackManagement"})
 public class FeedbackManagementServlet extends HttpServlet {
 
     @Override
@@ -49,8 +48,10 @@ public class FeedbackManagementServlet extends HttpServlet {
         request.setAttribute("totalFeedback",   feedbackDAO.countTotal());
         request.setAttribute("pendingFeedback",  feedbackDAO.countPending());
         request.setAttribute("repliedFeedback",  feedbackDAO.countReplied());
-
->>>>>>> Stashed changes
+        // Fetch counts for stats cards
+        request.setAttribute("totalFeedback", feedbackDAO.countTotal());
+        request.setAttribute("pendingFeedback", feedbackDAO.countPending());
+        request.setAttribute("repliedFeedback", feedbackDAO.countReplied());
         request.getRequestDispatcher("/Management/feedback-management.jsp").forward(request, response);
     }
 
@@ -74,7 +75,7 @@ public class FeedbackManagementServlet extends HttpServlet {
         if ("reply".equals(action)) {
             String feedbackIdStr = request.getParameter("feedbackId");
             String responseText = request.getParameter("responseText");
-            String responseText  = request.getParameter("responseText");
+
 
             try {
                 int feedbackId = Integer.parseInt(feedbackIdStr);

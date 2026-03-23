@@ -31,8 +31,8 @@ public class OTPUtils {
     public static boolean sendOTPEmail(String toEmail, String otp) {
 
         // Sender's email ID needs to be mentioned
-        String fromEmail = "hao231004@gmail.com"; // Replace with your email
-        String password = "yawzlodsnocgpqfz"; // Replace with your app password
+        String fromEmail = "warehouserentalsystem@gmail.com"; // Replace with your email
+        String password = "xtnoyadagjhrafji"; // Replace with your app password
 
         // Assuming you are sending email from through gmails smtp
         String host = "smtp.gmail.com";

@@ -9,135 +9,132 @@
 
     <style>
 
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f6f8;
-            margin: 40px;
-        }
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+}
 
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
+.container {
+    max-width: 950px;
+    margin: 30px auto;
+}
 
-        /* ---------- HEADER INFO ---------- */
+/* CARD */
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
 
-        .header-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-        }
+.card-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
 
-        .header-item {
-            font-size: 14px;
-        }
+/* INFO CARD */
+.info-grid {
+    display: flex;
+    justify-content: space-between;
+}
 
-        .header-item b {
-            display: block;
-            font-size: 16px;
-            margin-top: 4px;
-        }
+.info-grid span {
+    font-size: 13px;
+    color: #777;
+}
 
-        /* ---------- CHECK LIST ---------- */
+.info-grid b {
+    display: block;
+    margin-top: 5px;
+    font-size: 16px;
+}
 
-        .check-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
+/* BADGE */
+.badge {
+    background: #2563eb;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}
 
-        .check-title {
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
+/* ITEM ROW */
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 12px;
+}
 
-        .item-box {
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
+.item-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+.item-icon {
+    width: 45px;
+    height: 45px;
+    background: #eef2ff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .item-icon {
-            width: 45px;
-            height: 45px;
-            background: #f1f3f5;
-            border-radius: 6px;
+.item-name {
+    font-weight: 600;
+}
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+.item-sub {
+    font-size: 13px;
+    color: #777;
+}
 
-            font-size: 20px;
-        }
+.item-right input {
+    width: 80px;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
 
-        .item-info {
-            flex: 1;
-        }
+/* CARD FOOTER */
+.card-footer {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
 
-        .item-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .item-sub {
-            font-size: 13px;
-            color: #777;
-        }
+/* BUTTON */
+button {
+    background: #2563eb;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
 
-        .item-inputs {
-            display: flex;
-            gap: 15px;
-        }
+button:hover {
+    background: #1d4ed8;
+}
 
-        .item-inputs input {
-            width: 100px;
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+/* BACK LINK */
+.back a {
+    color: #2563eb;
+    text-decoration: none;
+}
 
-        .item-inputs select {
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        /* ---------- FOOTER ---------- */
-
-        .footer {
-            margin-top: 20px;
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        button {
-            background: #111827;
-            color: white;
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: black;
-        }
-
-        .back {
-            margin-top: 20px;
-        }
 
     </style>
 
@@ -145,136 +142,74 @@
 
 
 <body>
+<jsp:include page="/Common/Layout/header.jsp" />
 
 <div class="container">
 
-    <!-- ===== HEADER INFORMATION ===== -->
-
-    <div class="header-card">
-
-        <div class="header-item">
-            Request ID
-            <b>#${checkRequest.id}</b>
+    <!-- REQUEST INFO -->
+    <div class="card info-card">
+        <div class="info-grid">
+            <div>
+                <span>Request ID</span>
+                <b>#${checkRequest.id}</b>
+            </div>
+            <div>
+                <span>Type</span>
+                <b class="badge">${checkRequest.requestType}</b>
+            </div>
+            <div>
+                <span>Warehouse</span>
+                <b>${checkRequest.warehouseId}</b>
+            </div>
+            <div>
+                <span>Unit</span>
+                <b>${checkRequest.unitId}</b>
+            </div>
         </div>
-
-        <div class="header-item">
-            Type
-            <b>${checkRequest.requestType}</b>
-        </div>
-
-        <div class="header-item">
-            WarehouseID
-            <b>${checkRequest.warehouseId}</b>
-        </div>
-
-        <div class="header-item">
-            UnitID
-            <b>${checkRequest.unitId}</b>
-        </div>
-
     </div>
 
-
-    <!-- ===== FORM CHECK ITEM ===== -->
-
+    <!-- CHECK LIST -->
     <form action="${pageContext.request.contextPath}/staffCheck" method="post">
-
         <input type="hidden" name="assignmentId" value="${assignmentId}">
         <input type="hidden" name="requestId" value="${checkRequest.id}">
 
-
-        <div class="check-card">
-
-            <div class="check-title">
-                Item Check List
-            </div>
-
-
-            <!-- ===== LOOP ITEMS ===== -->
+        <div class="card">
+            <div class="card-title">Item Check List</div>
 
             <c:forEach var="i" items="${checkRequest.items}">
-
-                <div class="item-box">
-
-                    <!-- ITEM ICON -->
-
-                    <div class="item-icon">
-                        📦
-                    </div>
-
-
-                    <!-- ITEM INFORMATION -->
-
-                    <div class="item-info">
-
-                        <div class="item-name">
-                            ${i.item.itemName}
-                        </div>
-
-                        <div class="item-sub">
-                            Required Qty: ${i.quantity}
-                        </div>
-
-                    </div>
-
-
-                    <!-- INPUT AREA -->
-
-                    <div class="item-inputs">
-
-                        <!-- QUANTITY -->
-
+                <div class="item-row">
+                    <div class="item-left">
+                        <div class="item-icon">📦</div>
                         <div>
-                            <label>Qty</label><br>
-
-                            <input
-                                type="number"
-                                name="processed_${i.id}"
-                                min="0"
-                                max="${i.quantity}"
-                                value="${i.processedQuantity != null ? i.processedQuantity : i.quantity}"
-                                required
-                            >
+                            <div class="item-name">${i.item.itemName}</div>
+                            <div class="item-sub">Required Qty: ${i.quantity}</div>
                         </div>
-
-
-                        <!-- CONDITION -->
-
-                        
                     </div>
 
+                    <div class="item-right">
+                        <label>Qty</label>
+                        <input type="number"
+                               name="processed_${i.id}"
+                               min="0"
+                               max="${i.quantity}"
+                               value="${i.quantity}">
+                    </div>
                 </div>
-
             </c:forEach>
 
-
-
-            <!-- ===== FOOTER ===== -->
-
-            <div class="footer">
-
-                <div>
-                    Items: ${checkRequest.items.size()}
-                </div>
-
-                <button type="submit">
-                    Complete Check
-                </button>
-
+            <div class="card-footer">
+                <div>Items: ${checkRequest.items.size()}</div>
+                <button type="submit">Complete Check</button>
             </div>
-
         </div>
-
     </form>
-
-
-    <!-- BACK BUTTON -->
 
     <div class="back">
         <a href="staffTask">← Back to Task</a>
     </div>
 
 </div>
-
+                    
+<jsp:include page="/Common/Layout/footer.jsp" />
 </body>
 </html>

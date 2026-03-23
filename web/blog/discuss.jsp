@@ -6,12 +6,12 @@
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>Discuss - WareSpace</title>
-            <%@ include file="/Common/Layout/header.jsp" %>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/blog-fb.css">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         </head>
 
         <body style="background-color: #f0f2f5;">
+            <jsp:include page="/Common/Layout/header.jsp" />
             <div class="discuss-layout">
                 <div class="feed-column">
                     <!-- Create Post Box -->
@@ -63,7 +63,7 @@
                                 </div>
                             </div>
 
-                            <!-- Comment Section -->
+                            
                             <div class="comment-section" id="comment-section-${post.postId}">
                                 <div class="comment-list" id="comment-list-${post.postId}"></div>
                                 <div class="comment-input-area mt-2">
@@ -82,11 +82,11 @@
                         </div>
                     </c:forEach>
 
-                    <!-- Pagination -->
+                    
                     <jsp:include page="/Common/homepage/pagination.jsp" />
                 </div>
 
-                <!-- Sidebar column -->
+             
                 <div class="sidebar-column">
                     <div class="category-card">
                         <h4>Categories</h4>
@@ -104,7 +104,7 @@
                 </div>
             </div>
 
-            <!-- Create Post Modal -->
+            
             <div id="createPostModal" class="modal-overlay">
                 <div class="modal-content-fb">
                     <div class="modal-header-fb">
@@ -221,6 +221,7 @@
                                             <div class="comment-actions">
                                                 <span class="reply-btn" onclick="toggleReplyForm(\${c.commentId}, \${postId})">Reply</span>
                                                 <span>\${c.createdAt}</span>
+                                                
                                             </div>
                                             <div id="reply-form-\${c.commentId}" class="reply-form mt-2" style="display:none; margin-left: 12px;">
                                                 <div class="input-group input-group-sm">
@@ -235,13 +236,19 @@
                                                     const rImgName = (r.userImage && r.userImage !== 'null' && r.userImage !== '') ? r.userImage : 'default.jpg';
                                                     const rImgPath = '${pageContext.request.contextPath}/resources/user/image/' + rImgName;
                                                     return `
-                                    < div class="comment-item" >
+                                    <div class="comment-item">
                                         <img src="\${rImgPath}" alt="User" class="author-img" style="width:24px; height:24px;">
+                                        <div class="comment-body-wrapper">
                                             <div class="comment-bubble">
                                                 <div class="comment-author" style="font-size:12px;">\${r.userName}</div>
                                                 <div class="comment-text" style="font-size:13px;">\${r.content}</div>
                                             </div>
+                                            <div class="comment-actions" style="margin-left: 0; font-size: 11px;">
+                                                <span>\${r.createdAt}</span>
+                                                <span class="reply-btn" style="margin-left: 8px;" onclick="toggleReplyForm(\${c.commentId}, \${postId})">Reply</span>
+                                            </div>
                                         </div>
+                                    </div>
                                 `;
                                                 }).join('')}
                                             </div>

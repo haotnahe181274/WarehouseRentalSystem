@@ -84,6 +84,12 @@ public class RentRequestListServlet extends HttpServlet {
             list = dao.getRentRequestsByRenterId(user.getId());
         }
         
+        // Fetch counts for stats cards
+        request.setAttribute("totalRentRequests", dao.countTotal());
+        request.setAttribute("pendingRentRequests", dao.countByStatus(0));
+        request.setAttribute("approvedRentRequests", dao.countByStatus(1));
+        request.setAttribute("cancelledRentRequests", dao.countByStatus(3));
+        
         
 
         request.setAttribute("rentRequests", list);

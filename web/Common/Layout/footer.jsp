@@ -74,7 +74,7 @@
                 </div>
 
                 <div class="footer-text">
-                    Email: warehouse_system@gmail.com
+                    Email: warehouserentalsystem@gmail.com
                 </div>
 
                 <div class="footer-text">

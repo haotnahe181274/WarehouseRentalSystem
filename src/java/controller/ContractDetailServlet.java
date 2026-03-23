@@ -6,8 +6,10 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import model.ContractDetail;
+import model.RentUnit;
 import model.UserView;
 
 @WebServlet(name = "ContractDetailServlet", urlPatterns = {"/contract-detail"})
@@ -41,7 +43,7 @@ public class ContractDetailServlet extends HttpServlet {
         /* ================= GET DATA ================= */
         ContractDAO dao = new ContractDAO();
         ContractDetail detail = dao.getContractDetail(contractId);
-
+        List<RentUnit> units = dao.getRentUnitsByContract(contractId);
         if (detail == null) {
             response.sendRedirect(request.getContextPath() + "/contract");
             return;
@@ -79,11 +81,52 @@ public class ContractDetailServlet extends HttpServlet {
 
         /* ================= SEND DATA ================= */
         request.setAttribute("contract", detail);
-
+        request.setAttribute("unitList", units);
         request.getRequestDispatcher("/contract/Contract-detail.jsp")
                .forward(request, response);
     }
     
-       
+       @Override
+        protected void doPost(HttpServletRequest request,
+                              HttpServletResponse response)
+                throws ServletException, IOException {
+
+            HttpSession session = request.getSession(false);
+
+            if (session == null || session.getAttribute("user") == null) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
+            }
+
+            UserView user = (UserView) session.getAttribute("user");
+
+            String action = request.getParameter("action");
+            String idRaw = request.getParameter("contractId");
+
+            if (idRaw == null) {
+                response.sendRedirect("contract");
+                return;
+            }
+
+            int contractId = Integer.parseInt(idRaw);
+            ContractDAO dao = new ContractDAO();
+
+            /* ===== RENTER REJECT CONTRACT ===== */
+            if ("reject".equals(action)) {
+
+                // check quyền renter
+                ContractDetail detail = dao.getContractDetail(contractId);
+
+                if (detail == null || detail.getRenterId() != user.getId()) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                    return;
+                }
+
+                dao.rejectContract(contractId);
+
+                response.sendRedirect(request.getContextPath() + "/contract");
+                return;
+            }
+        }
     
 }

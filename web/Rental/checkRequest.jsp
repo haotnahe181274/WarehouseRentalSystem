@@ -77,13 +77,13 @@
                     <input type="hidden" name="unitId" value="${selectedUnitId}"/>
 
                     <div class="section">
-                        <label>Items (only items from rent requests of this unit's warehouse)</label><br/>
+                        <label>Items</label><br/>
                         <c:choose>
                             <c:when test="${empty selectedUnitId}">
                                 <p class="hint">Please select a unit above to see available items.</p>
                             </c:when>
                             <c:when test="${empty items}">
-                                <p class="hint">No items found for rent requests of this unit.</p>
+                                <p class="hint">No items available for this unit.</p>
                             </c:when>
                             <c:otherwise>
                                 <table class="table">
@@ -91,6 +91,9 @@
                                         <tr>
                                             <th>Item</th>
                                             <th>Description</th>
+                                            <c:if test="${mode eq 'OUT'}">
+                                                <th>In Stock</th>
+                                            </c:if>
                                             <th>Quantity</th>
                                         </tr>
                                     </thead>
@@ -102,8 +105,15 @@
                                                     <input type="hidden" name="itemId" value="${it.itemId}"/>
                                                 </td>
                                                 <td>${it.description}</td>
+                                                <c:if test="${mode eq 'OUT'}">
+                                                    <td>${availableQtyMap[it.itemId]}</td>
+                                                </c:if>
                                                 <td>
-                                                    <input type="number" name="quantity" min="0" value="0" />
+                                                    <input type="number"
+                                                           name="quantity"
+                                                           min="0"
+                                                           value="0"
+                                                           <c:if test="${mode eq 'OUT'}">max="${availableQtyMap[it.itemId]}"</c:if> />
                                                 </td>
                                             </tr>
                                         </c:forEach>

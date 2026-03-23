@@ -36,6 +36,12 @@ public class IncidentReportListServlet extends HttpServlet {
             );
         }
 
+        // Fetch counts for stats cards
+        request.setAttribute("totalReports", dao.countTotal());
+        request.setAttribute("pendingReports", dao.countByStatus(1));
+        request.setAttribute("processingReports", dao.countByStatus(2));
+        request.setAttribute("rejectReports", dao.countByStatus(3));
+
         request.getRequestDispatcher("/staff/reportList.jsp").forward(request, response);
     }
 }

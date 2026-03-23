@@ -11,112 +11,21 @@
 
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
 
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            margin: 0;
-            background-color: #f5f6fa;
-        }
-
-        /* ===== LAYOUT ===== */
-        .layout {
-            display: flex;
-            min-height: calc(100vh - 60px); /* trừ header */
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 24px;
-            background: #f5f7fb;
-        }
-
-        /* ===== PAGE CONTENT ===== */
-        .page-box {
-            background: #fff;
-            padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .page-box h2 {
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-
-        /* TOOLBAR */
-        .toolbar {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 15px;
-        }
-
-        .toolbar button {
-            padding: 8px 16px;
-            border: none;
-            background-color: #3498db;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .toolbar button:hover {
-            background-color: #2980b9;
-        }
-
-        /* TABLE */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background-color:white;
-            color: black;
-        }
-
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-            vertical-align: top;
-            font-size: 14px;
-        }
-
-       
-        /* STATUS */
-        .status-open {
-            color: #e67e22;
-            font-weight: bold;
-        }
-
-        .status-closed {
-            color: #27ae60;
-            font-weight: bold;
-        }
-        /* Nút View */
-        .btn-view {
-            display: inline-block;
-            padding: 5px 12px;
-            background-color: #2ecc71; /* Màu xanh lá */
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 12px;
-            transition: background 0.3s;
-        }
-
-        .btn-view:hover {
-            background-color: #27ae60;
-            color: #fff;
-        }
-
-        
+        /* Page-specific styles only — shared styles in management-layout.css */
+        .toolbar { display: flex; justify-content: flex-end; margin-bottom: 15px; }
+        .toolbar button { padding: 8px 16px; border: none; background-color: #3498db; color: #fff; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .toolbar button:hover { background-color: #2980b9; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-progress { background: #dbeafe; color: #1e40af; }
+        .status-fail { background: #fef2f2; color: #991b1b; }
+        .btn-view { display: inline-block; padding: 5px 12px; background-color: #2ecc71; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; transition: background 0.3s; }
+        .btn-view:hover { background-color: #27ae60; color: #fff; }
     </style>
 </head>
 
@@ -128,11 +37,35 @@
         <!-- SIDEBAR -->
         <jsp:include page="/Common/Layout/sidebar.jsp" />
 
-        <!-- MAIN -->
         <div class="main-content">
-            <div class="page-box">
-                <h2>Incident Report List</h2>
+                <h3>Incident Report List</h3>
 
+                <div class="stats-container">
+                    <jsp:include page="/Common/Layout/stats_cards.jsp">
+                        <jsp:param name="label1" value="Total Report" />
+                        <jsp:param name="value1" value="${totalReports}" />
+                        <jsp:param name="icon1" value="fa-solid fa-triangle-exclamation" />
+                        <jsp:param name="color1" value="primary" />
+
+                        <jsp:param name="label2" value="Processing" />
+                        <jsp:param name="value2" value="${pendingReports}" />
+                        <jsp:param name="icon2" value="fa-solid fa-clock" />
+                        <jsp:param name="color2" value="warning" />
+
+                        <jsp:param name="label3" value="Resolved" />
+                        <jsp:param name="value3" value="${processingReports}" />
+                        <jsp:param name="icon3" value="fa-solid fa-gears" />
+                        <jsp:param name="color3" value="info" />
+
+                        <jsp:param name="label4" value="Reject" />
+                        <jsp:param name="value4" value="${rejectReports}" />
+                        <jsp:param name="icon4" value="fa-solid fa-rectangle-xmark" />
+                        <jsp:param name="color4" value="danger" />
+                    </jsp:include>
+                </div>
+
+                <div class="management-card">
+                    
                 <div class="toolbar">
                     <c:if test="${sessionScope.user.role eq 'Staff'}">
                         <a href="${pageContext.request.contextPath}/staffReport">
@@ -163,13 +96,13 @@
                                 <td>
                                     <c:choose>
                                         <c:when test="${r.status == 1}">
-                                            <span class="status-badge status-pending">Pending</span>
+                                            <span class="status-badge status-pending">Processing</span>
                                         </c:when>
                                         <c:when test="${r.status == 2}">
-                                            <span class="status-badge status-process">Processing</span>
+                                            <span class="status-badge status-progress">Resolved</span>
                                         </c:when>
                                         <c:when test="${r.status == 3}">
-                                            <span class="status-badge status-fail">reject</span>
+                                            <span class="status-badge status-fail">Reject</span>
                                         </c:when>
                                         <c:otherwise>
                                             <span class="status-badge">Unknown</span>
@@ -185,9 +118,9 @@
                         </c:forEach>
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
+                </div> <!-- End management-card -->
+            </div> <!-- End main-content -->
+        </div> <!-- End layout -->
         <jsp:include page="/Common/Layout/footer.jsp" />
         <script>
             $(document).ready(function () {

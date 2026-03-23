@@ -497,12 +497,23 @@
                 }
 
                 function setPriceForRow(row) {
+                    var start = row.querySelector(".unit-start").value;
+                    var end = row.querySelector(".unit-end").value;
                     var areaSelect = row.querySelector(".unit-area");
                     var priceDisplay = row.querySelector(".unit-price-display");
                     var priceInput = row.querySelector(".unit-price");
+                    var months = getRentalMonths(start, end);
+                    if (!months) {
+                        if (priceDisplay)
+                            priceDisplay.textContent = "";
+                        if (priceInput)
+                            priceInput.value = "";
+                        updateTotal();
+                        return;
+                    }
                     var opt = areaSelect && areaSelect.options[areaSelect.selectedIndex];
                     if (opt && opt.getAttribute("data-price") !== null && opt.getAttribute("data-price") !== "") {
-                        var p = opt.getAttribute("data-price");
+                        var p = Number(opt.getAttribute("data-price")) * months;
                         if (priceDisplay)
                             priceDisplay.textContent = Number(p).toLocaleString("vi-VN");
                         if (priceInput)
@@ -523,13 +534,27 @@
                     fetch(url).then(function (r) {
                         return r.json();
                     }).then(function (obj) {
-                        var p = obj.price != null ? obj.price : 0;
+                        var monthlyPrice = obj.price != null ? Number(obj.price) : 0;
+                        var p = monthlyPrice * months;
                         if (priceDisplay)
                             priceDisplay.textContent = Number(p).toLocaleString("vi-VN");
                         if (priceInput)
                             priceInput.value = p;
                         updateTotal();
                     });
+                }
+
+                function getRentalMonths(start, end) {
+                    if (!start || !end) {
+                        return 0;
+                    }
+                    var sd = new Date(start);
+                    var ed = new Date(end);
+                    if (isNaN(sd.getTime()) || isNaN(ed.getTime()) || ed <= sd) {
+                        return 0;
+                    }
+                    var days = Math.ceil((ed - sd) / (1000 * 60 * 60 * 24));
+                    return Math.ceil(days / 30);
                 }
 
                 function updateTotal() {

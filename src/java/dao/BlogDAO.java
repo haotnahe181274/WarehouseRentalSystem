@@ -4,13 +4,10 @@
  */
 package dao;
 
-import java.sql.PreparedStatement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.BlogPost;
-import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
 import model.UserView;
 
 /**
@@ -86,7 +83,8 @@ public class BlogDAO extends DBContext {
                            WHEN p.renter_id IS NOT NULL THEN (SELECT image FROM Renter WHERE renter_id = p.renter_id)
                            WHEN p.internal_user_id IS NOT NULL THEN (SELECT image FROM Internal_user WHERE internal_user_id = p.internal_user_id)
                        END as author_image,
-                       (SELECT COUNT(*) FROM Blog_Comment bc WHERE bc.post_id = p.post_id AND bc.status = 1) as comment_count
+                       (SELECT COUNT(*) FROM Blog_Comment bc WHERE bc.post_id = p.post_id AND bc.status = 1) as comment_count,
+                       (SELECT COUNT(*) FROM Blog_Like WHERE target_type = 'POST' AND target_id = p.post_id) as like_count
                 FROM Blog_Post p
                 JOIN Blog_Category c ON p.category_id = c.category_id
                 WHERE p.post_id = ?
@@ -107,6 +105,7 @@ public class BlogDAO extends DBContext {
                 post.setAuthorName(rs.getString("author_name"));
                 post.setAuthorImage(rs.getString("author_image"));
                 post.setCommentCount(rs.getInt("comment_count"));
+                post.setLikeCount(rs.getInt("like_count"));
                 return post;
             }
         } catch (Exception e) {
@@ -167,7 +166,7 @@ public class BlogDAO extends DBContext {
 
     public List<model.BlogCategory> getBlogCategories() {
         List<model.BlogCategory> list = new ArrayList<>();
-        String sql = "SELECT * FROM Blog_Category";
+        String sql = "SELECT * FROM Blog_Category WHERE status = 1";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -391,14 +390,14 @@ public class BlogDAO extends DBContext {
             ResultSet rs = ps.executeQuery();
             
             if (rs.next()) {
-                // Kiểm tra xem có phải Renter không
+               
                 int renterId = rs.getInt("renter_id");
                 if (!rs.wasNull()) { // rs.wasNull() kiểm tra xem cột vừa get có phải là NULL trong DB không
                     userInfo = dao.getUserById(renterId, "renter");
                     return userInfo;
                 }
                 
-                // Nếu không phải Renter, kiểm tra Internal User
+                
                 int internalUserId = rs.getInt("internal_user_id");
                 if (!rs.wasNull()) {
                     userInfo =  dao.getUserById(renterId, "internal");
@@ -409,7 +408,7 @@ public class BlogDAO extends DBContext {
             e.printStackTrace();
         }
         
-        return null; // Trả về null nếu không tìm thấy like_id
+        return null;
     }
     
     public void addComment(int postId, int userId, String userType, String content, Integer parentCommentId) {
@@ -429,6 +428,42 @@ public class BlogDAO extends DBContext {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void addCategory(String name) {
+        String sql = "INSERT INTO Blog_Category (category_name, status) VALUES (?, 1)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateCategory(int id, String name) {
+        String sql = "UPDATE Blog_Category SET category_name = ? WHERE category_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean deleteCategory(int id) {
+        String sql = "UPDATE Blog_Category SET status = 0 WHERE category_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            int affected = ps.executeUpdate();
+            return affected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }
