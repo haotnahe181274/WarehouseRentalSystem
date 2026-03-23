@@ -52,34 +52,6 @@ public class ContractDAO extends DBContext {
             e.printStackTrace();
             return -1; // Nếu tạo hợp đồng thất bại thì dừng luôn
         }
-
-        // 2. NẾU TẠO HỢP ĐỒNG THÀNH CÔNG -> TỰ ĐỘNG GÁN UNIT_ID (BẢNG CONTRACT_STORAGE_UNIT)
-        if (newContractId != -1) {
-            String sqlInsertUnit = """
-                INSERT INTO Contract_Storage_unit (contract_id, unit_id, start_date, end_date, status)
-                SELECT
-                    ?,
-                    (SELECT unit_id FROM Storage_unit WHERE warehouse_id = rr.warehouse_id AND status = 1 LIMIT 1),
-                    MIN(ru.start_date),
-                    MAX(ru.end_date),
-                    1
-                FROM Rent_request rr
-                JOIN rent_request_unit ru ON rr.request_id = ru.request_id
-                WHERE rr.request_id = ?
-                GROUP BY rr.request_id, rr.warehouse_id
-            """;
-            
-            try (PreparedStatement psUnit = connection.prepareStatement(sqlInsertUnit)) {
-                psUnit.setInt(1, newContractId);
-                psUnit.setInt(2, requestId);
-                int rows = psUnit.executeUpdate();
-                System.out.println("Đã tự động gán " + rows + " Storage Unit cho Hợp đồng " + newContractId);
-            } catch (Exception e) {
-                System.out.println("Lỗi khi gán Unit cho Contract: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
         return newContractId;
     }
 
@@ -402,32 +374,44 @@ public class ContractDAO extends DBContext {
     }
     public void insertContractStorageUnit(int contractId) {
 
-    String sql = """
-         SELECT
-                    c.contract_id,
-                    su.unit_id,
-                    rru.start_date,
-                    rru.end_date,
-                    1
-        
-                FROM Contract c
-                JOIN Rent_request rr ON c.request_id = rr.request_id
-                JOIN rent_request_unit rru ON rr.request_id = rru.request_id
-                JOIN Storage_unit su ON su.warehouse_id = rr.warehouse_id
-        
-                WHERE c.contract_id = ?
-                AND su.status = 1
-                LIMIT 1
+        String sql = """
+            INSERT INTO Contract_Storage_unit
+            (contract_id, unit_id, start_date, end_date, status)
+
+            SELECT
+                c.contract_id,
+                su.unit_id,
+                rru.start_date,
+                rru.end_date,
+                1
+            FROM Contract c
+            JOIN Rent_request rr ON c.request_id = rr.request_id
+            JOIN rent_request_unit rru ON rr.request_id = rru.request_id
+            JOIN Storage_unit su ON su.warehouse_id = rr.warehouse_id
+            WHERE c.contract_id = ?
+            AND su.status = 1
+            AND su.area = rru.area
+            AND NOT EXISTS (
+                SELECT 1
+                FROM Contract_Storage_unit csu
+                WHERE csu.unit_id = su.unit_id
+                AND (
+                    rru.start_date < csu.end_date
+                    AND rru.end_date > csu.start_date
+                )
+            )
+            ORDER BY su.area
+            LIMIT 1
         """;
 
-    try {
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setInt(1, contractId);
-        ps.executeUpdate();
-    } catch (Exception e) {
-        e.printStackTrace();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, contractId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
     public int countTotal() {
         String sql = "SELECT COUNT(*) FROM Contract";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
