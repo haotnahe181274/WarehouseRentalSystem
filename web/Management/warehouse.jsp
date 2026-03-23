@@ -148,7 +148,43 @@
             font-weight: 500;
         }
         .status-active { background: #e6fffa; color: #047481; }
+        .status-active   { background: #e6fffa; color: #047481; }
         .status-inactive { background: #fef2f2; color: #991b1b; }
+
+        /* ── Top bar: title + Add button ── */
+        .page-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .page-top-bar h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .btn-add-warehouse {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            background: #111827;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .btn-add-warehouse:hover {
+            background: #374151;
+            color: #fff;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -165,6 +201,36 @@
                         <i class="fa-solid fa-plus"></i> Add New Warehouse
                     </a>
                 </c:if>
+
+            <%-- ── Page title + Add button ── --%>
+            <div class="page-top-bar">
+                <h3>Warehouse Management</h3>
+                <c:if test="${sessionScope.role == 'Manager' || sessionScope.role == 'Admin'}">
+                    <a href="${pageContext.request.contextPath}/warehouse?action=add"
+                       class="btn-add-warehouse">
+                        <i class="fa-solid fa-plus"></i> Add Warehouse
+                    </a>
+                </c:if>
+            </div>
+
+            <%-- ── Stats cards ── --%>
+            <div class="stats-container mb-4">
+                <jsp:include page="/Common/Layout/stats_cards.jsp">
+                    <jsp:param name="label1" value="Total Warehouse" />
+                    <jsp:param name="value1" value="${totalWarehouses}" />
+                    <jsp:param name="icon1"  value="fa-solid fa-warehouse" />
+                    <jsp:param name="color1" value="primary" />
+
+                    <jsp:param name="label2" value="Active" />
+                    <jsp:param name="value2" value="${activeWarehouses}" />
+                    <jsp:param name="icon2"  value="fa-solid fa-circle-check" />
+                    <jsp:param name="color2" value="success" />
+
+                    <jsp:param name="label3" value="Inactive" />
+                    <jsp:param name="value3" value="${inactiveWarehouses}" />
+                    <jsp:param name="icon3"  value="fa-solid fa-circle-xmark" />
+                    <jsp:param name="color3" value="danger" />
+                </jsp:include>
             </div>
 
             <h1 class="page-title" style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">Warehouse List</h1>
@@ -175,6 +241,16 @@
             <div class="filter-bar">
                 <form action="${pageContext.request.contextPath}/warehouse" method="get" id="filterForm" class="filter-bar">
                     <input type="hidden" name="pageSize" id="pageSizeInput">
+                <%-- ── Filter bar ── --%>
+                <form action="${pageContext.request.contextPath}/warehouse"
+                      method="get" id="filterForm" class="filter-bar">
+
+                    <select name="pageSize" onchange="submitFilter()">
+                        <option value="5"  ${param.pageSize == '5'  ? 'selected' : ''}>5 records/page</option>
+                        <option value="10" ${(empty param.pageSize or param.pageSize == '10') ? 'selected' : ''}>10 records/page</option>
+                        <option value="25" ${param.pageSize == '25' ? 'selected' : ''}>25 records/page</option>
+                        <option value="50" ${param.pageSize == '50' ? 'selected' : ''}>50 records/page</option>
+                    </select>
 
                     <select name="status" onchange="submitFilter()">
                         <option value="All">All Status</option>
@@ -242,6 +318,63 @@
                     </c:forEach>
                 </tbody>
             </table>
+                <%-- ── Table ── --%>
+                <table id="warehouseTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Thumbnail</th>
+                            <th>Warehouse Name</th>
+                            <th>Type</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="w" items="${warehouseList}">
+                            <tr>
+                                <td>#${w.warehouseId}</td>
+                                <td>
+                                    <img src="${pageContext.request.contextPath}/resources/warehouse/image/${warehouseImages[w.warehouseId]}"
+                                         class="warehouse-thumbnail"
+                                         onerror="this.src='${pageContext.request.contextPath}/resources/images/no-image.png'">
+                                </td>
+                                <td style="font-weight: 600;">${w.name}</td>
+                                <td>${w.warehouseType.typeName}</td>
+                                <td style="max-width: 250px;">${w.address}</td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${w.status == 1}">
+                                            <span class="badge-status status-active">Active</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge-status status-inactive">Inactive</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <div class="action-buttons" style="display: flex; gap: 10px;">
+                                        <a href="${pageContext.request.contextPath}/warehouse?action=view&id=${w.warehouseId}"
+                                           style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+                                            <i class="fa-solid fa-eye"></i> View
+                                        </a>
+                                        <c:if test="${sessionScope.role == 'Manager' || sessionScope.role == 'Admin'}">
+                                            <a href="${pageContext.request.contextPath}/warehouse?action=edit&id=${w.warehouseId}"
+                                               style="color: #f59e0b; text-decoration: none; font-weight: 500;">
+                                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                                            </a>
+                                        </c:if>
+                                    </div>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+
+                <jsp:include page="/Common/homepage/pagination.jsp" />
+
+            </div><%-- End management-card --%>
         </div>
     </div>
 
@@ -253,8 +386,11 @@
         $(document).ready(function () {
             // 1. Initialize DataTable
             var table = $('#warehouseTable').DataTable({
+                "paging":  false,
+                "info":    false,
                 "columnDefs": [
                     { "orderable": false, "targets": [1, 6] } // Disable sorting for Image and Actions
+                    { "orderable": false, "targets": [1, 6] }
                 ],
                 "order": [[0, "desc"]], // Default sort by ID
                 "lengthMenu": [5, 10, 25, 50],
@@ -277,6 +413,10 @@
             }
 
             // 3. Move "Length Menu" and "Filters" to the same row (Bottom control row)
+                "order": [[0, "desc"]],
+                "language": { "search": "Search:" }
+            });
+
             var filterBar = $('.filter-bar').first();
             var lengthDiv = $('#warehouseTable_length');
             var filterDiv = $('#warehouseTable_filter');
@@ -290,6 +430,14 @@
         });
 
         // 4. Submit function for dropdown filters
+            if (filterBar.length && filterDiv.length) {
+                var bottomRow = $('<div class="dt-controls-bottom-row"></div>');
+                $('#warehouseTable').before(bottomRow);
+                bottomRow.append(filterBar);
+                bottomRow.append(filterDiv);
+            }
+        });
+
         function submitFilter() {
             var table = $('#warehouseTable').DataTable();
             var len = table.page.len();
@@ -298,4 +446,4 @@
         }
     </script>
 </body>
-</html>
+</html></html>

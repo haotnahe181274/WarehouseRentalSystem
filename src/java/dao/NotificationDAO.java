@@ -128,4 +128,63 @@ public class NotificationDAO extends DBContext {
             e.printStackTrace();
         }
     }
+    // ============================================================
+// THÊM VÀO NotificationDAO.java
+// ============================================================
+
+/**
+ * Lấy toàn bộ notification của user, hỗ trợ filter theo:
+ *   - null / ""    → tất cả
+ *   - "unread"     → chỉ chưa đọc
+ *   - "SUCCESS"    → type SUCCESS
+ *   - "WARNING"    → type WARNING
+ *   - "INFO"       → type INFO
+ */
+public List<Notification> getAllNotificationsByUser(int userId, String userType, String filter) {
+    List<Notification> list = new ArrayList<>();
+
+    StringBuilder sql = new StringBuilder();
+
+    if ("RENTER".equalsIgnoreCase(userType)) {
+        sql.append("SELECT * FROM Notification WHERE renter_id = ?");
+    } else {
+        sql.append("SELECT * FROM Notification WHERE internal_user_id = ?");
+    }
+
+    // Thêm điều kiện filter
+    if ("unread".equalsIgnoreCase(filter)) {
+        sql.append(" AND is_read = 0");
+    } else if ("SUCCESS".equalsIgnoreCase(filter)
+            || "WARNING".equalsIgnoreCase(filter)
+            || "INFO".equalsIgnoreCase(filter)) {
+        sql.append(" AND type = '").append(filter.toUpperCase()).append("'");
+    }
+
+    sql.append(" ORDER BY created_at DESC");
+
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql.toString());
+        ps.setInt(1, userId);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Notification n = new Notification();
+            n.setNotificationId(rs.getInt("notification_id"));
+            n.setTitle(rs.getString("title"));
+            n.setMessage(rs.getString("message"));
+            n.setType(rs.getString("type"));
+            n.setLinkUrl(rs.getString("link_url"));
+            n.setRead(rs.getBoolean("is_read"));
+            n.setCreatedAt(rs.getTimestamp("created_at"));
+            n.setRenterId(rs.getInt("renter_id"));
+            n.setInternalUserId(rs.getInt("internal_user_id"));
+            list.add(n);
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
 }

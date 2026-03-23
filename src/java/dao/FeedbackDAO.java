@@ -124,4 +124,60 @@ public class FeedbackDAO extends DBContext {
         }
         return false;
     }
+
+    public int countTotal() {
+        String sql = "SELECT COUNT(*) FROM Feedback";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countReplied() {
+        String sql = "SELECT COUNT(*) FROM Feedback WHERE feedback_id IN (SELECT feedback_id FROM Feedback_Response)";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countPending() {
+        String sql = "SELECT COUNT(*) FROM Feedback WHERE feedback_id NOT IN (SELECT feedback_id FROM Feedback_Response)";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+        public Feedback getFeedbackById(int feedbackId) {
+    String sql = "SELECT * FROM Feedback WHERE feedback_id = ?";
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, feedbackId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Feedback f = new Feedback();
+            f.setFeedbackId(rs.getInt("feedback_id"));
+              Renter r = new Renter();
+                r.setRenterId(rs.getInt("renter_id"));
+                r.setUsername(rs.getString("user_name"));
+                r.setFullName(rs.getString("full_name"));
+                r.setImage(rs.getString("image"));
+                f.setRenter(r);
+
+                Contract c = new Contract();
+                c.setContractId(rs.getInt("contract_id"));
+                Warehouse w = new Warehouse();
+                w.setWarehouseId(rs.getInt("warehouse_id"));
+                w.setName(rs.getString("warehouse_name"));
+                c.setWarehouse(w);
+                f.setContract(c);
+            f.setRating(rs.getInt("rating"));
+            f.setComment(rs.getString("comment"));
+            return f;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
 }

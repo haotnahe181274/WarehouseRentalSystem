@@ -132,4 +132,27 @@ public class PaymentDAO extends DBContext {
 
         return list;
     }
+    public Payment getPaymentById(int paymentId) {
+        ContractDAO dao = new ContractDAO();
+    String sql = "SELECT p.*, c.renter_id, p.amount, p.contract_id "
+               + "FROM Payment p "
+               + "JOIN Contract c ON p.contract_id = c.contract_id "
+               + "WHERE p.payment_id = ?";
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, paymentId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Payment p = new Payment();
+            p.setPaymentId(rs.getInt("payment_id"));
+            p.setAmount(rs.getDouble("amount"));
+            p.setContract(dao.getContractById(rs.getInt("contract_id")));
+            return p;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+    
 }

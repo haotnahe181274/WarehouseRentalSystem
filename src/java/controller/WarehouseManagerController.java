@@ -239,6 +239,9 @@ public class WarehouseManagerController extends HttpServlet {
             } else if (address == null || address.trim().isEmpty()) {
                 errorMessage = "Địa chỉ không được để trống!";
             }
+            } else if ( fileParts.isEmpty()) {
+                errorMessage = "Vui lòng tải lên ít nhất 1 ảnh cho kho!";
+            }  
 
             // Logic Validation file ảnh theo yêu cầu
             if (errorMessage == null && !fileParts.isEmpty()) {
