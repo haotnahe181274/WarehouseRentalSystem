@@ -204,6 +204,29 @@
 </nav>
 
 <style>
+     /* ===== GLOBAL RESET (ensures consistent layout on ALL pages) ===== */
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: #111;
+        min-height: 100vh;
+    }
+
+    /* ===== HEADER BASE ===== */
+    .app-header,
+    .app-header * {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    }
     /* ===== HEADER BASE ===== */
     .app-header {
         width: 100%;
@@ -211,7 +234,7 @@
         align-items: center;
         padding: 12px 24px;
         border-bottom: 1px solid #e5e7eb;
-        font-family: Arial, sans-serif;
+        font-size: 14px;
         background: #ffffff;
         position: sticky;
         top: 0;
