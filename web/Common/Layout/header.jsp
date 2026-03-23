@@ -9,72 +9,11 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<<<<<<< Updated upstream
-                <ul class="app-header__menu">
-                    <li class="app-header__menu-item">
-                        <a class="app-header__menu-link" href="${pageContext.request.contextPath}/homepage">Homepage</a>
-                    </li>
-                    <li class="app-header__menu-item">
-                        <a class="app-header__menu-link" href="${pageContext.request.contextPath}/discuss">Discussion</a>
-                    </li>
-                    <c:if test="${not empty sessionScope.user}">
-                        <li class="app-header__menu-item">
-                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/blog">My
-                                Posts</a>
-                        </li>
-                    </c:if>
-                    <c:if test="${sessionScope.userType == 'RENTER'}">
-                        <li class="app-header__menu-item">
-                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/rentList">My
-                                Rental</a>
-                        </li>
-                        <li class="app-header__menu-item">
-                            <a class="app-header__menu-link"
-                                href="${pageContext.request.contextPath}/contract">Contract</a>
-                        </li>
-                        <li class="app-header__menu-item">
-                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/itemlist">List
-                                Item</a>
-                        </li>
-                        
-                        <li class="app-header__menu-item">
-                            <a class="app-header__menu-link" href="${pageContext.request.contextPath}/send-support-message">support</a>
-                        </li>
-                    </c:if>
-
-                    <c:if test="${sessionScope.userType == 'INTERNAL'}">
-                        <c:if test="${sessionScope.role == 'Admin'}">
-                            <li class="app-header__menu-item">
-                                <a class="app-header__menu-link"
-                                    href="dashboard">Admin</a>
-                            </li>
-                        </c:if>
-                        <c:if test="${sessionScope.role == 'Staff'}">
-                            <li class="app-header__menu-item">
-                                <a class="app-header__menu-link"
-                                    href="dashboard">Staff</a>
-                            </li>
-                            <li class="app-header__menu-item">
-                                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/support">support</a>
-                            </li>
-                        </c:if>
-                        <c:if test="${sessionScope.role == 'Manager'}">
-                            <li class="app-header__menu-item">
-                                <a class="app-header__menu-link"
-                                    href="dashboard">Manager</a>
-                            </li>
-                            <li class="app-header__menu-item">
-                                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/support">support</a>
-                            </li>
-                        </c:if>
-                    </c:if>
-=======
 <nav class="app-header">
 
     <a class="app-header__logo" href="${pageContext.request.contextPath}/homepage">
         WareSpace
     </a>
->>>>>>> Stashed changes
 
     <ul class="app-header__menu">
         <li class="app-header__menu-item">
