@@ -86,6 +86,25 @@ public class ajaxServlet extends HttpServlet {
             resp.sendRedirect(contextPath + "/contract-detail?contractId=" + contractId + "&paymentError=1");
             return;
         }
+
+        // ==================== DEV TEST: Auto success (bypass VNPay) ====================
+        // Nếu VNPay đang lỗi và bạn muốn bấm "Đồng ý hợp đồng" là tự hiện thành công để test UI,
+         boolean devAutoPay = false; // <-- đặt true khi cần auto success
+         if (devAutoPay) {
+             // Mark Payment.status = 1 (thành công) ngay lập tức
+             Payment paymen = new Payment();
+             paymen.setPaymentId(orderId);
+             paymen.setStatus(1);
+             paymentDao.updatePaymentStatus(paymen);
+        
+             // Điều hướng tới trang hiển thị kết quả như VNPay callback
+             req.setAttribute("transResult", true);
+             req.getRequestDispatcher("Payment/paymentResult.jsp")
+                    .forward(req, resp);
+             return;
+         }
+        // ==================== END DEV TEST ====================
+
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";

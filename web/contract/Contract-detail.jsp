@@ -80,7 +80,6 @@ h3{color:#2980b9;border-bottom:1px solid #ddd;}
 
     <div>
         <c:choose>
-
             <c:when test="${contract.status == 0}">
                 <span class="status" style="background:#f39c12">
                     Thanh Toán Thành công
