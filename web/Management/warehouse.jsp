@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
 
     <style>
-        /* Page-specific styles only — shared styles in management-layout.css */
         .warehouse-thumbnail {
             width: 60px;
             height: 45px;
@@ -26,7 +25,6 @@
             font-size: 12px;
             font-weight: 500;
         }
-        .status-active { background: #e6fffa; color: #047481; }
         .status-active   { background: #e6fffa; color: #047481; }
         .status-inactive { background: #fef2f2; color: #991b1b; }
 
@@ -74,12 +72,6 @@
         <jsp:include page="/Common/Layout/sidebar.jsp" />
 
         <div class="main-content">
-            <div class="top-bar">
-                <c:if test="${sessionScope.role == 'Manager'}">
-                    <a href="${pageContext.request.contextPath}/warehouse?action=add" class="btn btn-add">
-                        <i class="fa-solid fa-plus"></i> Add New Warehouse
-                    </a>
-                </c:if>
 
             <%-- ── Page title + Add button ── --%>
             <div class="page-top-bar">
@@ -93,41 +85,30 @@
             </div>
 
             <%-- ── Stats cards ── --%>
-            <h3>Warehouse Management</h3>
-
             <div class="stats-container mb-4">
                 <jsp:include page="/Common/Layout/stats_cards.jsp">
                     <jsp:param name="label1" value="Total Warehouse" />
                     <jsp:param name="value1" value="${totalWarehouses}" />
-                    <jsp:param name="icon1" value="fa-solid fa-warehouse" />
+                    <jsp:param name="icon1"  value="fa-solid fa-warehouse" />
                     <jsp:param name="color1" value="primary" />
 
                     <jsp:param name="label2" value="Active" />
                     <jsp:param name="value2" value="${activeWarehouses}" />
                     <jsp:param name="icon2"  value="fa-solid fa-circle-check" />
                     <jsp:param name="color2" value="success" />
+
                     <jsp:param name="label3" value="Inactive" />
                     <jsp:param name="value3" value="${inactiveWarehouses}" />
-
-                    <jsp:param name="icon3" value="fa-solid fa-circle-xmark" />
+                    <jsp:param name="icon3"  value="fa-solid fa-circle-xmark" />
                     <jsp:param name="color3" value="danger" />
                 </jsp:include>
             </div>
 
             <div class="management-card">
 
-                <form action="${pageContext.request.contextPath}/warehouse" method="get" id="filterForm" class="filter-bar">
-                    <input type="hidden" name="pageSize" id="pageSizeInput">
                 <%-- ── Filter bar ── --%>
                 <form action="${pageContext.request.contextPath}/warehouse"
                       method="get" id="filterForm" class="filter-bar">
-
-                    <select name="pageSize" onchange="submitFilter()">
-                        <option value="5"  ${param.pageSize == '5'  ? 'selected' : ''}>5 records/page</option>
-                        <option value="10" ${(empty param.pageSize or param.pageSize == '10') ? 'selected' : ''}>10 records/page</option>
-                        <option value="25" ${param.pageSize == '25' ? 'selected' : ''}>25 records/page</option>
-                        <option value="50" ${param.pageSize == '50' ? 'selected' : ''}>50 records/page</option>
-                    </select>
 
                     <select name="status" onchange="submitFilter()">
                         <option value="All">All Status</option>
@@ -140,58 +121,7 @@
                     </c:if>
                 </form>
 
-                <table id="warehouseTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Thumbnail</th>
-                            <th>Warehouse Name</th>
-                            <th>Type</th>
-                            <th>Address</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                <tbody>
-                    <c:forEach var="w" items="${warehouseList}">
-                        <tr>
-                            <td>#${w.warehouseId}</td>
-                            <td>
-                                <img src="${pageContext.request.contextPath}/resources/warehouse/image/${warehouseImages[w.warehouseId]}" 
-                                     class="warehouse-thumbnail"
-                                     onerror="this.src='${pageContext.request.contextPath}/resources/images/no-image.png'">
-                            </td>
-                            <td style="font-weight: 600;">${w.name}</td>
-                            <td>${w.warehouseType.typeName}</td>
-                            <td style="max-width: 250px;">${w.address}</td>
-                            <td>
-                                <c:choose>
-                                    <c:when test="${w.status == 1}">
-                                        <span class="badge-status status-active">Active</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <span class="badge-status status-inactive">Inactive</span>
-                                    </c:otherwise>
-                                </c:choose>
-                            </td>
-                            <td>
-                                <div class="action-buttons" style="display: flex; gap: 10px;">
-                                    <a href="${pageContext.request.contextPath}/warehouse?action=view&id=${w.warehouseId}" 
-                                       style="color: #3b82f6; text-decoration: none; font-weight: 500;">
-                                        <i class="fa-solid fa-eye"></i> View
-                                    </a>
-                                    <c:if test="${sessionScope.role == 'Manager'}">
-                                        <a href="${pageContext.request.contextPath}/warehouse?action=edit&id=${w.warehouseId}" 
-                                           style="color: #f59e0b; text-decoration: none; font-weight: 500;">
-                                            <i class="fa-solid fa-pen-to-square"></i> Edit
-                                        </a>
-                                    </c:if>
-                                </div>
-                            </td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
+                <%-- ── Table ── --%>
                 <table id="warehouseTable">
                     <thead>
                         <tr>
@@ -245,9 +175,8 @@
                     </tbody>
                 </table>
 
-                <jsp:include page="/Common/homepage/pagination.jsp" />
 
-            </div>
+            </div><%-- End management-card --%>
         </div>
     </div>
 
@@ -257,52 +186,54 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
-            // 1. Khởi tạo DataTable (Đã tắt phân trang)
-            var table = $('#warehouseTable').DataTable({
-                "paging": false,       // Tắt phân trang của DataTable
-                "info": false,         // Tắt text "Showing 1 to 10..."
+            // Hủy instance cũ nếu tồn tại (tránh lỗi "Cannot reinitialise DataTable")
+            if ($.fn.DataTable.isDataTable('#warehouseTable')) {
+                $('#warehouseTable').DataTable().destroy();
+            }
+
+            $('#warehouseTable').DataTable({
                 "columnDefs": [
-                    { "orderable": false, "targets": [1, 6] } // Disable sorting for Image and Actions
                     { "orderable": false, "targets": [1, 6] }
                 ],
-                "order": [[0, "desc"]], // Default sort by ID
+                "order": [[0, "desc"]],
+                lengthMenu: [5, 10, 25, 50],
                 "language": {
-                    "search": "Search:"
+                    "search": "Search:",
+                    "lengthMenu": "_MENU_",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ warehouses",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    }
                 }
             });
 
-            // 2. Di chuyển nút "Add" sang phải cùng thanh Search
-            var addBtn = $('.top-bar .btn-add');
-            if (addBtn.length) {
-                addBtn.detach();
-                $('#warehouseTable_filter').append(addBtn);
-            }
-            // 3. Move "Length Menu" and "Filters" to the same row (Bottom control row)
-                "order": [[0, "desc"]],
-                "language": { "search": "Search:" }
-            });   // Tương tự user management
+            // Gom filter bar + length dropdown + search vào cùng 1 dòng
             var filterBar = $('.filter-bar').first();
+            var lengthDiv = $('#warehouseTable_length');
             var filterDiv = $('#warehouseTable_filter');
 
-            if (filterBar.length && filterDiv.length) {
-                var bottomRow = $('<div class="dt-controls-bottom-row"></div>');
-                $('#warehouseTable').before(bottomRow);            
-                bottomRow.append(filterBar); // Dropdowns và Reset bên trái
-                bottomRow.append(filterDiv); // Search + Add bên phải
+            // Di chuyển nút Add Warehouse vào cạnh ô Search
+            var addBtn = $('.btn-add-warehouse');
+            if (addBtn.length) {
+                addBtn.detach();
+                filterDiv.append(addBtn);
             }
-        });
-        // 4. Submit function for dropdown filters
-            if (filterBar.length && filterDiv.length) {
+
+            if (filterBar.length && lengthDiv.length && filterDiv.length) {
                 var bottomRow = $('<div class="dt-controls-bottom-row"></div>');
-                $('#warehouseTable').before(bottomRow);
-                bottomRow.append(filterBar);
+                lengthDiv.before(bottomRow);
+                bottomRow.append(lengthDiv);
                 bottomRow.append(filterDiv);
+                filterBar.insertBefore(bottomRow);
             }
         });
-        // 4. Submit form khi người dùng đổi lựa chọn ở thẻ select
+
         function submitFilter() {
             document.getElementById('filterForm').submit();
         }
     </script>
 </body>
-</html></html>
+</html>

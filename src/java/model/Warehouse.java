@@ -1,13 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author hao23
- */
 public class Warehouse {
 
     private int warehouseId;
@@ -16,25 +8,9 @@ public class Warehouse {
     private String description;
     private int status;
     private WarehouseType warehouseType;
-
     private Double minPrice;
     private Double minArea;
-
-    public Double getMinPrice() {
-        return minPrice;
-    }
-
-    public void setMinPrice(Double minPrice) {
-        this.minPrice = minPrice;
-    }
-
-    public Double getMinArea() {
-        return minArea;
-    }
-
-    public void setMinArea(Double minArea) {
-        this.minArea = minArea;
-    }
+    private double totalArea; // ← THÊM MỚI: tổng diện tích của kho
 
     public Warehouse() {
     }
@@ -76,8 +52,8 @@ public class Warehouse {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescription(String desc) {
+        this.description = desc;
     }
 
     public int getStatus() {
@@ -96,4 +72,27 @@ public class Warehouse {
         this.warehouseType = warehouseType;
     }
 
+    public Double getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(Double minPrice) {
+        this.minPrice = minPrice;
+    }
+
+    public Double getMinArea() {
+        return minArea;
+    }
+
+    public void setMinArea(Double minArea) {
+        this.minArea = minArea;
+    }
+
+    public double getTotalArea() {
+        return totalArea;
+    }
+
+    public void setTotalArea(double totalArea) {
+        this.totalArea = totalArea;
+    }
 }

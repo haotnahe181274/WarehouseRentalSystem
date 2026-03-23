@@ -6,17 +6,124 @@ import java.util.ArrayList;
 import java.util.List;
 import model.StorageUnit;
 import model.Warehouse;
+
 public class StorageUnitDAO extends DBContext {
-    
-    /**
-     * Các unit mà renter đang thuê hợp lệ (Contract + Payment status = 1, ngày trong hạn).
-     */
-    
-    
-    
-  /**
-     * Thêm mới một Storage Unit vào Database
-     */
+
+    // =========================================================
+    // GENERATE UNIT CODE TỰ ĐỘNG
+    // Format: {WAREHOUSE_PREFIX}-{SEQUENCE}
+    // Ví dụ: HN-A1 đã có → tạo HN-A2, HN-A3, ...
+    // =========================================================
+    public String generateUnitCode(int warehouseId) {
+        // Lấy tên kho để tạo prefix (2-3 ký tự đầu, viết hoa, bỏ dấu cách)
+        String prefixSql = "SELECT name FROM Warehouse WHERE warehouse_id = ?";
+        String prefix = "U";
+        try (PreparedStatement ps = connection.prepareStatement(prefixSql)) {
+            ps.setInt(1, warehouseId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String name = rs.getString("name").trim().toUpperCase();
+                // Lấy chữ cái đầu của mỗi từ, tối đa 3 ký tự
+                String[] words = name.split("\\s+");
+                StringBuilder sb = new StringBuilder();
+                for (String word : words) {
+                    if (sb.length() >= 3) break;
+                    if (!word.isEmpty()) sb.append(word.charAt(0));
+                }
+                prefix = sb.toString();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Đếm số unit hiện tại của warehouse để tạo sequence
+        String countSql = "SELECT COUNT(*) FROM Storage_unit WHERE warehouse_id = ?";
+        int nextSeq = 1;
+        try (PreparedStatement ps = connection.prepareStatement(countSql)) {
+            ps.setInt(1, warehouseId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                nextSeq = rs.getInt(1) + 1;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Tạo code dạng PREFIX-A1, PREFIX-A2, ... PREFIX-A9, PREFIX-B1, ...
+        int letter = (nextSeq - 1) / 9;       // 0=A, 1=B, 2=C ...
+        int number = (nextSeq - 1) % 9 + 1;   // 1-9
+        String unitCode = prefix + "-" + (char)('A' + letter) + number;
+
+        // Kiểm tra trùng — nếu trùng thì tăng sequence
+        while (isUnitCodeExists(warehouseId, unitCode)) {
+            nextSeq++;
+            letter = (nextSeq - 1) / 9;
+            number = (nextSeq - 1) % 9 + 1;
+            unitCode = prefix + "-" + (char)('A' + letter) + number;
+        }
+
+        return unitCode;
+    }
+
+    // Kiểm tra unitCode đã tồn tại trong warehouse chưa
+    public boolean isUnitCodeExists(int warehouseId, String unitCode) {
+        String sql = "SELECT COUNT(*) FROM Storage_unit WHERE warehouse_id = ? AND unit_code = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, warehouseId);
+            ps.setString(2, unitCode);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // =========================================================
+    // LẤY TỔNG DIỆN TÍCH CÁC UNIT ĐÃ TẠO (không tính unit đang edit)
+    // =========================================================
+    public double getTotalUsedArea(int warehouseId) {
+        String sql = "SELECT COALESCE(SUM(area), 0) FROM Storage_unit WHERE warehouse_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, warehouseId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getDouble(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Lấy tổng diện tích NGOẠI TRỪ 1 unit (dùng khi edit để không tính unit đang sửa)
+    public double getTotalUsedAreaExcluding(int warehouseId, int excludeUnitId) {
+        String sql = "SELECT COALESCE(SUM(area), 0) FROM Storage_unit WHERE warehouse_id = ? AND unit_id != ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, warehouseId);
+            ps.setInt(2, excludeUnitId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getDouble(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Lấy total_area của warehouse
+    public double getWarehouseTotalArea(int warehouseId) {
+        String sql = "SELECT total_area FROM Warehouse WHERE warehouse_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, warehouseId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getDouble(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // =========================================================
+    // THÊM MỚI STORAGE UNIT (unitCode được generate tự động)
+    // =========================================================
     public boolean addStorageUnit(int warehouseId, String unitCode, double area, double price, int status, String description) {
         String sql = "INSERT INTO Storage_unit (warehouse_id, unit_code, area, price_per_unit, status, description) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";
@@ -27,17 +134,18 @@ public class StorageUnitDAO extends DBContext {
             ps.setDouble(4, price);
             ps.setInt(5, status);
             ps.setString(6, description);
-            
-            return ps.executeUpdate() > 0; // Trả về true nếu insert thành công
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+
+    // =========================================================
+    // CÁC METHOD CŨ GIỮ NGUYÊN
+    // =========================================================
     public List<StorageUnit> getActiveUnitsForRenter(int renterId) {
-
         List<StorageUnit> list = new ArrayList<>();
-
         String sql = """
             SELECT DISTINCT su.unit_id, su.unit_code, su.status, su.area, su.price_per_unit,
                             su.description AS unit_description,
@@ -52,7 +160,6 @@ public class StorageUnitDAO extends DBContext {
               AND csu.status = 1
               AND csu.start_date <= NOW() AND csu.end_date >= NOW()
         """;
-
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, renterId);
             ResultSet rs = ps.executeQuery();
@@ -71,49 +178,36 @@ public class StorageUnitDAO extends DBContext {
                 unit.setPricePerUnit(rs.getDouble("price_per_unit"));
                 unit.setDescription(rs.getString("unit_description"));
                 unit.setWarehouse(warehouse);
-
                 list.add(unit);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return list;
     }
 
-    /**
-     * Tìm các Storage Unit CÒN TRỐNG trong một Kho dựa theo khoảng thời gian khách chọn.
-     * @param warehouseId ID của kho hiện tại
-     * @param startDate Ngày bắt đầu khách muốn thuê (Format: YYYY-MM-DD)
-     * @param endDate Ngày kết thúc khách muốn thuê (Format: YYYY-MM-DD)
-     * @return Danh sách các Unit KHÔNG BỊ TRÙNG LỊCH
-     */
     public List<StorageUnit> searchAvailableUnits(int warehouseId, String startDate, String endDate) {
         List<StorageUnit> list = new ArrayList<>();
-
         String sql = """
             SELECT su.* FROM Storage_unit su
             WHERE su.warehouse_id = ?
               AND su.unit_id NOT IN (
-                  SELECT csu.unit_id 
+                  SELECT csu.unit_id
                   FROM Contract_Storage_unit csu
                   JOIN Contract c ON csu.contract_id = c.contract_id
                   WHERE c.status = 1 AND csu.status = 1
-                    AND csu.start_date <= ?  
-                    AND csu.end_date >= ?    
+                    AND csu.start_date <= ?
+                    AND csu.end_date >= ?
               )
         """;
-
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, warehouseId);
             ps.setDate(2, java.sql.Date.valueOf(endDate));
             ps.setDate(3, java.sql.Date.valueOf(startDate));
-            
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Warehouse w = new Warehouse();
                 w.setWarehouseId(warehouseId);
-
                 StorageUnit unit = new StorageUnit();
                 unit.setUnitId(rs.getInt("unit_id"));
                 unit.setUnitCode(rs.getString("unit_code"));
@@ -122,22 +216,14 @@ public class StorageUnitDAO extends DBContext {
                 unit.setPricePerUnit(rs.getDouble("price_per_unit"));
                 unit.setDescription(rs.getString("description"));
                 unit.setWarehouse(w);
-
                 list.add(unit);
             }
         } catch (Exception e) {
-            System.out.println("Lỗi searchAvailableUnits: " + e.getMessage());
             e.printStackTrace();
         }
-
         return list;
     }
-    
- /**
-     * Lấy thông tin 1 Storage Unit theo ID để hiển thị lên form Edit
-     * @param unitId
-     * @return 
-     */
+
     public StorageUnit getStorageUnitById(int unitId) {
         WarehouseManagementDAO dao = new WarehouseManagementDAO();
         String sql = "SELECT * FROM Storage_unit WHERE unit_id = ?";
@@ -147,9 +233,7 @@ public class StorageUnitDAO extends DBContext {
             if (rs.next()) {
                 StorageUnit unit = new StorageUnit();
                 unit.setUnitId(rs.getInt("unit_id"));
-                Warehouse w;
-                w = dao.getWarehouseById(rs.getInt("warehouse_id"));
-                unit.setWarehouse(w); // Giả sử model của bạn có setWarehouseId
+                unit.setWarehouse(dao.getWarehouseById(rs.getInt("warehouse_id")));
                 unit.setUnitCode(rs.getString("unit_code"));
                 unit.setArea(rs.getDouble("area"));
                 unit.setPricePerUnit(rs.getDouble("price_per_unit"));
@@ -162,6 +246,7 @@ public class StorageUnitDAO extends DBContext {
         }
         return null;
     }
+
     public boolean updateStorageUnit(int unitId, String unitCode, double area, double price, int status, String description) {
         String sql = "UPDATE Storage_unit SET unit_code = ?, area = ?, price_per_unit = ?, status = ?, description = ? WHERE unit_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -171,11 +256,8 @@ public class StorageUnitDAO extends DBContext {
             ps.setInt(4, status);
             ps.setString(5, description);
             ps.setInt(6, unitId);
-            
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            System.out.println("Lỗi updateStorageUnit: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
