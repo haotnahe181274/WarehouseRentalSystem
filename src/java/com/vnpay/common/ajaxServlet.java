@@ -116,7 +116,10 @@ public class ajaxServlet extends HttpServlet {
         } else {
             vnp_Params.put("vnp_Locale", "vn");
         }
-        vnp_Params.put("vnp_ReturnUrl", Config.vnp_ReturnUrl);
+        // ReturnUrl động theo môi trường đang chạy để tránh lỗi redirect thỉnh thoảng
+        String vnp_ReturnUrl = req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort()
+                + contextPath + "/vnpay-return";
+        vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         // Use Vietnam timezone explicitly. Also set timezone for formatter để tránh lệch giờ theo server default timezone.
@@ -127,7 +130,8 @@ public class ajaxServlet extends HttpServlet {
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        cld.add(Calendar.MINUTE, 15);
+        // Tăng thời gian hết hạn để giảm lỗi "code=01" do chờ lâu/timeout
+        cld.add(Calendar.MINUTE, 60);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
@@ -158,6 +162,16 @@ public class ajaxServlet extends HttpServlet {
         String vnp_SecureHash = Config.hmacSHA512(Config.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
+
+        // Debug giúp khoanh vùng khi VNPay trả code=01 (thỉnh thoảng thành công/thất bại)
+        System.out.println("VNPay request:");
+        System.out.println("  vnp_TxnRef=" + vnp_TxnRef);
+        System.out.println("  vnp_Amount=" + amount);
+        System.out.println("  vnp_CreateDate=" + vnp_Params.get("vnp_CreateDate"));
+        System.out.println("  vnp_ExpireDate=" + vnp_Params.get("vnp_ExpireDate"));
+        System.out.println("  vnp_IpAddr=" + vnp_IpAddr);
+        System.out.println("  vnp_ReturnUrl=" + vnp_Params.get("vnp_ReturnUrl"));
+        System.out.println("  paymentUrl(secureHash omitted) prefix=" + paymentUrl.substring(0, Math.min(paymentUrl.length(), 120)));
         resp.sendRedirect(paymentUrl);
     }
 }
