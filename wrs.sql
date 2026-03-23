@@ -205,7 +205,9 @@
 		item_id INT,
 
 		unit_id INT,
-
+		
+        UNIQUE (item_id, unit_id),
+        
 		FOREIGN KEY (item_id) REFERENCES Item(item_id),
 
 		FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id)

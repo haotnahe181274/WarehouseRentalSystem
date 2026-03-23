@@ -89,7 +89,10 @@
                             <tbody>
                                 <c:forEach items="${contractList}" var="c">
                                     <tr>
-                                        <td class="fw-bold text-center text-secondary">#${c.contractId}</td>
+                                        <td class="fw-bold text-center text-secondary"
+                                            data-order="${c.contractId}">
+                                            #${c.contractId}
+                                        </td>
                                         
                                         <c:if test="${sessionScope.userType == 'INTERNAL'}">
                                             <td>

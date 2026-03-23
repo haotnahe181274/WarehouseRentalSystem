@@ -110,7 +110,7 @@ public class ContractDAO extends DBContext {
                 END AS payment_status
             FROM Contract c
             JOIN Renter r ON c.renter_id = r.renter_id
-            ORDER BY c.contract_id DESC
+            ORDER BY c.contract_id 
         """;
 
         try {
@@ -164,7 +164,7 @@ public class ContractDAO extends DBContext {
                 END AS payment_status
             FROM Contract c
             WHERE c.renter_id = ?
-            ORDER BY c.contract_id DESC
+            ORDER BY c.contract_id 
         """;
 
         try {
