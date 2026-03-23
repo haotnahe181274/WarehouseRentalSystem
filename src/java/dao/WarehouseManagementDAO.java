@@ -270,16 +270,22 @@ public class WarehouseManagementDAO extends DBContext {
 
     public Map<Integer, List<String[]>> getUnitBookedDates(int warehouseId) {
         Map<Integer, List<String[]>> map = new HashMap<>();
+        // Chỉ tô đỏ khi contract có payment đã thanh toán (payment.status = 1)
         String sql = "SELECT csu.unit_id, csu.start_date, csu.end_date "
                 + "FROM Contract_Storage_unit csu "
-                + "JOIN Storage_unit su ON csu.unit_id = su.unit_id "
-                + "WHERE su.warehouse_id = ? AND csu.status = 1";
+                + "JOIN Storage_unit su      ON csu.unit_id     = su.unit_id "
+                + "JOIN Contract c           ON csu.contract_id = c.contract_id "
+                + "JOIN Payment p            ON p.contract_id   = c.contract_id "
+                + "WHERE su.warehouse_id = ? "
+                + "  AND csu.status = 1 "
+                + "  AND c.status   = 1 "
+                + "  AND p.status   = 1";   // ← chỉ tô khi đã thanh toán
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, warehouseId);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
-                int unitId  = rs.getInt("unit_id");
+                int unitId   = rs.getInt("unit_id");
                 String start = rs.getDate("start_date").toString();
                 String end   = rs.getDate("end_date").toString();
                 map.putIfAbsent(unitId, new ArrayList<>());
