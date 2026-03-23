@@ -95,7 +95,7 @@ public class RentRequestDAO extends DBContext {
         JOIN renter r ON rr.renter_id = r.renter_id
         JOIN warehouse w ON rr.warehouse_id = w.warehouse_id
         LEFT JOIN internal_user iu ON rr.internal_user_id = iu.internal_user_id
-          AND rr.renter_id = ?
+        WHERE rr.renter_id = ?
         ORDER BY rr.request_date DESC
     """;
 

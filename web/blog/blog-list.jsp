@@ -6,7 +6,6 @@
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>Blog Management - WareSpace</title>
-            <%@ include file="/Common/Layout/header.jsp" %>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/blog-fb.css">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
                 <!-- DataTables CSS -->
@@ -41,6 +40,7 @@
         </head>
 
         <body style="background-color: #f0f2f5;">
+            <jsp:include page="/Common/Layout/header.jsp" />
             <div style="max-width: 900px; margin: 40px auto; padding: 0 16px;">
                 <!-- Header Card -->
                 <div class="post-card" style="display: flex; justify-content: space-between; align-items: center;">
