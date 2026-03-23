@@ -6,45 +6,15 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Category Management - WareSpace</title>
     
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/blog-fb.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
     <style>
-        body { 
-            background-color: #f8f9fa; 
-            margin: 0; 
-            overflow-x: hidden; 
-        }
-        .wrapper { 
-            display: flex; 
-            width: 100%; 
-            min-height: 100vh; 
-        }
-
-        .main-panel { 
-            flex: 1; 
-            min-width: 0; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        .main-content { 
-            padding: 24px; 
-            flex: 1; 
-        }
-        .management-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .post-card {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 24px;
-        }
-        .form-group {
-            margin-bottom: 15px;
+        /* Page-specific styles only — shared styles in management-layout.css */
+        :root {
+            --fb-accent: #1a73e8;
+            --fb-border: #e2e8f0;
         }
         .form-control {
             width: 100%;
@@ -52,10 +22,9 @@
             border: 1px solid var(--fb-border);
             border-radius: 6px;
             outline: none;
+            font-size: 14px;
         }
-        .form-control:focus {
-            border-color: var(--fb-accent);
-        }
+        .form-control:focus { border-color: var(--fb-accent); }
         .btn-submit {
             background: var(--fb-accent);
             color: white;
@@ -64,29 +33,33 @@
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
+            transition: background 0.2s;
         }
-        .error-msg {
-            color: #d32f2f;
+        .btn-submit:hover { background: #1557b0; }
+        .error-msg { color: #d32f2f; font-size: 14px; margin-top: 5px; }
+        .success-msg { color: #2e7d32; font-size: 14px; margin-bottom: 15px; }
+        .action-item {
             font-size: 14px;
-            margin-top: 5px;
+            font-weight: 600;
+            color: #4b5563;
+            text-decoration: none;
+            transition: color 0.2s;
+            border: none;
+            background: none;
+            cursor: pointer;
         }
-        .success-msg {
-            color: #2e7d32;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
+        .action-item:hover { color: #1a73e8; }
     </style>
 </head>
-<body style="background-color: #f0f2f5;">
+<body>
     <jsp:include page="/Common/Layout/header.jsp" />
-    <div class="wrapper">
+    <div class="layout">
         <jsp:include page="/Common/Layout/sidebar.jsp" />
         
-        <div class="main-panel">
-            <div class="main-content">
-                <div class="management-container">
+        <div class="main-content">
+            <h3>Blog Category Management</h3>
                     <!-- Add Category Section -->
-                    <div class="post-card">
+                    <div class="management-card">
                         <h3 style="margin: 0 0 20px 0; font-weight: 700;">Add New Category</h3>
                         <c:if test="${not empty error}">
                             <div class="error-msg" style="margin-bottom: 15px;">${error}</div>
@@ -108,8 +81,8 @@
                     </div>
 
                    
-                    <div class="post-card">
-                        <h3 style="margin: 0 0 20px 0; font-weight: 700;">All Categories</h3>
+                    <div class="management-card">
+                        <h3>All Categories</h3>
                         <table id="categoryTable" class="display" style="width:100%">
                             <thead>
                                 <tr>
@@ -150,9 +123,6 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-
         </div>
     </div>
     <jsp:include page="/Common/Layout/footer.jsp" />

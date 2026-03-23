@@ -14,7 +14,7 @@ public class ContractDetail {
     private String renterName;
     private String renterEmail;
     private String renterPhone;
-
+    
     private String warehouseName;
     private String warehouseAddress;
 
@@ -23,10 +23,18 @@ public class ContractDetail {
     private String managerPhone;
     
     private int paymentStatus;
-    
+    private double area;
         // ===== GETTER & SETTER =====
     public int getRenterId() {
         return renterId;
+    }
+
+    public double getArea() {
+        return area;
+    }
+
+    public void setArea(double area) {
+        this.area = area;
     }
     
     public void setRenterId(int renterId) {    

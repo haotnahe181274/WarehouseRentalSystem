@@ -8,6 +8,7 @@ import java.sql.Statement;
 import model.Contract;
 import model.ContractDetail;
 import model.InternalUser;
+import model.RentUnit;
 import model.Renter;
 import model.Warehouse;
 
@@ -198,36 +199,44 @@ public class ContractDAO extends DBContext {
 
         String sql = """
             SELECT
-                c.contract_id,
-                c.start_date,
-                c.end_date,
-                c.status,
-                c.price,
-                c.renter_id,
-                r.full_name AS renter_name,
-                r.email AS renter_email,
-                r.phone AS renter_phone,
-                w.name AS warehouse_name,
-                w.address AS warehouse_address,
-                iu.full_name AS manager_name,
-                iu.email AS manager_email,
-                iu.phone AS manager_phone,
-                CASE 
-                    WHEN EXISTS (
-                        SELECT 1 
-                        FROM Payment p 
-                        WHERE p.contract_id = c.contract_id 
-                        AND p.status = 1
-                    )
-                    THEN 1
-                    ELSE 0
-                END AS payment_status
-            FROM Contract c
-            JOIN Renter r ON c.renter_id = r.renter_id
-            JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
-            LEFT JOIN Rent_request rr ON c.request_id = rr.request_id
-            LEFT JOIN Internal_user iu ON rr.internal_user_id = iu.internal_user_id
-            WHERE c.contract_id = ?
+                    c.contract_id,
+                    c.start_date,
+                    c.end_date,
+                    c.status,
+                    c.price,
+                    c.renter_id,
+                    r.full_name AS renter_name,
+                    r.email AS renter_email,
+                    r.phone AS renter_phone,
+                    w.name AS warehouse_name,
+                    w.address AS warehouse_address,
+                    iu.full_name AS manager_name,
+                    iu.email AS manager_email,
+                    iu.phone AS manager_phone,
+            
+                    rru.area,
+                    rru.rent_price,
+                    rru.start_date AS rent_start,
+                    rru.end_date AS rent_end,
+            
+                    CASE 
+                        WHEN EXISTS (
+                            SELECT 1 
+                            FROM Payment p 
+                            WHERE p.contract_id = c.contract_id 
+                            AND p.status = 1
+                        )
+                        THEN 1
+                        ELSE 0
+                    END AS payment_status
+            
+                FROM Contract c
+                JOIN Renter r ON c.renter_id = r.renter_id
+                JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
+                LEFT JOIN Rent_request rr ON c.request_id = rr.request_id
+                LEFT JOIN rent_request_unit rru ON rr.request_id = rru.request_id
+                LEFT JOIN Internal_user iu ON rr.internal_user_id = iu.internal_user_id
+                WHERE c.contract_id = ?
         """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -244,6 +253,7 @@ public class ContractDAO extends DBContext {
                 c.setEndDate(rs.getDate("end_date"));
                 c.setStatus(rs.getInt("status"));
                 c.setPrice(rs.getDouble("price"));
+                c.setArea(rs.getDouble("area"));
                 c.setRenterId(rs.getInt("renter_id"));
                 c.setRenterName(rs.getString("renter_name"));
                 c.setRenterEmail(rs.getString("renter_email"));
@@ -346,7 +356,50 @@ public class ContractDAO extends DBContext {
         }
 
     }
-    
+    public void rejectContract(int contractId) {
+        String sql = "UPDATE Contract SET status = 0 WHERE contract_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, contractId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public List<RentUnit> getRentUnitsByContract(int contractId) {
+        List<RentUnit> list = new ArrayList<>();
+
+        String sql = """
+            SELECT 
+                rru.area,
+                rru.rent_price,
+                rru.start_date,
+                rru.end_date
+            FROM Contract c
+            JOIN Rent_request rr ON c.request_id = rr.request_id
+            JOIN rent_request_unit rru ON rr.request_id = rru.request_id
+            WHERE c.contract_id = ?
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, contractId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                RentUnit u = new RentUnit();
+                u.setArea(rs.getDouble("area"));
+                u.setPrice(rs.getDouble("rent_price"));
+                u.setStartDate(rs.getDate("start_date"));
+                u.setEndDate(rs.getDate("end_date"));
+                list.add(u);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
     public void insertContractStorageUnit(int contractId) {
 
     String sql = """
@@ -371,9 +424,47 @@ public class ContractDAO extends DBContext {
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setInt(1, contractId);
         ps.executeUpdate();
-
     } catch (Exception e) {
         e.printStackTrace();
     }
 }
+    public int countTotal() {
+        String sql = "SELECT COUNT(*) FROM Contract";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countExpired() {
+        String sql = "SELECT COUNT(*) FROM Contract WHERE status != 0 AND end_date < NOW()";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countDone() {
+        String sql = """
+            SELECT COUNT(*) FROM Contract c 
+            WHERE c.status != 0 AND c.end_date >= NOW() 
+            AND EXISTS (SELECT 1 FROM Payment p WHERE p.contract_id = c.contract_id AND p.status = 1)
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countProcess() {
+        String sql = """
+            SELECT COUNT(*) FROM Contract c 
+            WHERE c.status != 0 AND c.end_date >= NOW() 
+            AND NOT EXISTS (SELECT 1 FROM Payment p WHERE p.contract_id = c.contract_id AND p.status = 1)
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
 }

@@ -14,6 +14,19 @@ public class AssignmentDAO extends DBContext {
     // CÁC HÀM TIỆN ÍCH CHUNG
     // ==========================================
 
+    public int getStaffIdByCheckRequest(int checkRequestId) {
+    String sql = "SELECT assigned_to FROM Staff_assignment WHERE check_request_id = ? LIMIT 1";
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, checkRequestId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt("assigned_to");
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+    
     public List<StorageUnit> getUnitsByWarehouse(int warehouseId) {
         List<StorageUnit> list = new ArrayList<>();
         String sql = "SELECT unit_id, unit_code, description FROM Storage_unit WHERE warehouse_id = ? AND status = 1";

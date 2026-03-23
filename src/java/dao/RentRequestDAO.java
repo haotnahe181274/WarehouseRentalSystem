@@ -95,7 +95,7 @@ public class RentRequestDAO extends DBContext {
         JOIN renter r ON rr.renter_id = r.renter_id
         JOIN warehouse w ON rr.warehouse_id = w.warehouse_id
         LEFT JOIN internal_user iu ON rr.internal_user_id = iu.internal_user_id
-          AND rr.renter_id = ?
+        WHERE rr.renter_id = ?
         ORDER BY rr.request_date DESC
     """;
 
@@ -427,5 +427,24 @@ public class RentRequestDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public int countTotal() {
+        String sql = "SELECT COUNT(*) FROM rent_request";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int countByStatus(int status) {
+        String sql = "SELECT COUNT(*) FROM rent_request WHERE status = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
     }
 }

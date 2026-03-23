@@ -69,6 +69,7 @@
                         <div class="mb-4">
                             <label class="form-label fw-bold text-dark">Status</label>
                             <select name="status" class="form-select">
+                                
                                 <option value="1" ${u.status == 1 ? 'selected' : ''}>Available</option>
                                 <option value="2" ${u.status == 2 ? 'selected' : ''}>Under Maintenance</option>
                             </select>
