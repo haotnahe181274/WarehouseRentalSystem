@@ -33,7 +33,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Payment ID</th>
+                                
                                 <th>Contract ID</th>
                                 <th>Amount (VND)</th>
                                 <th>Payment Date</th>
@@ -45,7 +45,7 @@
                             <c:forEach items="${payments}" var="p" varStatus="st">
                                 <tr>
                                     <td>${st.index + 1}</td>
-                                    <td>${p.paymentId}</td>
+                                    
                                     <td>
                                         <c:if test="${p.contract != null}">
                                             ${p.contract.contractId}
