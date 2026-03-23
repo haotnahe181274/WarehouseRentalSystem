@@ -104,6 +104,7 @@ public class PaymentDAO extends DBContext {
                 FROM Payment p
                 JOIN Contract c ON p.contract_id = c.contract_id
                 WHERE c.renter_id = ?
+                  AND p.status IN (1, 2)
                 ORDER BY p.payment_date DESC
                 """;
 

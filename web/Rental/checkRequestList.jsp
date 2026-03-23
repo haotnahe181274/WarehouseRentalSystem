@@ -126,12 +126,12 @@
 </div>
 
 <jsp:include page="/Common/Layout/footer.jsp"/>
-
         
         <script>
             $(document).ready(function () {
                 $('#itemTable').DataTable({
                     pageLength: 5
+                    
                     
                 });
             });

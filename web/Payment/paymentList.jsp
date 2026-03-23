@@ -62,13 +62,11 @@
                                         <span class="status-badge
                                               <c:choose>
                                                   <c:when test='${p.status == 1}'> status-paid</c:when>
-                                                  <c:when test='${p.status == 0}'> status-pending</c:when>
-                                                  <c:otherwise> status-cancelled</c:otherwise>
+                                                  <c:otherwise> status-failed</c:otherwise>
                                               </c:choose>
                                               ">
                                             <c:choose>
                                                 <c:when test="${p.status == 1}">Paid</c:when>
-                                                <c:when test="${p.status == 0}">Unpaid</c:when>
                                                 <c:otherwise>Failed</c:otherwise>
                                             </c:choose>
                                         </span>
@@ -156,12 +154,7 @@
                 color: #ffffff;
             }
 
-            .status-pending {
-                background-color: #facc15;
-                color: #1f2933;
-            }
-
-            .status-cancelled {
+            .status-failed {
                 background-color: #ef4444;
                 color: #ffffff;
             }

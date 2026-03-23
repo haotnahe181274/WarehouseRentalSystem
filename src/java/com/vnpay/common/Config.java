@@ -109,16 +109,28 @@ public class Config {
     }
     
     public static String getIpAddress(HttpServletRequest request) {
-        String ipAdress;
+        String ipAddress = null;
         try {
-            ipAdress = request.getHeader("X-FORWARDED-FOR");
-            if (ipAdress == null) {
-                ipAdress = request.getRemoteAddr();
+            // X-FORWARDED-FOR có thể chứa nhiều IP dạng: "ip1, ip2, ip3"
+            // VNPay yêu cầu 1 IP hợp lệ, nên lấy IP đầu tiên.
+            String xff = request.getHeader("X-FORWARDED-FOR");
+            if (xff != null && !xff.isEmpty()) {
+                ipAddress = xff.split(",")[0].trim();
+            }
+
+            if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+                ipAddress = request.getHeader("Proxy-Client-IP");
+            }
+            if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+                ipAddress = request.getHeader("WL-Proxy-Client-IP");
+            }
+            if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+                ipAddress = request.getRemoteAddr();
             }
         } catch (Exception e) {
-            ipAdress = "Invalid IP:" + e.getMessage();
+            ipAddress = request.getRemoteAddr();
         }
-        return ipAdress;
+        return ipAddress;
     }
 
     public static String getRandomNumber(int len) {
