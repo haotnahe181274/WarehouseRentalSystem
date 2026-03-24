@@ -193,7 +193,7 @@ public class WarehouseDetailServlet extends HttpServlet {
                 String generatedCode = suDao.generateUnitCode(warehouseId);
 
                 // Dùng calculatedPrice thay cho biến price truyền từ form
-                boolean isSuccess = suDao.addStorageUnit(warehouseId, generatedCode, area, calculatedPrice, description);
+                boolean isSuccess = suDao.addStorageUnit(warehouseId, generatedCode, area, calculatedPrice, status ,description);
                 if (!isSuccess) throw new Exception("Database error while adding new unit.");
 
                 request.getSession().setAttribute("successMsg",
