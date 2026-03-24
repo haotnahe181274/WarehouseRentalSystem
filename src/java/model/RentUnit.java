@@ -16,17 +16,28 @@ public class RentUnit {
     private Date startDate;
     private Date endDate;
     private int unitId;
-
+    private int quantity;
     public RentUnit() {
     }
 
-    public RentUnit(double area, double price, Date startDate, Date endDate, int unitId) {
+    public RentUnit(double area, double price, Date startDate, Date endDate, int unitId, int quantity) {
         this.area = area;
         this.price = price;
         this.startDate = startDate;
         this.endDate = endDate;
         this.unitId = unitId;
+        this.quantity = quantity;
     }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+
 
     public int getUnitId() {
         return unitId;
