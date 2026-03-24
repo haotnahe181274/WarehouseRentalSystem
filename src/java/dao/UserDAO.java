@@ -22,6 +22,13 @@ public class UserDAO extends DBContext {
             u.setIdCard(rs.getString("id_card"));
             u.setAddress(rs.getString("address"));
             u.setInternalUserCode(rs.getString("internal_user_code"));
+            try {
+                int wid = rs.getInt("warehouse_id");
+                if (!rs.wasNull()) u.setWarehouseId(wid);
+            } catch (Exception ignored) {}
+            try {
+                u.setWarehouseName(rs.getString("warehouse_name"));
+            } catch (Exception ignored) {}
         }
         return u;
     }
@@ -42,9 +49,12 @@ public class UserDAO extends DBContext {
                     iu.created_at createdAt,
                     iu.id_card,
                     iu.address,
-                    iu.internal_user_code
+                    iu.internal_user_code,
+                    iu.warehouse_id,
+                    w.name as warehouse_name
                     from internal_user iu
                     join role r on iu.role_id = r.role_id
+                    left join warehouse w on w.warehouse_id = iu.warehouse_id
                     where iu.internal_user_id = ?
                     """;
         } else if ("renter".equalsIgnoreCase(type)) {
@@ -103,12 +113,13 @@ public class UserDAO extends DBContext {
             int roleId,
             String internalUserCode,
             String idCard,
-            String address) {
+            String address,
+            Integer warehouseId) {
 
         String sql = """
                     INSERT INTO internal_user
-                    (user_name, password, email, full_name, phone, role_id, status, image, created_at, internal_user_code, id_card, address)
-                    VALUES (?, ?, ?, ?, ?, ?, 1, ?, NOW(), ?, ?, ?)
+                    (user_name, password, email, full_name, phone, role_id, status, image, created_at, internal_user_code, id_card, address, warehouse_id)
+                    VALUES (?, ?, ?, ?, ?, ?, 1, ?, NOW(), ?, ?, ?, ?)
                 """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -122,6 +133,11 @@ public class UserDAO extends DBContext {
             ps.setString(8, internalUserCode);
             ps.setString(9, idCard);
             ps.setString(10, address);
+            if (warehouseId != null) {
+                ps.setInt(11, warehouseId);
+            } else {
+                ps.setNull(11, java.sql.Types.INTEGER);
+            }
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,11 +152,12 @@ public class UserDAO extends DBContext {
             String image,
             int roleId,
             String idCard,
-            String address) {
+            String address,
+            Integer warehouseId) {
 
         String sql = """
                     UPDATE internal_user
-                    SET email = ?, full_name = ?, phone = ?, image = ?, role_id = ?, id_card = ?, address = ?
+                    SET email = ?, full_name = ?, phone = ?, image = ?, role_id = ?, id_card = ?, address = ?, warehouse_id = ?
                     WHERE internal_user_id = ?
                 """;
 
@@ -152,7 +169,12 @@ public class UserDAO extends DBContext {
             ps.setInt(5, roleId);
             ps.setString(6, idCard);
             ps.setString(7, address);
-            ps.setInt(8, id);
+            if (warehouseId != null) {
+                ps.setInt(8, warehouseId);
+            } else {
+                ps.setNull(8, java.sql.Types.INTEGER);
+            }
+            ps.setInt(9, id);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

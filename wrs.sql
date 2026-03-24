@@ -172,7 +172,7 @@
 
 		area DECIMAL(10,2),
 
-		price_per_unit DECIMAL(10,2),
+		price DECIMAL(10,2),
 
 		description TEXT,
 
@@ -856,7 +856,59 @@ DELIMITER ;
 	('High Security', 'Kho ngoài trời');
 
 
+INSERT INTO Warehouse (name, address, description, status, warehouse_type_id) VALUES
 
+	('Northern Logistics Hub', 'Hà Nội', 'Kho trung tâm miền Bắc', 1, 1),
+
+	('Vinh Phuc Distribution Center', 'Vĩnh Phúc', 'Kho vệ tinh khu công nghiệp', 1, 2),
+
+	('Bac Ninh Smart Warehouse', 'Bắc Ninh', 'Kho công nghệ cao', 1, 2),
+
+	('Hai Phong Port Warehouse', 'Hải Phòng', 'Kho gần cảng biển', 1, 3),
+
+	('Quang Ninh Security Depot', 'Quảng Ninh', 'Kho an ninh cao', 2, 3),
+
+	('Thanh Hoa Storage Complex', 'Thanh Hóa', 'Kho tổng hợp', 1, 2),
+
+	('Nghe An Logistics Center', 'Nghệ An', 'Kho trung chuyển', 1, 2),
+
+	('Ha Tinh Supply Warehouse', 'Hà Tĩnh', 'Kho cung ứng', 0, 1),
+
+	('Da Nang Logistics Hub', 'Đà Nẵng', 'Kho miền Trung', 1, 1),
+
+	('Quang Nam Storage', 'Quảng Nam', 'Kho lưu trữ hàng tổng hợp', 1, 2),
+
+	('Quang Ngai Industrial Warehouse', 'Quảng Ngãi', 'Kho khu công nghiệp', 1, 2),
+
+	('Binh Dinh Port Depot', 'Bình Định', 'Kho cảng biển', 1, 3),
+
+	('Khanh Hoa Cold Storage', 'Khánh Hòa', 'Kho lạnh thủy sản', 1, 1),
+
+	('Dak Lak Agricultural Warehouse', 'Đắk Lắk', 'Kho nông sản', 2, 2),
+
+	('Gia Lai Logistics Base', 'Gia Lai', 'Kho trung chuyển Tây Nguyên', 1, 2),
+
+	('Lam Dong Cold Chain Center', 'Lâm Đồng', 'Kho lạnh rau củ', 1, 1),
+
+	('Binh Duong Smart Warehouse', 'Bình Dương', 'Kho tự động hóa', 1, 2),
+
+	('Dong Nai Industrial Storage', 'Đồng Nai', 'Kho công nghiệp', 1, 2),
+
+	('Ho Chi Minh Logistics Hub', 'TP Hồ Chí Minh', 'Kho trung tâm miền Nam', 1, 1),
+
+	('Long An Distribution Center', 'Long An', 'Kho phân phối', 1, 2),
+
+	('Tien Giang Storage', 'Tiền Giang', 'Kho khu vực ĐBSCL', 1, 2),
+
+	('Can Tho Logistics Hub', 'Cần Thơ', 'Kho trung tâm miền Tây', 1, 1),
+
+	('Vinh Long Warehouse', 'Vĩnh Long', 'Kho tổng hợp', 0, 2),
+
+	('An Giang Border Depot', 'An Giang', 'Kho khu vực biên giới', 1, 3),
+
+	('Kien Giang Marine Warehouse', 'Kiên Giang', 'Kho hàng hải sản', 1, 1),
+
+	('Ca Mau Cold Storage', 'Cà Mau', 'Kho lạnh thủy sản', 2, 1);
 	INSERT INTO Internal_user
 (user_name, password, full_name, email, phone, status, created_at, role_id, image, id_card, address, internal_user_code, warehouse_id)
 VALUES
@@ -864,29 +916,34 @@ VALUES
 
 ('manager01', '123456', 'Nguyễn Nhật Anh', 'manager@mail.com', '0900000022', 1, NOW(), 2, 'default.jpg', '001001002003', 'Vĩnh Phúc', 'M12345', NULL),
 
-('staff01', '123456', 'Lê Thanh Hùng', 'staff1@mail.com', '0900000033', 1, NOW(), 3, 'default.jpg', '001001003003', 'Bắc Ninh', 'S12356', NULL),
+('staff01','123456','Nguyễn Minh Anh','s1@mail.com','0900000001',1,NOW(),3,'default.jpg','111111111001','Hà Nội','S001',1),
+('staff02','123456','Trần Quốc Bảo','s2@mail.com','0900000002',1,NOW(),3,'default.jpg','111111111002','Vĩnh Phúc','S002',2),
+('staff03','123456','Lê Thành Long','s3@mail.com','0900000003',1,NOW(),3,'default.jpg','111111111003','Bắc Ninh','S003',3),
+('staff04','123456','Phạm Hải Nam','s4@mail.com','0900000004',1,NOW(),3,'default.jpg','111111111004','Hải Phòng','S004',4),
+('staff05','123456','Đỗ Quang Huy','s5@mail.com','0900000005',1,NOW(),3,'default.jpg','111111111005','Quảng Ninh','S005',5),
+('staff06','123456','Vũ Đức Trung','s6@mail.com','0900000006',1,NOW(),3,'default.jpg','111111111006','Thanh Hóa','S006',6),
+('staff07','123456','Ngô Văn Dũng','s7@mail.com','0900000007',1,NOW(),3,'default.jpg','111111111007','Nghệ An','S007',7),
+('staff08','123456','Bùi Anh Tuấn','s8@mail.com','0900000008',1,NOW(),3,'default.jpg','111111111008','Hà Tĩnh','S008',8),
+('staff09','123456','Huỳnh Tấn Phát','s9@mail.com','0900000009',1,NOW(),3,'default.jpg','111111111009','Đà Nẵng','S009',9),
+('staff10','123456','Nguyễn Văn Khánh','s10@mail.com','0900000010',1,NOW(),3,'default.jpg','111111111010','Quảng Nam','S010',10),
 
-('staff02', '123456', 'Nguyễn Thị Bừng', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg', '001001004002', 'Hải Phòng', 'S12345', NULL),
+('staff11','123456','Trần Minh Trí','s11@mail.com','0900000011',1,NOW(),3,'default.jpg','111111111011','Quảng Ngãi','S011',11),
+('staff12','123456','Lý Hoàng Sơn','s12@mail.com','0900000012',1,NOW(),3,'default.jpg','111111111012','Bình Định','S012',12),
+('staff13','123456','Phan Nhật Hào','s13@mail.com','0900000013',1,NOW(),3,'default.jpg','111111111013','Khánh Hòa','S013',13),
+('staff14','123456','Đặng Gia Hưng','s14@mail.com','0900000014',1,NOW(),3,'default.jpg','111111111014','Đắk Lắk','S014',14),
+('staff15','123456','Trịnh Công Minh','s15@mail.com','0900000015',1,NOW(),3,'default.jpg','111111111015','Gia Lai','S015',15),
+('staff16','123456','Lâm Quốc Việt','s16@mail.com','0900000016',1,NOW(),3,'default.jpg','111111111016','Lâm Đồng','S016',16),
+('staff17','123456','Nguyễn Hoàng Phúc','s17@mail.com','0900000017',1,NOW(),3,'default.jpg','111111111017','Bình Dương','S017',17),
+('staff18','123456','Võ Thành Đạt','s18@mail.com','0900000018',1,NOW(),3,'default.jpg','111111111018','Đồng Nai','S018',18),
+('staff19','123456','Phạm Tuấn Kiệt','s19@mail.com','0900000019',1,NOW(),3,'default.jpg','111111111019','TP Hồ Chí Minh','S019',19),
+('staff20','123456','Nguyễn Thanh Tùng','s20@mail.com','0900000020',1,NOW(),3,'default.jpg','111111111020','Long An','S020',20),
 
-('manager02', '123456', 'Lê Hoàng Minh', 'manager7@mail.com', '0933030303', 1, NOW(), 2, 'default.jpg', '051303030303', 'Đà Nẵng', 'M19483', NULL),
-
-('manager03', '123456', 'Phạm Quang Huy', 'manager8@mail.com', '0944040404', 1, NOW(), 2, 'default.jpg', '051404040404', 'Cần Thơ', 'M56274', NULL),
-
-('staff03', '123456', 'Võ Thị Mai', 'staff21@mail.com', '0955050505', 1, NOW(), 3, 'default.jpg', '031505050505', 'TP Hồ Chí Minh', 'S90817', NULL),
-
-('staff04', '123456', 'Đặng Tuấn Kiệt', 'staff22@mail.com', '0966060606', 1, NOW(), 3, 'default.jpg', '031606060606', 'Bình Dương', 'S27465', NULL),
-
-('staff05', '123456', 'Bùi Gia Bảo', 'staff23@mail.com', '0977070707', 1, NOW(), 3, 'default.jpg', '084707070707', 'Hà Nội', 'S63920', NULL),
-
-('staff06', '123456', 'Đoàn Thu Trang', 'staff24@mail.com', '0988080808', 1, NOW(), 3, 'default.jpg', '084808080808', 'Hải Dương', 'S84571', NULL),
-
-('staff07', '123456', 'Hoàng Minh Đức', 'staff25@mail.com', '0909090909', 1, NOW(), 3, 'default.jpg', '038909090909', 'Nghệ An', 'S12654', NULL),
-
-('staff08', '123456', 'Nguyễn Thị Phương Anh', 'staff26@mail.com', '0912123434', 1, NOW(), 3, 'default.jpg', '038212343434', 'Huế', 'S39028', NULL),
-
-('staff09', '123456', 'Trần Đức Thắng', 'staff27@mail.com', '0923234545', 1, NOW(), 3, 'default.jpg', '060323454545', 'Quảng Ninh', 'S55739', NULL),
-
-('staff10', '123456', 'Lê Thị Kim Oanh', 'staff28@mail.com', '0934345656', 1, NOW(), 3, 'default.jpg', '060434565656', 'Vũng Tàu', 'S77410', NULL);
+('staff21','123456','Trần Văn Hậu','s21@mail.com','0900000021',1,NOW(),3,'default.jpg','111111111021','Tiền Giang','S021',21),
+('staff22','123456','Lê Quang Vinh','s22@mail.com','0900000022',1,NOW(),3,'default.jpg','111111111022','Cần Thơ','S022',22),
+('staff23','123456','Nguyễn Quốc Cường','s23@mail.com','0900000023',1,NOW(),3,'default.jpg','111111111023','Vĩnh Long','S023',23),
+('staff24','123456','Huỳnh Văn Tài','s24@mail.com','0900000024',1,NOW(),3,'default.jpg','111111111024','An Giang','S024',24),
+('staff25','123456','Trương Minh Đức','s25@mail.com','0900000025',1,NOW(),3,'default.jpg','111111111025','Kiên Giang','S025',25),
+('staff26','123456','Đỗ Thành Nhân','s26@mail.com','0900000026',1,NOW(),3,'default.jpg','111111111026','Cà Mau','S026',26);
 
 
 	INSERT INTO Renter
@@ -951,59 +1008,7 @@ VALUES
 
 
 
-	INSERT INTO Warehouse (name, address, description, status, warehouse_type_id) VALUES
-
-	('Northern Logistics Hub', 'Hà Nội', 'Kho trung tâm miền Bắc', 1, 1),
-
-	('Vinh Phuc Distribution Center', 'Vĩnh Phúc', 'Kho vệ tinh khu công nghiệp', 1, 2),
-
-	('Bac Ninh Smart Warehouse', 'Bắc Ninh', 'Kho công nghệ cao', 1, 2),
-
-	('Hai Phong Port Warehouse', 'Hải Phòng', 'Kho gần cảng biển', 1, 3),
-
-	('Quang Ninh Security Depot', 'Quảng Ninh', 'Kho an ninh cao', 2, 3),
-
-	('Thanh Hoa Storage Complex', 'Thanh Hóa', 'Kho tổng hợp', 1, 2),
-
-	('Nghe An Logistics Center', 'Nghệ An', 'Kho trung chuyển', 1, 2),
-
-	('Ha Tinh Supply Warehouse', 'Hà Tĩnh', 'Kho cung ứng', 0, 1),
-
-	('Da Nang Logistics Hub', 'Đà Nẵng', 'Kho miền Trung', 1, 1),
-
-	('Quang Nam Storage', 'Quảng Nam', 'Kho lưu trữ hàng tổng hợp', 1, 2),
-
-	('Quang Ngai Industrial Warehouse', 'Quảng Ngãi', 'Kho khu công nghiệp', 1, 2),
-
-	('Binh Dinh Port Depot', 'Bình Định', 'Kho cảng biển', 1, 3),
-
-	('Khanh Hoa Cold Storage', 'Khánh Hòa', 'Kho lạnh thủy sản', 1, 1),
-
-	('Dak Lak Agricultural Warehouse', 'Đắk Lắk', 'Kho nông sản', 2, 2),
-
-	('Gia Lai Logistics Base', 'Gia Lai', 'Kho trung chuyển Tây Nguyên', 1, 2),
-
-	('Lam Dong Cold Chain Center', 'Lâm Đồng', 'Kho lạnh rau củ', 1, 1),
-
-	('Binh Duong Smart Warehouse', 'Bình Dương', 'Kho tự động hóa', 1, 2),
-
-	('Dong Nai Industrial Storage', 'Đồng Nai', 'Kho công nghiệp', 1, 2),
-
-	('Ho Chi Minh Logistics Hub', 'TP Hồ Chí Minh', 'Kho trung tâm miền Nam', 1, 1),
-
-	('Long An Distribution Center', 'Long An', 'Kho phân phối', 1, 2),
-
-	('Tien Giang Storage', 'Tiền Giang', 'Kho khu vực ĐBSCL', 1, 2),
-
-	('Can Tho Logistics Hub', 'Cần Thơ', 'Kho trung tâm miền Tây', 1, 1),
-
-	('Vinh Long Warehouse', 'Vĩnh Long', 'Kho tổng hợp', 0, 2),
-
-	('An Giang Border Depot', 'An Giang', 'Kho khu vực biên giới', 1, 3),
-
-	('Kien Giang Marine Warehouse', 'Kiên Giang', 'Kho hàng hải sản', 1, 1),
-
-	('Ca Mau Cold Storage', 'Cà Mau', 'Kho lạnh thủy sản', 2, 1);
+	
 
 
 
@@ -1063,7 +1068,7 @@ VALUES
 
 
 
-	INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, warehouse_id) VALUES
+	INSERT INTO Storage_unit (unit_code, status, area, price, description, warehouse_id) VALUES
 
 	('HN-A1',1,50,2000000,'Ô nhỏ',1), ('VP-A1',1,70,2500000,'Ô tiêu chuẩn',2),
 
@@ -1402,7 +1407,7 @@ VALUES
 
 
 
-	INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, warehouse_id) VALUES
+	INSERT INTO Storage_unit (unit_code, status, area, price, description, warehouse_id) VALUES
 
 	('HN-A2', 1, 60.00, 2200000, 'Ô trung bình - Tầng 1', 1),
 
@@ -1552,8 +1557,8 @@ VALUES
 
 -- Thêm cột area vào bảng Warehouse
 ALTER TABLE Warehouse 
-ADD COLUMN total_area DECIMAL(10,2) NOT NULL DEFAULT 0;
-
+ADD COLUMN total_area DECIMAL(10,2) NOT NULL DEFAULT 0,
+ADD COLUMN price_per_m2 DECIMAL(10,2) NOT NULL DEFAULT 0;
 -- Cập nhật diện tích mẫu cho Warehouse dựa trên Storage_unit đã có + thêm 100 m2 dự phòng
 -- 1. Tạm tắt Safe Updates
 SET SQL_SAFE_UPDATES = 0;
@@ -1566,6 +1571,21 @@ LEFT JOIN (
     GROUP BY warehouse_id
 ) su ON w.warehouse_id = su.warehouse_id
 SET w.total_area = IFNULL(su.total_used_area, 0) + 100;
+
+-- =========================================================================
+-- 1. CẬP NHẬT GIÁ MỖI M2 CHO WAREHOUSE (LUÂN PHIÊN CHÊNH NHAU 10K)
+-- Dùng phép chia lấy dư (warehouse_id % 3) sẽ ra kết quả 0, 1 hoặc 2.
+-- Mức giá sẽ luân phiên xoay vòng: 40k, 50k, 60k, rồi lại 40k, 50k...
+-- =========================================================================
+UPDATE Warehouse 
+SET price_per_m2 = 50000 + (FLOOR(RAND() * 11) * 1000);
+
+-- =========================================================================
+-- 2. ĐỒNG BỘ LẠI GIÁ (PRICE_PER_UNIT) CHO STORAGE UNIT THEO CÔNG THỨC MỚI
+-- =========================================================================
+UPDATE Storage_unit su
+JOIN Warehouse w ON su.warehouse_id = w.warehouse_id
+SET su.price = su.area * w.price_per_m2;
 
 -- 3. Bật lại Safe Updates để bảo vệ dữ liệu
 SET SQL_SAFE_UPDATES = 1;
