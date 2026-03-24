@@ -75,7 +75,7 @@
                 <table id="rentRequestTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>No.</th>
                             <th>Request Date</th>
                             <th>Status</th>
                             <c:if test="${sessionScope.userType == 'INTERNAL'}">
@@ -88,9 +88,9 @@
                     </thead>
 
                     <tbody>
-                        <c:forEach items="${rentRequests}" var="rr">
+                        <c:forEach items="${rentRequests}" var="rr" varStatus="loop">
                             <tr>
-                                <td>${rr.requestId}</td>
+                                <td>${loop.index + 1}</td>  <!-- STT bắt đầu từ 1 -->
 
                                 <td>
                                     <fmt:formatDate value="${rr.requestDate}" pattern="dd-MM-yyyy HH:mm"/>
