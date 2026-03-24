@@ -9,14 +9,13 @@ import model.IncidentReport;
 
 public class IncidentReportDAO extends DBContext {
 
-    // Lấy ID và Tên kho mà nhân viên đang làm việc (từ bảng Staff_assignment)
+    // Lấy ID và Tên kho mà nhân viên đang làm việc (từ bảng Internal_user)
     public Object[] getAssignedWarehouse(int staffId) {
         String sql = """
-            SELECT w.warehouse_id, w.name 
-            FROM Staff_assignment sa
-            JOIN Warehouse w ON sa.warehouse_id = w.warehouse_id
-            WHERE sa.assigned_to = ? 
-            LIMIT 1
+            SELECT w.warehouse_id, w.name
+            FROM Internal_user iu
+            JOIN Warehouse w ON iu.warehouse_id = w.warehouse_id
+            WHERE iu.internal_user_id = ?
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, staffId);
@@ -24,7 +23,9 @@ public class IncidentReportDAO extends DBContext {
             if (rs.next()) {
                 return new Object[]{rs.getInt("warehouse_id"), rs.getString("name")};
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
         return null;
     }
 
