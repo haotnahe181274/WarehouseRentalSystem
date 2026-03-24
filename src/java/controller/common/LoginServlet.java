@@ -105,7 +105,7 @@ public class LoginServlet extends HttpServlet {
                     response.sendRedirect("dashboard");
                     break;
                 case "Staff":
-                    response.sendRedirect("dashboard");
+                    response.sendRedirect("staffTask");
                     break;
                 default:
                     response.sendRedirect("homepage");
