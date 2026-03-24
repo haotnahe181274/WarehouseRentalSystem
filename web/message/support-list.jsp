@@ -12,33 +12,45 @@
 <head>
     <meta charset="UTF-8">
     <title>Support Conversations</title>
+
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
+        * {
+            box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
 
-        .support-page {
-            min-height: 120vh;
-            padding: 20px;
-            box-sizing: border-box;
+        body {
+            margin: 0;
+            background: #f1f5f9;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
+        /* HEADER */
+        .chat-header {
+            background: #0d6efd;
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+        }
+
+        /* LIST */
+        .conversation-list {
+            height: 440px;
+            overflow-y: auto;
+            background: #f8fafc;
+            padding: 10px;
         }
 
         .conversation-box {
-            border: 1px solid #ccc;
-            padding: 12px;
-            margin-top: 10px;
+            background: white;
+            padding: 10px;
             border-radius: 8px;
-            background: #fff;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            transition: 0.2s;
+        }
+
+        .conversation-box:hover {
+            background: #eef2ff;
         }
 
         .conversation-box a {
@@ -49,57 +61,51 @@
 
         .subject {
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .meta {
             color: gray;
-            font-size: 13px;
-            margin-top: 5px;
+            font-size: 12px;
+            margin-top: 4px;
         }
 
-        .btn-create {
-            padding: 8px 14px;
-            background: #007bff;
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
+        .no-data {
+            padding: 20px;
         }
     </style>
 </head>
 <body>
 
-    <jsp:include page="/Common/Layout/header.jsp" />
+<div class="chat-header">
+    Support Conversations
+</div>
 
-    <main class="support-page">
-        <div class="header">
-            <h2>Support Conversations</h2>
-                   </div>
-
-        <%
-            if (conversationList != null && !conversationList.isEmpty()) {
-                for (SupportConversation c : conversationList) {
-        %>
-            <div class="conversation-box">
-                <a href="${pageContext.request.contextPath}/send-support-message?conversationId=<%= c.getConversationId() %>">
-                    <div class="subject"><%= c.getSubject() %></div>
-                    <div class="meta">
-                        Status: <%= c.getStatus() %> |
-                        Request ID: <%= c.getRequestId() == null ? "N/A" : c.getRequestId() %> |
-                        Updated at: <%= c.getUpdatedAt() %>
-                    </div>
-                </a>
-            </div>
-        <%
-                }
-            } else {
-        %>
-            <p>No conversations found.</p>
-        <%
+<div class="conversation-list">
+    <%
+        if (conversationList != null && !conversationList.isEmpty()) {
+            for (SupportConversation c : conversationList) {
+    %>
+        <div class="conversation-box">
+            <a href="${pageContext.request.contextPath}/send-support-message?conversationId=<%= c.getConversationId() %>&popup=true">
+                <div class="subject"><%= c.getSubject() %></div>
+                <div class="meta">
+                    Status: <%= c.getStatus() %> |
+                    Updated: <%= c.getUpdatedAt() %>
+                </div>
+            </a>
+        </div>
+    <%
             }
-        %>
-    </main>
+        } else {
+    %>
+        <div class="no-data">
+            No conversations found.
+        </div>
+    <%
+        }
+    %>
+</div>
 
-    <jsp:include page="/Common/Layout/footer.jsp" />
 </body>
 </html>
