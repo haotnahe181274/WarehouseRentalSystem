@@ -27,12 +27,10 @@ public class WarehouseDetailServlet extends HttpServlet {
         // ── ADD UNIT: generate code + tính diện tích còn lại ──────────────
         if ("addUnit".equals(action)) {
             int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
-
             String generatedCode    = suDao.generateUnitCode(warehouseId);
             double warehouseArea    = suDao.getWarehouseTotalArea(warehouseId);
             double usedArea         = suDao.getTotalUsedArea(warehouseId);
             double remainingArea    = warehouseArea - usedArea;
-
             request.setAttribute("warehouseId",    warehouseId);
             request.setAttribute("generatedCode",  generatedCode);
             request.setAttribute("warehouseArea",  warehouseArea);
@@ -47,18 +45,15 @@ public class WarehouseDetailServlet extends HttpServlet {
         if ("editUnit".equals(action)) {
             int unitId      = Integer.parseInt(request.getParameter("unitId"));
             int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
-
             StorageUnit unit     = suDao.getStorageUnitById(unitId);
             double warehouseArea = suDao.getWarehouseTotalArea(warehouseId);
             double usedArea      = suDao.getTotalUsedAreaExcluding(warehouseId, unitId);
             double remainingArea = warehouseArea - usedArea;
-
             request.setAttribute("u",             unit);
             request.setAttribute("warehouseId",   warehouseId);
             request.setAttribute("warehouseArea", warehouseArea);
             request.setAttribute("usedArea",      usedArea);
             request.setAttribute("remainingArea", remainingArea);
-
             request.getRequestDispatcher("/Management/storage-unit-form.jsp").forward(request, response);
             return;
         }
@@ -154,7 +149,7 @@ public class WarehouseDetailServlet extends HttpServlet {
 
             // ── Validate cơ bản ──────────────────────────────────────────
             if (area < 10) {
-                throw new Exception("Area must be at least 10 sq m!");
+                throw new Exception("Area must be at least 10 m²!");
             }
             if (price < 1000000) {
                 throw new Exception("Rent Price must be at least 1,000,000 VND!");
@@ -172,7 +167,7 @@ public class WarehouseDetailServlet extends HttpServlet {
                 double remaining = warehouseTotalArea - usedArea;
                 if (area > remaining) {
                     throw new Exception(String.format(
-                        "Not enough space! Remaining area: %.1f sq m, requested: %.1f sq m.", remaining, area));
+                        "Not enough space! Remaining area: %.1f m², requested: %.1f m².", remaining, area));
                 }
 
                 // Generate unit code tự động
@@ -191,7 +186,7 @@ public class WarehouseDetailServlet extends HttpServlet {
                 double remaining = warehouseTotalArea - usedAreaExcluding;
                 if (area > remaining) {
                     throw new Exception(String.format(
-                        "Not enough space! Remaining area: %.1f sq m, requested: %.1f sq m.", remaining, area));
+                        "Not enough space! Remaining area: %.1f m², requested: %.1f m².", remaining, area));
                 }
 
                 // Giữ nguyên unit code cũ khi update
