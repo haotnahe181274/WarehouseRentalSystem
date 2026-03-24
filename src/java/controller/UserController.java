@@ -5,6 +5,8 @@
 package controller;
 
 import dao.UserDAO;
+import dao.WarehouseDAO;
+import model.Warehouse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -69,6 +71,7 @@ public class UserController extends HttpServlet {
      * @throws IOException      if an I/O error occurs
      */
     UserDAO userDAO = new UserDAO();
+    WarehouseDAO warehouseDAO = new WarehouseDAO();
 
     // Helper method to set default image if image is null, empty, or invalid
     private void setDefaultImageIfNeeded(UserView user) {
@@ -147,12 +150,14 @@ public class UserController extends HttpServlet {
 
             request.setAttribute("targetUser", user);
             request.setAttribute("mode", "view");
+            request.setAttribute("warehouses", warehouseDAO.getAllActive());
             request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
         }
 
         if ("add".equals(action)) {
             request.setAttribute("mode", "add");
+            request.setAttribute("warehouses", warehouseDAO.getAllActive());
             request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
         }
@@ -163,6 +168,7 @@ public class UserController extends HttpServlet {
             setDefaultImageIfNeeded(user);
             request.setAttribute("targetUser", user);
             request.setAttribute("mode", "edit");
+            request.setAttribute("warehouses", warehouseDAO.getAllActive());
             request.getRequestDispatcher("/user/users.jsp").forward(request, response);
             return;
         }
@@ -283,7 +289,7 @@ public class UserController extends HttpServlet {
 
             // ===== ADD =====
             if ("add".equals(mode)) {
-                int roleId = Integer.parseInt(role);
+                int roleId = 3; // Always Staff
                 String username = request.getParameter("username");
                 String password = request.getParameter("password");
                 String idCard = request.getParameter("idCard");
@@ -300,27 +306,30 @@ public class UserController extends HttpServlet {
                             "Address must not have leading/trailing spaces or multiple consecutive spaces");
                 }
 
+                String warehouseIdRaw = request.getParameter("warehouseId");
+                Integer warehouseId = (warehouseIdRaw != null && !warehouseIdRaw.isEmpty()) ? Integer.parseInt(warehouseIdRaw) : null;
+
                 if (!errors.isEmpty()) {
                     request.setAttribute("errors", errors);
                     request.setAttribute("mode", "add");
-                    // Giữ lại dữ liệu đã nhập
                     request.setAttribute("username", username);
                     request.setAttribute("email", email);
                     request.setAttribute("fullName", fullName);
                     request.setAttribute("phone", phone);
-                    request.setAttribute("roleId", role);
                     request.setAttribute("idCard", idCard);
                     request.setAttribute("address", address);
+                    request.setAttribute("warehouseId", warehouseId);
+                    request.setAttribute("warehouses", warehouseDAO.getAllActive());
                     request.getRequestDispatcher("/user/users.jsp").forward(request, response);
                     return;
                 }
 
-                // Auto-generate internal user code based on role: A12345, M12345, S12345
-                String internalUserCode = generateInternalUserCode(roleId);
+                // Auto-generate staff code: S + 5 random digits
+                String internalUserCode = generateInternalUserCode();
 
                 userDAO.insertInternalUser(
                         username, password, email, fullName, phone, fileName, roleId, internalUserCode, idCard,
-                        address);
+                        address, warehouseId);
             }
 
             // ===== UPDATE =====
@@ -354,6 +363,9 @@ public class UserController extends HttpServlet {
                             "Address must not have leading/trailing spaces or multiple consecutive spaces");
                 }
 
+                String warehouseIdRaw2 = request.getParameter("warehouseId");
+                Integer warehouseId2 = (warehouseIdRaw2 != null && !warehouseIdRaw2.isEmpty()) ? Integer.parseInt(warehouseIdRaw2) : null;
+
                 if (!errors.isEmpty()) {
                     UserView user = userDAO.getUserById(id, "INTERNAL");
                     setDefaultImageIfNeeded(user);
@@ -367,6 +379,8 @@ public class UserController extends HttpServlet {
                     request.setAttribute("roleId", role);
                     request.setAttribute("idCard", idCard);
                     request.setAttribute("address", address);
+                    request.setAttribute("warehouseId", warehouseId2);
+                    request.setAttribute("warehouses", warehouseDAO.getAllActive());
                     request.getRequestDispatcher("/user/users.jsp").forward(request, response);
                     return;
                 }
@@ -378,36 +392,17 @@ public class UserController extends HttpServlet {
                 }
 
                 userDAO.updateInternalUser(
-                        id, email, fullName, phone, fileName, roleId, idCard, address);
+                        id, email, fullName, phone, fileName, roleId, idCard, address, warehouseId2);
             }
         }
 
         response.sendRedirect(request.getContextPath() + "/user/list");
     }
 
-    // Helper method to generate internal user code based on role
-    // Format: Role prefix + 4-5 random digits
-    // Admin -> A12345, Manager -> M12345, Staff -> S12345
-    private String generateInternalUserCode(int roleId) {
-        String prefix;
-        switch (roleId) {
-            case 1: // Admin
-                prefix = "A";
-                break;
-            case 2: // Manager
-                prefix = "M";
-                break;
-            case 3: // Staff
-                prefix = "S";
-                break;
-            default:
-                prefix = "U"; // Unknown
-        }
-
-        // Random 4-5 digits (10000-99999)
+    // Helper method to generate staff user code: S + 5 random digits
+    private String generateInternalUserCode() {
         int randomNum = (int) (Math.random() * 90000 + 10000);
-
-        return prefix + randomNum;
+        return "S" + randomNum;
     }
 
     /**

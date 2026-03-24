@@ -20,6 +20,22 @@ import dao.WarehouseTypeDAO;
 
 public class WarehouseDAO extends DBContext {
 
+    public List<Warehouse> getAllActive() {
+        List<Warehouse> list = new ArrayList<>();
+        String sql = "SELECT warehouse_id, name FROM Warehouse WHERE status = 1 ORDER BY name ASC";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Warehouse w = new Warehouse();
+                w.setWarehouseId(rs.getInt("warehouse_id"));
+                w.setName(rs.getString("name"));
+                list.add(w);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public List<String> getAllLocations() {
         List<String> list = new ArrayList<>();
         String sql = "SELECT DISTINCT address FROM Warehouse WHERE status = 1";
