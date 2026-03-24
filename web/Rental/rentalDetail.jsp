@@ -475,6 +475,7 @@
                         return;
                     }
                     var url = base + "/warehouseAreaPrice?action=areas&warehouseId=" + warehouseId + "&startDate=" + encodeURIComponent(start) + "&endDate=" + encodeURIComponent(end);
+                    
                     fetch(url).then(function (r) {
                         return r.json();
                     }).then(function (areas) {

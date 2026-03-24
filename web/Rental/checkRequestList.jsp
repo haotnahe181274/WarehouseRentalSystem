@@ -1,10 +1,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Check Request History</title>
+    
 
     <link rel="stylesheet"
           href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -99,7 +101,7 @@
         <tbody>
         <c:forEach items="${checkRequests}" var="cr" varStatus="loop">
             <tr>
-                <td>${fn:length(checkRequests) - loop.index}</td>  <!-- STT bắt đầu từ 1 -->
+                <td>${loop.count}</td>  <!-- STT bắt đầu từ 1 -->
                 
                 <td>${cr.requestDate}</td>
                 <td>${cr.requestType}</td>
