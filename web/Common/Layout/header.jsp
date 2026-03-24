@@ -33,9 +33,7 @@
             <li class="app-header__menu-item">
                 <a class="app-header__menu-link" href="${pageContext.request.contextPath}/itemlist">List Item</a>
             </li>
-            <li class="app-header__menu-item">
-                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/send-support-message">Support</a>
-            </li>
+            
         </c:if>
 
         <c:if test="${sessionScope.userType == 'INTERNAL'}">
@@ -48,17 +46,13 @@
                 <li class="app-header__menu-item">
                     <a class="app-header__menu-link" href="dashboard">Staff</a>
                 </li>
-                <li class="app-header__menu-item">
-                    <a class="app-header__menu-link" href="${pageContext.request.contextPath}/support">Support</a>
-                </li>
+                
             </c:if>
             <c:if test="${sessionScope.role == 'Manager'}">
                 <li class="app-header__menu-item">
                     <a class="app-header__menu-link" href="dashboard">Manager</a>
                 </li>
-                <li class="app-header__menu-item">
-                    <a class="app-header__menu-link" href="${pageContext.request.contextPath}/support">Support</a>
-                </li>
+               
             </c:if>
         </c:if>
 

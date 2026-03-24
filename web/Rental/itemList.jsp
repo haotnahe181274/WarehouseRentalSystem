@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>My Stored Items</title>
+    <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
     <link rel="stylesheet"
@@ -130,7 +131,7 @@
             <tbody>
             <c:forEach items="${itemList}" var="sui" varStatus="loop">
                 <tr>
-                    <td>${loop.index + 1}</td>  <!-- STT bắt đầu từ 1 -->
+                    <td>${loop.count}</td>  <!-- STT bắt đầu từ 1 -->
                     <td>${sui.item.itemName}</td>
                     <td>${sui.item.description}</td>
                     <td>${sui.quantity}</td>

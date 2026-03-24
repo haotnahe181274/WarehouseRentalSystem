@@ -16,194 +16,155 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Conversation Detail</title>
+    <title>Support Chat</title>
+
     <style>
         * {
             box-sizing: border-box;
-        }
-
-        html, body {
-            margin: 0;
-            padding: 0;
             font-family: Arial, sans-serif;
-            background: #f7f8fa;
         }
 
-        /* Bọc toàn bộ nội dung trang để footer nằm dưới */
-        .page-wrapper {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        body {
+            margin: 0;
+            background: #f1f5f9;
         }
 
-        /* Phần nội dung chính */
-        .page-content {
-            flex: 1;
-            width: 100%;
-            padding: 40px 20px 80px; /* tạo khoảng cách với header và footer */
+        /* HEADER CHAT */
+        .chat-header {
+            background: #0d6efd;
+            color: white;
+            padding: 12px;
+            font-weight: bold;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .conversation-info {
-            border: 1px solid #dcdfe4;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        .conversation-info h2 {
-            margin-top: 0;
-            margin-bottom: 18px;
-            font-size: 22px;
-        }
-
-        .conversation-info p {
-            margin: 10px 0;
-            font-size: 16px;
-        }
-
+        /* MESSAGE AREA */
         .message-list {
-            border: 1px solid #dcdfe4;
-            border-radius: 12px;
-            padding: 16px;
-            min-height: 360px;
-            max-height: 500px;
+            height: 320px;
             overflow-y: auto;
-            margin-bottom: 20px;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            padding: 12px;
+            background: #f8fafc;
         }
 
         .message {
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: 12px;
-            margin-bottom: 14px;
-            max-width: 72%;
+            margin-bottom: 10px;
+            max-width: 70%;
             word-wrap: break-word;
-            clear: both;
+            font-size: 14px;
         }
 
         .renter {
-            background-color: #dbeafe;
+            background: #dbeafe;
             margin-left: auto;
             text-align: right;
         }
 
         .internal {
-            background-color: #f1f5f9;
+            background: #e5e7eb;
             margin-right: auto;
-            text-align: left;
         }
 
         .time {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 6px;
+            font-size: 11px;
+            color: gray;
+            margin-top: 4px;
         }
 
+        /* INPUT AREA */
         .message-form {
-            background: #fff;
-            border: 1px solid #dcdfe4;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border-top: 1px solid #ddd;
+            padding: 10px;
+            background: white;
         }
 
         textarea {
             width: 100%;
-            min-height: 110px;
-            padding: 12px;
-            border: 1px solid #cfd6df;
+            height: 60px;
             border-radius: 8px;
-            resize: vertical;
-            font-size: 14px;
-            outline: none;
-        }
-
-        textarea:focus {
-            border-color: #3b82f6;
+            border: 1px solid #ccc;
+            padding: 8px;
+            resize: none;
         }
 
         button {
-            margin-top: 12px;
-            padding: 10px 18px;
+            margin-top: 6px;
+            padding: 8px 14px;
             border: none;
-            background-color: #0d6efd;
+            background: #0d6efd;
             color: white;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
         }
 
         button:hover {
-            background-color: #0b5ed7;
+            background: #0b5ed7;
         }
 
         .not-found {
-            background: #fff;
-            border: 1px solid #dcdfe4;
-            border-radius: 12px;
-            padding: 24px;
+            padding: 20px;
         }
     </style>
 </head>
+
 <body>
-    <div class="page-wrapper">
-        <jsp:include page="/Common/Layout/header.jsp" />
 
-        <main class="page-content">
-            <div class="container">
-                <% if (conversation == null) { %>
-                    <div class="not-found">
-                        <p>Conversation not found.</p>
-                    </div>
-                <% } else { %>
-                    <div class="conversation-info">
-                        <h2><%= conversation.getSubject() %></h2>
-                        <p>Status: <strong><%= conversation.getStatus() %></strong></p>
-                        <p>Request ID: <%= conversation.getRequestId() == null ? "N/A" : conversation.getRequestId() %></p>
-                        <p>
-                            Assigned Internal User ID:
-                            <%= conversation.getAssignedInternalUserId() == null ? "Not assigned" : conversation.getAssignedInternalUserId() %>
-                        </p>
-                    </div>
-
-                    <div class="message-list">
-                        <%
-                            if (messageList != null && !messageList.isEmpty()) {
-                                for (SupportMessage m : messageList) {
-                                    boolean isRenterMessage = "RENTER".equalsIgnoreCase(m.getSenderType());
-                        %>
-                            <div class="message <%= isRenterMessage ? "renter" : "internal" %>">
-                                <div><%= m.getMessageContent() %></div>
-                                <div class="time"><%= m.getSentAt() %></div>
-                            </div>
-                        <%
-                                }
-                            } else {
-                        %>
-                            <p>No messages yet.</p>
-                        <%
-                            }
-                        %>
-                    </div>
-
-                    <form class="message-form" action="${pageContext.request.contextPath}/send-support-message" method="post">
-                        <input type="hidden" name="conversationId" value="<%= conversation.getConversationId() %>">
-                        <textarea name="messageContent" placeholder="Enter your message..." required></textarea>
-                        <button type="submit">Send</button>
-                    </form>
-                <% } %>
-            </div>
-        </main>
-
-        <jsp:include page="/Common/Layout/footer.jsp" />
+<% if (conversation == null) { %>
+    <div class="not-found">
+        Conversation not found.
     </div>
+<% } else { %>
+
+    <!-- HEADER -->
+    <div class="chat-header">
+        <%= conversation.getSubject() %>
+    </div>
+
+    <!-- MESSAGE LIST -->
+    <div class="message-list" id="messageList">
+        <%
+            if (messageList != null && !messageList.isEmpty()) {
+                for (SupportMessage m : messageList) {
+                    boolean isRenterMessage = "RENTER".equalsIgnoreCase(m.getSenderType());
+        %>
+            <div class="message <%= isRenterMessage ? "renter" : "internal" %>">
+                <div><%= m.getMessageContent() %></div>
+                <div class="time"><%= m.getSentAt() %></div>
+            </div>
+        <%
+                }
+            } else {
+        %>
+            <p>No messages yet.</p>
+        <%
+            }
+        %>
+    </div>
+
+    <!-- SEND MESSAGE -->
+    <form class="message-form"
+          action="${pageContext.request.contextPath}/send-support-message"
+          method="post">
+
+        <input type="hidden" name="conversationId"
+               value="<%= conversation.getConversationId() %>">
+
+        <textarea name="messageContent"
+                  placeholder="Type your message..."
+                  required></textarea>
+
+        <button type="submit">Send</button>
+    </form>
+
+<% } %>
+
+<script>
+    // Auto scroll xuống tin nhắn cuối
+    var messageList = document.getElementById("messageList");
+    if (messageList) {
+        messageList.scrollTop = messageList.scrollHeight;
+    }
+</script>
+
 </body>
 </html>

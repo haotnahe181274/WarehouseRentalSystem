@@ -67,7 +67,7 @@ public class CheckRequestDAO extends DBContext {
             WHERE cr.renter_id = ?
             GROUP BY cr.id, cr.request_date, cr.request_type,
                      cr.warehouse_id, w.name, cr.unit_id, su.unit_code
-            ORDER BY cr.request_date DESC
+            ORDER BY cr.request_date ASC
             """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, renterId);

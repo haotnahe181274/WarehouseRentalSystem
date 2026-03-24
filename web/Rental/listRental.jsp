@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html>
@@ -90,7 +91,7 @@
                     <tbody>
                         <c:forEach items="${rentRequests}" var="rr" varStatus="loop">
                             <tr>
-                                <td>${loop.index + 1}</td>  <!-- STT bắt đầu từ 1 -->
+                                <td>${loop.count}</td>  <!-- STT bắt đầu từ 1 -->
 
                                 <td>
                                     <fmt:formatDate value="${rr.requestDate}" pattern="dd-MM-yyyy HH:mm"/>
