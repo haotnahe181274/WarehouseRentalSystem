@@ -43,16 +43,10 @@
             <jsp:include page="/Common/Layout/header.jsp" />
             <div style="max-width: 900px; margin: 40px auto; padding: 0 16px;">
                 <!-- Header Card -->
-                <div class="post-card" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="post-card">
                     <h3 style="margin: 0; font-weight: 700; color: var(--fb-text);">
                         <i class="fas fa-newspaper"></i> ${pageTitle != null ? pageTitle : "My Posts"}
                     </h3>
-                    <c:if test="${canManage}">
-                        <a href="blog-crud?action=create" class="btn-post"
-                            style="width: auto; padding: 8px 20px; font-size: 14px; text-decoration: none;">
-                            <i class="fas fa-plus"></i> New Post
-                        </a>
-                    </c:if>
                 </div>
 
                 <div class="post-card">
