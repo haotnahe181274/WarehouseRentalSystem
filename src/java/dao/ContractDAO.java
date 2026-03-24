@@ -347,7 +347,8 @@ public class ContractDAO extends DBContext {
                 rru.area,
                 rru.rent_price,
                 rru.start_date,
-                rru.end_date
+                rru.end_date,
+                rru.quantity
             FROM Contract c
             JOIN Rent_request rr ON c.request_id = rr.request_id
             JOIN rent_request_unit rru ON rr.request_id = rru.request_id
@@ -364,6 +365,7 @@ public class ContractDAO extends DBContext {
                 u.setPrice(rs.getDouble("rent_price"));
                 u.setStartDate(rs.getDate("start_date"));
                 u.setEndDate(rs.getDate("end_date"));
+                u.setQuantity(rs.getInt("quantity"));
                 list.add(u);
             }
 
@@ -421,7 +423,16 @@ public class ContractDAO extends DBContext {
         List<RentUnit> units = getRentUnitsByContract(contractId);
 
         for (RentUnit u : units) {
-            insertAvailableUnit(contractId, u.getStartDate(), u.getEndDate(), u.getArea());
+
+            for (int i = 0; i < u.getQuantity(); i++) {
+                insertAvailableUnit(
+                    contractId,
+                    u.getStartDate(),
+                    u.getEndDate(),
+                    u.getArea()
+                );
+            }
+
         }
     }
     public int countTotal() {

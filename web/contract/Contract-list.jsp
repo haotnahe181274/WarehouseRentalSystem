@@ -177,16 +177,7 @@
 
                                                     </form>
                                                 </c:if>
-                                           <c:if test="${sessionScope.userType eq 'RENTER' 
-                                                             and c.paymentStatus == 1 
-                                                             and c.status == 1}">
-                                                    <a href="<c:url value='/contract-detail'>
-                                                            <c:param name='contractId' value='${c.contractId}'/>
-                                                         </c:url>"
-                                                   class="btn btn-sm btn-primary">
-                                                    View
-                                                </a>
-                                                </c:if>
+                                           
                                             </div>
                                         </td>
                                     </tr>
