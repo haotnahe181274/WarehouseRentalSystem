@@ -2,9 +2,8 @@ package controller;
 
 import dao.WarehouseDAO;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,7 +13,7 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * Trả về dữ liệu JSON cho form thuê:
- * - action=areas: danh sách diện tích khả dụng (mảng số)
+ * - action=areas: danh sách diện tích + số lượng khả dụng
  * - action=price: giá theo diện tích (object { "price": số })
  */
 @WebServlet(name = "WarehouseAreaPriceServlet", urlPatterns = {"/warehouseAreaPrice"})
@@ -52,11 +51,15 @@ public class WarehouseAreaPriceServlet extends HttpServlet {
                 java.sql.Date startDate = java.sql.Date.valueOf(start);
                 java.sql.Date endDate = java.sql.Date.valueOf(end);
 
-                List<Double> areas = dao.getAvailableAreasByWarehouse(warehouseId, startDate, endDate);
+                Map<Double, Integer> areaQtyMap = dao.getAvailableAreaQuantityByWarehouse(warehouseId, startDate, endDate);
                 StringBuilder sb = new StringBuilder("[");
-                for (int i = 0; i < areas.size(); i++) {
+                int i = 0;
+                for (Map.Entry<Double, Integer> entry : areaQtyMap.entrySet()) {
                     if (i > 0) sb.append(",");
-                    sb.append(areas.get(i));
+                    sb.append("{\"area\":").append(entry.getKey())
+                            .append(",\"quantity\":").append(entry.getValue())
+                            .append("}");
+                    i++;
                 }
                 sb.append("]");
                 resp.getWriter().print(sb.toString());

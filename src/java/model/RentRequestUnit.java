@@ -13,6 +13,7 @@ public class RentRequestUnit {
     private Date startDate;
     private Date endDate;
     private double rentPrice;
+    private int quantity;
 
     public RentRequestUnit() {
     }
@@ -63,5 +64,13 @@ public class RentRequestUnit {
 
     public void setRentPrice(double rentPrice) {
         this.rentPrice = rentPrice;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

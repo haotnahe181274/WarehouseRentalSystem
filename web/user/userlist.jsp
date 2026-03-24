@@ -36,7 +36,7 @@
                         <div class="top-bar">
                             <c:if test="${sessionScope.role == 'Admin'}">
                                 <a href="${pageContext.request.contextPath}/user/list?action=add&type=INTERNAL"
-                                    class="btn btn-add">Add New User</a>
+                                    class="btn btn-add">Add Staff</a>
                             </c:if>
                         </div>
 
