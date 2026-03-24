@@ -26,6 +26,8 @@ public class UserView {
     private String idCard;
     private String address;
     private String internalUserCode;
+    private Integer warehouseId;
+    private String warehouseName;
     
     public UserView() {
     }
@@ -153,6 +155,22 @@ public class UserView {
 
     public void setInternalUserCode(String internalUserCode) {
         this.internalUserCode = internalUserCode;
+    }
+
+    public Integer getWarehouseId() {
+        return warehouseId;
+    }
+
+    public void setWarehouseId(Integer warehouseId) {
+        this.warehouseId = warehouseId;
+    }
+
+    public String getWarehouseName() {
+        return warehouseName;
+    }
+
+    public void setWarehouseName(String warehouseName) {
+        this.warehouseName = warehouseName;
     }
 
     

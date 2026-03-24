@@ -864,29 +864,34 @@ VALUES
 
 ('manager01', '123456', 'Nguyễn Nhật Anh', 'manager@mail.com', '0900000022', 1, NOW(), 2, 'default.jpg', '001001002003', 'Vĩnh Phúc', 'M12345', NULL),
 
-('staff01', '123456', 'Lê Thanh Hùng', 'staff1@mail.com', '0900000033', 1, NOW(), 3, 'default.jpg', '001001003003', 'Bắc Ninh', 'S12356', NULL),
+('staff01','123456','Nguyễn Minh Anh','s1@mail.com','0900000001',1,NOW(),3,'default.jpg','111111111001','Hà Nội','S001',1),
+('staff02','123456','Trần Quốc Bảo','s2@mail.com','0900000002',1,NOW(),3,'default.jpg','111111111002','Vĩnh Phúc','S002',2),
+('staff03','123456','Lê Thành Long','s3@mail.com','0900000003',1,NOW(),3,'default.jpg','111111111003','Bắc Ninh','S003',3),
+('staff04','123456','Phạm Hải Nam','s4@mail.com','0900000004',1,NOW(),3,'default.jpg','111111111004','Hải Phòng','S004',4),
+('staff05','123456','Đỗ Quang Huy','s5@mail.com','0900000005',1,NOW(),3,'default.jpg','111111111005','Quảng Ninh','S005',5),
+('staff06','123456','Vũ Đức Trung','s6@mail.com','0900000006',1,NOW(),3,'default.jpg','111111111006','Thanh Hóa','S006',6),
+('staff07','123456','Ngô Văn Dũng','s7@mail.com','0900000007',1,NOW(),3,'default.jpg','111111111007','Nghệ An','S007',7),
+('staff08','123456','Bùi Anh Tuấn','s8@mail.com','0900000008',1,NOW(),3,'default.jpg','111111111008','Hà Tĩnh','S008',8),
+('staff09','123456','Huỳnh Tấn Phát','s9@mail.com','0900000009',1,NOW(),3,'default.jpg','111111111009','Đà Nẵng','S009',9),
+('staff10','123456','Nguyễn Văn Khánh','s10@mail.com','0900000010',1,NOW(),3,'default.jpg','111111111010','Quảng Nam','S010',10),
 
-('staff02', '123456', 'Nguyễn Thị Bừng', 'staff2@mail.com', '090000004', 1, NOW(), 3, 'default.jpg', '001001004002', 'Hải Phòng', 'S12345', NULL),
+('staff11','123456','Trần Minh Trí','s11@mail.com','0900000011',1,NOW(),3,'default.jpg','111111111011','Quảng Ngãi','S011',11),
+('staff12','123456','Lý Hoàng Sơn','s12@mail.com','0900000012',1,NOW(),3,'default.jpg','111111111012','Bình Định','S012',12),
+('staff13','123456','Phan Nhật Hào','s13@mail.com','0900000013',1,NOW(),3,'default.jpg','111111111013','Khánh Hòa','S013',13),
+('staff14','123456','Đặng Gia Hưng','s14@mail.com','0900000014',1,NOW(),3,'default.jpg','111111111014','Đắk Lắk','S014',14),
+('staff15','123456','Trịnh Công Minh','s15@mail.com','0900000015',1,NOW(),3,'default.jpg','111111111015','Gia Lai','S015',15),
+('staff16','123456','Lâm Quốc Việt','s16@mail.com','0900000016',1,NOW(),3,'default.jpg','111111111016','Lâm Đồng','S016',16),
+('staff17','123456','Nguyễn Hoàng Phúc','s17@mail.com','0900000017',1,NOW(),3,'default.jpg','111111111017','Bình Dương','S017',17),
+('staff18','123456','Võ Thành Đạt','s18@mail.com','0900000018',1,NOW(),3,'default.jpg','111111111018','Đồng Nai','S018',18),
+('staff19','123456','Phạm Tuấn Kiệt','s19@mail.com','0900000019',1,NOW(),3,'default.jpg','111111111019','TP Hồ Chí Minh','S019',19),
+('staff20','123456','Nguyễn Thanh Tùng','s20@mail.com','0900000020',1,NOW(),3,'default.jpg','111111111020','Long An','S020',20),
 
-('manager02', '123456', 'Lê Hoàng Minh', 'manager7@mail.com', '0933030303', 1, NOW(), 2, 'default.jpg', '051303030303', 'Đà Nẵng', 'M19483', NULL),
-
-('manager03', '123456', 'Phạm Quang Huy', 'manager8@mail.com', '0944040404', 1, NOW(), 2, 'default.jpg', '051404040404', 'Cần Thơ', 'M56274', NULL),
-
-('staff03', '123456', 'Võ Thị Mai', 'staff21@mail.com', '0955050505', 1, NOW(), 3, 'default.jpg', '031505050505', 'TP Hồ Chí Minh', 'S90817', NULL),
-
-('staff04', '123456', 'Đặng Tuấn Kiệt', 'staff22@mail.com', '0966060606', 1, NOW(), 3, 'default.jpg', '031606060606', 'Bình Dương', 'S27465', NULL),
-
-('staff05', '123456', 'Bùi Gia Bảo', 'staff23@mail.com', '0977070707', 1, NOW(), 3, 'default.jpg', '084707070707', 'Hà Nội', 'S63920', NULL),
-
-('staff06', '123456', 'Đoàn Thu Trang', 'staff24@mail.com', '0988080808', 1, NOW(), 3, 'default.jpg', '084808080808', 'Hải Dương', 'S84571', NULL),
-
-('staff07', '123456', 'Hoàng Minh Đức', 'staff25@mail.com', '0909090909', 1, NOW(), 3, 'default.jpg', '038909090909', 'Nghệ An', 'S12654', NULL),
-
-('staff08', '123456', 'Nguyễn Thị Phương Anh', 'staff26@mail.com', '0912123434', 1, NOW(), 3, 'default.jpg', '038212343434', 'Huế', 'S39028', NULL),
-
-('staff09', '123456', 'Trần Đức Thắng', 'staff27@mail.com', '0923234545', 1, NOW(), 3, 'default.jpg', '060323454545', 'Quảng Ninh', 'S55739', NULL),
-
-('staff10', '123456', 'Lê Thị Kim Oanh', 'staff28@mail.com', '0934345656', 1, NOW(), 3, 'default.jpg', '060434565656', 'Vũng Tàu', 'S77410', NULL);
+('staff21','123456','Trần Văn Hậu','s21@mail.com','0900000021',1,NOW(),3,'default.jpg','111111111021','Tiền Giang','S021',21),
+('staff22','123456','Lê Quang Vinh','s22@mail.com','0900000022',1,NOW(),3,'default.jpg','111111111022','Cần Thơ','S022',22),
+('staff23','123456','Nguyễn Quốc Cường','s23@mail.com','0900000023',1,NOW(),3,'default.jpg','111111111023','Vĩnh Long','S023',23),
+('staff24','123456','Huỳnh Văn Tài','s24@mail.com','0900000024',1,NOW(),3,'default.jpg','111111111024','An Giang','S024',24),
+('staff25','123456','Trương Minh Đức','s25@mail.com','0900000025',1,NOW(),3,'default.jpg','111111111025','Kiên Giang','S025',25),
+('staff26','123456','Đỗ Thành Nhân','s26@mail.com','0900000026',1,NOW(),3,'default.jpg','111111111026','Cà Mau','S026',26);
 
 
 	INSERT INTO Renter

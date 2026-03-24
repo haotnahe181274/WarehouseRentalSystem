@@ -7,7 +7,7 @@
             <meta charset="UTF-8">
             <title>
                 <c:choose>
-                    <c:when test="${mode == 'add'}">Add User</c:when>
+                    <c:when test="${mode == 'add'}">Add Staff</c:when>
                     <c:when test="${mode == 'edit'}">Update User</c:when>
                     <c:otherwise>User Detail</c:otherwise>
                 </c:choose>
@@ -206,7 +206,7 @@
                 <div class="main-content">
                     <h2 class="mb-4" style="font-weight: 600; color: #111827;">
                         <c:choose>
-                            <c:when test="${mode == 'add'}">Add New User</c:when>
+                            <c:when test="${mode == 'add'}">Add New Staff</c:when>
                             <c:when test="${mode == 'edit'}">Edit User</c:when>
                             <c:otherwise>User Detail</c:otherwise>
                         </c:choose>
@@ -379,21 +379,11 @@
                                         <div>
                                             <label class="form-label">Role</label>
                                             <c:choose>
-                                                <c:when test="${targetUser.type == 'INTERNAL' || mode == 'add'}">
-                                                    <c:choose>
-                                                        <c:when test="${mode == 'view' && !isAdminView}">
-                                                            <div class="view-text">${targetUser.role}</div>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <select name="roleId" class="form-select-custom">
-
-                                                                <option value="2" ${targetUser.role=='Manager'
-                                                                    ? 'selected' : '' }>Manager</option>
-                                                                <option value="3" ${targetUser.role=='Staff'
-                                                                    ? 'selected' : '' }>Staff</option>
-                                                            </select>
-                                                        </c:otherwise>
-                                                    </c:choose>
+                                                <c:when test="${mode == 'add'}">
+                                                    <div class="view-text">Staff</div>
+                                                </c:when>
+                                                <c:when test="${targetUser.type == 'INTERNAL'}">
+                                                    <div class="view-text">${targetUser.role}</div>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <div class="view-text">Renter</div>
@@ -485,6 +475,35 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
+
+                                        <%-- Warehouse dropdown: show in add/edit mode --%>
+                                        <c:if test="${mode != 'view' || isAdminView}">
+                                            <div class="mb-3">
+                                                <label class="form-label">Assigned Warehouse</label>
+                                                <select name="warehouseId" class="form-select-custom">
+                                                    <option value="">-- None --</option>
+                                                    <c:forEach items="${warehouses}" var="wh">
+                                                        <c:choose>
+                                                            <c:when test="${not empty warehouseId && warehouseId == wh.warehouseId}">
+                                                                <option value="${wh.warehouseId}" selected>${wh.name}</option>
+                                                            </c:when>
+                                                            <c:when test="${empty warehouseId && targetUser.warehouseId == wh.warehouseId}">
+                                                                <option value="${wh.warehouseId}" selected>${wh.name}</option>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <option value="${wh.warehouseId}">${wh.name}</option>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:forEach>
+                                                </select>
+                                            </div>
+                                        </c:if>
+                                        <c:if test="${mode == 'view' && !isAdminView}">
+                                            <div class="mb-3">
+                                                <label class="form-label">Assigned Warehouse</label>
+                                                <div class="view-text">${not empty targetUser.warehouseName ? targetUser.warehouseName : '-- None --'}</div>
+                                            </div>
+                                        </c:if>
                                     </c:if>
 
                                     <c:if test="${mode == 'view'}">
