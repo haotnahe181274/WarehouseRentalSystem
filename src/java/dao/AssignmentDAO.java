@@ -162,4 +162,43 @@ public class AssignmentDAO extends DBContext {
         } catch (SQLException e) { e.printStackTrace(); }
         return isTaskAssignedSuccessfully;
     }
+     public List<StorageUnit> getUnitsByWarehouse(int warehouseId) {
+
+        List<StorageUnit> list = new ArrayList<>();
+
+        String sql = "SELECT unit_id, unit_code, description FROM Storage_unit WHERE warehouse_id = ? AND status = 1";
+
+        
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, warehouseId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+
+                    StorageUnit u = new StorageUnit();
+
+                    u.setUnitId(rs.getInt("unit_id"));
+
+                    u.setUnitCode(rs.getString("unit_code"));
+
+                    u.setDescription(rs.getString("description"));
+
+                    list.add(u);
+
+                }
+
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+        }
+
+        return list;
+
+    }    
 }

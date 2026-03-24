@@ -230,7 +230,7 @@ public class CreateCheckRequest extends HttpServlet {
                 if (isTaskAssigned) {
                     // 4a. Staff đã được assign → gửi notification cho staff
                     //     Lấy staffId từ assignment vừa tạo
-                    int assignedStaffId = assignmentDAO.getStaffIdByCheckRequest(checkRequestId);
+                    int assignedStaffId = assignmentDAO.getOptimalStaffId(checkRequestId);
                     if (assignedStaffId > 0) {
                         Notification notiStaff = new Notification();
                         notiStaff.setTitle("New " + actionLabel + " task assigned");
