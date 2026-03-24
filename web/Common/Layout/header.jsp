@@ -93,9 +93,11 @@
                     <div class="app-header__noti-dropdown">
                         <div class="app-header__noti-header">
                             <span class="app-header__noti-title">Notifications</span>
-                            <a href="${pageContext.request.contextPath}/mark-all-read" class="app-header__noti-mark-all">
+                            <button id="markAllReadBtn" class="app-header__noti-mark-all"
+                                    onclick="markAllRead(event)"
+                                    ${empty notiList or unreadCount == 0 ? 'disabled' : ''}>
                                 Mark all as read
-                            </a>
+                            </button>
                         </div>
 
                         <ul class="app-header__noti-list">
@@ -202,7 +204,7 @@
 </nav>
 
 <style>
-    /* ===== GLOBAL RESET (ensures consistent layout on ALL pages) ===== */
+     /* ===== GLOBAL RESET (ensures consistent layout on ALL pages) ===== */
     *, *::before, *::after {
         box-sizing: border-box;
         margin: 0;
@@ -225,7 +227,7 @@
     .app-header * {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     }
-
+    /* ===== HEADER BASE ===== */
     .app-header {
         width: 100%;
         display: flex;
@@ -387,11 +389,20 @@
         padding: 3px 8px;
         border-radius: 6px;
         transition: background 0.15s;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
     }
 
-    .app-header__noti-mark-all:hover {
+    .app-header__noti-mark-all:hover:not(:disabled) {
         background: #eff6ff;
         color: #1d4ed8;
+    }
+
+    .app-header__noti-mark-all:disabled {
+        color: #d1d5db;
+        cursor: default;
     }
 
     .app-header__noti-list {
@@ -660,14 +671,14 @@
 
 <script>
 (function () {
+
+    // ── Hover dropdown (notification + user menu) ──────────────
     function setupHoverDropdown(wrapEl) {
         var closeTimer = null;
-
         wrapEl.addEventListener('mouseenter', function () {
             if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
             wrapEl.classList.add('open');
         });
-
         wrapEl.addEventListener('mouseleave', function () {
             closeTimer = setTimeout(function () {
                 wrapEl.classList.remove('open');
@@ -682,5 +693,53 @@
         var userWrap = document.querySelector('.app-header__user-info');
         if (userWrap) setupHoverDropdown(userWrap);
     });
+
 })();
+
+// ── Mark all as read (AJAX) ────────────────────────────────────
+var contextPath = '${pageContext.request.contextPath}';
+
+function markAllRead(e) {
+    e.preventDefault();
+
+    var btn = document.getElementById('markAllReadBtn');
+    if (!btn || btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Marking...';
+
+    fetch(contextPath + '/mark-all-read', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function (res) {
+        if (res.ok) {
+            // 1. Xóa badge số đỏ trên chuông
+            var badge = document.querySelector('.app-header__noti-badge');
+            if (badge) badge.remove();
+
+            // 2. Xóa chấm xanh trên từng item
+            document.querySelectorAll('.app-header__noti-dot').forEach(function (dot) {
+                dot.remove();
+            });
+
+            // 3. Xóa nền xanh nhạt của item unread
+            document.querySelectorAll('.app-header__noti-item.unread').forEach(function (item) {
+                item.classList.remove('unread');
+            });
+
+            // 4. Đổi text button
+            btn.textContent = 'All read ✓';
+            btn.style.color = '#9ca3af';
+            btn.style.cursor = 'default';
+        } else {
+            btn.disabled = false;
+            btn.textContent = 'Mark all as read';
+        }
+    })
+    .catch(function () {
+        btn.disabled = false;
+        btn.textContent = 'Mark all as read';
+    });
+}
 </script>

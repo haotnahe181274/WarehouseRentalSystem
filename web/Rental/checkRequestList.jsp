@@ -86,7 +86,7 @@
     <table id="itemTable">
         <thead>
         <tr>
-            <th>ID</th>
+            <th>No.</th>
             <th>Date</th>
             <th>Type</th>
             <th>Warehouse</th>
@@ -97,9 +97,10 @@
         </thead>
 
         <tbody>
-        <c:forEach items="${checkRequests}" var="cr">
+        <c:forEach items="${checkRequests}" var="cr" varStatus="loop">
             <tr>
-                <td>${cr.id}</td>
+                <td>${loop.index + 1}</td>  <!-- STT bắt đầu từ 1 -->
+                
                 <td>${cr.requestDate}</td>
                 <td>${cr.requestType}</td>
                 <td>${cr.warehouse.name}</td>
@@ -126,12 +127,12 @@
 </div>
 
 <jsp:include page="/Common/Layout/footer.jsp"/>
-
         
         <script>
             $(document).ready(function () {
                 $('#itemTable').DataTable({
                     pageLength: 5
+                    
                     
                 });
             });

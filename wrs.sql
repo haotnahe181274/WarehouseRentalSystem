@@ -1299,15 +1299,23 @@ DELIMITER ;
 
 
 	-- Cập nhật data cho Staff_assignment, bổ sung check_request_id (gắn kèm NULL vì lúc trước không có dữ liệu chéo)
+INSERT INTO Staff_assignment 
+(assigned_to, warehouse_id, unit_id, assignment_type, check_request_id, description, started_date, due_date, completed_at)
+VALUES
 
-	INSERT INTO Staff_assignment 
-	(assigned_to, warehouse_id, unit_id, assignment_type, check_request_id, description, due_date, started_date, completed_at)
-	VALUES
-	-- Bổ sung số 1 (status) và 0 (is_overdue) vào cuối dòng 1
-	(3, 1, 1,  1, NULL, 'Kiểm kê kho A (Ô nhỏ HN-A1)', DATE_ADD(NOW(), INTERVAL 2 DAY), NOW(), NULL),
 
-	-- Bổ sung số 2 (status) và 0 (is_overdue) vào cuối dòng 2
-	(4, 2, 2, 2, NULL, 'Dọn kho B (Ô tiêu chuẩn VP-A1)', DATE_ADD(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY), NOW());
+-- =========================================================================
+-- TASK TẠO TỪ CHECK_REQUEST (Nhập/Xuất kho từ yêu cầu của khách)
+-- =========================================================================
+
+-- Check Request #1: Nhập kho (CHECK_IN -> Type 1), Kho 1, Unit 1
+(3, 1, 1, 1, 1, 'Hỗ trợ khách hàng Nhập kho (Đơn #1)', '2025-05-01', '2025-05-03', '2025-05-01 10:00:00'),
+
+-- Check Request #2: Xuất kho (CHECK_OUT -> Type 2), Kho 1, Unit 1
+(9, 1, 1, 2, 2, 'Hỗ trợ khách hàng Xuất kho (Đơn #2)', '2025-07-02', '2025-07-04', '2025-07-02 09:00:00'),
+
+-- Check Request #3: Nhập kho (CHECK_IN -> Type 1), Kho 1, Unit 1 (Đơn mới tạo, chưa hoàn thành)
+(3, 1, 1, 1, 3, 'Hỗ trợ khách hàng Nhập kho (Đơn #3)', DATE(NOW()), DATE_ADD(DATE(NOW()), INTERVAL 2 DAY), NULL);
 
 
 	INSERT INTO Feedback
@@ -1540,3 +1548,22 @@ DELIMITER ;
 
 
 
+-- Thêm cột area vào bảng Warehouse
+ALTER TABLE Warehouse 
+ADD COLUMN total_area DECIMAL(10,2) NOT NULL DEFAULT 0;
+
+-- Cập nhật diện tích mẫu cho Warehouse dựa trên Storage_unit đã có + thêm 100 m2 dự phòng
+-- 1. Tạm tắt Safe Updates
+SET SQL_SAFE_UPDATES = 0;
+
+-- 2. Chạy lại lệnh Update
+UPDATE Warehouse w
+LEFT JOIN (
+    SELECT warehouse_id, SUM(area) as total_used_area
+    FROM Storage_unit
+    GROUP BY warehouse_id
+) su ON w.warehouse_id = su.warehouse_id
+SET w.total_area = IFNULL(su.total_used_area, 0) + 100;
+
+-- 3. Bật lại Safe Updates để bảo vệ dữ liệu
+SET SQL_SAFE_UPDATES = 1;

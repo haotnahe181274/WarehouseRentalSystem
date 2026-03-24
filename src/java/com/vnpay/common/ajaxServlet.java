@@ -86,6 +86,25 @@ public class ajaxServlet extends HttpServlet {
             resp.sendRedirect(contextPath + "/contract-detail?contractId=" + contractId + "&paymentError=1");
             return;
         }
+
+        // ==================== DEV TEST: Auto success (bypass VNPay) ====================
+        // Nếu VNPay đang lỗi và bạn muốn bấm "Đồng ý hợp đồng" là tự hiện thành công để test UI,
+         boolean devAutoPay = true; // <-- đặt true khi cần auto success
+         if (devAutoPay) {
+             // Mark Payment.status = 1 (thành công) ngay lập tức
+             Payment paymen = new Payment();
+             paymen.setPaymentId(orderId);
+             paymen.setStatus(1);
+             paymentDao.updatePaymentStatus(paymen);
+        
+             // Điều hướng tới trang hiển thị kết quả như VNPay callback
+             req.setAttribute("transResult", true);
+             req.getRequestDispatcher("Payment/paymentResult.jsp")
+                    .forward(req, resp);
+             return;
+         }
+        // ==================== END DEV TEST ====================
+
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
@@ -116,16 +135,22 @@ public class ajaxServlet extends HttpServlet {
         } else {
             vnp_Params.put("vnp_Locale", "vn");
         }
-        vnp_Params.put("vnp_ReturnUrl", Config.vnp_ReturnUrl);
+        // ReturnUrl động theo môi trường đang chạy để tránh lỗi redirect thỉnh thoảng
+        String vnp_ReturnUrl = req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort()
+                + contextPath + "/vnpay-return";
+        vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
-        // Use Vietnam timezone explicitly; "Etc/GMT+7" in Java means UTC-7 (inverse sign).
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        // Use Vietnam timezone explicitly. Also set timezone for formatter để tránh lệch giờ theo server default timezone.
+        TimeZone vnTimeZone = TimeZone.getTimeZone("Asia/Ho_Chi_Minh");
+        Calendar cld = Calendar.getInstance(vnTimeZone);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        formatter.setTimeZone(vnTimeZone);
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        cld.add(Calendar.MINUTE, 15);
+        // Tăng thời gian hết hạn để giảm lỗi "code=01" do chờ lâu/timeout
+        cld.add(Calendar.MINUTE, 60);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
@@ -156,6 +181,16 @@ public class ajaxServlet extends HttpServlet {
         String vnp_SecureHash = Config.hmacSHA512(Config.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
+
+        // Debug giúp khoanh vùng khi VNPay trả code=01 (thỉnh thoảng thành công/thất bại)
+        System.out.println("VNPay request:");
+        System.out.println("  vnp_TxnRef=" + vnp_TxnRef);
+        System.out.println("  vnp_Amount=" + amount);
+        System.out.println("  vnp_CreateDate=" + vnp_Params.get("vnp_CreateDate"));
+        System.out.println("  vnp_ExpireDate=" + vnp_Params.get("vnp_ExpireDate"));
+        System.out.println("  vnp_IpAddr=" + vnp_IpAddr);
+        System.out.println("  vnp_ReturnUrl=" + vnp_Params.get("vnp_ReturnUrl"));
+        System.out.println("  paymentUrl(secureHash omitted) prefix=" + paymentUrl.substring(0, Math.min(paymentUrl.length(), 120)));
         resp.sendRedirect(paymentUrl);
     }
 }

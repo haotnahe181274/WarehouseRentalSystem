@@ -29,6 +29,7 @@ public class RentRequestDAO extends DBContext {
     public List<RentRequest> getAllRentRequests() {
         List<RentRequest> list = new ArrayList<>();
 
+        
         String sql = """
     SELECT rr.*,
            r.renter_id,

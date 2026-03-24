@@ -81,14 +81,14 @@
                 <!-- MENU -->
                 <ul class="sidebar-menu">
 
-                    <li>
+                    
+                    <!-- ADMIN -->
+                    <c:if test="${sessionScope.role == 'Admin'}">
+                        <li>
                         <a href="${pageContext.request.contextPath}/dashboard">
                             Overview
                         </a>
                     </li>
-
-                    <!-- ADMIN -->
-                    <c:if test="${sessionScope.role == 'Admin'}">
 
                         <li><a href="${pageContext.request.contextPath}/user/list">Users Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses Management</a></li>
@@ -101,6 +101,11 @@
 
                     <!-- MANAGER -->
                     <c:if test="${sessionScope.role == 'Manager'}">
+                        <li>
+                        <a href="${pageContext.request.contextPath}/dashboard">
+                            Overview
+                        </a>
+                    </li>
 
                         <li><a href="${pageContext.request.contextPath}/user/list">Users Management</a></li>
                         <li><a href="${pageContext.request.contextPath}/warehouse">Warehouses Management</a></li>

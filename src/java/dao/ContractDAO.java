@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Statement;
+import java.util.Date;
 import model.Contract;
 import model.ContractDetail;
 import model.InternalUser;
@@ -52,34 +53,6 @@ public class ContractDAO extends DBContext {
             e.printStackTrace();
             return -1; // Nếu tạo hợp đồng thất bại thì dừng luôn
         }
-
-        // 2. NẾU TẠO HỢP ĐỒNG THÀNH CÔNG -> TỰ ĐỘNG GÁN UNIT_ID (BẢNG CONTRACT_STORAGE_UNIT)
-        if (newContractId != -1) {
-            String sqlInsertUnit = """
-                INSERT INTO Contract_Storage_unit (contract_id, unit_id, start_date, end_date, status)
-                SELECT
-                    ?,
-                    (SELECT unit_id FROM Storage_unit WHERE warehouse_id = rr.warehouse_id AND status = 1 LIMIT 1),
-                    MIN(ru.start_date),
-                    MAX(ru.end_date),
-                    1
-                FROM Rent_request rr
-                JOIN rent_request_unit ru ON rr.request_id = ru.request_id
-                WHERE rr.request_id = ?
-                GROUP BY rr.request_id, rr.warehouse_id
-            """;
-            
-            try (PreparedStatement psUnit = connection.prepareStatement(sqlInsertUnit)) {
-                psUnit.setInt(1, newContractId);
-                psUnit.setInt(2, requestId);
-                int rows = psUnit.executeUpdate();
-                System.out.println("Đã tự động gán " + rows + " Storage Unit cho Hợp đồng " + newContractId);
-            } catch (Exception e) {
-                System.out.println("Lỗi khi gán Unit cho Contract: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
         return newContractId;
     }
 
@@ -110,7 +83,7 @@ public class ContractDAO extends DBContext {
                 END AS payment_status
             FROM Contract c
             JOIN Renter r ON c.renter_id = r.renter_id
-            ORDER BY c.contract_id DESC
+            ORDER BY c.contract_id 
         """;
 
         try {
@@ -164,7 +137,7 @@ public class ContractDAO extends DBContext {
                 END AS payment_status
             FROM Contract c
             WHERE c.renter_id = ?
-            ORDER BY c.contract_id DESC
+            ORDER BY c.contract_id 
         """;
 
         try {
@@ -400,34 +373,57 @@ public class ContractDAO extends DBContext {
 
         return list;
     }
-    public void insertContractStorageUnit(int contractId) {
+    public void insertAvailableUnit(int contractId, Date startDate, Date endDate, double area) {
 
-    String sql = """
-         SELECT
-                    c.contract_id,
-                    su.unit_id,
-                    rru.start_date,
-                    rru.end_date,
-                    1
-        
-                FROM Contract c
-                JOIN Rent_request rr ON c.request_id = rr.request_id
-                JOIN rent_request_unit rru ON rr.request_id = rru.request_id
-                JOIN Storage_unit su ON su.warehouse_id = rr.warehouse_id
-        
-                WHERE c.contract_id = ?
-                AND su.status = 1
-                LIMIT 1
+        String sql = """
+            INSERT INTO Contract_Storage_unit
+            (contract_id, unit_id, start_date, end_date, status)
+
+            SELECT
+                ?,
+                su.unit_id,
+                ?,
+                ?,
+                1
+            FROM Storage_unit su
+            JOIN Contract c ON c.contract_id = ?
+            WHERE su.warehouse_id = c.warehouse_id
+            AND su.status = 1
+            AND su.area = ?
+            AND NOT EXISTS (
+                SELECT 1
+                FROM Contract_Storage_unit csu
+                WHERE csu.unit_id = su.unit_id
+                AND (
+                    ? < csu.end_date
+                    AND ? > csu.start_date
+                )
+            )
+            LIMIT 1
         """;
 
-    try {
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setInt(1, contractId);
-        ps.executeUpdate();
-    } catch (Exception e) {
-        e.printStackTrace();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, contractId);
+            ps.setDate(2, new java.sql.Date(startDate.getTime()));
+            ps.setDate(3, new java.sql.Date(endDate.getTime()));
+            ps.setInt(4, contractId);
+            ps.setDouble(5, area);
+            ps.setDate(6, new java.sql.Date(startDate.getTime()));
+            ps.setDate(7, new java.sql.Date(endDate.getTime()));
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
+    public void insertContractStorageUnit(int contractId) {
+
+        List<RentUnit> units = getRentUnitsByContract(contractId);
+
+        for (RentUnit u : units) {
+            insertAvailableUnit(contractId, u.getStartDate(), u.getEndDate(), u.getArea());
+        }
+    }
     public int countTotal() {
         String sql = "SELECT COUNT(*) FROM Contract";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {

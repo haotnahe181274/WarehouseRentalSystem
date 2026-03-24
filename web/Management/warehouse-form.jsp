@@ -1,51 +1,67 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>${empty warehouse ? 'Add New Warehouse' : 'Edit Warehouse'}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
 <jsp:include page="/Common/Layout/header.jsp"/>
 <div class="d-flex">
     <jsp:include page="/Common/Layout/sidebar.jsp"/>
-
     <div class="container mt-4" style="max-width: 800px;">
-        
+
         <h3>${empty warehouse ? 'Add New Warehouse' : 'Edit Warehouse'}</h3>
 
         <c:if test="${not empty errorMessage}">
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Lỗi!</strong> ${errorMessage}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-</c:if>
-        
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error!</strong> ${errorMessage}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </c:if>
+
         <form action="${pageContext.request.contextPath}/warehouse" method="post" enctype="multipart/form-data">
-            
+
             <c:if test="${not empty warehouse}">
-                <input type="hidden" name="id" value="${warehouse.warehouseId}">
+                <input type="hidden" name="id"     value="${warehouse.warehouseId}">
                 <input type="hidden" name="action" value="edit">
             </c:if>
-            
+
             <div class="mb-3">
-                <label class="form-label">Warehouse Name</label>
-                <input type="text" name="name" class="form-control" 
+                <label class="form-label">Warehouse Name <span class="text-danger">*</span></label>
+                <input type="text" name="name" class="form-control"
                        value="${warehouse.name}" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Address</label>
-                <input type="text" name="address" class="form-control" 
+                <label class="form-label">Address <span class="text-danger">*</span></label>
+                <input type="text" name="address" class="form-control"
                        value="${warehouse.address}" required>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Description</label>
                 <textarea name="description" class="form-control" rows="3">${warehouse.description}</textarea>
+            </div>
+
+            <%-- ── Total Area (THÊM MỚI) ── --%>
+            <div class="mb-3">
+                <label class="form-label">
+                    Total Area (m²) <span class="text-danger">*</span>
+                    <small class="text-muted fw-normal">— Tổng diện tích của kho, dùng để giới hạn các ô chứa</small>
+                </label>
+                <input type="number" name="totalArea" class="form-control"
+                       min="1" step="0.1"
+                       value="${warehouse.totalArea > 0 ? warehouse.totalArea : ''}"
+                       required placeholder="Ví dụ: 1000">
+                <div class="form-text text-muted">
+                    <i class="fa-solid fa-circle-info me-1"></i>
+                    Tổng diện tích các ô chứa không được vượt quá giá trị này.
+                </div>
             </div>
 
             <div class="mb-3">
@@ -55,7 +71,8 @@
                     <option value="0" ${warehouse.status == 0 ? 'selected' : ''}>Inactive</option>
                 </select>
             </div>
-          <div class="mb-3">
+
+            <div class="mb-3">
                 <label class="form-label">Warehouse Type</label>
                 <select name="warehouseTypeId" class="form-select" required>
                     <option value="1" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 1 ? 'selected' : ''}>Cold Storage</option>
@@ -63,24 +80,26 @@
                     <option value="3" ${warehouse != null && warehouse.warehouseType.warehouseTypeId == 3 ? 'selected' : ''}>High Security</option>
                 </select>
             </div>
-            
+
             <div class="mb-3">
                 <label class="form-label">Warehouse Images</label>
                 <input type="file" name="images" class="form-control" accept="image/*" multiple>
                 <div class="form-text">
-                    Accepted formats: .jpg, .png, .jpeg (Max 5MB per image).<br>
-                    <span class="text-danger">You can select multiple photos at once. The first one will be your profile picture.</span>
+                    Accepted: .jpg, .png, .jpeg (Max 5MB/image).<br>
+                    <span class="text-danger">First image will be the primary thumbnail.</span>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a href="${pageContext.request.contextPath}/warehouse" class="btn btn-secondary">Cancel</a>
-
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Save
+                </button>
+                <a href="${pageContext.request.contextPath}/warehouse" class="btn btn-secondary">Cancel</a>
+            </div>
         </form>
     </div>
 </div>
-
 <jsp:include page="/Common/Layout/footer.jsp"/>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

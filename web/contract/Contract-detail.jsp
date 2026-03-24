@@ -6,265 +6,261 @@
     <title>Chi tiết hợp đồng</title>
 
 <style>
-body{font-family:Arial;background:#f4f6f9;margin:0;}
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #34495e;
+        --accent-color: #3498db;
+        --success-color: #27ae60;
+        --danger-color: #e74c3c;
+        --warning-color: #f39c12;
+        --light-gray: #f8f9fa;
+        --border-color: #dee2e6;
+    }
 
-.header{
-    background:#2c3e50;
-    color:white;
-    padding:20px 40px;
-    display:flex;
-    justify-content:space-between;
-}
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; color: #333; }
+    
+    .layout { display: flex; min-height: 100vh; }
+    .main-content { flex: 1; padding: 30px; }
 
-.status{
-    padding:6px 16px;
-    border-radius:20px;
-    font-size:14px;
-    color:white;
-}
+    /* Card Wrapper */
+    .contract-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
 
-.container{
-    padding:40px;
-    background:white;
-    margin:30px auto;
-    width:90%;
-    border-radius:10px;
-}
+    /* Header Section */
+    .card-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .contract-id { font-size: 1.2rem; font-weight: 600; letter-spacing: 1px; }
 
-h3{color:#2980b9;border-bottom:1px solid #ddd;}
+    /* Badge Status */
+    .status-badge {
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
 
-.row{display:flex;justify-content:space-between;}
-.box{width:48%;}
-.info p{margin:8px 0;}
+    /* Content Body */
+    .card-body { padding: 40px; }
 
-.highlight{
-    background:#f1f2f6;
-    padding:20px;
-    border-radius:8px;
-    margin-top:15px;
-}
+    .section-title {
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        font-weight: 700;
+        border-left: 4px solid var(--accent-color);
+        padding-left: 15px;
+        margin: 30px 0 20px 0;
+        text-transform: uppercase;
+    }
+    .section-title:first-child { margin-top: 0; }
 
-.price{
-    color:red;
-    font-weight:bold;
-    font-size:18px;
-}
+    /* Info Grid */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .info-box { background: var(--light-gray); padding: 20px; border-radius: 8px; border: 1px solid #eee; }
+    .info-box p { margin: 10px 0; font-size: 14px; line-height: 1.6; }
+    .info-box b { color: #555; width: 100px; display: inline-block; }
 
-.actions{text-align:center;margin-top:30px;}
+    /* Custom Table */
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .custom-table th {
+        background: #ebedef;
+        color: var(--secondary-color);
+        text-align: left;
+        padding: 15px;
+        font-size: 14px;
+    }
+    .custom-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+    }
+    .custom-table tr:hover { background: #fcfcfc; }
 
-.btn{
-    padding:10px 25px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    margin:5px;
-    color:white;
-}
+    /* Highlight Box */
+    .summary-box {
+        background: #eef7ff;
+        border: 1px solid #badfff;
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .price-tag { color: var(--danger-color); font-size: 22px; font-weight: 800; }
 
-.agree{background:#27ae60;}
-.reject{background:#e74c3c;}
-.pdf{background:#3498db;}
+    /* Buttons */
+    .actions { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: right; }
+    .btn {
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+    }
+    .btn-back { background: #95a5a6; color: white; margin-right: 10px; }
+    .btn-agree { background: var(--success-color); color: white; }
+    .btn-reject { background: var(--danger-color); color: white; margin-left: 10px; }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    
+    ul.terms-list { padding-left: 20px; color: #666; font-size: 14px; }
+    ul.terms-list li { margin-bottom: 8px; }
 </style>
 </head>
 
 <body>
     <jsp:include page="/Common/Layout/header.jsp"/>
+    <div class="layout">
 
-<c:choose>
-<c:when test="${not empty contract}">
+    <!-- SIDEBAR -->
+    <c:if test="${sessionScope.userType == 'INTERNAL'}">
+                <jsp:include page="/Common/Layout/sidebar.jsp"/>
+            </c:if>
+    <div class="main-content">
+    <c:choose>
+        <c:when test="${not empty contract}">
+            <div class="contract-card">
+                <div class="card-header">
+                    <span class="contract-id">MÃ HỢP ĐỒNG: #${contract.contractId}</span>
+                    <div class="status-container">
+                        <c:choose>
+                            <c:when test="${contract.status == 0}">
+                                <span class="status-badge" style="background:#fff3cd; color:#856404">Thanh toán thành công</span>
+                            </c:when>
+                            <c:when test="${contract.status == 1}">
+                                <span class="status-badge" style="background:#cce5ff; color:#004085">Chờ Renter xác nhận</span>
+                            </c:when>
+                            <c:when test="${contract.status == 3}">
+                                <span class="status-badge" style="background:#d4edda; color:#155724">Hợp đồng có hiệu lực</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="status-badge" style="background:#f8d7da; color:#721c24">Đã từ chối</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
 
-<!-- ================= HEADER ================= -->
-<div class="header">
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-group">
+                            <h3 class="section-title">Bên cho thuê (Bên A)</h3>
+                            <div class="info-box">
+                                <p><b>Công ty:</b> Warehouse Rental System</p>
+                                <p><b>Đại diện:</b> ${contract.managerName}</p>
+                                <p><b>Email:</b> ${contract.managerEmail}</p>
+                                <p><b>Điện thoại:</b> ${contract.managerPhone}</p>
+                            </div>
+                        </div>
+                        <div class="info-group">
+                            <h3 class="section-title">Bên thuê (Bên B)</h3>
+                            <div class="info-box">
+                                <p><b>Họ tên:</b> ${contract.renterName}</p>
+                                <p><b>Email:</b> ${contract.renterEmail}</p>
+                                <p><b>Điện thoại:</b> ${contract.renterPhone}</p>
+                            </div>
+                        </div>
+                    </div>
 
-    <div>MÃ HĐ: ${contract.contractId}</div>
+                    <h3 class="section-title">Chi tiết kho bãi & Tài chính</h3>
+                    <p style="margin-bottom: 15px;">
+                        <i class="fas fa-warehouse"></i> <b>Kho:</b> ${contract.warehouseName} | 
+                        <i class="fas fa-map-marker-alt"></i> <b>Địa chỉ:</b> ${contract.warehouseAddress}
+                    </p>
 
-    <div>
-        <c:choose>
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Diện tích (m²)</th>
+                                <th>Giá thuê / tháng</th>
+                                <th>Thời gian thuê</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="u" items="${unitList}" varStatus="st">
+                                <tr>
+                                    <td>${st.index + 1}</td>
+                                    <td>${u.area} m²</td>
+                                    <td><fmt:formatNumber value="${u.price}" type="number"/> VNĐ</td>
+                                    <td>
+                                        <fmt:formatDate value="${u.startDate}" pattern="dd/MM/yyyy"/> 
+                                        <span style="color:#aaa; margin:0 5px;">→</span>
+                                        <fmt:formatDate value="${u.endDate}" pattern="dd/MM/yyyy"/>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
 
-            <c:when test="${contract.status == 0}">
-                <span class="status" style="background:#f39c12">
-                    Thanh Toán Thành công
-                </span>
-            </c:when>
+                    <div class="summary-box">
+                        <div>
+                            <p style="margin:0; color:#555;">Thời hạn tổng thể:</p>
+                            <strong style="font-size: 16px;">
+                                <fmt:formatDate value="${contract.startDate}" pattern="dd/MM/yyyy"/> → 
+                                <fmt:formatDate value="${contract.endDate}" pattern="dd/MM/yyyy"/>
+                            </strong>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin:0; color:#555;">Tổng giá thuê:</p>
+                            <span class="price-tag"><fmt:formatNumber value="${contract.price}" type="number" groupingUsed="true"/> VNĐ/tháng</span>
+                        </div>
+                    </div>
 
-            <c:when test="${contract.status == 1}">
-                <span class="status" style="background:#2980b9">
-                    Chờ Renter xác nhận
-                </span>
-            </c:when>
+                    <h3 class="section-title">Điều khoản chính</h3>
+                    <ul class="terms-list">
+                        <li>Giá thuê chưa bao gồm thuế VAT và chi phí điện nước phát sinh hàng tháng.</li>
+                        <li>Khách thuê thực hiện thanh toán định kỳ vào ngày 05 hàng tháng.</li>
+                        <li>Bên B có trách nhiệm tuân thủ nghiêm ngặt các quy định về PCCC tại khu vực kho.</li>
+                    </ul>
 
-            <c:when test="${contract.status == 3}">
-                <span class="status" style="background:#2ecc71">
-                    Hợp đồng có hiệu lực
-                </span>
-            </c:when>
+                    <div class="actions">
+                        <a href="${pageContext.request.contextPath}/contract" class="btn btn-back"> Quay lại danh sách</a>
+                        
+                        <c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1 and contract.paymentStatus == 0 }">
+                            <form action="${pageContext.request.contextPath}/payment" method="post" style="display:inline;">
+                                <input type="hidden" name="contractId" value="${contract.contractId}"/>
+                                <button type="submit" name="action" value="agree" class="btn btn-agree">Đồng ý hợp đồng & Thanh toán</button>
+                            </form>
 
-            <c:otherwise>
-                <span class="status" style="background:#e74c3c">
-                    Đã từ chối
-                </span>
-            </c:otherwise>
-
-        </c:choose>
-    </div>
-
-</div>
-
-
-<!-- ================= CONTENT ================= -->
-<div class="container">
-
-    <div class="row">
-
-    <!-- ================= BÊN A ================= -->
-    <div class="box">
-    <h3>BÊN CHO THUÊ (BÊN A)</h3>
-
-
-
-
-
-            <div class="info">
-                <p><b>Công ty:</b> Warehouse Rental System</p>
-                <p><b>Đại diện:</b> ${contract.managerName}</p>
-                <p><b>Email:</b> ${contract.managerEmail}</p>
-                <p><b>Điện thoại:</b> ${contract.managerPhone}</p>
+                            <form action="${pageContext.request.contextPath}/contract-detail" method="post" style="display:inline;">
+                                <input type="hidden" name="contractId" value="${contract.contractId}"/>
+                                <button type="submit" name="action" value="reject" class="btn btn-reject" onclick="return confirm('Bạn có chắc muốn từ chối hợp đồng này?');">Từ chối</button>
+                            </form>
+                        </c:if>
+                    </div>
+                </div>
             </div>
-
-
-    </div>
-
-
-    <!-- ================= BÊN B ================= -->
-    <div class="box">
-    <h3>BÊN THUÊ (BÊN B)</h3>
-
-    <div class="info">
-        <p><b>Họ tên:</b> ${contract.renterName}</p>
-        <p><b>Email:</b> ${contract.renterEmail}</p>
-        <p><b>Điện thoại:</b> ${contract.renterPhone}</p>
-    </div>
-
-    </div>
-
-    </div>
-
-    <br>
-
-    <h3>CHI TIẾT KHO BÃI & TÀI CHÍNH</h3>
-
-    <p><b>Tên kho:</b> ${contract.warehouseName}</p>
-    <p><b>Địa chỉ:</b> ${contract.warehouseAddress}</p>
-    
-   <table border="1" width="100%" cellpadding="8" style="border-collapse:collapse;">
-    <tr style="background:#ecf0f1;">
-        <th>STT</th>
-        <th>Diện tích (m²)</th>
-        <th>Giá thuê / tháng</th>
-        <th>Thời gian</th>
-    </tr>
-
-    <c:forEach var="u" items="${unitList}" varStatus="st">
-        <tr>
-            <td>${st.index + 1}</td>
-            <td>${u.area}</td>
-            <td>
-                <fmt:formatNumber value="${u.price}" type="number"/>
-                VNĐ
-            </td>
-            <td>
-                <fmt:formatDate value="${u.startDate}" pattern="dd/MM/yyyy"/>
-                →
-                <fmt:formatDate value="${u.endDate}" pattern="dd/MM/yyyy"/>
-            </td>
-        </tr>
-    </c:forEach>
-</table>
-    <div class="highlight">
-
-    <p>
-    <b>Thời hạn thuê: </b>
-
-    <fmt:formatDate value="${contract.startDate}" pattern="dd/MM/yyyy"/>
-    →
-    <fmt:formatDate value="${contract.endDate}" pattern="dd/MM/yyyy"/>
-
-    </p>
-    <p>
-    <b>Giá thuê:</b>
-    <span class="price">
-    <fmt:formatNumber value="${contract.price}" type="number" groupingUsed="true"/>
-    VNĐ/tháng
-</span>
-    </p>
-
-    </div>
-
-    <br>
-
-    <h3>ĐIỀU KHOẢN CHÍNH</h3>
-    <ul>
-    <li>Giá chưa bao gồm VAT và điện nước.</li>
-    <li>Thanh toán vào ngày 05 hàng tháng.</li>
-    <li>Bên B chịu trách nhiệm PCCC.</li>
-    </ul>
-
-
-    <!-- ================= ACTION BUTTON ================= -->
-    <!-- ================= ACTION BUTTON ================= -->
-<div class="actions">
-    <!-- Back to List -->
-<a href="${pageContext.request.contextPath}/contract">
-    <button class="btn pdf">← Back to List</button>
-</a>
-<!-- ===== MANAGER ===== -->
-
-
-
-<c:if test="${param.paymentError == '1'}">
-    <p style="color: red; margin-bottom: 15px;">Có lỗi khi tạo giao dịch thanh toán. Vui lòng thử lại hoặc liên hệ hỗ trợ.</p>
-</c:if>
-<c:if test="${param.paymentError == '2'}">
-    <p style="color: orange; margin-bottom: 15px;">Phiên thanh toán đã dùng hoặc hết hạn. Vui lòng tải lại trang và bấm "Đồng ý hợp đồng" lại.</p>
-</c:if>
-<!-- ===== RENTER ===== -->
-<c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1 and contract.paymentStatus ==0 }">
-<form action="${pageContext.request.contextPath}/payment" method="post" style="display:inline;" onsubmit="var b=this.querySelector('button[type=submit]');if(b){b.disabled=true;}">
-    <input type="hidden" name="contractId"
-           value="${contract.contractId}"/>
-
-    <button type="submit" name="action"
-            value="agree" class="btn agree">
-        Đồng ý hợp đồng
-    </button>
-</form>
-</c:if>
-
-<c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1  and contract.paymentStatus ==0 }">
-<form action="${pageContext.request.contextPath}/contract-detail" method="post" style="display:inline;">
-    <input type="hidden" name="contractId" value="${contract.contractId}"/>
-
-    <button type="submit" name="action"
-            value="reject"
-            class="btn reject"
-            onclick="return confirm('Bạn có chắc muốn từ chối hợp đồng này không?');">
-        Từ chối
-    </button>
-</form>
-</c:if>
-
-</div>
-
-    </div>
-
-    </c:when>
-
-    <c:otherwise>
-    <h2 style="text-align:center;color:red;margin-top:50px;">
-    Không tìm thấy hợp đồng!
-    </h2>
-    </c:otherwise>
+        </c:when>
+        <c:otherwise>
+            <div style="text-align:center; padding: 50px;">
+                <h2 style="color:var(--danger-color);">Không tìm thấy thông tin hợp đồng!</h2>
+                <a href="${pageContext.request.contextPath}/contract" class="btn btn-back">Quay lại</a>
+            </div>
+        </c:otherwise>
     </c:choose>
+</div>
+    </div>
  <jsp:include page="/Common/Layout/footer.jsp"/>
 
 </body>

@@ -50,7 +50,6 @@ public class RentRequestApprove extends HttpServlet {
 
         // 3. Insert vào Contract_Storage_unit
         contractDAO.insertContractStorageUnit(contractId);
-
         // 4. Gửi notification cho Renter sau khi tất cả xử lý thành công
         try {
             Notification noti = new Notification();

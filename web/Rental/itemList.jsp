@@ -117,6 +117,7 @@
         <table id="itemTable">
             <thead>
             <tr>
+                <th>No.</th>
                 <th>Item Name</th>
                 <th>Description</th>
                 <th>Quantity</th>
@@ -127,8 +128,9 @@
             </thead>
 
             <tbody>
-            <c:forEach items="${itemList}" var="sui">
+            <c:forEach items="${itemList}" var="sui" varStatus="loop">
                 <tr>
+                    <td>${loop.index + 1}</td>  <!-- STT bắt đầu từ 1 -->
                     <td>${sui.item.itemName}</td>
                     <td>${sui.item.description}</td>
                     <td>${sui.quantity}</td>

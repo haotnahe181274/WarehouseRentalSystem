@@ -1,111 +1,104 @@
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-
 <!DOCTYPE html>
-
 <html>
-
 <head>
     <meta charset="UTF-8">
     <title>Staff Task Board</title>
 
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/Staff-tasks.css">
 
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/Staff-tasks.css">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: #f5f7fb;
+        }
 
-<style>
+        .layout {
+            display: flex;
+            flex: 1;
+        }
 
-    body {
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        background: #f5f7fb;
-    }
+        .main-content {
+            flex: 1;
+            padding: 24px;
+        }
 
-    .layout {
-        display: flex;
-        flex: 1;
-    }
+        /* HEADER */
+        .header {
+            margin-bottom: 25px;
+        }
 
-    .main-content {
-        flex: 1;
-        padding: 24px;
-    }
+        .header h1 {
+            margin: 0;
+        }
 
-    /* HEADER */
+        /* STAT CARD */
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-    .header {
-        margin-bottom: 25px;
-    }
+        .stat-card {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
 
-    .header h1 {
-        margin: 0;
-    }
+        /* CARD */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
 
-    /* STATISTICS */
+        /* TABLE */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-    .stats {
-        display: flex;
-        gap: 20px;
-        margin-bottom: 30px;
-    }
+        th {
+            background: #f1f3f7;
+            text-align: left;
+            padding: 12px;
+        }
 
-    .stat-card {
-        background: white;
-        padding: 18px;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        min-width: 160px;
-    }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
 
-    /* CARD */
+        /* BUTTON */
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
 
-    .card {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+        .btn:hover {
+            background: #3d9140;
+        }
 
-    /* TABLE */
+        /* FOOTER */
+        footer {
+            margin-top: auto;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th {
-        background: #f1f3f7;
-        text-align: left;
-        padding: 12px;
-    }
-
-    td {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-    }
-
-    /* BUTTON */
-
-    .btn {
-        background: #4CAF50;
-        color: white;
-        padding: 6px 14px;
-        border-radius: 6px;
-        text-decoration: none;
-    }
-
-    .btn:hover {
-        background: #3d9140;
-    }
-
-</style>
-
-
+    </style>
 </head>
 
 <body>
-
 
 <!-- HEADER -->
 <jsp:include page="/Common/Layout/header.jsp"/>
@@ -115,9 +108,22 @@
     <!-- SIDEBAR -->
     <jsp:include page="/Common/Layout/sidebar.jsp"/>
 
-    
     <!-- MAIN CONTENT -->
     <div class="main-content">
+
+        <c:if test="${sessionScope.user.role == 'Staff'}">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value">${pendingTasks != null ? pendingTasks : '0'}</div>
+                    <div class="stat-label">Task đang thực hiện</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-value">${completedTasks != null ? completedTasks : '0'}</div>
+                    <div class="stat-label">Task đã hoàn thiện</div>
+                </div>
+            </div>
+        </c:if>
 
         <!-- PAGE HEADER -->
         <div class="header">
@@ -125,23 +131,15 @@
             <span>Today's Assigned Tasks</span>
         </div>
 
-
-
-
-
         <!-- TASK TABLE -->
         <div class="card">
-
             <h3>Assigned Tasks</h3>
 
             <c:if test="${empty taskList}">
                 <p>No tasks assigned.</p>
             </c:if>
 
-
             <table>
-
-                <!-- TABLE HEADER -->
                 <thead>
                     <tr>
                         <th>Assignment ID</th>
@@ -154,61 +152,33 @@
                     </tr>
                 </thead>
 
-
-                <!-- TABLE BODY -->
                 <tbody>
-
                     <c:forEach var="t" items="${taskList}">
-
                         <tr>
-
+                            <td>${t.assignmentId}</td>
+                            <td>${t.requestType}</td>
+                            <td>${t.warehouseName}</td>
+                            <td>${t.unitName}</td>
+                            <td>${t.requestDate}</td>
+                            <td>${t.dueDate}</td>
                             <td>
-                                ${t.assignmentId}
-                            </td>
-
-                            <td>
-                                ${t.requestType}
-                            </td>
-
-                            <td>
-                                ${t.warehouseName}
-                            </td>
-
-                            <td>
-                                ${t.unitName}
-                            </td>
-
-                            <td>
-                                ${t.requestDate}
-                            </td>
-
-                            <td>
-                                ${t.dueDate}
-                            </td>
-
-                            <td>
-                                <a href="${pageContext.request.contextPath}/staffCheck?assignmentId=${t.assignmentId}">
+                                <a class="btn"
+                                   href="${pageContext.request.contextPath}/staffCheck?assignmentId=${t.assignmentId}">
                                     Check
                                 </a>
                             </td>
-
                         </tr>
-
                     </c:forEach>
-
                 </tbody>
-
             </table>
 
         </div>
 
     </div>
-
 </div>
 
 <!-- FOOTER -->
 <jsp:include page="/Common/Layout/footer.jsp"/>
-```
 
 </body>
 </html>
