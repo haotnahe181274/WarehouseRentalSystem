@@ -69,7 +69,7 @@
                 <div class="toolbar">
                     <c:if test="${sessionScope.user.role eq 'Staff'}">
                         <a href="${pageContext.request.contextPath}/staffReport">
-                            <button>Staff Task</button>
+                            <button>Add Report</button>
                         </a>
                     </c:if>
                 </div>
