@@ -33,7 +33,29 @@
 
         <div class="main-content">
             <h3>Dashboard</h3>
-            <jsp:include page="dashboard_stats_cards.jsp" />
+             <div class="stats-container mb-4">
+            <jsp:include page="/Common/Layout/stats_cards.jsp">
+                    <jsp:param name="label1" value="Total Users" />
+                    <jsp:param name="value1" value="${totalUsers != null ? totalUsers : '0'}" />
+                    <jsp:param name="icon1"  value="fa-solid fa-users" /> 
+                    <jsp:param name="color1" value="primary" />
+
+                    <jsp:param name="label2" value="Total Warehouses" />
+                    <jsp:param name="value2" value="${totalWarehouses != null ? totalWarehouses : '0'}" />
+                    <jsp:param name="icon2"  value="fa-solid fa-warehouse" />
+                    <jsp:param name="color2" value="success" />
+
+                    <jsp:param name="label3" value="Total Bookings" />
+                    <jsp:param name="value3" value="${totalBookings != null ? totalBookings : '0'}" />
+                    <jsp:param name="icon3"  value="fa-solid fa-calendar-check" /> 
+                    <jsp:param name="color3" value="success" />
+                    
+                    <jsp:param name="label4" value="Monthly Revenue" />
+                    <jsp:param name="value4" value="${monthlyRevenue != null ? monthlyRevenue : '0'}" />
+                    <jsp:param name="icon4"  value="fa-solid fa-sack-dollar" /> 
+                    <jsp:param name="color4" value="primary" />
+                </jsp:include>
+            </div>
             <jsp:include page="dashboard_charts.jsp" />
         </div>
     </div>
