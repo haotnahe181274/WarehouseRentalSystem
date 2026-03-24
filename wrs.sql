@@ -205,9 +205,7 @@
 		item_id INT,
 
 		unit_id INT,
-		
-        UNIQUE (item_id, unit_id),
-        
+
 		FOREIGN KEY (item_id) REFERENCES Item(item_id),
 
 		FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id)
@@ -1542,3 +1540,22 @@ DELIMITER ;
 
 
 
+-- Thêm cột area vào bảng Warehouse
+ALTER TABLE Warehouse 
+ADD COLUMN total_area DECIMAL(10,2) NOT NULL DEFAULT 0;
+
+-- Cập nhật diện tích mẫu cho Warehouse dựa trên Storage_unit đã có + thêm 100 m2 dự phòng
+-- 1. Tạm tắt Safe Updates
+SET SQL_SAFE_UPDATES = 0;
+
+-- 2. Chạy lại lệnh Update
+UPDATE Warehouse w
+LEFT JOIN (
+    SELECT warehouse_id, SUM(area) as total_used_area
+    FROM Storage_unit
+    GROUP BY warehouse_id
+) su ON w.warehouse_id = su.warehouse_id
+SET w.total_area = IFNULL(su.total_used_area, 0) + 100;
+
+-- 3. Bật lại Safe Updates để bảo vệ dữ liệu
+SET SQL_SAFE_UPDATES = 1;

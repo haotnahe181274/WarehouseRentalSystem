@@ -15,7 +15,27 @@ public class RentUnit {
     private double price;
     private Date startDate;
     private Date endDate;
+    private int unitId;
 
+    public RentUnit() {
+    }
+
+    public RentUnit(double area, double price, Date startDate, Date endDate, int unitId) {
+        this.area = area;
+        this.price = price;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.unitId = unitId;
+    }
+
+    public int getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(int unitId) {
+        this.unitId = unitId;
+    }
+    
     public double getArea() {
         return area;
     }

@@ -25,9 +25,9 @@ import model.Warehouse;
 import model.WarehouseImage;
 
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2,
-    maxFileSize       = 1024 * 1024 * 10,
-    maxRequestSize    = 1024 * 1024 * 50
+        fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
 )
 @WebServlet(name = "WarehouseController", urlPatterns = {"/warehouse"})
 public class WarehouseManagerController extends HttpServlet {
@@ -69,16 +69,20 @@ public class WarehouseManagerController extends HttpServlet {
                         List<String[]> dates = entry.getValue();
                         for (int i = 0; i < dates.size(); i++) {
                             jsonBuilder.append("{")
-                                .append("\"title\": \"Đã Thuê\",")
-                                .append("\"start\": \"").append(dates.get(i)[0]).append("\",")
-                                .append("\"end\": \"").append(dates.get(i)[1]).append("T23:59:59\",")
-                                .append("\"color\": \"#dc3545\",")
-                                .append("\"textColor\": \"#ffffff\"")
-                                .append("}");
-                            if (i < dates.size() - 1) jsonBuilder.append(",");
+                                    .append("\"title\": \"Đã Thuê\",")
+                                    .append("\"start\": \"").append(dates.get(i)[0]).append("\",")
+                                    .append("\"end\": \"").append(dates.get(i)[1]).append("T23:59:59\",")
+                                    .append("\"color\": \"#dc3545\",")
+                                    .append("\"textColor\": \"#ffffff\"")
+                                    .append("}");
+                            if (i < dates.size() - 1) {
+                                jsonBuilder.append(",");
+                            }
                         }
                         jsonBuilder.append("]");
-                        if (count < unitBookedDates.size() - 1) jsonBuilder.append(",");
+                        if (count < unitBookedDates.size() - 1) {
+                            jsonBuilder.append(",");
+                        }
                         count++;
                     }
                     jsonBuilder.append("}");
@@ -99,12 +103,14 @@ public class WarehouseManagerController extends HttpServlet {
 
                     UserView user = (UserView) session.getAttribute("user");
                     boolean canFeedback = false;
-                    boolean canReply    = false;
+                    boolean canReply = false;
                     if (user != null) {
                         if ("RENTER".equalsIgnoreCase(user.getType())) {
                             ContractDAO contractDAO = new ContractDAO();
                             int contractId = contractDAO.getValidContractId(user.getId(), id);
-                            if (contractId != -1) canFeedback = true;
+                            if (contractId != -1) {
+                                canFeedback = true;
+                            }
                         }
                         if ("MANAGER".equalsIgnoreCase(user.getRole())
                                 || "ADMIN".equalsIgnoreCase(user.getRole())
@@ -142,9 +148,10 @@ public class WarehouseManagerController extends HttpServlet {
             try {
                 int status = Integer.parseInt(statusStr);
                 list = list.stream()
-                           .filter(w -> w.getStatus() == status)
-                           .collect(Collectors.toList());
-            } catch (NumberFormatException e) {}
+                        .filter(w -> w.getStatus() == status)
+                        .collect(Collectors.toList());
+            } catch (NumberFormatException e) {
+            }
         }
 
         Map<Integer, String> imageMap = new HashMap<>();
@@ -154,8 +161,8 @@ public class WarehouseManagerController extends HttpServlet {
         }
 
         request.setAttribute("warehouseImages", imageMap);
-        request.setAttribute("warehouseList",   list);
-        request.setAttribute("filterStatus",    statusStr);
+        request.setAttribute("warehouseList", list);
+        request.setAttribute("filterStatus", statusStr);
         request.getRequestDispatcher("Management/warehouse.jsp").forward(request, response);
     }
 
@@ -172,15 +179,26 @@ public class WarehouseManagerController extends HttpServlet {
 
         try {
             // 1. Nhận dữ liệu từ form
-            String idStr   = request.getParameter("id");
-            String name    = request.getParameter("name");
+            String idStr = request.getParameter("id");
+            String name = request.getParameter("name");
             String address = request.getParameter("address");
-            String desc    = request.getParameter("description");
+            String desc = request.getParameter("description");
 
             int status = 1;
             int typeId = 1;
-            try { status = Integer.parseInt(request.getParameter("status"));          } catch (Exception e) {}
-            try { typeId = Integer.parseInt(request.getParameter("warehouseTypeId")); } catch (Exception e) {}
+            double totalArea = 0;
+            try {
+                totalArea = Double.parseDouble(request.getParameter("totalArea"));
+            } catch (Exception e) {
+            }
+            try {
+                status = Integer.parseInt(request.getParameter("status"));
+            } catch (Exception e) {
+            }
+            try {
+                typeId = Integer.parseInt(request.getParameter("warehouseTypeId"));
+            } catch (Exception e) {
+            }
 
             boolean isEdit = (idStr != null && !idStr.trim().isEmpty());
 
@@ -190,12 +208,14 @@ public class WarehouseManagerController extends HttpServlet {
             w.setAddress(address);
             w.setDescription(desc);
             w.setStatus(status);
-            if (isEdit) w.setWarehouseId(Integer.parseInt(idStr));
+            if (isEdit) {
+                w.setWarehouseId(Integer.parseInt(idStr));
+            }
 
             model.WarehouseType type = new model.WarehouseType();
             type.setWarehouseTypeId(typeId);
             w.setWarehouseType(type);
-
+            w.setTotalArea(totalArea);
             // 3. Lấy danh sách file ảnh được upload
             List<Part> fileParts = new ArrayList<>();
             for (Part part : request.getParts()) {
@@ -213,6 +233,10 @@ public class WarehouseManagerController extends HttpServlet {
                 errorMessage = "Địa chỉ không được để trống!";
             } else if (!isEdit && fileParts.isEmpty()) {
                 // Chỉ bắt buộc ảnh khi ADD — Edit không cần nếu không muốn thay ảnh
+                errorMessage = "Vui lòng tải lên ít nhất 1 ảnh cho kho!";
+            } else if (totalArea <= 0) {
+                errorMessage = "Vui lòng nhập tổng diện tích của kho (> 0)!";
+            } else if (!isEdit && fileParts.isEmpty()) {
                 errorMessage = "Vui lòng tải lên ít nhất 1 ảnh cho kho!";
             }
 
@@ -261,7 +285,9 @@ public class WarehouseManagerController extends HttpServlet {
             if (currentWarehouseId > 0 && !fileParts.isEmpty()) {
                 String uploadPath = request.getServletContext().getRealPath("/resources/warehouse/image");
                 File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) uploadDir.mkdirs();
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdirs();
+                }
 
                 WarehouseImageDAO imgDao = new WarehouseImageDAO();
                 boolean isFirstImage = true;
