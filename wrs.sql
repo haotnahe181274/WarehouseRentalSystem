@@ -856,7 +856,59 @@ DELIMITER ;
 	('High Security', 'Kho ngoài trời');
 
 
+INSERT INTO Warehouse (name, address, description, status, warehouse_type_id) VALUES
 
+	('Northern Logistics Hub', 'Hà Nội', 'Kho trung tâm miền Bắc', 1, 1),
+
+	('Vinh Phuc Distribution Center', 'Vĩnh Phúc', 'Kho vệ tinh khu công nghiệp', 1, 2),
+
+	('Bac Ninh Smart Warehouse', 'Bắc Ninh', 'Kho công nghệ cao', 1, 2),
+
+	('Hai Phong Port Warehouse', 'Hải Phòng', 'Kho gần cảng biển', 1, 3),
+
+	('Quang Ninh Security Depot', 'Quảng Ninh', 'Kho an ninh cao', 2, 3),
+
+	('Thanh Hoa Storage Complex', 'Thanh Hóa', 'Kho tổng hợp', 1, 2),
+
+	('Nghe An Logistics Center', 'Nghệ An', 'Kho trung chuyển', 1, 2),
+
+	('Ha Tinh Supply Warehouse', 'Hà Tĩnh', 'Kho cung ứng', 0, 1),
+
+	('Da Nang Logistics Hub', 'Đà Nẵng', 'Kho miền Trung', 1, 1),
+
+	('Quang Nam Storage', 'Quảng Nam', 'Kho lưu trữ hàng tổng hợp', 1, 2),
+
+	('Quang Ngai Industrial Warehouse', 'Quảng Ngãi', 'Kho khu công nghiệp', 1, 2),
+
+	('Binh Dinh Port Depot', 'Bình Định', 'Kho cảng biển', 1, 3),
+
+	('Khanh Hoa Cold Storage', 'Khánh Hòa', 'Kho lạnh thủy sản', 1, 1),
+
+	('Dak Lak Agricultural Warehouse', 'Đắk Lắk', 'Kho nông sản', 2, 2),
+
+	('Gia Lai Logistics Base', 'Gia Lai', 'Kho trung chuyển Tây Nguyên', 1, 2),
+
+	('Lam Dong Cold Chain Center', 'Lâm Đồng', 'Kho lạnh rau củ', 1, 1),
+
+	('Binh Duong Smart Warehouse', 'Bình Dương', 'Kho tự động hóa', 1, 2),
+
+	('Dong Nai Industrial Storage', 'Đồng Nai', 'Kho công nghiệp', 1, 2),
+
+	('Ho Chi Minh Logistics Hub', 'TP Hồ Chí Minh', 'Kho trung tâm miền Nam', 1, 1),
+
+	('Long An Distribution Center', 'Long An', 'Kho phân phối', 1, 2),
+
+	('Tien Giang Storage', 'Tiền Giang', 'Kho khu vực ĐBSCL', 1, 2),
+
+	('Can Tho Logistics Hub', 'Cần Thơ', 'Kho trung tâm miền Tây', 1, 1),
+
+	('Vinh Long Warehouse', 'Vĩnh Long', 'Kho tổng hợp', 0, 2),
+
+	('An Giang Border Depot', 'An Giang', 'Kho khu vực biên giới', 1, 3),
+
+	('Kien Giang Marine Warehouse', 'Kiên Giang', 'Kho hàng hải sản', 1, 1),
+
+	('Ca Mau Cold Storage', 'Cà Mau', 'Kho lạnh thủy sản', 2, 1);
 	INSERT INTO Internal_user
 (user_name, password, full_name, email, phone, status, created_at, role_id, image, id_card, address, internal_user_code, warehouse_id)
 VALUES
@@ -956,59 +1008,7 @@ VALUES
 
 
 
-	INSERT INTO Warehouse (name, address, description, status, warehouse_type_id) VALUES
-
-	('Northern Logistics Hub', 'Hà Nội', 'Kho trung tâm miền Bắc', 1, 1),
-
-	('Vinh Phuc Distribution Center', 'Vĩnh Phúc', 'Kho vệ tinh khu công nghiệp', 1, 2),
-
-	('Bac Ninh Smart Warehouse', 'Bắc Ninh', 'Kho công nghệ cao', 1, 2),
-
-	('Hai Phong Port Warehouse', 'Hải Phòng', 'Kho gần cảng biển', 1, 3),
-
-	('Quang Ninh Security Depot', 'Quảng Ninh', 'Kho an ninh cao', 2, 3),
-
-	('Thanh Hoa Storage Complex', 'Thanh Hóa', 'Kho tổng hợp', 1, 2),
-
-	('Nghe An Logistics Center', 'Nghệ An', 'Kho trung chuyển', 1, 2),
-
-	('Ha Tinh Supply Warehouse', 'Hà Tĩnh', 'Kho cung ứng', 0, 1),
-
-	('Da Nang Logistics Hub', 'Đà Nẵng', 'Kho miền Trung', 1, 1),
-
-	('Quang Nam Storage', 'Quảng Nam', 'Kho lưu trữ hàng tổng hợp', 1, 2),
-
-	('Quang Ngai Industrial Warehouse', 'Quảng Ngãi', 'Kho khu công nghiệp', 1, 2),
-
-	('Binh Dinh Port Depot', 'Bình Định', 'Kho cảng biển', 1, 3),
-
-	('Khanh Hoa Cold Storage', 'Khánh Hòa', 'Kho lạnh thủy sản', 1, 1),
-
-	('Dak Lak Agricultural Warehouse', 'Đắk Lắk', 'Kho nông sản', 2, 2),
-
-	('Gia Lai Logistics Base', 'Gia Lai', 'Kho trung chuyển Tây Nguyên', 1, 2),
-
-	('Lam Dong Cold Chain Center', 'Lâm Đồng', 'Kho lạnh rau củ', 1, 1),
-
-	('Binh Duong Smart Warehouse', 'Bình Dương', 'Kho tự động hóa', 1, 2),
-
-	('Dong Nai Industrial Storage', 'Đồng Nai', 'Kho công nghiệp', 1, 2),
-
-	('Ho Chi Minh Logistics Hub', 'TP Hồ Chí Minh', 'Kho trung tâm miền Nam', 1, 1),
-
-	('Long An Distribution Center', 'Long An', 'Kho phân phối', 1, 2),
-
-	('Tien Giang Storage', 'Tiền Giang', 'Kho khu vực ĐBSCL', 1, 2),
-
-	('Can Tho Logistics Hub', 'Cần Thơ', 'Kho trung tâm miền Tây', 1, 1),
-
-	('Vinh Long Warehouse', 'Vĩnh Long', 'Kho tổng hợp', 0, 2),
-
-	('An Giang Border Depot', 'An Giang', 'Kho khu vực biên giới', 1, 3),
-
-	('Kien Giang Marine Warehouse', 'Kiên Giang', 'Kho hàng hải sản', 1, 1),
-
-	('Ca Mau Cold Storage', 'Cà Mau', 'Kho lạnh thủy sản', 2, 1);
+	
 
 
 
