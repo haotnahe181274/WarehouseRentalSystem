@@ -9,7 +9,7 @@
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="icon-box"><i class="fa-solid fa-users"></i></div>
-                        <span class="trend-up">+12.5%</span>
+                      
                     </div>
                     <div class="stat-value">${totalUsers != null ? totalUsers : '0'}</div>
                     <div class="stat-label">Total Users</div>
@@ -20,7 +20,7 @@
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="icon-box"><i class="fa-solid fa-warehouse"></i></div>
-                        <span class="trend-up">+8.2%</span>
+                     
                     </div>
                     <div class="stat-value">${totalWarehouses != null ? totalWarehouses : '0'}</div>
                     <div class="stat-label">Total Warehouses</div>
@@ -31,7 +31,7 @@
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="icon-box"><i class="fa-regular fa-calendar-check"></i></div>
-                        <span class="trend-up">+15.3%</span>
+                      
                     </div>
                     <div class="stat-value">${totalBookings != null ? totalBookings : '0'}</div>
                     <div class="stat-label">Total Bookings</div>
@@ -79,6 +79,3 @@
             </div>
         </div>
     </c:if>
-
-
-

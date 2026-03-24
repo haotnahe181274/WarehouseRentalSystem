@@ -146,7 +146,7 @@ public class RentRequestDetail extends HttpServlet {
         String[] names = request.getParameterValues("itemName");
         String[] descriptions = request.getParameterValues("description");
 
-        jakarta.servlet.http.HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false);
         UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login");

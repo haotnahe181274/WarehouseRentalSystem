@@ -118,7 +118,7 @@
                 <div class="layout">
                     <%-- Xác định quyền hạn --%>
                         <c:set var="isStaff"
-                            value="${sessionScope.user.role == 'Manager' || sessionScope.user.role == 'manager' }" />
+                            value="${sessionScope.user.role == 'Manager' || sessionScope.user.role == 'Admin' }" />
 
                         <c:if test="${isStaff}">
                             <jsp:include page="/Common/Layout/sidebar.jsp" />

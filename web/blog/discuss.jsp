@@ -88,6 +88,14 @@
 
              
                 <div class="sidebar-column">
+                    <c:if test="${not empty sessionScope.user}">
+                        <div class="post-card" style="margin-bottom: 12px; padding: 12px;">
+                            <a href="${pageContext.request.contextPath}/blog" class="btn-post" 
+                               style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="fas fa-user-edit"></i> My Posts
+                            </a>
+                        </div>
+                    </c:if>
                     <div class="category-card">
                         <h4>Categories</h4>
                         <ul class="category-list">
