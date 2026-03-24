@@ -130,7 +130,7 @@
             <tbody>
             <c:forEach items="${itemList}" var="sui" varStatus="loop">
                 <tr>
-                    <td>${loop.index + 1}</td>  <!-- STT bắt đầu từ 1 -->
+                    <td>${fn:length(checkRequests) - loop.index}</td>  <!-- STT bắt đầu từ 1 -->
                     <td>${sui.item.itemName}</td>
                     <td>${sui.item.description}</td>
                     <td>${sui.quantity}</td>

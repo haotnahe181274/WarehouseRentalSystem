@@ -90,7 +90,7 @@
                     <tbody>
                         <c:forEach items="${rentRequests}" var="rr" varStatus="loop">
                             <tr>
-                                <td>${loop.index + 1}</td>  <!-- STT bắt đầu từ 1 -->
+                                <td>${fn:length(checkRequests) - loop.index}</td>  <!-- STT bắt đầu từ 1 -->
 
                                 <td>
                                     <fmt:formatDate value="${rr.requestDate}" pattern="dd-MM-yyyy HH:mm"/>

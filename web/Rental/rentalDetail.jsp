@@ -17,6 +17,7 @@
         <c:set var="isEdit" value="${mode == 'edit'}" />
         <c:set var="isCreate" value="${mode == 'create'}" />
         <c:set var="isForm" value="${isEdit || isCreate}" />
+        
 
         <div class="detail-container" id="detailContainer"
              data-warehouse-id="${rr.warehouse.warehouseId}"
@@ -569,6 +570,8 @@
                         el.textContent = total.toLocaleString("vi-VN");
                 }
 
+                
+
                 function renumberRows() {
                     tbody.querySelectorAll(".unit-row").forEach(function (row, i) {
                         row.setAttribute("data-index", i);
@@ -585,6 +588,7 @@
                     if (e.target.classList.contains("unit-start") || e.target.classList.contains("unit-end")) {
                         loadAreasForRow(row);
                     } else if (e.target.classList.contains("unit-area")) {
+                        
                         setPriceForRow(row);
                     }
                 });
@@ -601,6 +605,7 @@
                     }
                     row.remove();
                     renumberRows();
+                    
                     updateTotal();
                 });
 
@@ -616,6 +621,7 @@
                     newRow.querySelector(".unit-price").value = "";
                     tbody.appendChild(newRow);
                     renumberRows();
+                    
                     updateTotal();
                 });
 
@@ -628,6 +634,7 @@
                         }
                     }
                 });
+                
                 updateTotal();
             })();
         </script>
@@ -670,6 +677,7 @@
                         }
                     }
                 }
+                
                 var itemRows = document.querySelectorAll("#itemTable tbody tr");
                 if (itemRows.length === 0) {
                     alert("You must have at least one item.");

@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.HashSet;
+import java.util.Set;
 import model.RentRequest;
 import model.UserView;
 import model.Warehouse;
@@ -25,6 +27,8 @@ import model.Warehouse;
  */
 @WebServlet(name = "CreateRentRequest", urlPatterns = {"/createRentRequest"})
 public class CreateRentRequest extends HttpServlet {
+
+    
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -119,6 +123,7 @@ public class CreateRentRequest extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/createRentRequest?id=" + warehouseId);
             return;
         }
+        
 
         int renterId = user.getId();
         RentRequestDAO rrDao = new RentRequestDAO();

@@ -99,7 +99,7 @@
         <tbody>
         <c:forEach items="${checkRequests}" var="cr" varStatus="loop">
             <tr>
-                <td>${loop.index + 1}</td>  <!-- STT bắt đầu từ 1 -->
+                <td>${fn:length(checkRequests) - loop.index}</td>  <!-- STT bắt đầu từ 1 -->
                 
                 <td>${cr.requestDate}</td>
                 <td>${cr.requestType}</td>
