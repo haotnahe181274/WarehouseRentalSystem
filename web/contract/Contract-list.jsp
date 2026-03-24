@@ -87,12 +87,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <c:forEach items="${contractList}" var="c">
-                                    <tr>
-                                        <td class="fw-bold text-center text-secondary"
-                                            data-order="${c.contractId}">
-                                            #${c.contractId}
-                                        </td>
+                                <c:forEach items="${contractList}" var="c" varStatus="loop">
+                                        <tr>
+                                            <td class="fw-bold text-center text-secondary">
+                                                ${loop.index + 1}
+                                            </td>
                                         
                                         <c:if test="${sessionScope.userType == 'INTERNAL'}">
                                             <td>
@@ -178,7 +177,16 @@
 
                                                     </form>
                                                 </c:if>
-
+                                           <c:if test="${sessionScope.userType eq 'RENTER' 
+                                                             and c.paymentStatus == 1 
+                                                             and c.status == 1}">
+                                                    <a href="<c:url value='/contract-detail'>
+                                                            <c:param name='contractId' value='${c.contractId}'/>
+                                                         </c:url>"
+                                                   class="btn btn-sm btn-primary">
+                                                    View
+                                                </a>
+                                                </c:if>
                                             </div>
                                         </td>
                                     </tr>
