@@ -111,19 +111,7 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
-        <c:if test="${sessionScope.user.role == 'Staff'}">
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-value">${pendingTasks != null ? pendingTasks : '0'}</div>
-                    <div class="stat-label">Task đang thực hiện</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-value">${completedTasks != null ? completedTasks : '0'}</div>
-                    <div class="stat-label">Task đã hoàn thiện</div>
-                </div>
-            </div>
-        </c:if>
+        
 
         <!-- PAGE HEADER -->
         <div class="header">
