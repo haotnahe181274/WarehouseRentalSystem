@@ -22,11 +22,7 @@
         <li class="app-header__menu-item">
             <a class="app-header__menu-link" href="${pageContext.request.contextPath}/discuss">Discussion</a>
         </li>
-        <c:if test="${not empty sessionScope.user}">
-            <li class="app-header__menu-item">
-                <a class="app-header__menu-link" href="${pageContext.request.contextPath}/blog">My Posts</a>
-            </li>
-        </c:if>
+        
         <c:if test="${sessionScope.userType == 'RENTER'}">
             <li class="app-header__menu-item">
                 <a class="app-header__menu-link" href="${pageContext.request.contextPath}/rentList">My Rental</a>
