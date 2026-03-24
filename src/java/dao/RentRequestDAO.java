@@ -302,7 +302,7 @@ public class RentRequestDAO extends DBContext {
 
     public List<RentRequestUnit> getUnitsByRequestId(int requestId) {
         List<RentRequestUnit> list = new ArrayList<>();
-        String sql = "SELECT id, request_id, area, start_date, end_date, rent_price FROM rent_request_unit WHERE request_id = ? ORDER BY id";
+        String sql = "SELECT id, request_id, area, start_date, end_date, rent_price, quantity FROM rent_request_unit WHERE request_id = ? ORDER BY id";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, requestId);
             ResultSet rs = ps.executeQuery();
@@ -316,6 +316,7 @@ public class RentRequestDAO extends DBContext {
                 Date end = rs.getDate("end_date");
                 if (end != null) u.setEndDate(end);
                 u.setRentPrice(rs.getDouble("rent_price"));
+                u.setQuantity(rs.getInt("quantity"));
                 list.add(u);
             }
         } catch (SQLException e) {
@@ -334,14 +335,15 @@ public class RentRequestDAO extends DBContext {
         }
     }
 
-    public void insertRentRequestUnit(int requestId, Date startDate, Date endDate, double area, double rentPrice) {
-        String sql = "INSERT INTO rent_request_unit (request_id, area, start_date, end_date, rent_price) VALUES (?, ?, ?, ?, ?)";
+    public void insertRentRequestUnit(int requestId, Date startDate, Date endDate, double area, double rentPrice, int quantity) {
+        String sql = "INSERT INTO rent_request_unit (request_id, area, start_date, end_date, rent_price, quantity) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, requestId);
             ps.setDouble(2, area);
             ps.setDate(3, new java.sql.Date(startDate.getTime()));
             ps.setDate(4, new java.sql.Date(endDate.getTime()));
             ps.setDouble(5, rentPrice);
+            ps.setInt(6, quantity);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

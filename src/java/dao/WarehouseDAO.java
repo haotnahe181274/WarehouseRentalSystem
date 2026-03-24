@@ -13,6 +13,8 @@ import java.sql.Timestamp;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import model.Warehouse;
 import model.WarehouseType;
@@ -399,6 +401,49 @@ public class WarehouseDAO extends DBContext {
         }
 
         return areaList;
+    }
+
+    public Map<Double, Integer> getAvailableAreaQuantityByWarehouse(
+            int warehouseId,
+            Date rentStart,
+            Date rentEnd
+    ) {
+        Map<Double, Integer> areaQtyMap = new LinkedHashMap<>();
+
+        String sql
+                = "SELECT s.area, COUNT(*) AS available_qty "
+                + "FROM Storage_unit s "
+                + "JOIN Warehouse w ON w.warehouse_id = s.warehouse_id "
+                + "WHERE w.warehouse_id = ? "
+                + "AND w.status = 1 "
+                + "AND s.status = 1 "
+                + "AND NOT EXISTS ( "
+                + "   SELECT 1 "
+                + "   FROM Contract_Storage_unit csu "
+                + "   JOIN Contract c ON csu.contract_id = c.contract_id "
+                + "   JOIN Payment p ON p.contract_id = c.contract_id AND p.status = 1 "
+                + "   WHERE csu.unit_id = s.unit_id "
+                + "   AND c.status = 1 "
+                + "   AND csu.start_date <= ? "
+                + "   AND csu.end_date >= ? "
+                + ") "
+                + "GROUP BY s.area "
+                + "ORDER BY s.area ASC";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, warehouseId);
+            ps.setDate(2, new java.sql.Date(rentEnd.getTime()));
+            ps.setDate(3, new java.sql.Date(rentStart.getTime()));
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                areaQtyMap.put(rs.getDouble("area"), rs.getInt("available_qty"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return areaQtyMap;
     }
 
     public double getPriceByArea(int warehouseId, double area) {

@@ -16,9 +16,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import model.RentRequest;
 import model.RentRequestUnit;
 import model.UserView;
@@ -105,10 +107,12 @@ public class RentRequestDetail extends HttpServlet {
 
         int warehouseId = rr.getWarehouse().getWarehouseId();
         Map<Double, Double> areaPriceMap = new LinkedHashMap<>();
+        Map<Double, Integer> areaQtyMap = new LinkedHashMap<>();
         if (!rr.getUnits().isEmpty()) {
             RentRequestUnit first = rr.getUnits().get(0);
             if (first.getStartDate() != null && first.getEndDate() != null) {
                 List<Double> areaList = da.getAvailableAreasByWarehouse(warehouseId, first.getStartDate(), first.getEndDate());
+                areaQtyMap.putAll(da.getAvailableAreaQuantityByWarehouse(warehouseId, first.getStartDate(), first.getEndDate()));
                 for (Double a : areaList) {
                     areaPriceMap.put(a, da.getPriceByArea(warehouseId, a));
                 }
@@ -118,6 +122,7 @@ public class RentRequestDetail extends HttpServlet {
             }
         }
         request.setAttribute("areaPriceMap", areaPriceMap);
+        request.setAttribute("areaQtyMap", areaQtyMap);
         request.setAttribute("mode", mode);
         request.setAttribute("rr", rr);
 
@@ -143,6 +148,7 @@ public class RentRequestDetail extends HttpServlet {
         String[] endDates = request.getParameterValues("unitEndDate");
         String[] areas = request.getParameterValues("unitArea");
         String[] prices = request.getParameterValues("unitPrice");
+        String[] quantities = request.getParameterValues("unitQuantity");
         String[] names = request.getParameterValues("itemName");
         String[] descriptions = request.getParameterValues("description");
 
@@ -168,9 +174,46 @@ public class RentRequestDetail extends HttpServlet {
         }
 
         int renterId = x.getRenter().getRenterId();
+        int warehouseId = x.getWarehouse().getWarehouseId();
+        if (startDates != null && endDates != null && areas != null && prices != null && quantities != null
+                && (startDates.length != endDates.length || startDates.length != areas.length
+                || startDates.length != prices.length || startDates.length != quantities.length)) {
+            session.setAttribute("rentalError", "Invalid unit data.");
+            response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
+            return;
+        }
+        if (startDates != null && endDates != null && areas != null && prices != null && quantities != null) {
+            WarehouseDAO warehouseDao = new WarehouseDAO();
+            Set<String> areaSet = new HashSet<>();
+            for (int i = 0; i < startDates.length; i++) {
+                try {
+                    java.sql.Date sd = java.sql.Date.valueOf(startDates[i].trim());
+                    java.sql.Date ed = java.sql.Date.valueOf(endDates[i].trim());
+                    String areaRaw = areas[i].trim();
+                    if (!areaSet.add(areaRaw)) {
+                        session.setAttribute("rentalError", "Area cannot be selected more than once.");
+                        response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
+                        return;
+                    }
+                    double area = Double.parseDouble(areaRaw);
+                    int quantity = Integer.parseInt(quantities[i].trim());
+                    Map<Double, Integer> availableMap = warehouseDao.getAvailableAreaQuantityByWarehouse(warehouseId, sd, ed);
+                    int maxQty = availableMap.getOrDefault(area, 0);
+                    if (quantity <= 0 || quantity > maxQty) {
+                        session.setAttribute("rentalError", "Quantity exceeds available units for selected area.");
+                        response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
+                        return;
+                    }
+                } catch (Exception ex) {
+                    session.setAttribute("rentalError", "Invalid unit data.");
+                    response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
+                    return;
+                }
+            }
+        }
 
-        if (startDates != null && endDates != null && areas != null && prices != null
-                && startDates.length > 0 && endDates.length > 0 && areas.length > 0 && prices.length > 0) {
+        if (startDates != null && endDates != null && areas != null && prices != null && quantities != null
+                && startDates.length > 0 && endDates.length > 0 && areas.length > 0 && prices.length > 0 && quantities.length > 0) {
             dao.deleteUnitsByRequestId(requestId);
             for (int i = 0; i < startDates.length; i++) {
                 try {
@@ -178,7 +221,8 @@ public class RentRequestDetail extends HttpServlet {
                     java.sql.Date ed = java.sql.Date.valueOf(endDates[i].trim());
                     double a = Double.parseDouble(areas[i].trim());
                     double pr = Double.parseDouble(prices[i].trim());
-                    dao.insertRentRequestUnit(requestId, sd, ed, a, pr);
+                    int qty = Integer.parseInt(quantities[i].trim());
+                    dao.insertRentRequestUnit(requestId, sd, ed, a, pr, qty);
                 } catch (IllegalArgumentException ignored) {
                 }
             }
