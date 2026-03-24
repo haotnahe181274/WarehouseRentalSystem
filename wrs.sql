@@ -172,7 +172,7 @@
 
 		area DECIMAL(10,2),
 
-		price_per_unit DECIMAL(10,2),
+		price DECIMAL(10,2),
 
 		description TEXT,
 
@@ -1061,7 +1061,7 @@ VALUES
 
 
 
-	INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, warehouse_id) VALUES
+	INSERT INTO Storage_unit (unit_code, status, area, price, description, warehouse_id) VALUES
 
 	('HN-A1',1,50,2000000,'Ô nhỏ',1), ('VP-A1',1,70,2500000,'Ô tiêu chuẩn',2),
 
@@ -1400,7 +1400,7 @@ VALUES
 
 
 
-	INSERT INTO Storage_unit (unit_code, status, area, price_per_unit, description, warehouse_id) VALUES
+	INSERT INTO Storage_unit (unit_code, status, area, price, description, warehouse_id) VALUES
 
 	('HN-A2', 1, 60.00, 2200000, 'Ô trung bình - Tầng 1', 1),
 
@@ -1550,8 +1550,8 @@ VALUES
 
 -- Thêm cột area vào bảng Warehouse
 ALTER TABLE Warehouse 
-ADD COLUMN total_area DECIMAL(10,2) NOT NULL DEFAULT 0;
-
+ADD COLUMN total_area DECIMAL(10,2) NOT NULL DEFAULT 0,
+ADD COLUMN price_per_m2 DECIMAL(10,2) NOT NULL DEFAULT 0;
 -- Cập nhật diện tích mẫu cho Warehouse dựa trên Storage_unit đã có + thêm 100 m2 dự phòng
 -- 1. Tạm tắt Safe Updates
 SET SQL_SAFE_UPDATES = 0;
@@ -1564,6 +1564,21 @@ LEFT JOIN (
     GROUP BY warehouse_id
 ) su ON w.warehouse_id = su.warehouse_id
 SET w.total_area = IFNULL(su.total_used_area, 0) + 100;
+
+-- =========================================================================
+-- 1. CẬP NHẬT GIÁ MỖI M2 CHO WAREHOUSE (LUÂN PHIÊN CHÊNH NHAU 10K)
+-- Dùng phép chia lấy dư (warehouse_id % 3) sẽ ra kết quả 0, 1 hoặc 2.
+-- Mức giá sẽ luân phiên xoay vòng: 40k, 50k, 60k, rồi lại 40k, 50k...
+-- =========================================================================
+UPDATE Warehouse 
+SET price_per_m2 = 50000 + (FLOOR(RAND() * 11) * 1000);
+
+-- =========================================================================
+-- 2. ĐỒNG BỘ LẠI GIÁ (PRICE_PER_UNIT) CHO STORAGE UNIT THEO CÔNG THỨC MỚI
+-- =========================================================================
+UPDATE Storage_unit su
+JOIN Warehouse w ON su.warehouse_id = w.warehouse_id
+SET su.price = su.area * w.price_per_m2;
 
 -- 3. Bật lại Safe Updates để bảo vệ dữ liệu
 SET SQL_SAFE_UPDATES = 1;
