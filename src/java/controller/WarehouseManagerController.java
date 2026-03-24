@@ -38,10 +38,7 @@ public class WarehouseManagerController extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+     
 
         WarehouseManagementDAO dao = new WarehouseManagementDAO();
         String action = request.getParameter("action");
@@ -159,6 +156,13 @@ public class WarehouseManagerController extends HttpServlet {
         for (Warehouse w : list) {
             imageMap.put(w.getWarehouseId(), imgDao.getPrimaryImage(w.getWarehouseId()));
         }
+        // LIST (default)
+
+        // --- THÊM 4 DÒNG NÀY ĐỂ LẤY SỐ LIỆU CHO STATS CARD ---
+        request.setAttribute("totalWarehouses", dao.countTotal());
+        request.setAttribute("activeWarehouses", dao.countByStatus(1)); // 1 là trạng thái Active
+        request.setAttribute("inactiveWarehouses", dao.countByStatus(0)); // 0 là trạng thái Inactive
+        // -----------------------------------------------------
 
         request.setAttribute("warehouseImages", imageMap);
         request.setAttribute("warehouseList", list);
@@ -172,7 +176,7 @@ public class WarehouseManagerController extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        if (session.getAttribute("user") == null) {
+          if (session.getAttribute("user") == null) {
             response.sendRedirect("login");
             return;
         }
