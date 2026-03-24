@@ -56,20 +56,45 @@
                 </label>
                 <input type="number" name="totalArea" class="form-control"
                        min="1" step="0.1"
-                       value="${warehouse.totalArea > 0 ? warehouse.totalArea : ''}"
-                       required placeholder="Ví dụ: 1000">
+                       value="${warehouse.totalArea > 0 ? warehouse.totalArea : ''}">
                 <div class="form-text text-muted">
                     <i class="fa-solid fa-circle-info me-1"></i>
                     Tổng diện tích các ô chứa không được vượt quá giá trị này.
                 </div>
             </div>
-
+                <%-- ── Price per Area (THÊM MỚI) ── --%>
+            <div class="mb-3">
+                <label class="form-label">
+                    Price per m² (VNĐ) <span class="text-danger">*</span>
+                    <small class="text-muted fw-normal">— Giá thuê áp dụng cho mỗi mét vuông</small>
+                </label>
+                <input type="number" name="pricePerArea" class="form-control"
+                       min="10000" step="1"
+                       value="${warehouse.pricePerArea > 0 ? warehouse.pricePerArea : ''}">
+                <div class="form-text text-muted">
+                    <i class="fa-solid fa-circle-info me-1"></i>
+                    Mức giá tối thiểu phải từ 10,000 VNĐ.
+                </div>
+      
+            </div>
+                                 
+            <%-- ── Status ── --%>
             <div class="mb-3">
                 <label class="form-label">Status</label>
-                <select name="status" class="form-select">
-                    <option value="1" ${warehouse.status == 1 ? 'selected' : ''}>Active</option>
-                    <option value="0" ${warehouse.status == 0 ? 'selected' : ''}>Inactive</option>
-                </select>
+                <c:choose>
+                    <c:when test="${empty warehouse}">
+                        <%-- Chế độ ADD: Hiện text giả nhưng gửi value=1 về server --%>
+                        <input type="text" class="form-control bg-light" value="Active (Default)" readonly>
+                        <input type="hidden" name="status" value="1">
+                    </c:when>
+                    <c:otherwise>
+                        <%-- Chế độ EDIT: Cho phép chọn --%>
+                        <select name="status" class="form-select">
+                            <option value="1" ${warehouse.status == 1 ? 'selected' : ''}>Active</option>
+                            <option value="0" ${warehouse.status == 0 ? 'selected' : ''}>Inactive</option>
+                        </select>
+                    </c:otherwise>
+                </c:choose>
             </div>
 
             <div class="mb-3">

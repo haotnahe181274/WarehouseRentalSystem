@@ -68,7 +68,7 @@ public class WarehouseDAO extends DBContext {
 
         StringBuilder sql = new StringBuilder(
                 "SELECT w.*, "
-                + "MIN(s.price_per_unit) AS min_price, "
+                + "MIN(s.price) AS min_price, "
                 + "MIN(s.area) AS min_area "
                 + "FROM Warehouse w "
                 + "JOIN Storage_unit s ON w.warehouse_id = s.warehouse_id "
@@ -86,11 +86,11 @@ public class WarehouseDAO extends DBContext {
         }
 
         if (minPrice != null) {
-            sql.append("AND s.price_per_unit >= ? ");
+            sql.append("AND s.price >= ? ");
         }
 
         if (maxPrice != null) {
-            sql.append("AND s.price_per_unit <= ? ");
+            sql.append("AND s.price <= ? ");
         }
 
         // ✅ thêm area
@@ -186,6 +186,10 @@ public class WarehouseDAO extends DBContext {
                 w.setStatus(rs.getInt("status"));
                 w.setMinPrice(rs.getDouble("min_price"));
                 w.setMinArea(rs.getDouble("min_area"));
+                
+                // THÊM: Map dữ liệu diện tích và giá m2
+                w.setTotalArea(rs.getDouble("total_area"));
+                w.setPricePerArea(rs.getInt("price_per_m2"));
 
                 w.setWarehouseType(
                         typeDAO.getTypeById(rs.getInt("warehouse_type_id"))
@@ -195,6 +199,7 @@ public class WarehouseDAO extends DBContext {
             }
 
         } catch (SQLException e) {
+            System.out.println("Lỗi SQL ở getFilteredWarehouses:");
             e.printStackTrace();
         }
 
@@ -230,11 +235,11 @@ public class WarehouseDAO extends DBContext {
         }
 
         if (minPrice != null) {
-            sql.append("AND s.price_per_unit >= ? ");
+            sql.append("AND s.price >= ? ");
         }
 
         if (maxPrice != null) {
-            sql.append("AND s.price_per_unit <= ? ");
+            sql.append("AND s.price <= ? ");
         }
 
         if (minArea != null) {
@@ -327,8 +332,17 @@ public class WarehouseDAO extends DBContext {
 
             while (rs.next()) {
                 Warehouse w = new Warehouse();
+                // Giữ nguyên warehouseId như code cũ của bạn
                 w.setWarehouseId(rs.getInt("warehouseId"));
                 w.setName(rs.getString("name"));
+                
+                // Bổ sung map thêm các field khác nếu cần dùng (tuỳ chọn)
+                w.setAddress(rs.getString("address"));
+                w.setDescription(rs.getString("description"));
+                w.setStatus(rs.getInt("status"));
+                w.setTotalArea(rs.getDouble("total_area"));
+                w.setPricePerArea(rs.getInt("price_per_m2"));
+                
                 list.add(w);
             }
 
@@ -342,7 +356,7 @@ public class WarehouseDAO extends DBContext {
     }
 
     public void insert(Warehouse w) {
-        String sql = "INSERT INTO warehouse (name, address, description, status) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO warehouse (name, address, description, status, total_area, price_per_m2) VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
             PreparedStatement st = connection.prepareStatement(sql);
@@ -350,6 +364,11 @@ public class WarehouseDAO extends DBContext {
             st.setString(2, w.getAddress());
             st.setString(3, w.getDescription());
             st.setInt(4, w.getStatus());
+            
+            // THÊM: Insert total_area và price_per_m2
+            st.setDouble(5, w.getTotalArea());
+            st.setInt(6, w.getPricePerArea());
+            
             st.executeUpdate();
             st.close();
 
@@ -359,7 +378,8 @@ public class WarehouseDAO extends DBContext {
     }
 
     public void delete(int id) {
-        String sql = "DELETE FROM warehouse WHERE warehouseId = ?";
+        // Giữ nguyên warehouseId như code cũ của bạn
+        String sql = "DELETE FROM warehouse WHERE warehouseId = ?"; 
 
         try {
             PreparedStatement st = connection.prepareStatement(sql);
@@ -464,7 +484,7 @@ public class WarehouseDAO extends DBContext {
 
     public double getPriceByArea(int warehouseId, double area) {
 
-        String sql = "SELECT price_per_unit "
+        String sql = "SELECT price "
                 + "FROM Storage_unit "
                 + "WHERE warehouse_id = ? "
                 + "AND area = ? "
@@ -479,7 +499,7 @@ public class WarehouseDAO extends DBContext {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return rs.getDouble("price_per_unit");
+                return rs.getDouble("price");
             }
 
         } catch (SQLException e) {
@@ -517,6 +537,11 @@ public class WarehouseDAO extends DBContext {
                 warehouse.setName(rs.getString("name"));
                 warehouse.setAddress(rs.getString("address"));
                 warehouse.setDescription(rs.getString("description"));
+                
+                // THÊM: Lấy diện tích và giá m2
+                warehouse.setTotalArea(rs.getDouble("total_area"));
+                warehouse.setPricePerArea(rs.getInt("price_per_m2"));
+                
                 warehouse.setWarehouseType(type);
 
                 return warehouse;

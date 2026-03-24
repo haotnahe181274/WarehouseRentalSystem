@@ -36,9 +36,14 @@ public class WarehouseManagerController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        
+        
         HttpSession session = request.getSession(false);
-     
+        if (session == null || session.getAttribute("user") == null) {
+        // Chuyển hướng về trang chủ hoặc trang login
+        response.sendRedirect(request.getContextPath() + "/homepage");
+        return; // Quan trọng: Phải return để ngắt xử lý bên dưới
+    }
 
         WarehouseManagementDAO dao = new WarehouseManagementDAO();
         String action = request.getParameter("action");
@@ -176,7 +181,7 @@ public class WarehouseManagerController extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-          if (session.getAttribute("user") == null) {
+        if (session.getAttribute("user") == null) {
             response.sendRedirect("login");
             return;
         }
@@ -191,8 +196,14 @@ public class WarehouseManagerController extends HttpServlet {
             int status = 1;
             int typeId = 1;
             double totalArea = 0;
+            int pricePerArea = 0; // THÊM MỚI
+
             try {
                 totalArea = Double.parseDouble(request.getParameter("totalArea"));
+            } catch (Exception e) {
+            }
+            try {
+                pricePerArea = Integer.parseInt(request.getParameter("pricePerArea")); // THÊM MỚI
             } catch (Exception e) {
             }
             try {
@@ -220,6 +231,8 @@ public class WarehouseManagerController extends HttpServlet {
             type.setWarehouseTypeId(typeId);
             w.setWarehouseType(type);
             w.setTotalArea(totalArea);
+            w.setPricePerArea(pricePerArea); // THÊM MỚI
+
             // 3. Lấy danh sách file ảnh được upload
             List<Part> fileParts = new ArrayList<>();
             for (Part part : request.getParts()) {
@@ -235,12 +248,13 @@ public class WarehouseManagerController extends HttpServlet {
                 errorMessage = "Tên kho không được để trống!";
             } else if (address == null || address.trim().isEmpty()) {
                 errorMessage = "Địa chỉ không được để trống!";
-            } else if (!isEdit && fileParts.isEmpty()) {
-                // Chỉ bắt buộc ảnh khi ADD — Edit không cần nếu không muốn thay ảnh
-                errorMessage = "Vui lòng tải lên ít nhất 1 ảnh cho kho!";
             } else if (totalArea <= 0) {
                 errorMessage = "Vui lòng nhập tổng diện tích của kho (> 0)!";
+            } else if (pricePerArea < 10000) { 
+                // THÊM MỚI: Validate giá m2
+                errorMessage = "Giá trên mỗi m² không hợp lệ! Vui lòng nhập từ 10.000.";
             } else if (!isEdit && fileParts.isEmpty()) {
+                // Chỉ bắt buộc ảnh khi ADD
                 errorMessage = "Vui lòng tải lên ít nhất 1 ảnh cho kho!";
             }
 
@@ -276,7 +290,7 @@ public class WarehouseManagerController extends HttpServlet {
 
             // 5. Lưu thông tin kho vào DB
             WarehouseManagementDAO dao = new WarehouseManagementDAO();
-            int currentWarehouseId;
+            int currentWarehouseId = 0;
 
             if (isEdit) {
                 currentWarehouseId = w.getWarehouseId();
@@ -307,8 +321,6 @@ public class WarehouseManagerController extends HttpServlet {
                     WarehouseImage img = new WarehouseImage();
                     img.setImageUrl(uniqueFileName);
 
-                    // ADD: ảnh đầu tiên là primary
-                    // EDIT: tất cả ảnh mới thêm đều không phải primary (giữ primary cũ)
                     if (!isEdit && isFirstImage) {
                         img.setPrimary(true);
                         isFirstImage = false;
@@ -336,6 +348,8 @@ public class WarehouseManagerController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
+            // Cần khởi tạo đối tượng rỗng để JSP không lỗi khi binding lại dữ liệu form
+            request.setAttribute("warehouse", new Warehouse()); 
             request.setAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
             request.getRequestDispatcher("/Management/warehouse-form.jsp").forward(request, response);
         }

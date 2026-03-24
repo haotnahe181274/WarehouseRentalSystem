@@ -181,9 +181,9 @@
                             </div>
                         </div>
 
-                        <%-- ── Area + Price ── --%>
+                     <%-- ── Area ── --%>
                         <div class="row mb-4">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label fw-bold text-dark">
                                     Area (m²) <span class="text-danger">*</span>
                                     <c:if test="${warehouseArea > 0}">
@@ -199,27 +199,36 @@
                                        value="${u.area}"
                                        required placeholder="0.0"
                                        oninput="updateAreaBar(this.value)">
-                                <div class="form-text" id="areaHint"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark">
-                                    Rent Price (VND) <span class="text-danger">*</span>
-                                </label>
-                                <fmt:formatNumber value="${u.pricePerUnit}" pattern="0" var="formattedPrice" />
-                                <input type="number" min="1000000" name="price"
-                                       class="form-control"
-                                       value="${formattedPrice}"
-                                       required placeholder="Enter amount">
+                                <div class="form-text mt-2" id="areaHint"></div>
+                                <div class="form-text text-primary mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Rent Price will be calculated automatically based on the warehouse's price per m².
+                                </div>
                             </div>
                         </div>
 
                         <%-- ── Status ── --%>
                         <div class="mb-4">
                             <label class="form-label fw-bold text-dark">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="1" ${u.status == 1 ? 'selected' : ''}>Available</option>
-                                <option value="2" ${u.status == 2 ? 'selected' : ''}>Under Maintenance</option>
-                            </select>
+                            <c:choose>
+                                <c:when test="${empty u}">
+                                    <%-- Chế độ ADD: Hiện ô không tương tác được --%>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white text-success">
+                                            <i class="fas fa-check-circle"></i>
+                                        </span>
+                                        <input type="text" class="form-control bg-light" value="Available (Default)" readonly>
+                                    </div>
+                                    <input type="hidden" name="status" value="1">
+                                </c:when>
+                                <c:otherwise>
+                                    <%-- Chế độ EDIT: Cho phép sửa --%>
+                                    <select name="status" class="form-select">
+                                        <option value="1" ${u.status == 1 ? 'selected' : ''}>Available</option>
+                                        <option value="2" ${u.status == 2 ? 'selected' : ''}>Under Maintenance</option>
+                                    </select>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
                         <%-- ── Description ── --%>
