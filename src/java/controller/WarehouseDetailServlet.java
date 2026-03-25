@@ -28,6 +28,7 @@ public class WarehouseDetailServlet extends HttpServlet {
         return; // Quan trọng: Phải return để ngắt xử lý bên dưới
     }
         StorageUnitDAO suDao = new StorageUnitDAO();
+        WarehouseManagementDAO Dao = new WarehouseManagementDAO();
         String action = request.getParameter("action");
 
         // ── ADD UNIT: generate code + tính diện tích còn lại ──────────────
@@ -51,6 +52,7 @@ public class WarehouseDetailServlet extends HttpServlet {
         if ("editUnit".equals(action)) {
             int unitId      = Integer.parseInt(request.getParameter("unitId"));
             int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
+            Warehouse w = Dao.getWarehouseById(warehouseId);
             StorageUnit unit     = suDao.getStorageUnitById(unitId);
             double warehouseArea = suDao.getWarehouseTotalArea(warehouseId);
             double usedArea      = suDao.getTotalUsedAreaExcluding(warehouseId, unitId);
@@ -59,7 +61,8 @@ public class WarehouseDetailServlet extends HttpServlet {
             request.setAttribute("warehouseId",   warehouseId);
             request.setAttribute("warehouseArea", warehouseArea);
             request.setAttribute("usedArea",      usedArea);
-            request.setAttribute("remainingArea", remainingArea);
+            request.setAttribute("remainingArea", remainingArea); 
+            request.setAttribute("warehousePrice", w.getPricePerArea());
             request.getRequestDispatcher("/Management/storage-unit-form.jsp").forward(request, response);
             return;
         }
@@ -143,7 +146,7 @@ public class WarehouseDetailServlet extends HttpServlet {
         String action        = request.getParameter("action");
         StorageUnitDAO suDao = new StorageUnitDAO();
         WarehouseManagementDAO whDao = new WarehouseManagementDAO(); // Khởi tạo DAO để lấy giá trị kho
-
+        
         String warehouseIdRaw = request.getParameter("warehouseId");
 
         try {
