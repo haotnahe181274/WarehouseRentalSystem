@@ -2,8 +2,10 @@ package dao;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 import model.StorageUnit;
 import model.Warehouse;
 
@@ -184,6 +186,43 @@ public class StorageUnitDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+
+    /**
+     * Kiểm tra một unit có thuộc hợp đồng đang có hiệu lực tại đúng checkDate hay không.
+     * Business rule: contract.status=1, payment.status=1, csu.status=1, và checkDate nằm trong [csu.start_date, csu.end_date].
+     */
+    public boolean isUnitRentedOnDate(int renterId, int unitId, LocalDate checkDate) {
+        String sql = """
+            SELECT 1
+            FROM Contract_Storage_unit csu
+            JOIN Contract c ON c.contract_id = csu.contract_id
+            JOIN Payment p ON p.contract_id = c.contract_id AND p.status = 1
+            JOIN Storage_unit su ON su.unit_id = csu.unit_id
+            WHERE c.renter_id = ?
+              AND c.status = 1
+              AND csu.status = 1
+              AND su.status = 1
+              AND su.unit_id = ?
+              AND csu.start_date <= ?
+              AND csu.end_date >= ?
+            LIMIT 1
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, renterId);
+            ps.setInt(2, unitId);
+            // Truy theo "ngày" (không phải theo thời điểm 00:00), vì cột start_date/end_date là DATETIME.
+            Timestamp startTs = Timestamp.valueOf(checkDate.atStartOfDay());
+            Timestamp endTs = Timestamp.valueOf(checkDate.atTime(23, 59, 59));
+            ps.setTimestamp(3, endTs);
+            ps.setTimestamp(4, startTs);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public List<StorageUnit> searchAvailableUnits(int warehouseId, String startDate, String endDate) {

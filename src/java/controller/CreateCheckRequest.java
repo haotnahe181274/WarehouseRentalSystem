@@ -7,6 +7,8 @@ import dao.NotificationDAO;
 import dao.StorageUnitDAO;
 import dao.StorageUnitItemDAO;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -117,10 +119,12 @@ public class CreateCheckRequest extends HttpServlet {
         String unitIdStr = request.getParameter("unitId");
         String[] itemIds    = request.getParameterValues("itemId");
         String[] quantities = request.getParameterValues("quantity");
+        String[] checkDates = request.getParameterValues("checkDate");
 
         if (mode == null || unitIdStr == null || unitIdStr.isEmpty()
-                || itemIds == null || quantities == null
-                || itemIds.length != quantities.length) {
+                || itemIds == null || quantities == null || checkDates == null
+                || itemIds.length != quantities.length
+                || itemIds.length != checkDates.length) {
             response.sendRedirect(request.getContextPath() + "/createCheckRequest?mode=" + mode);
             return;
         }
@@ -177,60 +181,124 @@ public class CreateCheckRequest extends HttpServlet {
             for (Item it : allowedItems) allowedItemQtyMap.put(it.getItemId(), Integer.MAX_VALUE);
         }
 
-        List<int[]> selectedItems = new ArrayList<>();
+        // Group theo ngày: date -> (itemId -> tổng quantity trong ngày)
+        Map<LocalDate, Map<Integer, Integer>> qtyByDateItem = new HashMap<>();
+        // Group theo item để validate tổng cho CHECK_OUT (tránh âm tồn kho do checkout nhiều ngày)
+        Map<Integer, Integer> totalQtyByItemId = new HashMap<>();
+
         for (int i = 0; i < itemIds.length; i++) {
             try {
-                int itemId   = Integer.parseInt(itemIds[i]);
+                int itemId = Integer.parseInt(itemIds[i]);
                 int quantity = Integer.parseInt(quantities[i]);
-                if (quantity > 0) {
-                    Integer maxAllowed = allowedItemQtyMap.get(itemId);
-                    if (maxAllowed == null) {
-                        request.setAttribute("quantityError", "Item không hợp lệ cho unit hiện tại.");
-                        doGet(request, response);
-                        return;
-                    }
-                    if ("OUT".equals(normalizedMode) && quantity > maxAllowed) {
-                        request.setAttribute("quantityError", "Số lượng checkout không được vượt quá tồn kho hiện tại.");
-                        doGet(request, response);
-                        return;
-                    }
-                    selectedItems.add(new int[]{itemId, quantity});
+                if (quantity <= 0) continue;
+
+                String dateRaw = checkDates[i];
+                if (dateRaw == null || dateRaw.isBlank()) {
+                    request.setAttribute("quantityError", "Bạn phải chọn ngày check-in/check-out cho từng ngày.");
+                    doGet(request, response);
+                    return;
                 }
+
+                LocalDate date;
+                try {
+                    date = LocalDate.parse(dateRaw);
+                } catch (Exception e) {
+                    request.setAttribute("quantityError", "Ngày check-in/check-out không hợp lệ.");
+                    doGet(request, response);
+                    return;
+                }
+
+                totalQtyByItemId.merge(itemId, quantity, Integer::sum);
+                qtyByDateItem
+                        .computeIfAbsent(date, d -> new HashMap<>())
+                        .merge(itemId, quantity, Integer::sum);
             } catch (NumberFormatException ignored) {
             }
         }
-        if (selectedItems.isEmpty()) {
+
+        if (qtyByDateItem.isEmpty()) {
             request.setAttribute("quantityError", "Bạn phải nhập ít nhất 1 item có số lượng > 0.");
             doGet(request, response);
             return;
         }
 
+        // Validate checkDate nằm trong khoảng hợp đồng (Contract_Storage_unit) có hiệu lực.
+        // Chỉ validate cho các ngày có item được nhập số lượng > 0.
+        LocalDate today = LocalDate.now();
+        for (LocalDate day : qtyByDateItem.keySet()) {
+            if (day.isBefore(today)) {
+                request.setAttribute("quantityError",
+                        "Bạn phải chọn sau khoảng thời gian hiện tại.");
+                doGet(request, response);
+                return;
+            }
+            boolean rentedOnDay = unitDao.isUnitRentedOnDate(user.getId(), unitId, day);
+            if (!rentedOnDay) {
+                request.setAttribute("quantityError",
+                        "Ngày " + day + " không nằm trong thời gian hợp đồng có hiệu lực cho unit này.");
+                doGet(request, response);
+                return;
+            }
+        }
+
+        // Validate tổng theo item (đặc biệt cho CHECK_OUT)
+        if ("OUT".equals(normalizedMode)) {
+            for (Map.Entry<Integer, Integer> entry : totalQtyByItemId.entrySet()) {
+                int itemId = entry.getKey();
+                int totalQty = entry.getValue();
+                Integer maxAllowed = allowedItemQtyMap.get(itemId);
+                if (maxAllowed == null) {
+                    request.setAttribute("quantityError", "Item không hợp lệ cho unit hiện tại.");
+                    doGet(request, response);
+                    return;
+                }
+                if (totalQty > maxAllowed) {
+                    request.setAttribute("quantityError", "Tổng số lượng checkout cho mỗi item không được vượt quá tồn kho hiện tại.");
+                    doGet(request, response);
+                    return;
+                }
+            }
+        }
+
         String requestType = "OUT".equals(normalizedMode) ? "CHECK_OUT" : "CHECK_IN";
         CheckRequestDAO checkDao = new CheckRequestDAO();
 
-        // 1. Tạo đơn Check Request
-        int checkRequestId = checkDao.insertCheckRequest(user.getId(), warehouseId, unitId, requestType);
+        AssignmentDAO assignmentDAO = new AssignmentDAO();
+        List<Integer> createdCheckRequestIds = new ArrayList<>();
+        boolean anyTaskAssigned = false;
 
-        if (checkRequestId > 0) {
-            // 2. Lưu các mặt hàng vào đơn
-            for (int[] pair : selectedItems) {
-                checkDao.insertCheckRequestItem(checkRequestId, pair[0], pair[1]);
-            }
+        List<LocalDate> sortedDates = new ArrayList<>(qtyByDateItem.keySet());
+        sortedDates.sort(LocalDate::compareTo);
 
-            // 3. Auto assign staff
-            AssignmentDAO assignmentDAO = new AssignmentDAO();
-            boolean isTaskAssigned = assignmentDAO.createTaskFromCheckRequest(checkRequestId);
+        try {
+            NotificationDAO notiDAO = new NotificationDAO();
+            String actionLabel = "CHECK_OUT".equals(requestType) ? "check-out" : "check-in";
+            String wName = warehouseName != null ? "\"" + warehouseName + "\"" : "the warehouse";
 
-            // 4. Gửi notification
-            try {
-                NotificationDAO notiDAO = new NotificationDAO();
-                String actionLabel = "CHECK_OUT".equals(requestType) ? "check-out" : "check-in";
-                String wName       = warehouseName != null ? "\"" + warehouseName + "\"" : "the warehouse";
+            for (LocalDate day : sortedDates) {
+                Map<Integer, Integer> dayItems = qtyByDateItem.get(day);
+                Timestamp requestDate = Timestamp.valueOf(day.atStartOfDay());
 
+                // Tạo 1 check_request cho mỗi ngày
+                int checkRequestId = checkDao.insertCheckRequest(
+                        user.getId(), warehouseId, unitId, requestType, requestDate
+                );
+                if (checkRequestId <= 0) continue;
+                createdCheckRequestIds.add(checkRequestId);
+
+                // Lưu các mặt hàng vào đơn tương ứng ngày đó
+                for (Map.Entry<Integer, Integer> itemQty : dayItems.entrySet()) {
+                    checkDao.insertCheckRequestItem(checkRequestId, itemQty.getKey(), itemQty.getValue());
+                }
+
+                // Auto assign staff
+                boolean isTaskAssigned = assignmentDAO.createTaskFromCheckRequest(checkRequestId);
+                if (isTaskAssigned) anyTaskAssigned = true;
+
+                // Notification cho staff (nếu có)
                 if (isTaskAssigned) {
-                    // 4a. Staff đã được assign → gửi notification cho staff
-                    //     Lấy staffId từ assignment vừa tạo
-                    int assignedStaffId = assignmentDAO.getOptimalStaffId(checkRequestId);
+                    // Chọn staff theo warehouse (tham số đúng)
+                    int assignedStaffId = assignmentDAO.getOptimalStaffId(warehouseId);
                     if (assignedStaffId > 0) {
                         Notification notiStaff = new Notification();
                         notiStaff.setTitle("New " + actionLabel + " task assigned");
@@ -242,16 +310,9 @@ public class CreateCheckRequest extends HttpServlet {
                         notiStaff.setInternalUserId(assignedStaffId);
                         notiDAO.insertNotification(notiStaff);
                     }
-
-                    session.setAttribute("MESSAGE",
-                            "Tạo đơn thành công! Nhân viên kho đã nhận được lệnh và đang chuẩn bị.");
-                } else {
-                    // 4b. Chưa assign được → chỉ báo cho Renter biết đang chờ
-                    session.setAttribute("MESSAGE",
-                            "Tạo đơn thành công! Quản lý kho sẽ sớm điều phối nhân viên hỗ trợ bạn.");
                 }
 
-                // 4c. Luôn gửi confirmation cho Renter dù assign được hay không
+                // Notification cho renter (luôn luôn)
                 Notification notiRenter = new Notification();
                 notiRenter.setTitle(actionLabel.substring(0, 1).toUpperCase()
                         + actionLabel.substring(1) + " request submitted");
@@ -264,13 +325,17 @@ public class CreateCheckRequest extends HttpServlet {
                 notiRenter.setLinkUrl("/checkRequestDetail?id=" + checkRequestId);
                 notiRenter.setRenterId(user.getId());
                 notiDAO.insertNotification(notiRenter);
-
-            } catch (Exception e) {
-                System.err.println("Failed to insert notification: " + e.getMessage());
             }
+        } catch (Exception e) {
+            System.err.println("Failed to insert notification: " + e.getMessage());
+        }
 
-            // 5. Redirect sang trang chi tiết
-            response.sendRedirect(request.getContextPath() + "/checkRequestDetail?id=" + checkRequestId);
+        if (!createdCheckRequestIds.isEmpty()) {
+            session.setAttribute("MESSAGE",
+                    anyTaskAssigned
+                            ? "Tạo đơn thành công! Nhân viên kho đang chuẩn bị hỗ trợ bạn."
+                            : "Tạo đơn thành công! Quản lý kho sẽ sớm điều phối nhân viên hỗ trợ bạn.");
+            response.sendRedirect(request.getContextPath() + "/checkRequestList");
         } else {
             response.sendRedirect(request.getContextPath() + "/itemList");
         }
