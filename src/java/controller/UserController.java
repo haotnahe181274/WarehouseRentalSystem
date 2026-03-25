@@ -249,6 +249,15 @@ public class UserController extends HttpServlet {
         if ("block".equals(action) || "unblock".equals(action)) {
             int id = Integer.parseInt(idRaw);
             String type = request.getParameter("type");
+            
+            if ("INTERNAL".equalsIgnoreCase(type)) {
+                UserView target = userDAO.getUserById(id, type);
+                if (target != null && ("Admin".equalsIgnoreCase(target.getRole()) || "Manager".equalsIgnoreCase(target.getRole()))) {
+                    response.sendRedirect(request.getContextPath() + "/user/list");
+                    return;
+                }
+            }
+            
             int status = action.equals("block") ? 0 : 1;
             userDAO.updateStatus(id, type, status);
             response.sendRedirect(request.getContextPath() + "/user/list");
@@ -389,6 +398,15 @@ public class UserController extends HttpServlet {
                 if (fileName == null) {
                     UserView old = userDAO.getUserById(id, "INTERNAL");
                     fileName = old.getImage();
+                }
+
+                if (roleId == 0) {
+                    UserView oldUser = userDAO.getUserById(id, "INTERNAL");
+                    if (oldUser != null) {
+                        if ("Admin".equalsIgnoreCase(oldUser.getRole())) roleId = 1;
+                        else if ("Manager".equalsIgnoreCase(oldUser.getRole())) roleId = 2;
+                        else roleId = 3;
+                    }
                 }
 
                 userDAO.updateInternalUser(

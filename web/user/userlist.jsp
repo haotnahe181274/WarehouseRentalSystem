@@ -170,27 +170,29 @@
 
 
                                                     <c:if test="${sessionScope.role == 'Admin'}">
-                                                        <form action="${pageContext.request.contextPath}/user/list"
-                                                            method="post" style="display:inline">
-                                                            <input type="hidden" name="id" value="${u.id}">
-                                                            <input type="hidden" name="type" value="${u.type}">
+                                                        <c:if test="${u.role ne 'Admin' && u.role ne 'Manager'}">
+                                                            <form action="${pageContext.request.contextPath}/user/list"
+                                                                method="post" style="display:inline">
+                                                                <input type="hidden" name="id" value="${u.id}">
+                                                                <input type="hidden" name="type" value="${u.type}">
 
-                                                            <c:if test="${u.status == 1}">
-                                                                <input type="hidden" name="action" value="block">
-                                                                <button class="btn btn-sm btn-outline-danger"
-                                                                    type="submit">
-                                                                    <i class="fa-solid fa-ban"></i> Block
-                                                                </button>
-                                                            </c:if>
+                                                                <c:if test="${u.status == 1}">
+                                                                    <input type="hidden" name="action" value="block">
+                                                                    <button class="btn btn-sm btn-outline-danger"
+                                                                        type="submit">
+                                                                        <i class="fa-solid fa-ban"></i> Block
+                                                                    </button>
+                                                                </c:if>
 
-                                                            <c:if test="${u.status == 0}">
-                                                                <input type="hidden" name="action" value="unblock">
-                                                                <button class="btn btn-sm btn-outline-success"
-                                                                    type="submit">
-                                                                    <i class="fa-solid fa-unlock"></i> Unblock
-                                                                </button>
-                                                            </c:if>
-                                                        </form>
+                                                                <c:if test="${u.status == 0}">
+                                                                    <input type="hidden" name="action" value="unblock">
+                                                                    <button class="btn btn-sm btn-outline-success"
+                                                                        type="submit">
+                                                                        <i class="fa-solid fa-unlock"></i> Unblock
+                                                                    </button>
+                                                                </c:if>
+                                                            </form>
+                                                        </c:if>
                                                     </c:if>
                                                 </div>
                                             </td>
