@@ -325,9 +325,12 @@ public class UserDAO extends DBContext {
                         iu.created_at as createdAt,
                                  iu.id_card,
                                                      iu.address,
-                                                     iu.internal_user_code
+                                                     iu.internal_user_code,
+                        iu.warehouse_id,
+                        w.name as warehouse_name
                     from internal_user iu
                     join role r on iu.role_id = r.role_id
+                    left join warehouse w on w.warehouse_id = iu.warehouse_id
                     where iu.user_name = ? and iu.password = ?
 
                     union all
@@ -345,7 +348,9 @@ public class UserDAO extends DBContext {
                         re.created_at as createdAt,
                         null as id_card,
                         null as address,
-                        null as internal_user_code
+                        null as internal_user_code,
+                        null as warehouse_id,
+                        null as warehouse_name
                     from renter re
                     where re.user_name = ? and re.password = ?
                 ) u
