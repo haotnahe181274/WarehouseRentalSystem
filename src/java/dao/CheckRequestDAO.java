@@ -15,14 +15,17 @@ import model.Warehouse;
 /** DAO cho check_request và check_request_item. */
 public class CheckRequestDAO extends DBContext {
 
-    /** Tạo đơn check in/out, trả về id mới hoặc -1. */
-    public int insertCheckRequest(int renterId, int warehouseId, int unitId, String requestType) {
-        String sql = "INSERT INTO check_request (request_date, request_type, renter_id, warehouse_id, unit_id, internal_user_id, processed_date) VALUES (NOW(), ?, ?, ?, ?, NULL, NULL)";
+    
+
+    /** Tạo đơn check in/out tại requestDate (để hỗ trợ split theo từng ngày). */
+    public int insertCheckRequest(int renterId, int warehouseId, int unitId, String requestType, java.sql.Timestamp requestDate) {
+        String sql = "INSERT INTO check_request (request_date, request_type, renter_id, warehouse_id, unit_id, internal_user_id, processed_date) VALUES (?, ?, ?, ?, ?, NULL, NULL)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, requestType);
-            ps.setInt(2, renterId);
-            ps.setInt(3, warehouseId);
-            ps.setInt(4, unitId);
+            ps.setTimestamp(1, requestDate);
+            ps.setString(2, requestType);
+            ps.setInt(3, renterId);
+            ps.setInt(4, warehouseId);
+            ps.setInt(5, unitId);
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
