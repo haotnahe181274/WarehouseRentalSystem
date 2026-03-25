@@ -295,12 +295,6 @@
                                             <input type="text" class="form-control-custom" value="${targetUser.name}"
                                                 disabled readonly style="background: #e5e7eb;">
                                         </div>
-                                        <div class="d-none">
-                                            <!-- Hidden field to keep alignment if needed, or remove -->
-                                        </div>
-                                    </div>
-
-                                    <div class="row-grid">
                                         <div>
                                             <label class="form-label">Full Name</label>
                                             <input type="text" name="fullName" class="form-control-custom"
@@ -309,13 +303,19 @@
                                                 <div class="error-msg">${errors.fullName}</div>
                                             </c:if>
                                         </div>
-
-                                        <div>
-                                            <label class="form-label">Role</label>
-                                            <input type="text" class="form-control-custom" value="${targetUser.role}"
-                                                disabled readonly style="background: #e5e7eb;">
-                                        </div>
                                     </div>
+
+                                    <c:if test="${targetUser.type == 'INTERNAL'}">
+                                        <div class="row-grid">
+                                            <div>
+                                                <label class="form-label">Role</label>
+                                                <input type="text" class="form-control-custom" value="${targetUser.role}"
+                                                    disabled readonly style="background: #e5e7eb;">
+                                            </div>
+                                            <div class="d-none">
+                                            </div>
+                                        </div>
+                                    </c:if>
 
                                     <div class="section-title" style="margin-top: 20px;">Contact Info</div>
 
@@ -358,12 +358,23 @@
                                             </div>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label class="form-label">Address</label>
-                                            <input type="text" name="address" class="form-control-custom"
-                                                value="${targetUser.address}">
-                                            <c:if test="${not empty errors.address}">
-                                                <div class="error-msg">${errors.address}</div>
+                                        <div class="row-grid">
+                                            <div>
+                                                <label class="form-label">Address</label>
+                                                <input type="text" name="address" class="form-control-custom"
+                                                    value="${targetUser.address}">
+                                                <c:if test="${not empty errors.address}">
+                                                    <div class="error-msg">${errors.address}</div>
+                                                </c:if>
+                                            </div>
+
+                                            <c:if test="${targetUser.role ne 'Admin' && targetUser.role ne 'Manager'}">
+                                                <div>
+                                                    <label class="form-label">Assigned Warehouse</label>
+                                                    <input type="text" class="form-control-custom"
+                                                        value="${not empty targetUser.warehouseName ? targetUser.warehouseName : '-- None --'}"
+                                                        disabled readonly style="background: #e5e7eb;">
+                                                </div>
                                             </c:if>
                                         </div>
                                     </c:if>
