@@ -482,19 +482,25 @@
                                                 <label class="form-label">Assigned Warehouse</label>
                                                 <select name="warehouseId" class="form-select-custom">
                                                     <option value="">-- None --</option>
+                                                    <c:set var="matched" value="false" />
                                                     <c:forEach items="${warehouses}" var="wh">
                                                         <c:choose>
                                                             <c:when test="${not empty warehouseId && warehouseId == wh.warehouseId}">
                                                                 <option value="${wh.warehouseId}" selected>${wh.name}</option>
+                                                                <c:set var="matched" value="true" />
                                                             </c:when>
                                                             <c:when test="${empty warehouseId && targetUser.warehouseId == wh.warehouseId}">
                                                                 <option value="${wh.warehouseId}" selected>${wh.name}</option>
+                                                                <c:set var="matched" value="true" />
                                                             </c:when>
                                                             <c:otherwise>
                                                                 <option value="${wh.warehouseId}">${wh.name}</option>
                                                             </c:otherwise>
                                                         </c:choose>
                                                     </c:forEach>
+                                                    <c:if test="${!matched && empty warehouseId && not empty targetUser.warehouseId}">
+                                                        <option value="${targetUser.warehouseId}" selected>${targetUser.warehouseName} (Inactive)</option>
+                                                    </c:if>
                                                 </select>
                                             </div>
                                         </c:if>

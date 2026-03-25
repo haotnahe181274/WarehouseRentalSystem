@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.StorageUnit;
 import model.Warehouse;
 import model.WarehouseImage;
@@ -20,7 +21,12 @@ public class WarehouseDetailServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+         HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+        // Chuyển hướng về trang chủ hoặc trang login
+        response.sendRedirect(request.getContextPath() + "/homepage");
+        return; // Quan trọng: Phải return để ngắt xử lý bên dưới
+    }
         StorageUnitDAO suDao = new StorageUnitDAO();
         String action = request.getParameter("action");
 
@@ -136,24 +142,37 @@ public class WarehouseDetailServlet extends HttpServlet {
 
         String action        = request.getParameter("action");
         StorageUnitDAO suDao = new StorageUnitDAO();
+        WarehouseManagementDAO whDao = new WarehouseManagementDAO(); // Khởi tạo DAO để lấy giá trị kho
+
         String warehouseIdRaw = request.getParameter("warehouseId");
 
         try {
             int warehouseId = Integer.parseInt(warehouseIdRaw);
 
             double area  = Double.parseDouble(request.getParameter("area"));
-            double price = Double.parseDouble(request.getParameter("price"));
             int status   = Integer.parseInt(request.getParameter("status"));
             String description = request.getParameter("description") != null
                     ? request.getParameter("description").trim() : "";
+
+            // ── TÍNH TOÁN GIÁ DỰA TRÊN DIỆN TÍCH VÀ WAREHOUSE PRICE_PER_M2 ──────────
+            Warehouse warehouse = whDao.getWarehouseById(warehouseId);
+            if (warehouse == null) {
+                throw new Exception("Warehouse not found!");
+            }
+            
+            int pricePerM2 = warehouse.getPricePerArea();
+            if (pricePerM2 <= 0) {
+                throw new Exception("Warehouse price per m² is not set. Please update warehouse information first.");
+            }
+            
+            // Tính tổng giá = diện tích * giá/m2
+            double calculatedPrice = area * pricePerM2;
 
             // ── Validate cơ bản ──────────────────────────────────────────
             if (area < 10) {
                 throw new Exception("Area must be at least 10 m²!");
             }
-            if (price < 1000000) {
-                throw new Exception("Rent Price must be at least 1,000,000 VND!");
-            }
+            // Bỏ đi dòng check price < 1000000 ở code cũ vì giá đã tự động tính.
 
             // ── Validate diện tích không vượt quá warehouse ──────────────
             double warehouseTotalArea = suDao.getWarehouseTotalArea(warehouseId);
@@ -173,7 +192,8 @@ public class WarehouseDetailServlet extends HttpServlet {
                 // Generate unit code tự động
                 String generatedCode = suDao.generateUnitCode(warehouseId);
 
-                boolean isSuccess = suDao.addStorageUnit(warehouseId, generatedCode, area, price, status, description);
+                // Dùng calculatedPrice thay cho biến price truyền từ form
+                boolean isSuccess = suDao.addStorageUnit(warehouseId, generatedCode, area, calculatedPrice, status ,description);
                 if (!isSuccess) throw new Exception("Database error while adding new unit.");
 
                 request.getSession().setAttribute("successMsg",
@@ -193,7 +213,8 @@ public class WarehouseDetailServlet extends HttpServlet {
                 StorageUnit existing = suDao.getStorageUnitById(unitId);
                 String unitCode = (existing != null) ? existing.getUnitCode() : "";
 
-                boolean isSuccess = suDao.updateStorageUnit(unitId, unitCode, area, price, status, description);
+                // Dùng calculatedPrice thay cho biến price truyền từ form
+                boolean isSuccess = suDao.updateStorageUnit(unitId, unitCode, area, calculatedPrice, status, description);
                 if (!isSuccess) throw new Exception("Database error while updating unit.");
 
                 request.getSession().setAttribute("successMsg", "Storage Unit updated successfully!");

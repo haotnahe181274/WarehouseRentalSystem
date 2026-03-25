@@ -13,33 +13,26 @@
     <c:forEach items="${warehouses}" var="w">
         <div class="warehouse-card">
 
-            <!-- IMAGE -->
             <div class="warehouse-image">
                 <img
                     src="${pageContext.request.contextPath}/resources/warehouse/image/${imageMap[w.warehouseId]}"
                     onerror="this.src='${pageContext.request.contextPath}/resources/warehouse/image/default.jpg';"
                     alt="warehouse image"
-                    />
-
-                
+                />
             </div>
 
-            <!-- CONTENT -->
             <div class="warehouse-content">
 
                 <div class="warehouse-info">
-                    <!-- NAME -->
                     <h3 class="warehouse-name" title="${w.name}">
                         ${w.name}
                     </h3>
 
-                    <!-- ADDRESS -->
                     <p class="warehouse-address">
                         <i class="fa-solid fa-location-dot"></i>
                         ${w.address}
                     </p>
 
-                    <!-- PRICE -->
                     <c:if test="${w.minPrice > 0}">
                         <div class="warehouse-price">
                             &gt;
@@ -48,7 +41,6 @@
                         </div>
                     </c:if>
 
-                    <!-- AREA -->
                     <c:if test="${w.minArea > 0}">
                         <div class="warehouse-area">
                             <i class="fa-solid fa-ruler-combined"></i>
@@ -56,27 +48,20 @@
                         </div>
                     </c:if>
 
-                    <!-- TYPE BADGE -->
                     <c:if test="${w.warehouseType != null}">
                         <div class="warehouse-type">
                             <i class="fa-solid fa-warehouse"></i>
                             ${w.warehouseType.typeName}
                         </div>
                     </c:if>
-                </div>
-
-                <!-- BUTTON -->
-                <a href="${pageContext.request.contextPath}/warehouse?action=view&id=${w.warehouseId}" class="warehouse-button">
+                </div> <a href="${pageContext.request.contextPath}/warehouse?action=view&id=${w.warehouseId}" class="warehouse-button">
                     View Details
                 </a>
 
-            </div>
-        </div>
-    </c:forEach>
+            </div> </div> </c:forEach>
 
 </div>
 
-<!-- EMPTY STATE -->
 <c:if test="${empty warehouses}">
     <div class="warehouse-empty">
         <h3>No warehouse found.</h3>
@@ -89,8 +74,8 @@
     /* ===== GRID LAYOUT ===== */
     .warehouse-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 24px;
+        grid-template-columns: repeat(3, 1fr); /* Ưu tiên thuộc tính này theo CSS ở cuối file cũ của bạn */
+        gap: 28px;
     }
 
     /* ===== CARD ===== */
@@ -98,33 +83,10 @@
         background: #fff;
         border-radius: 18px;
         overflow: hidden;
-
         display: flex;
         flex-direction: column;
-
-        height: 100%; /* QUAN TRỌNG */
+        height: 100%;
         border: 1px solid #e5e7eb;
-    }
-
-
-
-    .warehouse-type {
-        align-self: flex-end; 
-
-        margin-top: 10px;
-
-        background: #f5f5f5;
-        color: #111;
-
-        padding: 6px 12px;
-        border-radius: 999px;
-
-        font-size: 13px;
-        font-weight: 500;
-
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
     }
 
     /* ===== IMAGE ===== */
@@ -141,20 +103,22 @@
         position: relative;
     }
 
-
-
     /* ===== CONTENT ===== */
     .warehouse-content {
         padding: 16px 18px 18px;
-
         display: flex;
         flex-direction: column;
-        gap: 6px; /* NÉN KHOẢNG CÁCH */
-
-        flex: 1; /* ĐẨY BUTTON XUỐNG DƯỚI */
+        justify-content: space-between; /* Đẩy các thành phần ra xa nhau */
+        flex: 1; 
     }
 
     /* ===== INFO ===== */
+    .warehouse-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
     .warehouse-name {
         font-size: 16px;
         font-weight: 700;
@@ -190,7 +154,19 @@
         gap: 6px;
     }
 
-
+    .warehouse-type {
+        align-self: flex-start; /* Thay vì flex-end để badge nằm ngay ngắn bên trái */
+        margin-top: 10px;
+        background: #f5f5f5;
+        color: #111;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
 
     /* ===== BUTTON ===== */
     .warehouse-button {
@@ -202,10 +178,13 @@
         border-radius: 999px;
         text-decoration: none;
         font-weight: 600;
+        width: 100%; /* Giúp button trải dài ra cho đẹp */
+        display: block; /* Sửa lỗi thẻ a không nhận padding chuẩn */
     }
 
     .warehouse-button:hover {
         background: #000;
+        color: #fff;
     }
 
     /* ===== EMPTY ===== */
@@ -213,13 +192,8 @@
         text-align: center;
         padding: 60px 0;
         color: #9ca3af;
+        width: 100%;
+        grid-column: 1 / -1; /* Bắt empty state chiếm toàn bộ chiều ngang grid */
     }
-
-    .warehouse-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 28px;
-    }
-
 
 </style>

@@ -125,7 +125,7 @@ public class StorageUnitDAO extends DBContext {
     // THÊM MỚI STORAGE UNIT (unitCode được generate tự động)
     // =========================================================
     public boolean addStorageUnit(int warehouseId, String unitCode, double area, double price, int status, String description) {
-        String sql = "INSERT INTO Storage_unit (warehouse_id, unit_code, area, price_per_unit, status, description) "
+        String sql = "INSERT INTO Storage_unit (warehouse_id, unit_code, area, price, status, description) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, warehouseId);
@@ -147,7 +147,7 @@ public class StorageUnitDAO extends DBContext {
     public List<StorageUnit> getActiveUnitsForRenter(int renterId) {
         List<StorageUnit> list = new ArrayList<>();
         String sql = """
-            SELECT DISTINCT su.unit_id, su.unit_code, su.status, su.area, su.price_per_unit,
+            SELECT DISTINCT su.unit_id, su.unit_code, su.status, su.area, su.price,
                             su.description AS unit_description,
                             w.warehouse_id, w.name AS warehouse_name, w.address, w.description AS warehouse_description
             FROM Contract_Storage_unit csu
@@ -175,7 +175,7 @@ public class StorageUnitDAO extends DBContext {
                 unit.setUnitCode(rs.getString("unit_code"));
                 unit.setStatus(rs.getInt("status"));
                 unit.setArea(rs.getDouble("area"));
-                unit.setPricePerUnit(rs.getDouble("price_per_unit"));
+                unit.setPricePerUnit(rs.getDouble("price"));
                 unit.setDescription(rs.getString("unit_description"));
                 unit.setWarehouse(warehouse);
                 list.add(unit);
@@ -213,7 +213,7 @@ public class StorageUnitDAO extends DBContext {
                 unit.setUnitCode(rs.getString("unit_code"));
                 unit.setStatus(rs.getInt("status"));
                 unit.setArea(rs.getDouble("area"));
-                unit.setPricePerUnit(rs.getDouble("price_per_unit"));
+                unit.setPricePerUnit(rs.getDouble("price"));
                 unit.setDescription(rs.getString("description"));
                 unit.setWarehouse(w);
                 list.add(unit);
@@ -236,7 +236,7 @@ public class StorageUnitDAO extends DBContext {
                 unit.setWarehouse(dao.getWarehouseById(rs.getInt("warehouse_id")));
                 unit.setUnitCode(rs.getString("unit_code"));
                 unit.setArea(rs.getDouble("area"));
-                unit.setPricePerUnit(rs.getDouble("price_per_unit"));
+                unit.setPricePerUnit(rs.getDouble("price"));
                 unit.setStatus(rs.getInt("status"));
                 unit.setDescription(rs.getString("description"));
                 return unit;
@@ -248,7 +248,7 @@ public class StorageUnitDAO extends DBContext {
     }
 
     public boolean updateStorageUnit(int unitId, String unitCode, double area, double price, int status, String description) {
-        String sql = "UPDATE Storage_unit SET unit_code = ?, area = ?, price_per_unit = ?, status = ?, description = ? WHERE unit_id = ?";
+        String sql = "UPDATE Storage_unit SET unit_code = ?, area = ?, price = ?, status = ?, description = ? WHERE unit_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, unitCode);
             ps.setDouble(2, area);

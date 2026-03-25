@@ -26,7 +26,7 @@ public class StorageUnitItemDAO extends DBContext {
         String sql = "SELECT "
                 + "sui.id, sui.quantity, "
                 + "i.item_id, i.item_name, i.description AS item_description, i.renter_id, "
-                + "su.unit_id, su.unit_code, su.status, su.area, su.price_per_unit, su.description AS unit_description, "
+                + "su.unit_id, su.unit_code, su.status, su.area, su.price, su.description AS unit_description, "
                 + "w.warehouse_id, w.name AS warehouse_name, w.address, w.description AS warehouse_description "
                 + "FROM item i "
                 + "INNER JOIN storage_unit_item sui ON i.item_id = sui.item_id "
@@ -62,7 +62,7 @@ public class StorageUnitItemDAO extends DBContext {
                 unit.setUnitCode(rs.getString("unit_code"));
                 unit.setStatus(rs.getInt("status"));
                 unit.setArea(rs.getDouble("area"));
-                unit.setPricePerUnit(rs.getDouble("price_per_unit"));
+                unit.setPricePerUnit(rs.getDouble("price"));
                 unit.setDescription(rs.getString("unit_description"));
                 unit.setWarehouse(warehouse);
 
@@ -89,7 +89,7 @@ public class StorageUnitItemDAO extends DBContext {
         String sql = "SELECT "
                 + "sui.id, sui.quantity, "
                 + "i.item_id, i.item_name, i.description AS item_description, i.renter_id, "
-                + "su.unit_id, su.unit_code, su.status, su.area, su.price_per_unit, su.description AS unit_description, "
+                + "su.unit_id, su.unit_code, su.status, su.area, su.price, su.description AS unit_description, "
                 + "w.warehouse_id, w.name AS warehouse_name, w.address, w.description AS warehouse_description "
                 + "FROM storage_unit_item sui "
                 + "INNER JOIN item i ON i.item_id = sui.item_id "
@@ -123,7 +123,7 @@ public class StorageUnitItemDAO extends DBContext {
                 unit.setUnitCode(rs.getString("unit_code"));
                 unit.setStatus(rs.getInt("status"));
                 unit.setArea(rs.getDouble("area"));
-                unit.setPricePerUnit(rs.getDouble("price_per_unit"));
+                unit.setPricePerUnit(rs.getDouble("price"));
                 unit.setDescription(rs.getString("unit_description"));
                 unit.setWarehouse(warehouse);
 

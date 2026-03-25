@@ -11,7 +11,7 @@ public class Warehouse {
     private Double minPrice;
     private Double minArea;
     private double totalArea; // ← THÊM MỚI: tổng diện tích của kho
-
+    private int PricePerArea;
     public Warehouse() {
     }
 
@@ -95,4 +95,13 @@ public class Warehouse {
     public void setTotalArea(double totalArea) {
         this.totalArea = totalArea;
     }
+
+    public int getPricePerArea() {
+        return PricePerArea;
+    }
+
+    public void setPricePerArea(int PricePerArea) {
+        this.PricePerArea = PricePerArea;
+    }
+    
 }
