@@ -200,10 +200,17 @@
                                        required placeholder="0.0"
                                        oninput="updateAreaBar(this.value)">
                                 <div class="form-text mt-2" id="areaHint"></div>
-                                <div class="form-text text-primary mt-1">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Rent Price will be calculated automatically based on the warehouse's price per m².
-                                </div>
+                              <div class="mt-3 p-3 bg-white border rounded shadow-sm">
+    <div class="d-flex justify-content-between align-items-center">
+        <span class="text-muted fw-bold">
+            <i class="fas fa-wallet me-1 text-primary"></i> Estimated Rent Price
+        </span>
+        <span id="estimatedPrice" class="fs-4 fw-bold text-success">0 ₫</span>
+    </div>
+    <div class="text-end text-muted" style="font-size: 12px;">
+        (Base price: <fmt:formatNumber value="${warehousePrice}" pattern="#,##0"/> ₫/m²)
+    </div>
+</div>
                             </div>
                         </div>
 
@@ -254,38 +261,57 @@
 
     <jsp:include page="/Common/Layout/footer.jsp" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        var warehouseArea = ${warehouseArea > 0 ? warehouseArea : 0};
-        var usedArea      = ${usedArea > 0 ? usedArea : 0};
-        var remainingArea = ${remainingArea > 0 ? remainingArea : 0};
+    <<script>
+    // Đã bọc dấu nháy đơn và dùng parseFloat/parseInt kèm giá trị mặc định || 0
+    // Cách này đảm bảo không bao giờ bị lỗi SyntaxError dù backend gửi xuống giá trị null
+    var warehouseArea  = parseFloat('${empty warehouseArea ? 0 : warehouseArea}') || 0;
+    var usedArea       = parseFloat('${empty usedArea ? 0 : usedArea}') || 0;
+    var remainingArea  = parseFloat('${empty remainingArea ? 0 : remainingArea}') || 0;
+    
+    // Lưu ý: Đảm bảo tên biến ở đây khớp với tên bạn đã setAttribute() bên Servlet
+    var warehousePrice = parseInt('${empty warehousePrice ? 0 : warehousePrice}') || 0;
 
-        function updateAreaBar(val) {
-            var newArea = parseFloat(val) || 0;
-            var newBar  = document.getElementById('newBar');
-            var hint    = document.getElementById('areaHint');
-            if (!newBar || warehouseArea <= 0) return;
+    function updateAreaBar(val) {
+        var newArea = parseFloat(val) || 0;
+        var newBar  = document.getElementById('newBar');
+        var hint    = document.getElementById('areaHint');
+        var priceEl = document.getElementById('estimatedPrice'); 
 
-            var newPct = Math.min((newArea / warehouseArea) * 100, 100);
-            newBar.style.width = newPct + '%';
-
-            if (newArea > remainingArea) {
-                hint.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>'
-                    + 'Exceeds available area (' + remainingArea.toFixed(1) + 'm² remaining)</span>';
-                newBar.style.background = '#dc2626';
-            } else {
-                hint.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-1"></i>'
-                    + (remainingArea - newArea).toFixed(1) + 'm² will remain after this unit</span>';
-                newBar.style.background = '#f59e0b';
-            }
+        // --- Cập nhật giá tiền ---
+        if (priceEl) {
+            var estimatedPrice = newArea * warehousePrice;
+            
+            // Format tiền tệ VND chuẩn xác
+            priceEl.innerText = new Intl.NumberFormat('vi-VN', { 
+                style: 'currency', 
+                currency: 'VND' 
+            }).format(estimatedPrice);
         }
 
-        // Trigger update khi load trang edit (có sẵn giá trị cũ)
-        window.addEventListener('DOMContentLoaded', function() {
-            var areaInput = document.getElementById('areaInput');
-            if (areaInput && areaInput.value) {
-                updateAreaBar(areaInput.value);
-            }
-        });
-    </script>
+        // --- Cập nhật thanh Progress Bar ---
+        if (!newBar || warehouseArea <= 0) return;
+
+        var newPct = Math.min((newArea / warehouseArea) * 100, 100);
+        newBar.style.width = newPct + '%';
+
+        if (newArea > remainingArea) {
+            hint.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>'
+                + 'Vượt quá diện tích cho phép (' + remainingArea.toFixed(1) + 'm² còn lại)</span>';
+            newBar.style.background = '#dc2626';
+        } else {
+            hint.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-1"></i>'
+                + (remainingArea - newArea).toFixed(1) + 'm² sẽ còn lại sau khi thêm ô này</span>';
+            newBar.style.background = '#f59e0b';
+        }
+    }
+
+    // Kích hoạt ngay khi load trang để hiển thị thanh progress bar cho chế độ Edit
+    window.addEventListener('DOMContentLoaded', function() {
+        var areaInput = document.getElementById('areaInput');
+        if (areaInput && areaInput.value) {
+            updateAreaBar(areaInput.value);
+        }
+    });
+</script>
 </body>
 </html>

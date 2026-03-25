@@ -39,11 +39,6 @@ public class WarehouseManagerController extends HttpServlet {
         
         
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-        // Chuyển hướng về trang chủ hoặc trang login
-        response.sendRedirect(request.getContextPath() + "/homepage");
-        return; // Quan trọng: Phải return để ngắt xử lý bên dưới
-    }
 
         WarehouseManagementDAO dao = new WarehouseManagementDAO();
         String action = request.getParameter("action");
