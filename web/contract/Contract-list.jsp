@@ -7,16 +7,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Quản lý hợp đồng</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet"
-              href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
 
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
     <style>
         .table-responsive { border-radius: 10px; overflow: hidden; }
         .status-badge { width: 100px; display: inline-block; }
@@ -26,189 +25,156 @@
             gap:8px;
         }
     </style>
+
+    <!-- Hide renter column if user is RENTER -->
+    <c:if test="${sessionScope.userType != 'INTERNAL'}">
+        <style>
+            .renter-col {
+                display: none;
+            }
+        </style>
+    </c:if>
 </head>
 
 <body>
 
-    <jsp:include page="/Common/Layout/header.jsp"/>
+<jsp:include page="/Common/Layout/header.jsp"/>
 
-        <div class="layout">
+<div class="layout">
 
-            <c:if test="${sessionScope.userType == 'INTERNAL'}">
-                <jsp:include page="/Common/Layout/sidebar.jsp"/>
-            </c:if>
+    <c:if test="${sessionScope.userType == 'INTERNAL'}">
+        <jsp:include page="/Common/Layout/sidebar.jsp"/>
+    </c:if>
 
-            <div class="main-content">
-                <h3>Contracts Management</h3>
+    <div class="main-content">
+        <h3>Contracts Management</h3>
 
-                <c:if test="${sessionScope.userType == 'INTERNAL'}">
-                <div class="stats-container">
-                    <jsp:include page="/Common/Layout/stats_cards.jsp">
-                        <jsp:param name="label1" value="Total Contracts" />
-                        <jsp:param name="value1" value="${totalContracts}" />
-                        <jsp:param name="icon1" value="fa-solid fa-file-contract" />
-                        <jsp:param name="color1" value="primary" />
+        <div class="management-card">
 
-                        <jsp:param name="label2" value="In Process" />
-                        <jsp:param name="value2" value="${processingContracts}" />
-                        <jsp:param name="icon2" value="fa-solid fa-spinner" />
-                        <jsp:param name="color2" value="warning" />
+            <table class="table table-hover align-middle mb-0" id="contractTable">
+                <thead>
+                    <tr>
+                        <th class="text-center py-3">Mã HĐ</th>
+                        <th class="renter-col">Renter</th>
+                        <th class="text-center">Start Date</th>
+                        <th class="text-center">End Date</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-start">Action</th>
+                    </tr>
+                </thead>
 
-                        <jsp:param name="label3" value="Done" />
-                        <jsp:param name="value3" value="${doneContracts}" />
-                        <jsp:param name="icon3" value="fa-solid fa-circle-check" />
-                        <jsp:param name="color3" value="success" />
+                <tbody>
 
-                        <jsp:param name="label4" value="Expired" />
-                        <jsp:param name="value4" value="${expiredContracts}" />
-                        <jsp:param name="icon4" value="fa-solid fa-hourglass-end" />
-                        <jsp:param name="color4" value="danger" />
-                    </jsp:include>
-                </div>
-                </c:if>
+                    <c:forEach items="${contractList}" var="c" varStatus="loop">
+                        <tr>
+                            <td class="fw-bold text-center text-secondary">
+                                ${loop.index + 1}
+                            </td>
 
-                <div class="management-card">
-
-                   
-
-                    <table class="table table-hover align-middle mb-0" id="contractTable">
-                        <thead>
-                                <tr>
-                                    <th class="text-center py-3">Mã HĐ</th>
-                                    <%-- Hiển thị cột Người Thuê nếu là INTERNAL --%>
-                                    <c:if test="${sessionScope.userType == 'INTERNAL'}">
-                                        <th>Renter</th>
-                                    </c:if>
-                                    <th class="text-center">Start Date</th>
-                                    <th class="text-center">End Date</th>
-                                    <th class="text-end">Price</th>
-                                    <th class="text-center">Status</th>
-                                    <th class="text-start">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${contractList}" var="c" varStatus="loop">
-                                        <tr>
-                                            <td class="fw-bold text-center text-secondary">
-                                                ${loop.index + 1}
-                                            </td>
-                                        
-                                        <c:if test="${sessionScope.userType == 'INTERNAL'}">
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
-                                                        ${c.renterName.substring(0,1)}
-                                                    </div>
-                                                    <span>${c.renterName}</span>
-                                                </div>
-                                            </td>
-                                        </c:if>
-
-                                        <td class="text-center">
-                                            <fmt:formatDate value="${c.startDate}" pattern="dd/MM/yyyy"/>
-                                        </td>
-                                        <td class="text-center">
-                                            <fmt:formatDate value="${c.endDate}" pattern="dd/MM/yyyy"/>
-                                        </td>
-                                        <td class="text-end fw-bold text-dark">
-                                            <fmt:formatNumber value="${c.price}" type="number" groupingUsed="true"/>
-                                            <small class="text-muted">VNĐ</small>
-                                        </td>
-
-                                        <td class="text-center">
-                                            <c:choose>
-
-                                                <c:when test="${c.status == 0}">
-                                                    <span class="badge bg-secondary px-3 py-2 rounded-pill status-badge">
-                                                        finish-early
-                                                    </span>
-                                                </c:when>
-                                                
-                                                <c:when test="${c.endDate.time lt now.time}">
-                                                    <span class="badge bg-dark px-3 py-2 rounded-pill status-badge">
-                                                        time-expired
-                                                    </span>
-                                                </c:when>
-
-                                                <c:when test="${c.paymentStatus == 1}">
-                                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning px-3 py-2 rounded-pill status-badge">
-                                                        done
-                                                    </span>
-                                                </c:when>
-
-
-                                                <c:otherwise>
-                                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill status-badge">
-                                                        process
-                                                    </span>
-                                                </c:otherwise>
-
-                                            </c:choose>
-                                        </td>
-
-                                       <td>
-                                            <div class="action-buttons">
-
-                                                <!-- View -->
-                                                <a href="<c:url value='/contract-detail'>
-                                                            <c:param name='contractId' value='${c.contractId}'/>
-                                                         </c:url>"
-                                                   class="btn btn-sm btn-primary">
-                                                    View
-                                                </a>
-
-                                                <!-- End Early -->
-                                                <c:if test="${sessionScope.userType eq 'RENTER' 
-                                                             and c.paymentStatus == 1 
-                                                             and c.status == 1}">
-                                                    <form action="${pageContext.request.contextPath}/contract"
-                                                          method="post"
-                                                          class="d-inline">
-
-                                                        <input type="hidden" name="contractId"
-                                                               value="${c.contractId}"/>
-
-                                                        <button type="submit"
-                                                                name="action"
-                                                                value="endEarly"
-                                                                class="btn btn-sm btn-danger">
-                                                            End Early
-                                                        </button>
-
-                                                    </form>
-                                                </c:if>
-                                           
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-
-                                <%-- Trường hợp danh sách trống --%>
-                                <c:if test="${empty contractList}">
-                                    <tr>
-                                        <td colspan="${sessionScope.userType == 'INTERNAL' ? 7 : 6}" class="text-center py-5 text-muted">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="empty" style="width: 80px; opacity: 0.5;" class="mb-3"><br>
-                                            Không tìm thấy hợp đồng nào trong hệ thống.
-                                        </td>
-                                    </tr>
+                            <!-- Renter column -->
+                            <td class="renter-col">
+                                <c:if test="${sessionScope.userType == 'INTERNAL'}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                             style="width: 32px; height: 32px;">
+                                            ${c.renterName.substring(0,1)}
+                                        </div>
+                                        <span>${c.renterName}</span>
+                                    </div>
                                 </c:if>
-                            </tbody>
-                        </table>
-                </div> <!-- End management-card -->
-            </div> <!-- End main-content -->
-        </div> <!-- End layout -->
+                            </td>
 
-<c:if test="${not empty sessionScope.MESSAGE}">
-    <div class="alert alert-success">
-        ${sessionScope.MESSAGE}
+                            <td class="text-center">
+                                <fmt:formatDate value="${c.startDate}" pattern="dd/MM/yyyy"/>
+                            </td>
+
+                            <td class="text-center">
+                                <fmt:formatDate value="${c.endDate}" pattern="dd/MM/yyyy"/>
+                            </td>
+
+                            <td class="text-end fw-bold text-dark">
+                                <fmt:formatNumber value="${c.price}" type="number" groupingUsed="true"/>
+                                <small class="text-muted">VNĐ</small>
+                            </td>
+
+                            <td class="text-center">
+                                <c:choose>
+                                    <c:when test="${c.status == 0}">
+                                        <span class="badge bg-secondary">finish-early</span>
+                                    </c:when>
+
+                                    <c:when test="${c.endDate.time lt now.time}">
+                                        <span class="badge bg-dark">time-expired</span>
+                                    </c:when>
+
+                                    <c:when test="${c.paymentStatus == 1}">
+                                        <span class="badge bg-warning">done</span>
+                                    </c:when>
+
+                                    <c:otherwise>
+                                        <span class="badge bg-success">process</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="<c:url value='/contract-detail'>
+                                                <c:param name='contractId' value='${c.contractId}'/>
+                                             </c:url>"
+                                       class="btn btn-sm btn-primary">
+                                        View
+                                    </a>
+
+                                    <c:if test="${sessionScope.userType eq 'RENTER' 
+                                                 and c.paymentStatus == 1 
+                                                 and c.status == 1}">
+                                        <form action="${pageContext.request.contextPath}/contract"
+                                              method="post"
+                                              class="d-inline">
+
+                                            <input type="hidden" name="contractId"
+                                                   value="${c.contractId}"/>
+
+                                            <button type="submit"
+                                                    name="action"
+                                                    value="endEarly"
+                                                    class="btn btn-sm btn-danger">
+                                                End Early
+                                            </button>
+                                        </form>
+                                    </c:if>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+
+                    <!-- Empty list -->
+                    <c:if test="${empty contractList}">
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png"
+                                     style="width: 80px; opacity: 0.5;" class="mb-3"><br>
+                                Không tìm thấy hợp đồng nào trong hệ thống.
+                            </td>
+                        </tr>
+                    </c:if>
+
+                </tbody>
+            </table>
+
+        </div>
     </div>
-    <c:remove var="MESSAGE" scope="session"/>
-</c:if>
-    <jsp:include page="/Common/Layout/footer.jsp"/>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function () {
+<jsp:include page="/Common/Layout/footer.jsp"/>
+
+<script>
+    $(document).ready(function () {
+        var hasData = ${not empty contractList};
+
+        if (hasData) {
             $('#contractTable').DataTable({
                 pageLength: 10,
                 dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',
@@ -217,7 +183,9 @@
                     lengthMenu: "_MENU_ entries per page"
                 }
             });
-        });
-    </script>
+        }
+    });
+</script>
+
 </body>
 </html>
