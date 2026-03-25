@@ -40,7 +40,7 @@
         <div class="main-content">
                 <h3>Incident Report List</h3>
 
-                <div class="stats-container">
+               <div class="stats-container"> 
                     <jsp:include page="/Common/Layout/stats_cards.jsp">
                         <jsp:param name="label1" value="Total Report" />
                         <jsp:param name="value1" value="${totalReports}" />

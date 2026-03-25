@@ -27,20 +27,19 @@ public class IncidentReportListServlet extends HttpServlet {
         if ("Staff".equalsIgnoreCase(user.getRole())) {
             request.setAttribute(
                 "incidentList",
-                dao.getByStaff(user.getId())
-            );
+                dao.getByStaff(user.getId()) );
+            int currentStaffId = (user.getId());
+request.setAttribute("totalReports", dao.countTotalById(currentStaffId)); 
+request.setAttribute("pendingReports", dao.countByStatusById(1, currentStaffId));
+request.setAttribute("processingReports", dao.countByStatusById(2, currentStaffId));
+request.setAttribute("rejectReports", dao.countByStatusById(3, currentStaffId));
         } else {
             request.setAttribute(
                 "incidentList",
                 dao.getAll()
             );
         }
-
-        // Fetch counts for stats cards
-        request.setAttribute("totalReports", dao.countTotal());
-        request.setAttribute("pendingReports", dao.countByStatus(1));
-        request.setAttribute("processingReports", dao.countByStatus(2));
-        request.setAttribute("rejectReports", dao.countByStatus(3));
+        
 
         request.getRequestDispatcher("/staff/reportList.jsp").forward(request, response);
     }

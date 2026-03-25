@@ -44,7 +44,7 @@
             </c:if>
             <c:if test="${sessionScope.role == 'Staff'}">
                 <li class="app-header__menu-item">
-                    <a class="app-header__menu-link" href="dashboard">Staff</a>
+                    <a class="app-header__menu-link" href="staffTask">Staff</a>
                 </li>
                 
             </c:if>

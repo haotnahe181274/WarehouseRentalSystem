@@ -343,7 +343,7 @@ public class WarehouseManagerController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            // Cần khởi tạo đối tượng rỗng để JSP không lỗi khi binding lại dữ liệu form
+            // Cần khởi tạo đối tượng rỗng  để JSP không lỗi khi binding lại dữ liệu form
             request.setAttribute("warehouse", new Warehouse()); 
             request.setAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
             request.getRequestDispatcher("/Management/warehouse-form.jsp").forward(request, response);

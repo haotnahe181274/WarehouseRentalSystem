@@ -164,14 +164,42 @@ public class IncidentReportDAO extends DBContext {
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
     }
-
-    public int countByStatus(int status) {
-        String sql = "SELECT COUNT(*) FROM Incident_report WHERE status = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, status);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-        } catch (Exception e) { e.printStackTrace(); }
-        return 0;
+    public int countTotalById(int internalUserId) {
+    String sql = "SELECT COUNT(*) FROM Incident_report WHERE internal_user_id = ?";
+    
+    // Chỉ khởi tạo PreparedStatement trong try-with-resources đầu tiên
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        
+        // Truyền tham số internal_user_id vào câu SQL
+        ps.setInt(1, internalUserId);
+        
+        // Sau khi truyền tham số xong mới thực thi và lấy ResultSet
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+    } catch (Exception e) { 
+        e.printStackTrace(); 
     }
+    return 0;
+}
+  public int countByStatusById(int status, int internalUserId) {
+    // Thêm điều kiện lọc theo internal_user_id vào câu truy vấn
+    String sql = "SELECT COUNT(*) FROM Incident_report WHERE status = ? AND internal_user_id = ?";
+    
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        // Truyền giá trị cho 2 dấu chấm hỏi (?)
+        ps.setInt(1, status);
+        ps.setInt(2, internalUserId);
+        
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+    } catch (Exception e) { 
+        e.printStackTrace(); 
+    }
+    return 0;
+}
 }
