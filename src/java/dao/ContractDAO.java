@@ -386,18 +386,20 @@ public class ContractDAO extends DBContext {
 
     String findUnitSQL = """
         SELECT su.unit_id
-        FROM Storage_unit su
-        WHERE su.warehouse_id = ?
-        AND su.area = ?
-        AND su.unit_id NOT IN (
-            SELECT csu.unit_id
-            FROM Contract_Storage_unit csu
-            WHERE NOT (
-                csu.end_date < ?
-                OR csu.start_date > ?
+            FROM Storage_unit su
+            WHERE su.warehouse_id = ?
+            AND su.area = ?
+            AND su.unit_id NOT IN (
+                SELECT csu.unit_id
+                FROM Contract_Storage_unit csu
+                JOIN Payment p ON csu.contract_id = p.contract_id
+                WHERE p.status = 1
+                AND NOT (
+                    csu.end_date < ?
+                    OR csu.start_date > ?
+                )
             )
-        )
-        LIMIT 1
+            LIMIT 1
     """;
 
     String insertSQL = """
