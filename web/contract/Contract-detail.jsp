@@ -284,5 +284,13 @@
         </div>
     </div>
     <jsp:include page="/Common/Layout/footer.jsp"/>
+
+    <c:if test="${param.paymentError eq '3'}">
+        <script>
+            (function () {
+                alert('Không thể ký kết & thanh toán vì unit đã bị thuê trong khoảng thời gian yêu cầu. Hợp đồng đã bị hủy.');
+            })();
+        </script>
+    </c:if>
 </body>
 </html>

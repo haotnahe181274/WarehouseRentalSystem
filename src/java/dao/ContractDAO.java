@@ -375,6 +375,64 @@ public class ContractDAO extends DBContext {
 
         return list;
     }
+
+    /**
+     * RENTER chỉ được ký & thanh toán khi:
+     * - contract.status = 1, thuộc về renterId
+     * - warehouse.status = 1
+     * - tất cả Contract_Storage_unit của contract đều có status = 1
+     * - không tồn tại Contract_Storage_unit khác (đã có Payment.status = 1) bị trùng thời gian
+     *   trên cùng một unit_id với các khoảng thuê trong contract hiện tại.
+     */
+    public boolean canRenterAgreeAndPay(int contractId, int renterId) {
+        String sql = """
+            SELECT 1
+            FROM Contract c
+            JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
+            WHERE c.contract_id = ?
+              AND c.renter_id = ?
+              AND c.status = 1
+              AND w.status = 1
+              AND EXISTS (
+                  SELECT 1
+                  FROM Contract_Storage_unit csu0
+                  WHERE csu0.contract_id = c.contract_id
+              )
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM Contract_Storage_unit csu
+                  WHERE csu.contract_id = c.contract_id
+                    AND csu.status <> 1
+              )
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM Contract_Storage_unit csu
+                  JOIN Contract_Storage_unit csu2
+                    ON csu2.unit_id = csu.unit_id
+                  JOIN Payment p2
+                    ON p2.contract_id = csu2.contract_id
+                  WHERE csu.contract_id = c.contract_id
+                    AND csu2.contract_id <> c.contract_id
+                    AND p2.status = 1
+                    AND NOT (
+                        csu2.end_date < csu.start_date
+                        OR csu2.start_date > csu.end_date
+                    )
+              )
+            LIMIT 1
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, contractId);
+            ps.setInt(2, renterId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void insertContractStorageUnit(int contractId) {
     String getRequestUnitSQL = """
         SELECT rru.area, rru.start_date, rru.end_date, rru.quantity,
