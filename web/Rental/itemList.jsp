@@ -2,163 +2,100 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>My Stored Items</title>
-    <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
+
     <link rel="stylesheet"
           href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
-    <style>
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
+    <body>
 
-        .main-content {
-            flex: 1;
-            padding: 24px;
-            background: #f5f7fb;
-        }
+        <jsp:include page="/Common/Layout/header.jsp"/>
+        <jsp:include page="/message/popupMessage.jsp" />
+        <div class="layout">
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-        }
+            <div class="main-content">
 
-        h3 {
-            margin-bottom: 15px;
-            font-weight: 600;
-            color: #111827;
-        }
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
 
-        table.dataTable {
-            width: 100% !important;
-            background: #fff;
-            border-radius: 6px;
-            overflow: hidden;
-        }
+                    <h3 style="margin:0;">My Stored Items</h3>
 
-        #itemTable_filter,
-        #itemTable_length {
-            display: flex !important;
-            align-items: center;
-            gap: 10px;
-            float: none !important;
-        }
+                    <div class="action-bar">
+                        <a href="${pageContext.request.contextPath}/createCheckRequest?mode=IN"
+                           class="btn btn-dark">
+                            Check In
+                        </a>
 
-        .dt-controls-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            float: left;
-        }
+                        <a href="${pageContext.request.contextPath}/createCheckRequest?mode=OUT"
+                           class="btn btn-danger">
+                            Check Out
+                        </a>
 
-        .btn {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-        }
+                        <a href="${pageContext.request.contextPath}/checkRequestList"
+                           class="btn btn-primary">
+                            History
+                        </a>
+                    </div>
 
-        .btn-checkin {
-            background: black;
-            color: white;
-        }
+                </div>
+                           <div class="management-card">
 
-        .btn-checkout {
-            background: #ff4d4f;
-            color: white;
-        }
+    
+                <table id="itemTable">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Item Name</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Unit Code</th>
+                            <th>Warehouse</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
 
-        .btn-history {
-            background: #1890ff;
-            color: white;
-        }
+                    <tbody>
+                        <c:forEach items="${itemList}" var="sui" varStatus="loop">
+                            <tr>
+                                <td>${loop.count}</td>  <!-- STT bắt đầu từ 1 -->
+                                <td>${sui.item.itemName}</td>
+                                <td>${sui.item.description}</td>
+                                <td>${sui.quantity}</td>
+                                <td>${sui.unit.unitCode}</td>
+                                <td>${sui.unit.warehouse.name}</td>
+                                <td>${sui.unit.warehouse.address}</td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+                           </div>
 
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .action-bar {
-            margin-bottom: 15px;
-        }
-    </style>
-</head>
-
-<body>
-
-<jsp:include page="/Common/Layout/header.jsp"/>
-
-<div class="layout">
-
-    <div class="main-content">
-
-        <h3>My Stored Items</h3>
-
-        <div class="action-bar">
-            <a href="${pageContext.request.contextPath}/createCheckRequest?mode=IN"
-               class="btn btn-checkin">New Check In Request</a>
-
-            <a href="${pageContext.request.contextPath}/createCheckRequest?mode=OUT"
-               class="btn btn-checkout" style="margin-left:8px;">
-                New Check Out Request
-            </a>
-
-            <a href="${pageContext.request.contextPath}/checkRequestList"
-               class="btn btn-history" style="margin-left:8px;">
-                Check Request History
-            </a>
+            </div>
         </div>
 
-        <table id="itemTable">
-            <thead>
-            <tr>
-                <th>No.</th>
-                <th>Item Name</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Unit Code</th>
-                <th>Warehouse</th>
-                <th>Address</th>
-            </tr>
-            </thead>
+        <jsp:include page="/Common/Layout/footer.jsp"/>
 
-            <tbody>
-            <c:forEach items="${itemList}" var="sui" varStatus="loop">
-                <tr>
-                    <td>${loop.count}</td>  <!-- STT bắt đầu từ 1 -->
-                    <td>${sui.item.itemName}</td>
-                    <td>${sui.item.description}</td>
-                    <td>${sui.quantity}</td>
-                    <td>${sui.unit.unitCode}</td>
-                    <td>${sui.unit.warehouse.name}</td>
-                    <td>${sui.unit.warehouse.address}</td>
-                </tr>
-            </c:forEach>
-            </tbody>
-        </table>
+        <!-- JS -->
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-    </div>
-</div>
+        <script>
+            $(document).ready(function () {
 
-<jsp:include page="/Common/Layout/footer.jsp"/>
-
-<!-- JS -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-<script>
-    $(function () {
-        $('#itemTable').DataTable({
-            pageLength: 5
-        });
+    let table = $('#itemTable').DataTable({
+        order: [[0, 'desc']],
+        pageLength: 10,
+        dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',
+        language: {
+            search: "Search:",
+            lengthMenu: "_MENU_ entries per page"
+        }
     });
-</script>
 
-</body>
+});        
+    </script>
+
+    </body>
 </html>

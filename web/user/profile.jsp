@@ -168,7 +168,7 @@
 
         <body>
             <jsp:include page="/Common/Layout/header.jsp" />
-
+            <jsp:include page="/message/popupMessage.jsp" />
             <div class="layout">
                 <c:if test="${sessionScope.userType == 'INTERNAL'}">
                     <jsp:include page="/Common/Layout/sidebar.jsp" />

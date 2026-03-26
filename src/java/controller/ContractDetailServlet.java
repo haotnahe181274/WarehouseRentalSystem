@@ -54,6 +54,7 @@ public class ContractDetailServlet extends HttpServlet {
         /* ================= PHÂN QUYỀN ================= */
         String type = user.getType();
         String role = user.getRole();
+        request.setAttribute("canAgree", false);
 
         // INTERNAL (Manager/Admin) xem tất cả
         if ("INTERNAL".equalsIgnoreCase(type)
@@ -71,6 +72,10 @@ public class ContractDetailServlet extends HttpServlet {
             }
 
             request.setAttribute("role", "renter");
+            if (detail.getStatus() == 1) {
+                boolean canAgree = dao.canRenterAgreeAndPay(contractId, user.getId());
+                request.setAttribute("canAgree", canAgree);
+            }
             // Token một lần để tránh double-submit; mỗi lần xem trang là mã mới (VNPay cần TxnRef mới mỗi lần)
             if (detail.getStatus() == 1) {
                 session.setAttribute("paymentToken_" + contractId, UUID.randomUUID().toString());

@@ -209,7 +209,7 @@
 		item_id INT,
 
 		unit_id INT,
-
+		UNIQUE(item_id, unit_id),
 		FOREIGN KEY (item_id) REFERENCES Item(item_id),
 
 		FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id)
@@ -516,29 +516,19 @@
 	-- ==============================
 
 	CREATE TABLE Inventory_log (
-
-		log_id INT AUTO_INCREMENT PRIMARY KEY,
-
-		action INT,
-
-		quantity INT,
-
-		action_date DATETIME,
-
-		item_id INT,
-
-		unit_id INT,
-
-		internal_user_id INT,
-
-		FOREIGN KEY (item_id) REFERENCES Item(item_id),
-
-		FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id),
-
-		FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id)
-
-	);
-
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    action INT,
+    quantity INT,
+    action_date DATETIME,
+    item_id INT,
+    unit_id INT,
+    internal_user_id INT,
+    check_request_id INT,
+    FOREIGN KEY (item_id) REFERENCES Item(item_id),
+    FOREIGN KEY (unit_id) REFERENCES Storage_unit(unit_id),
+    FOREIGN KEY (internal_user_id) REFERENCES Internal_user(internal_user_id),
+    FOREIGN KEY (check_request_id) REFERENCES check_request(id)
+);
 
 
 	CREATE TABLE Incident_report (

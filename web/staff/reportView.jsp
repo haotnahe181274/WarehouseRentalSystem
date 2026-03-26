@@ -132,6 +132,7 @@ input[readonly] {
 </head>
 <body>
 <jsp:include page="/Common/Layout/header.jsp" />
+<jsp:include page="/message/popupMessage.jsp" />
 <div class="layout">   
 <jsp:include page="/Common/Layout/sidebar.jsp" />
 <div class="container">
@@ -183,7 +184,7 @@ input[readonly] {
 
        </form> 
 
-        <c:if test="${sessionScope.user.role eq 'Manager' && report.status == 1}">
+        <c:if test="${(sessionScope.user.role eq 'Manager' || sessionScope.user.role eq 'Admin') && report.status == 1}">
             <div style="margin-top: 30px; text-align: center;">
                 <form action="${pageContext.request.contextPath}/viewReport" method="post">
                     <input type="hidden" name="id" value="${report.reportId}">

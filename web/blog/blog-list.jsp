@@ -41,6 +41,7 @@
 
         <body style="background-color: #f0f2f5;">
             <jsp:include page="/Common/Layout/header.jsp" />
+            <jsp:include page="/message/popupMessage.jsp" />
             <div style="max-width: 900px; margin: 40px auto; padding: 0 16px;">
                 <!-- Header Card -->
                 <div class="post-card">

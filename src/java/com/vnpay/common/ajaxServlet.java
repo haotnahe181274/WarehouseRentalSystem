@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Contract;
 import model.Payment;
+import model.UserView;
 
 /**
  *
@@ -67,6 +68,21 @@ public class ajaxServlet extends HttpServlet {
         session.removeAttribute(tokenKey);
 
         ContractDAO dao = new ContractDAO();
+        UserView user = (UserView) session.getAttribute("user");
+        if (user == null || !"RENTER".equalsIgnoreCase(user.getType())) {
+            resp.sendRedirect(contextPath + "/login");
+            return;
+        }
+
+        // RENTER chỉ được ký & thanh toán nếu thỏa toàn bộ điều kiện theo yêu cầu nghiệp vụ
+        if (!dao.canRenterAgreeAndPay(contractId, user.getId())) {
+            // Nếu unit/kho đã bị thuê trùng hoặc không thỏa điều kiện nghiệp vụ
+            // thì chuyển contract sang trạng thái 0 để tránh còn hiển thị/cho phép thanh toán tiếp.
+            dao.rejectContract(contractId);
+            resp.sendRedirect(contextPath + "/contract-detail?contractId=" + contractId + "&paymentError=3");
+            return;
+        }
+
         Contract contract = dao.getContractById(contractId);
         if (contract == null) {
             resp.sendRedirect(contextPath + "/contract");

@@ -13,6 +13,7 @@
     </head>
     <body>
         <jsp:include page="/Common/Layout/header.jsp"/>
+        <jsp:include page="/message/popupMessage.jsp" />
         <c:set var="mode" value="${mode}" />
         <c:set var="isEdit" value="${mode == 'edit'}" />
         <c:set var="isCreate" value="${mode == 'create'}" />
@@ -99,7 +100,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Start Date</th>
-                                        <th>End Date</th>
+                                        <th><c:choose><c:when test="${isCreate || isEdit}">Duration (Month)</c:when><c:otherwise>End Date</c:otherwise></c:choose></th>
                                         <th>Area (m²)</th>
                                         <th>Quantity</th>
                                         <th>Price (VND)</th>
@@ -113,7 +114,17 @@
                                                 <tr class="unit-row" data-index="${vs.index}">
                                                     <td>${vs.index + 1}</td>
                                                     <td><input type="date" name="unitStartDate" class="unit-start" value="<fmt:formatDate value="${u.startDate}" pattern="yyyy-MM-dd"/>" /></td>
-                                                    <td><input type="date" name="unitEndDate" class="unit-end" value="<fmt:formatDate value="${u.endDate}" pattern="yyyy-MM-dd"/>" /></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${isCreate || isEdit}">
+                                                                <input type="number" class="unit-duration" min="1" step="1" value="" />
+                                                                <input type="hidden" name="unitEndDate" class="unit-end" value="<fmt:formatDate value="${u.endDate}" pattern="yyyy-MM-dd"/>" />
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <input type="date" name="unitEndDate" class="unit-end" value="<fmt:formatDate value="${u.endDate}" pattern="yyyy-MM-dd"/>" />
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
                                                     <td>
                                                         <select name="unitArea" class="unit-area">
                                                             <c:forEach items="${areaPriceMap}" var="entry">
@@ -131,7 +142,17 @@
                                             <tr class="unit-row" data-index="0">
                                                 <td>1</td>
                                                 <td><input type="date" name="unitStartDate" class="unit-start" /></td>
-                                                <td><input type="date" name="unitEndDate" class="unit-end" /></td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${isCreate || isEdit}">
+                                                            <input type="number" class="unit-duration" min="1" step="1" value="1" />
+                                                            <input type="hidden" name="unitEndDate" class="unit-end" />
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <input type="date" name="unitEndDate" class="unit-end" />
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
                                                 <td>
                                                     <select name="unitArea" class="unit-area">
                                                         <option value="">-- Chọn ngày trước --</option>
@@ -465,7 +486,7 @@
 
                 function loadAreasForRow(row, callback) {
                     var start = row.querySelector(".unit-start").value;
-                    var end = row.querySelector(".unit-end").value;
+                    var end = getEndDateValue(row);
                     var areaSelect = row.querySelector(".unit-area");
                     var priceDisplay = row.querySelector(".unit-price-display");
                     var priceInput = row.querySelector(".unit-price");
@@ -510,12 +531,14 @@
 
                 function setPriceForRow(row) {
                     var start = row.querySelector(".unit-start").value;
-                    var end = row.querySelector(".unit-end").value;
+                    var end = getEndDateValue(row);
                     var areaSelect = row.querySelector(".unit-area");
                     var qtyInput = row.querySelector(".unit-quantity");
                     var priceDisplay = row.querySelector(".unit-price-display");
                     var priceInput = row.querySelector(".unit-price");
-                    var months = getRentalMonths(start, end);
+                    // Price is based on "Duration (months)" that user enters.
+                    // In edit mode (no duration input), we infer duration from start/end (month-based, not days/30).
+                    var months = getDurationMonthsForRow(row, start, end);
                     if (!months) {
                         if (priceDisplay)
                             priceDisplay.textContent = "";
@@ -533,10 +556,8 @@
                         var maxQty = parseInt(opt.getAttribute("data-quantity"), 10);
                         if (!isNaN(maxQty) && maxQty > 0) {
                             qtyInput.max = maxQty;
-                            if (quantity > maxQty) {
-                                quantity = maxQty;
-                                qtyInput.value = maxQty;
-                            }
+                            // Do NOT clamp user input here.
+                            // Validation on submit should show error if quantity exceeds max.
                         }
                     } else if (qtyInput) {
                         qtyInput.removeAttribute("max");
@@ -573,7 +594,15 @@
                     });
                 }
 
-                function getRentalMonths(start, end) {
+                function getEndDateValue(row) {
+                    var endInput = row.querySelector(".unit-end");
+                    if (endInput && endInput.value) {
+                        return endInput.value;
+                    }
+                    return "";
+                }
+
+                function getDurationMonthsFromStartEnd(start, end) {
                     if (!start || !end) {
                         return 0;
                     }
@@ -582,8 +611,56 @@
                     if (isNaN(sd.getTime()) || isNaN(ed.getTime()) || ed <= sd) {
                         return 0;
                     }
-                    var days = Math.ceil((ed - sd) / (1000 * 60 * 60 * 24));
-                    return Math.ceil(days / 30);
+                    // Month-based duration (no days/30).
+                    var months = (ed.getFullYear() - sd.getFullYear()) * 12 + (ed.getMonth() - sd.getMonth());
+                    // If end day is earlier than start day in the month, subtract one month.
+                    if (ed.getDate() < sd.getDate()) {
+                        months -= 1;
+                    }
+                    return months >= 1 ? months : 0;
+                }
+
+                function getDurationMonthsForRow(row, start, end) {
+                    var durationInput = row.querySelector(".unit-duration");
+                    if (durationInput) {
+                        var d = parseInt(durationInput.value, 10);
+                        if (!isNaN(d) && d >= 1) {
+                            return d;
+                        }
+                    }
+                    return getDurationMonthsFromStartEnd(start, end);
+                }
+
+                function computeEndDateByDuration(start, durationMonths) {
+                    if (!start || !durationMonths || durationMonths < 1) {
+                        return "";
+                    }
+                    var sd = new Date(start);
+                    if (isNaN(sd.getTime())) {
+                        return "";
+                    }
+                    var result = new Date(sd);
+                    result.setMonth(result.getMonth() + parseInt(durationMonths, 10));
+                    if (isNaN(result.getTime())) {
+                        return "";
+                    }
+                    return result.toISOString().slice(0, 10);
+                }
+
+                function syncEndDateFromDuration(row) {
+                    var durationInput = row.querySelector(".unit-duration");
+                    var endInput = row.querySelector(".unit-end");
+                    var startInput = row.querySelector(".unit-start");
+                    if (!durationInput || !endInput || !startInput) {
+                        return;
+                    }
+                    var duration = parseInt(durationInput.value, 10);
+                    if (isNaN(duration) || duration < 1) {
+                        var fallbackMonths = getDurationMonthsFromStartEnd(startInput.value, endInput.value);
+                        duration = fallbackMonths > 0 ? fallbackMonths : 1;
+                        durationInput.value = String(duration);
+                    }
+                    endInput.value = computeEndDateByDuration(startInput.value, duration);
                 }
 
                 function updateTotal() {
@@ -643,7 +720,8 @@
                     var row = e.target.closest(".unit-row");
                     if (!row)
                         return;
-                    if (e.target.classList.contains("unit-start") || e.target.classList.contains("unit-end")) {
+                    if (e.target.classList.contains("unit-start") || e.target.classList.contains("unit-end") || e.target.classList.contains("unit-duration")) {
+                        syncEndDateFromDuration(row);
                         loadAreasForRow(row, function () {
                             syncAreaAvailability();
                         });
@@ -675,6 +753,9 @@
                         return;
                     var newRow = firstRow.cloneNode(true);
                     newRow.querySelector(".unit-start").value = "";
+                    if (newRow.querySelector(".unit-duration")) {
+                        newRow.querySelector(".unit-duration").value = "1";
+                    }
                     newRow.querySelector(".unit-end").value = "";
                     newRow.querySelector(".unit-area").innerHTML = "<option value=\"\">-- Chọn ngày trước --</option>";
                     newRow.querySelector(".unit-quantity").value = "1";
@@ -688,6 +769,7 @@
                 });
 
                 tbody.querySelectorAll(".unit-row").forEach(function (row) {
+                    syncEndDateFromDuration(row);
                     var areaSelect = row.querySelector(".unit-area");
                     if (areaSelect && areaSelect.selectedIndex >= 0) {
                         var opt = areaSelect.options[areaSelect.selectedIndex];
@@ -710,18 +792,21 @@
                 for (var i = 0; i < unitRows.length; i++) {
                     var row = unitRows[i];
                     var start = row.querySelector(".unit-start").value;
+                    syncEndDateFromDuration(row);
                     var end = row.querySelector(".unit-end").value;
                     var area = row.querySelector(".unit-area").value;
                     var quantityInput = row.querySelector(".unit-quantity");
                     var quantity = quantityInput ? parseInt(quantityInput.value, 10) : 0;
                     var price = row.querySelector(".unit-price").value;
                     if (!start || !end || !area || !price || !quantity || quantity <= 0) {
-                        alert("All units must have Start date, End date, Area, Quantity and Price.");
+                        alert("All units must have Start date, Duration/End date, Area, Quantity and Price.");
                         return false;
                     }
-                    var selectedOption = row.querySelector(".unit-area option:checked");
-                    if (selectedOption && selectedOption.getAttribute("data-quantity")) {
-                        var maxQty = parseInt(selectedOption.getAttribute("data-quantity"), 10);
+                    var areaSelect = row.querySelector(".unit-area");
+                    var selectedOption = areaSelect && areaSelect.options ? areaSelect.options[areaSelect.selectedIndex] : null;
+                    var maxQtyAttr = selectedOption ? selectedOption.getAttribute("data-quantity") : null;
+                    if (maxQtyAttr !== null && maxQtyAttr !== "") {
+                        var maxQty = parseInt(maxQtyAttr, 10);
                         if (!isNaN(maxQty) && quantity > maxQty) {
                             alert("Unit quantity cannot exceed available quantity for selected area.");
                             return false;

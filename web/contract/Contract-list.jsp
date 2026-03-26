@@ -39,7 +39,7 @@
 <body>
 
 <jsp:include page="/Common/Layout/header.jsp"/>
-
+<jsp:include page="/message/popupMessage.jsp" />
 <div class="layout">
 
     <c:if test="${sessionScope.userType == 'INTERNAL'}">
@@ -93,10 +93,7 @@
                             <td class="renter-col">
                                 <c:if test="${sessionScope.userType == 'INTERNAL'}">
                                     <div class="d-flex align-items-center">
-                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
-                                             style="width: 32px; height: 32px;">
-                                            ${c.renterName.substring(0,1)}
-                                        </div>
+                                        
                                         <span>${c.renterName}</span>
                                     </div>
                                 </c:if>
@@ -118,7 +115,7 @@
                             <td class="text-center">
                                 <c:choose>
                                     <c:when test="${c.status == 0}">
-                                        <span class="badge bg-secondary">finish-early</span>
+                                        <span class="badge bg-secondary">finish</span>
                                     </c:when>
 
                                     <c:when test="${c.endDate.time lt now.time}">

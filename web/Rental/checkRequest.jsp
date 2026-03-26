@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -37,7 +38,7 @@
     </head>
     <body>
         <jsp:include page="/Common/Layout/header.jsp"/>
-
+        <jsp:include page="/message/popupMessage.jsp" />
         <c:if test="${not empty quantityError}">
             <div id="formError" class="error-banner">${quantityError}</div>
         </c:if>
@@ -219,7 +220,7 @@
             <c:if test="${pageMode eq 'view'}">
                 <div class="section">
                     <p><strong>Request ID:</strong> ${checkRequest.id}</p>
-                    <p><strong>Date:</strong> ${checkRequest.requestDate}</p>
+                    <p><strong>Date:</strong> <fmt:formatDate value="${checkRequest.requestDate}" pattern="yyyy-MM-dd"/></p>
                     <p><strong>Warehouse:</strong> ${checkRequest.warehouse.name}</p>
                     <p><strong>Unit:</strong> ${checkRequest.unit.unitCode}</p>
                 </div>

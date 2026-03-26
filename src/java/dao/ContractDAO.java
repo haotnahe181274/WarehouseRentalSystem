@@ -420,66 +420,137 @@ public class ContractDAO extends DBContext {
 
         return list;
     }
-    public void insertAvailableUnit(int contractId, Date startDate, Date endDate, double area) {
 
+    /**
+     * RENTER chỉ được ký & thanh toán khi:
+     * - contract.status = 1, thuộc về renterId
+     * - warehouse.status = 1
+     * - tất cả Contract_Storage_unit của contract đều có status = 1
+     * - không tồn tại Contract_Storage_unit khác (đã có Payment.status = 1) bị trùng thời gian
+     *   trên cùng một unit_id với các khoảng thuê trong contract hiện tại.
+     */
+    public boolean canRenterAgreeAndPay(int contractId, int renterId) {
         String sql = """
-            INSERT INTO Contract_Storage_unit
-            (contract_id, unit_id, start_date, end_date, status)
-
-            SELECT
-                ?,
-                su.unit_id,
-                ?,
-                ?,
-                1
-            FROM Storage_unit su
-            JOIN Contract c ON c.contract_id = ?
-            WHERE su.warehouse_id = c.warehouse_id
-            AND su.status = 1
-            AND su.area = ?
-            AND NOT EXISTS (
-                SELECT 1
-                FROM Contract_Storage_unit csu
-                WHERE csu.unit_id = su.unit_id
-                AND (
-                    ? < csu.end_date
-                    AND ? > csu.start_date
-                )
-            )
+            SELECT 1
+            FROM Contract c
+            JOIN Warehouse w ON c.warehouse_id = w.warehouse_id
+            WHERE c.contract_id = ?
+              AND c.renter_id = ?
+              AND c.status = 1
+              AND w.status = 1
+              AND EXISTS (
+                  SELECT 1
+                  FROM Contract_Storage_unit csu0
+                  WHERE csu0.contract_id = c.contract_id
+              )
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM Contract_Storage_unit csu
+                  WHERE csu.contract_id = c.contract_id
+                    AND csu.status <> 1
+              )
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM Contract_Storage_unit csu
+                  JOIN Contract_Storage_unit csu2
+                    ON csu2.unit_id = csu.unit_id
+                  JOIN Payment p2
+                    ON p2.contract_id = csu2.contract_id
+                  WHERE csu.contract_id = c.contract_id
+                    AND csu2.contract_id <> c.contract_id
+                    AND p2.status = 1
+                    AND NOT (
+                        csu2.end_date < csu.start_date
+                        OR csu2.start_date > csu.end_date
+                    )
+              )
             LIMIT 1
         """;
 
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, contractId);
-            ps.setDate(2, new java.sql.Date(startDate.getTime()));
-            ps.setDate(3, new java.sql.Date(endDate.getTime()));
-            ps.setInt(4, contractId);
-            ps.setDouble(5, area);
-            ps.setDate(6, new java.sql.Date(startDate.getTime()));
-            ps.setDate(7, new java.sql.Date(endDate.getTime()));
-            ps.executeUpdate();
+            ps.setInt(2, renterId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
+
     public void insertContractStorageUnit(int contractId) {
+    String getRequestUnitSQL = """
+        SELECT rru.area, rru.start_date, rru.end_date, rru.quantity,
+               c.warehouse_id
+        FROM rent_request_unit rru
+        JOIN Contract c ON c.request_id = rru.request_id
+        WHERE c.contract_id = ?
+    """;
 
-        List<RentUnit> units = getRentUnitsByContract(contractId);
+    String findUnitSQL = """
+        SELECT su.unit_id
+                FROM Storage_unit su
+                JOIN Warehouse w ON su.warehouse_id = w.warehouse_id
+                WHERE su.warehouse_id = ?
+                AND su.area = ?
+                AND w.status = 1
+                AND su.unit_id NOT IN (
+                    SELECT csu.unit_id
+                    FROM Contract_Storage_unit csu
+                    JOIN Payment p ON csu.contract_id = p.contract_id
+                    WHERE p.status = 1
+                    AND NOT (
+                        csu.end_date < ?
+                        OR csu.start_date > ?
+                    )
+                )
+                LIMIT 1
+    """;
 
-        for (RentUnit u : units) {
+    String insertSQL = """
+        INSERT INTO Contract_Storage_unit
+        (contract_id, unit_id, start_date, end_date, status)
+        VALUES (?, ?, ?, ?, 1)
+    """;
 
-            for (int i = 0; i < u.getQuantity(); i++) {
-                insertAvailableUnit(
-                    contractId,
-                    u.getStartDate(),
-                    u.getEndDate(),
-                    u.getArea()
-                );
+    try {
+        PreparedStatement ps1 = connection.prepareStatement(getRequestUnitSQL);
+        ps1.setInt(1, contractId);
+        ResultSet rs1 = ps1.executeQuery();
+
+        while (rs1.next()) {
+            double area = rs1.getDouble("area");
+            Date startDate = rs1.getDate("start_date");
+            Date endDate = rs1.getDate("end_date");
+            int quantity = rs1.getInt("quantity");
+            int warehouseId = rs1.getInt("warehouse_id");
+
+            for (int i = 0; i < quantity; i++) {
+
+                PreparedStatement ps2 = connection.prepareStatement(findUnitSQL);
+                ps2.setInt(1, warehouseId);
+                ps2.setDouble(2, area);
+                ps2.setDate(3, new java.sql.Date(endDate.getTime()));
+                ps2.setDate(4, new java.sql.Date(startDate.getTime()));
+
+                ResultSet rs2 = ps2.executeQuery();
+
+                if (rs2.next()) {
+                    int unitId = rs2.getInt("unit_id");
+
+                    PreparedStatement ps3 = connection.prepareStatement(insertSQL);
+                    ps3.setInt(1, contractId);
+                    ps3.setInt(2, unitId);
+                    ps3.setDate(3, new java.sql.Date(startDate.getTime()));
+                    ps3.setDate(4, new java.sql.Date(endDate.getTime()));
+                    ps3.executeUpdate();
+                }
             }
-
         }
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
     public int countTotal() {
         String sql = "SELECT COUNT(*) FROM Contract";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
