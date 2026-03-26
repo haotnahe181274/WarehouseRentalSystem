@@ -77,9 +77,7 @@
 </head>
 <body>
 
-<div class="chat-header">
-    Support Conversations
-</div>
+
 
 <div class="conversation-list">
     <%

@@ -19,6 +19,27 @@
         <iframe id="supportFrame"></iframe>
     </div>
 
+    <script>
+        function toggleSupport() {
+            var popup = document.getElementById("supportPopup");
+            var frame = document.getElementById("supportFrame");
+
+            if (popup.style.display === "none" || popup.style.display === "") {
+                if (!frame.src) {
+                    <% if ("RENTER".equals(role)) { %>
+                        frame.src = "<%=request.getContextPath()%>/support";
+                    <% } else { %>
+                        frame.src = "<%=request.getContextPath()%>/send-support-message";
+                    <% } %>
+                }
+                popup.style.display = "block";
+            } else {
+                popup.style.display = "none";
+            }
+        }
+    </script>
+
+    
     <style>
         #supportBtn {
             position: fixed;
@@ -64,7 +85,6 @@
             border: none;
         }
     </style>
-
     <script>
      window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -105,4 +125,4 @@ function toggleSupport() {
     }
 }
     </script>
-<% } %>
+ } %>
