@@ -1,91 +1,41 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Check Request History</title>
-    
 
+    <!-- GIỐNG RENT REQUEST -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
+
+    <!-- DataTables -->
     <link rel="stylesheet"
           href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-            margin: 0;
-        }
-
-        .main-content {
-            padding: 24px;
-            max-width: 1200px;
-            margin: auto;
-        }
-
-        h3 {
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: #111827;
-        }
-
-        table.dataTable {
-            width: 100% !important;
-            background: #fff;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        #itemTable_filter,
-        #itemTable_length {
-            display: flex !important;
-            align-items: center;
-            gap: 10px;
-            float: none !important;
-        }
-
-        .btn {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .btn-approve {
-            background: #1890ff;
-            color: white;
-        }
-
-        .btn-reject {
-            background: black;
-            color: white;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .action-area {
-            margin-top: 16px;
-        }
+        .btn { padding: 6px 12px; border-radius: 4px; }
+        .btn-approve { background: #1890ff; color: white; }
+        .btn-reject { background: black; color: white; }
     </style>
 </head>
-
 <body>
 
 <jsp:include page="/Common/Layout/header.jsp"/>
+<div class="layout">
+    
 
 <div class="main-content">
 
     <h3>Check In / Check Out History</h3>
 
-    <table id="itemTable">
+    <div class="management-card">
+    <table id="itemTable" class="display">
         <thead>
         <tr>
             <th>No.</th>
@@ -103,7 +53,7 @@
             <tr>
                 <td>${loop.count}</td>  <!-- STT bắt đầu từ 1 -->
                 
-                <td>${cr.requestDate}</td>
+                <td><fmt:formatDate value="${cr.requestDate}" pattern="yyyy-MM-dd"/></td>
                 <td>${cr.requestType}</td>
                 <td>${cr.warehouse.name}</td>
                 <td>${cr.unit.unitCode}</td>
@@ -118,6 +68,7 @@
         </c:forEach>
         </tbody>
     </table>
+    </div>
 
     <div class="action-area">
         <a href="${pageContext.request.contextPath}/itemlist"
@@ -125,20 +76,27 @@
             Back to Items
         </a>
     </div>
-
+</div>
 </div>
 
 <jsp:include page="/Common/Layout/footer.jsp"/>
-        
-        <script>
-            $(document).ready(function () {
-                $('#itemTable').DataTable({
-                    pageLength: 5
-                    
-                    
-                });
-            });
-        </script>
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+    let table = $('#itemTable').DataTable({
+        order: [[0, 'desc']],
+        pageLength: 10,
+        dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',
+        language: {
+            search: "Search:",
+            lengthMenu: "_MENU_ entries per page"
+        }
+    });
+
+});
+</script>
 
     </body>
 </html>
