@@ -8,8 +8,16 @@ public class CheckRequestItem {
     private int quantity;
     private Integer processedQuantity;
     private String status; // processing | done | fail
-
+    private int totalQty;
     private Item item;
+
+    public int getTotalQty() {
+        return totalQty;
+    }
+
+    public void setTotalQty(int totalQty) {
+        this.totalQty = totalQty;
+    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

@@ -3,177 +3,210 @@
 
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Staff Check</title>
-
     <style>
-    :root {
-        --primary-blue: #2563eb;
-        --hover-blue: #1d4ed8;
-        --bg-gray: #f8fafc;
-        --text-main: #1e293b;
-        --text-sub: #64748b;
-        --border-color: #e2e8f0;
-    }
+        :root {
+            --primary-blue: #2563eb;
+            --hover-blue: #1d4ed8;
+            --bg-gray: #f8fafc;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border-color: #e2e8f0;
+        }
 
-    body {
-        font-family: 'Inter', -apple-system, sans-serif;
-        background-color: var(--bg-gray);
-        margin: 0;
-        color: var(--text-main);
-    }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            color: var(--text-main);
+        }
 
-    .layout { display: flex; min-height: 100vh; }
-    .main-content { flex: 1; padding: 40px 20px; }
-    .container { max-width: 900px; margin: 0 auto; }
+        .layout { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; padding: 20px 40px; }
+        .container { max-width: 1000px; margin: 0 auto; }
 
-    /* INFO CARD GRID */
-    .info-card {
-        background: white;
-        border-radius: 12px;
-        padding: 24px;
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        margin-bottom: 24px;
-        border: 1px solid var(--border-color);
-    }
+        /* Header link điều hướng */
+        .top-nav {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
 
-    .info-item span {
-        display: block;
-        font-size: 12px;
-        text-transform: uppercase;
-        color: var(--text-sub);
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
+        /* INFO CARD GRID */
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
 
-    .info-item b { font-size: 16px; color: var(--text-main); }
+        .info-item span {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
 
-    /* BADGE */
-    .badge {
-        display: inline-block;
-        background: #dbeafe;
-        color: var(--primary-blue);
-        padding: 4px 12px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 700;
-    }
+        .info-item b { font-size: 15px; color: var(--text-main); }
 
-    /* ITEM CHECK LIST CARD */
-    .card {
-        background: white;
-        border-radius: 16px;
-        padding: 30px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        border: 1px solid var(--border-color);
-    }
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: var(--primary-blue);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
 
-    .card-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 25px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
+        /* ITEM CHECK LIST CARD */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
 
-    /* ITEM ROW REFINEMENT */
-    .item-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px;
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        margin-bottom: 12px;
-        transition: all 0.2s;
-    }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    .item-row:hover {
-        border-color: var(--primary-blue);
-        background-color: #f0f7ff;
-    }
+        /* ITEM ROW - Đã sửa lỗi layout */
+        .item-wrapper {
+            margin-bottom: 24px;
+        }
 
-    .item-left { display: flex; align-items: center; gap: 16px; }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: white;
+            transition: all 0.2s;
+        }
 
-    .item-icon {
-        width: 48px;
-        height: 48px;
-        background: #f1f5f9;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
+        .item-row:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+        }
 
-    .item-name { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
-    .item-sub { font-size: 13px; color: var(--text-sub); }
+        .item-left { display: flex; align-items: center; gap: 20px; }
 
-    /* INPUT STYLING */
-    .item-right { text-align: right; }
-    .item-right label { font-size: 12px; font-weight: 600; color: var(--text-sub); display: block; margin-bottom: 4px; }
-    
-    .input-qty {
-        width: 90px;
-        padding: 8px 12px;
-        border: 2px solid var(--border-color);
-        border-radius: 8px;
-        text-align: center;
-        font-weight: 700;
-        color: var(--primary-blue);
-        outline: none;
-        transition: border-color 0.2s;
-    }
+        .item-icon {
+            width: 44px;
+            height: 44px;
+            background: #f8fafc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: 1px solid #f1f5f9;
+        }
 
-    .input-qty:focus { border-color: var(--primary-blue); }
+        .item-name { font-weight: 700; font-size: 16px; color: #1e293b; margin-bottom: 4px; }
+        .item-sub { font-size: 13px; color: var(--text-sub); }
+        .item-sub b { color: #1e293b; }
 
-    /* FOOTER & BUTTON */
-    .card-footer {
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+        /* INPUT STYLING */
+        .item-right-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-top: 8px;
+        }
 
-    .btn-submit {
-        background-color: var(--primary-blue);
-        color: white;
-        padding: 12px 28px;
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s;
-        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-    }
+        .item-right-container label { 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: var(--text-sub); 
+            margin-bottom: 6px; 
+        }
 
-    .btn-submit:hover { background-color: var(--hover-blue); }
+        .input-qty {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--primary-blue);
+            outline: none;
+        }
 
-    .back-link {
-        display: inline-block;
-        margin-top: 20px;
-        color: var(--text-sub);
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-    }
+        .input-qty:focus { border-color: var(--primary-blue); ring: 2px solid #dbeafe; }
 
-    .back-link:hover { color: var(--primary-blue); }
-</style>
+        /* ACTION BUTTONS */
+        .card-footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-submit {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            color: white;
+        }
+
+        .btn-save { background-color: #facc15; color: #854d0e; }
+        .btn-save:hover { background-color: #f87171; color: white; } /* Tùy chỉnh hover */
+
+        .btn-complete { background-color: var(--primary-blue); }
+        .btn-complete:hover { background-color: var(--hover-blue); }
+
+        .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: black;
+    text-decoration: none;
+    font-size: 15px; /* Tăng nhẹ kích thước */
+    font-weight: 800; /* Đổi từ 500 thành 800 để chữ đậm rõ rệt */
+    transition: all 0.2s;
+}
+
+.back-link:hover {
+    color: var(--primary-blue);
+    transform: translateX(-4px); /* Thêm hiệu ứng nhích nhẹ sang trái khi hover */
+}
+    </style>
 </head>
-
 
 <body>
     <jsp:include page="/Common/Layout/header.jsp" />
-    
+
     <div class="layout">
         <c:if test="${sessionScope.userType == 'INTERNAL'}">
             <jsp:include page="/Common/Layout/sidebar.jsp"/>
@@ -181,6 +214,9 @@
 
         <div class="main-content">
             <div class="container">
+                <div class="top-nav">
+                    <a href="staffTask" class="back-link">← Back to Task Assignments</a>
+                </div>
 
                 <div class="info-card">
                     <div class="info-item">
@@ -211,38 +247,53 @@
                         </div>
 
                         <c:forEach var="i" items="${checkRequest.items}">
-                            <div class="item-row">
-                                <div class="item-left">
-                                    <div class="item-icon">📦</div>
-                                    <div>
-                                        <div class="item-name">${i.item.itemName}</div>
-                                        <div class="item-sub">Required Quantity: <b>${i.quantity}</b></div>
+                            <div class="item-wrapper">
+                                <div class="item-row">
+                                    <div class="item-left">
+                                        <div class="item-icon">📦</div>
+                                        <div>
+                                            <div class="item-name">${i.item.itemName}</div>
+                                            <div class="item-sub">
+                                                Required Quantity: <b>${i.quantity}</b> | 
+                                                Total Processed: <b>${i.processedQuantity != null ? i.processedQuantity : 0}</b>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div class="item-right">
+                                <div class="item-right-container">
                                     <label>Actual Qty</label>
                                     <input type="number" 
                                            class="input-qty"
                                            name="processed_${i.id}" 
                                            min="0" 
                                            max="${i.quantity}" 
-                                           value="${i.quantity}">
+                                           value="${i.processedQuantity != null ? i.processedQuantity : 0}">
                                 </div>
                             </div>
                         </c:forEach>
+                    </div>
 
-                        <div class="card-footer">
-                            <div style="color: var(--text-sub); font-weight: 500;">
-                                Total Items: <span style="color: var(--text-main); font-weight: 700;">${checkRequest.items.size()}</span>
+                    <div class="card-footer">
+                        <div style="color: var(--text-sub); font-weight: 500;">
+                            Total Items: <span style="color: var(--text-main); font-weight: 700;">${checkRequest.items.size()}</span>
+                        </div>
+
+                        <div class="footer-actions-group">
+                            <div class="note-text">
+                                ⚠️ <i>Please <b>Save Progress</b> before clicking <b>Complete</b> to avoid data loss.</i>
                             </div>
-                            <button type="submit" class="btn-submit">Confirm & Complete Check</button>
+
+                            <div class="actions">
+                                <button type="submit" name="action" value="save" class="btn-submit btn-save" style="background-color:#facc15; color: #854d0e;">
+                                    💾 Save Progress
+                                </button>
+                                <button type="submit" name="action" value="complete" class="btn-submit btn-complete">
+                                    ✅ Complete Check
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>
-
-                <a href="staffTask" class="back-link">← Back to Task Assignments</a>
-
             </div>
         </div>
     </div>
