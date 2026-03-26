@@ -13,6 +13,7 @@
     </head>
     <body>
         <jsp:include page="/Common/Layout/header.jsp"/>
+        <jsp:include page="/message/popupMessage.jsp" />
         <c:set var="mode" value="${mode}" />
         <c:set var="isEdit" value="${mode == 'edit'}" />
         <c:set var="isCreate" value="${mode == 'create'}" />
