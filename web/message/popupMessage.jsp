@@ -66,22 +66,43 @@
     </style>
 
     <script>
-        function toggleSupport() {
-            var popup = document.getElementById("supportPopup");
-            var frame = document.getElementById("supportFrame");
+     window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openChat = urlParams.get('openChat');
+    const conversationId = urlParams.get('conversationId');
 
-            if (popup.style.display === "none" || popup.style.display === "") {
-                if (!frame.src) {
-                    <% if ("RENTER".equals(role)) { %>
-                        frame.src = "<%=request.getContextPath()%>/support";
-                    <% } else { %>
-                        frame.src = "<%=request.getContextPath()%>/send-support-message";
-                    <% } %>
-                }
-                popup.style.display = "block";
-            } else {
-                popup.style.display = "none";
-            }
+    if (openChat === 'true') {
+        // Nếu có conversationId, ta cập nhật lại source của iframe trước khi mở
+        if (conversationId) {
+            var frame = document.getElementById("supportFrame");
+            var contextPath = "<%=request.getContextPath()%>";
+            
+            // Ép link iframe vào thẳng nội dung tin nhắn đó
+            frame.src = contextPath + "/send-support-message?conversationId=" + conversationId;
         }
+        
+        // Gọi hàm mở popup
+        toggleSupport();
+    }
+};
+
+function toggleSupport() {
+    var popup = document.getElementById("supportPopup");
+    var frame = document.getElementById("supportFrame");
+
+    if (popup.style.display === "none" || popup.style.display === "") {
+        // Nếu chưa có src (trường hợp click tay bình thường) thì mới set mặc định
+        if (!frame.src) {
+            <% if ("RENTER".equals(role)) { %>
+                frame.src = "<%=request.getContextPath()%>/support";
+            <% } else { %>
+                frame.src = "<%=request.getContextPath()%>/send-support-message";
+            <% } %>
+        }
+        popup.style.display = "block";
+    } else {
+        popup.style.display = "none";
+    }
+}
     </script>
 <% } %>
