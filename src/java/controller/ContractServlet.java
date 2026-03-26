@@ -1,4 +1,4 @@
-package controller;
+    package controller;
 
 import dao.ContractDAO;
 import jakarta.servlet.*;
@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import model.ContractDetail;
 import model.UserView;
 
@@ -29,6 +30,12 @@ public class ContractServlet extends HttpServlet {
         ContractDAO dao = new ContractDAO();
         List<ContractDetail> contracts;
 
+// 2. Gọi hàm lấy số liệu thống kê (hàm chúng ta vừa viết)
+Map<String, Integer> contractStats = dao.getContractStatistics();
+
+// 3. Đẩy biến 'contractStats' sang JSP để hiển thị
+request.setAttribute("contractStats", contractStats);
+        
         if ("INTERNAL".equalsIgnoreCase(user.getType())
                 && ("Manager".equalsIgnoreCase(user.getRole())
                 || "Admin".equalsIgnoreCase(user.getRole()))) {

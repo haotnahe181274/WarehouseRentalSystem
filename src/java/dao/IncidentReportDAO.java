@@ -165,15 +165,15 @@ public class IncidentReportDAO extends DBContext {
         return 0;
     }
     public int countTotalById(int internalUserId) {
-    String sql = "SELECT COUNT(*) FROM Incident_report WHERE internal_user_id = ?";
-    
-    // Chỉ khởi tạo PreparedStatement trong try-with-resources đầu tiên
+    // Nếu tham số truyền vào = 0, điều kiện (? = 0) luôn đúng -> lấy tất cả
+    String sql = "SELECT COUNT(*) FROM Incident_report WHERE ? = 0 OR internal_user_id = ?";
+
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
         
-        // Truyền tham số internal_user_id vào câu SQL
+        // Cần truyền cùng 1 giá trị cho cả 2 dấu chấm hỏi
         ps.setInt(1, internalUserId);
+        ps.setInt(2, internalUserId);
         
-        // Sau khi truyền tham số xong mới thực thi và lấy ResultSet
         try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -184,18 +184,19 @@ public class IncidentReportDAO extends DBContext {
     }
     return 0;
 }
-  public int countByStatusById(int status, int internalUserId) {
-    // Thêm điều kiện lọc theo internal_user_id vào câu truy vấn
-    String sql = "SELECT COUNT(*) FROM Incident_report WHERE status = ? AND internal_user_id = ?";
+ public int countByStatusById(int status, int internalUserId) {
+    // Nếu internalUserId = 0, cụm (? = 0) đúng -> bỏ qua check internal_user_id
+    String sql = "SELECT COUNT(*) FROM Incident_report WHERE status = ? AND (? = 0 OR internal_user_id = ?)";
     
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        // Truyền giá trị cho 2 dấu chấm hỏi (?)
         ps.setInt(1, status);
-        ps.setInt(2, internalUserId);
+        ps.setInt(2, internalUserId); // Dấu ? thứ 2
+        ps.setInt(3, internalUserId); // Dấu ? thứ 3
         
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         }
     } catch (Exception e) { 
         e.printStackTrace(); 

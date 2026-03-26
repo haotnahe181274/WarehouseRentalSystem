@@ -46,5 +46,13 @@ public class DBContext {
             System.out.println("Kết nối thất bại (biến connection bị null).");
         }
     }
-
+    public void closeConnection() {
+    try {
+        if (connection != null && !connection.isClosed()) {
+            connection.close();
+        }
+    } catch (Exception e) {
+        System.out.println("Lỗi khi đóng kết nối DB: " + e.getMessage());
+    }
+}
 }
