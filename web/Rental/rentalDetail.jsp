@@ -99,7 +99,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Start Date</th>
-                                        <th><c:choose><c:when test="${isCreate}">Duration (Month)</c:when><c:otherwise>End Date</c:otherwise></c:choose></th>
+                                        <th><c:choose><c:when test="${isCreate || isEdit}">Duration (Month)</c:when><c:otherwise>End Date</c:otherwise></c:choose></th>
                                         <th>Area (m²)</th>
                                         <th>Quantity</th>
                                         <th>Price (VND)</th>
@@ -115,7 +115,7 @@
                                                     <td><input type="date" name="unitStartDate" class="unit-start" value="<fmt:formatDate value="${u.startDate}" pattern="yyyy-MM-dd"/>" /></td>
                                                     <td>
                                                         <c:choose>
-                                                            <c:when test="${isCreate}">
+                                                            <c:when test="${isCreate || isEdit}">
                                                                 <input type="number" class="unit-duration" min="1" step="1" value="" />
                                                                 <input type="hidden" name="unitEndDate" class="unit-end" value="<fmt:formatDate value="${u.endDate}" pattern="yyyy-MM-dd"/>" />
                                                             </c:when>
@@ -143,7 +143,7 @@
                                                 <td><input type="date" name="unitStartDate" class="unit-start" /></td>
                                                 <td>
                                                     <c:choose>
-                                                        <c:when test="${isCreate}">
+                                                        <c:when test="${isCreate || isEdit}">
                                                             <input type="number" class="unit-duration" min="1" step="1" value="1" />
                                                             <input type="hidden" name="unitEndDate" class="unit-end" />
                                                         </c:when>
@@ -535,7 +535,9 @@
                     var qtyInput = row.querySelector(".unit-quantity");
                     var priceDisplay = row.querySelector(".unit-price-display");
                     var priceInput = row.querySelector(".unit-price");
-                    var months = getRentalMonths(start, end);
+                    // Price is based on "Duration (months)" that user enters.
+                    // In edit mode (no duration input), we infer duration from start/end (month-based, not days/30).
+                    var months = getDurationMonthsForRow(row, start, end);
                     if (!months) {
                         if (priceDisplay)
                             priceDisplay.textContent = "";
@@ -553,10 +555,8 @@
                         var maxQty = parseInt(opt.getAttribute("data-quantity"), 10);
                         if (!isNaN(maxQty) && maxQty > 0) {
                             qtyInput.max = maxQty;
-                            if (quantity > maxQty) {
-                                quantity = maxQty;
-                                qtyInput.value = maxQty;
-                            }
+                            // Do NOT clamp user input here.
+                            // Validation on submit should show error if quantity exceeds max.
                         }
                     } else if (qtyInput) {
                         qtyInput.removeAttribute("max");
@@ -593,7 +593,15 @@
                     });
                 }
 
-                function getRentalMonths(start, end) {
+                function getEndDateValue(row) {
+                    var endInput = row.querySelector(".unit-end");
+                    if (endInput && endInput.value) {
+                        return endInput.value;
+                    }
+                    return "";
+                }
+
+                function getDurationMonthsFromStartEnd(start, end) {
                     if (!start || !end) {
                         return 0;
                     }
@@ -602,16 +610,24 @@
                     if (isNaN(sd.getTime()) || isNaN(ed.getTime()) || ed <= sd) {
                         return 0;
                     }
-                    var days = Math.ceil((ed - sd) / (1000 * 60 * 60 * 24));
-                    return Math.ceil(days / 30);
+                    // Month-based duration (no days/30).
+                    var months = (ed.getFullYear() - sd.getFullYear()) * 12 + (ed.getMonth() - sd.getMonth());
+                    // If end day is earlier than start day in the month, subtract one month.
+                    if (ed.getDate() < sd.getDate()) {
+                        months -= 1;
+                    }
+                    return months >= 1 ? months : 0;
                 }
 
-                function getEndDateValue(row) {
-                    var endInput = row.querySelector(".unit-end");
-                    if (endInput && endInput.value) {
-                        return endInput.value;
+                function getDurationMonthsForRow(row, start, end) {
+                    var durationInput = row.querySelector(".unit-duration");
+                    if (durationInput) {
+                        var d = parseInt(durationInput.value, 10);
+                        if (!isNaN(d) && d >= 1) {
+                            return d;
+                        }
                     }
-                    return "";
+                    return getDurationMonthsFromStartEnd(start, end);
                 }
 
                 function computeEndDateByDuration(start, durationMonths) {
@@ -639,7 +655,7 @@
                     }
                     var duration = parseInt(durationInput.value, 10);
                     if (isNaN(duration) || duration < 1) {
-                        var fallbackMonths = getRentalMonths(startInput.value, endInput.value);
+                        var fallbackMonths = getDurationMonthsFromStartEnd(startInput.value, endInput.value);
                         duration = fallbackMonths > 0 ? fallbackMonths : 1;
                         durationInput.value = String(duration);
                     }
@@ -785,9 +801,11 @@
                         alert("All units must have Start date, Duration/End date, Area, Quantity and Price.");
                         return false;
                     }
-                    var selectedOption = row.querySelector(".unit-area option:checked");
-                    if (selectedOption && selectedOption.getAttribute("data-quantity")) {
-                        var maxQty = parseInt(selectedOption.getAttribute("data-quantity"), 10);
+                    var areaSelect = row.querySelector(".unit-area");
+                    var selectedOption = areaSelect && areaSelect.options ? areaSelect.options[areaSelect.selectedIndex] : null;
+                    var maxQtyAttr = selectedOption ? selectedOption.getAttribute("data-quantity") : null;
+                    if (maxQtyAttr !== null && maxQtyAttr !== "") {
+                        var maxQty = parseInt(maxQtyAttr, 10);
                         if (!isNaN(maxQty) && quantity > maxQty) {
                             alert("Unit quantity cannot exceed available quantity for selected area.");
                             return false;
