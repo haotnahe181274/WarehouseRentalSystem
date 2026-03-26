@@ -116,9 +116,7 @@
 <% } else { %>
 
     <!-- HEADER -->
-    <div class="chat-header">
-        <%= conversation.getSubject() %>
-    </div>
+   
 
     <!-- MESSAGE LIST -->
     <div class="message-list" id="messageList">

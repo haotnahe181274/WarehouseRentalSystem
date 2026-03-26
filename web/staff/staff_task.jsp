@@ -102,7 +102,7 @@
 
 <!-- HEADER -->
 <jsp:include page="/Common/Layout/header.jsp"/>
-
+<jsp:include page="/message/popupMessage.jsp" />
 <div class="layout">
 
     <!-- SIDEBAR -->

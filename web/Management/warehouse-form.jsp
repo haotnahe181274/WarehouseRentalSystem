@@ -11,6 +11,7 @@
 </head>
 <body>
 <jsp:include page="/Common/Layout/header.jsp"/>
+<jsp:include page="/message/popupMessage.jsp" />
 <div class="d-flex">
     <jsp:include page="/Common/Layout/sidebar.jsp"/>
     <div class="container mt-4" style="max-width: 800px;">

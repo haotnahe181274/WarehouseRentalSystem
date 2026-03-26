@@ -16,7 +16,7 @@
 </head>
 <body>
     <jsp:include page="/Common/Layout/header.jsp" />
-
+    <jsp:include page="/message/popupMessage.jsp" />
     <div class="d-flex min-vh-100">
         <jsp:include page="/Common/Layout/sidebar.jsp" />
 
