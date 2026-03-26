@@ -48,7 +48,7 @@
 
     <div class="main-content">
         <h3 class="mb-4">Contracts Management</h3>
-
+<c:if test="${sessionScope.userType != 'RENTER'}">
         <jsp:include page="/Common/Layout/stats_cards.jsp">
             <jsp:param name="label1" value="Tổng Hợp Đồng" />
             <jsp:param name="value1" value="${contractStats.total}" />
@@ -67,7 +67,7 @@
             <jsp:param name="icon4" value="fa-solid fa-clock-rotate-left" />
             <jsp:param name="color4" value="warning" />
         </jsp:include>
-        
+</c:if>       
         <div class="management-card">
 
             <table class="table table-hover align-middle mb-0" id="contractTable">
