@@ -95,6 +95,25 @@
         }
     });
 
+    // thêm dropdown filter
+    let filterHtml = `
+        <div class="filter-wrapper ms-2">
+            <select id="typeFilter" class="form-select form-select-sm" style="width:auto; display:inline-block;">
+                <option value="">All Type</option>
+                <option value="IN">Check In</option>
+                <option value="OUT">Check Out</option>
+            </select>
+        </div>
+    `;
+
+    $('.dataTables_filter').append(filterHtml);
+
+    // filter theo type
+    $('#typeFilter').on('change', function () {
+        let val = $(this).val();
+        table.column(2).search(val).draw();
+    });
+
 });
 </script>
 
