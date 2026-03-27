@@ -105,7 +105,7 @@ public class ajaxServlet extends HttpServlet {
 
         // ==================== DEV TEST: Auto success (bypass VNPay) ====================
         // Nếu VNPay đang lỗi và bạn muốn bấm "Đồng ý hợp đồng" là tự hiện thành công để test UI,
-         boolean devAutoPay = true; // <-- đặt true khi cần auto success
+         boolean devAutoPay = false; // <-- đặt true khi cần auto success
          if (devAutoPay) {
              // Mark Payment.status = 1 (thành công) ngay lập tức
              Payment paymen = new Payment();
