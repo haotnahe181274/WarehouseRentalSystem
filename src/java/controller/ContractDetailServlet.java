@@ -30,6 +30,8 @@ public class ContractDetailServlet extends HttpServlet {
 
         UserView user = (UserView) session.getAttribute("user");
 
+        
+        
         /* ================= GET PARAM ================= */
         String idRaw = request.getParameter("contractId");
 

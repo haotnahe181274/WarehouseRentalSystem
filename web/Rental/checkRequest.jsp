@@ -38,7 +38,7 @@
     </head>
     <body>
         <jsp:include page="/Common/Layout/header.jsp"/>
-
+        <jsp:include page="/message/popupMessage.jsp" />
         <c:if test="${not empty quantityError}">
             <div id="formError" class="error-banner">${quantityError}</div>
         </c:if>

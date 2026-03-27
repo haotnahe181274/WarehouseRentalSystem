@@ -34,7 +34,12 @@ request.setAttribute("pendingReports", dao.countByStatusById(1, currentStaffId))
 request.setAttribute("processingReports", dao.countByStatusById(2, currentStaffId));
 request.setAttribute("rejectReports", dao.countByStatusById(3, currentStaffId));
         } else {
+            request.setAttribute("totalReports", dao.countTotalById(0)); 
+request.setAttribute("pendingReports", dao.countByStatusById(1, 0));
+request.setAttribute("processingReports", dao.countByStatusById(2, 0));
+request.setAttribute("rejectReports", dao.countByStatusById(3, 0));
             request.setAttribute(
+                    
                 "incidentList",
                 dao.getAll()
             );

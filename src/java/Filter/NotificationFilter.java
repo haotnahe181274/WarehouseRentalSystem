@@ -65,17 +65,22 @@ public class NotificationFilter implements Filter {
             // 5. Nếu lấy được ID thành công, tiến hành truy vấn thông báo
             // Bên trong NotificationFilter.java, đoạn sau khi lấy được userId:
 if (userId != -1) {
-    NotificationDAO notiDAO = new NotificationDAO();
-    List<Notification> notiList = notiDAO.getTopNotificationsByUser(userId, userType, 5);
-    int unreadCount = notiDAO.getUnreadCount(userId, userType);
+    NotificationDAO notiDAO = null;
+    try {
+        notiDAO = new NotificationDAO();
+        List<Notification> notiList = notiDAO.getTopNotificationsByUser(userId, userType, 5);
+        int unreadCount = notiDAO.getUnreadCount(userId, userType);
 
-    // THÊM 3 DÒNG NÀY ĐỂ DEBUG:
-    System.out.println("=== DEBUG NOTIFICATION FILTER ===");
-    System.out.println("User ID: " + userId + " | Type: " + userType);
-    System.out.println("Số thông báo lấy được: " + (notiList != null ? notiList.size() : "null"));
-
-    req.setAttribute("notiList", notiList);
-    req.setAttribute("unreadCount", unreadCount);
+        req.setAttribute("notiList", notiList);
+        req.setAttribute("unreadCount", unreadCount);
+    } catch (Exception e) {
+        System.out.println("Lỗi truy vấn Notification: " + e.getMessage());
+    } finally {
+        // RẤT QUAN TRỌNG: Luôn luôn đóng kết nối DB sau khi Filter dùng xong
+        if (notiDAO != null) {
+            notiDAO.closeConnection();
+        }
+    }
 } else {
     System.out.println("=== DEBUG NOTIFICATION: KHÔNG LẤY ĐƯỢC USER ID ===");
 }

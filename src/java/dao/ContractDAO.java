@@ -6,13 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.Statement;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import model.Contract;
 import model.ContractDetail;
 import model.InternalUser;
 import model.RentUnit;
 import model.Renter;
 import model.Warehouse;
-
+import java.sql.SQLException;
 public class ContractDAO extends DBContext {
 
     // =====================================================
@@ -32,7 +34,7 @@ public class ContractDAO extends DBContext {
                 rr.renter_id,
                 rr.warehouse_id,
                 rr.request_id,
-                SUM(ru.rent_price)
+                SUM(ru.rent_price)* 1.1
             FROM Rent_request rr
             JOIN rent_request_unit ru
                 ON rr.request_id = ru.request_id
@@ -109,6 +111,49 @@ public class ContractDAO extends DBContext {
     }
 
     return list;
+    }
+
+    
+    public Map<String, Integer> getContractStatistics() {
+        // Sử dụng Map để trả về nhiều giá trị cùng lúc
+        Map<String, Integer> stats = new HashMap<>();
+        
+        // Khởi tạo giá trị mặc định tránh NullPointerException trên JSP
+        stats.put("total", 0);
+        stats.put("active", 0);
+        stats.put("early_ended", 0);
+        stats.put("expired", 0);
+
+        // Câu lệnh SQL gộp 4 điều kiện:
+        // 1. Tổng số contract: đếm toàn bộ
+        // 2. Đang hoạt động: status = 1 VÀ ngày kết thúc >= thời gian hiện tại
+        // 3. Kết thúc sớm: status = 0
+        // 4. Kết thúc hạn: status = 1 VÀ ngày kết thúc < thời gian hiện tại
+        String sql = "SELECT "
+                   + "COUNT(*) AS total_contracts, "
+                   + "SUM(CASE WHEN status = 1 AND end_date >= NOW() THEN 1 ELSE 0 END) AS active_contracts, "
+                   + "SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS early_ended_contracts, "
+                   + "SUM(CASE WHEN status = 1 AND end_date < NOW() THEN 1 ELSE 0 END) AS expired_contracts "
+                   + "FROM Contract";
+
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            
+            if (rs.next()) {
+                stats.put("total", rs.getInt("total_contracts"));
+                
+                // Lưu ý: Dùng rs.getInt thay vì getObject để tránh lỗi null nếu DB trống, 
+                // rs.getInt() trên cột NULL của MySQL sẽ tự động trả về 0 trong Java.
+                stats.put("active", rs.getInt("active_contracts"));
+                stats.put("early_ended", rs.getInt("early_ended_contracts"));
+                stats.put("expired", rs.getInt("expired_contracts"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi tại getContractStatistics: " + e.getMessage());
+        }
+        
+        return stats;
     }
 
     // =====================================================

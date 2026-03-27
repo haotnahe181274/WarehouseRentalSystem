@@ -197,6 +197,7 @@
 
         <body>
             <jsp:include page="/Common/Layout/header.jsp" />
+            <jsp:include page="/message/popupMessage.jsp" />
             <c:set var="loginUser" value="${sessionScope.user}" />
             <c:set var="isAdminView" value="${mode == 'view' && loginUser.role == 'Admin'}" />
 

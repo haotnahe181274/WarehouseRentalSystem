@@ -207,7 +207,7 @@ public class StaffTaskDAO extends DBContext {
             e.printStackTrace();
         }
     }
-     /*
+     
     public void addInventory(int unitId, int itemId, int quantity) {
 
         String sql = """
@@ -254,31 +254,27 @@ public class StaffTaskDAO extends DBContext {
         }
     }
     
-    public void insertInventoryLog(int action, int quantity, int itemId, int unitId, int userId) {
-
+    public void insertInventoryLog(int action, int quantity, int itemId, int unitId, int userId, int checkRequestId) {
         String sql = """
             INSERT INTO Inventory_log
-            (action, quantity, action_date, item_id, unit_id, internal_user_id)
-            VALUES (?, ?, NOW(), ?, ?, ?)
+            (action, quantity, action_date, item_id, unit_id, internal_user_id, check_request_id)
+            VALUES (?, ?, NOW(), ?, ?, ?, ?)
         """;
 
         try {
-
             PreparedStatement ps = connection.prepareStatement(sql);
-
             ps.setInt(1, action);
             ps.setInt(2, quantity);
             ps.setInt(3, itemId);
             ps.setInt(4, unitId);
             ps.setInt(5, userId);
-
+            ps.setInt(6, checkRequestId);
             ps.executeUpdate();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    */
+    
     public void completeAssignment(int assignmentId) {
 
     String sql = """
@@ -299,5 +295,37 @@ public class StaffTaskDAO extends DBContext {
         e.printStackTrace();
     }
 }
-
+public int getTotalInventoryLogQty(int checkRequestItemId, int checkRequestId) {
+    String sql = """
+        SELECT SUM(quantity) AS total
+        FROM Inventory_log
+        WHERE check_request_id = ? AND item_id = (
+            SELECT item_id FROM check_request_item WHERE id = ?
+        )
+    """;
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, checkRequestId);
+        ps.setInt(2, checkRequestItemId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt("total");
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+public int getTotalProcessedQty(int itemId, int checkRequestId) {
+    String sql = "SELECT SUM(quantity) AS total FROM Inventory_log WHERE item_id = ? AND check_request_id = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, itemId);
+        ps.setInt(2, checkRequestId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("total");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
 }

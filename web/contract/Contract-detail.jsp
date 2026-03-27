@@ -150,10 +150,9 @@
                             <span class="contract-id">MÃ HĐ: #${contract.contractId}</span>
                             <div class="status-container">
                                 <c:choose>
-                                    <c:when test="${contract.status == 0}"><span class="status-badge" style="background:#fef3c7; color:#92400e">Thanh toán thành công</span></c:when>
-                                    <c:when test="${contract.status == 1}"><span class="status-badge" style="background:#dbeafe; color:#1e40af">Chờ Renter xác nhận</span></c:when>
-                                    <c:when test="${contract.status == 3}"><span class="status-badge" style="background:#dcfce7; color:#166534">Hợp đồng có hiệu lực</span></c:when>
-                                    <c:otherwise><span class="status-badge" style="background:#fee2e2; color:#991b1b">Đã từ chối</span></c:otherwise>
+                                    <c:when test="${contract.status == 0}"><span class="status-badge" style="background:#fef3c7; color:#92400e">Hợp đồng hết hiệu lực</span></c:when>                               
+                                    <c:when test="${contract.status == 1 and contract.paymentStatus == 1 }"><span class="status-badge" style="background:#dcfce7; color:#166534">Hợp đồng có hiệu lực</span></c:when>
+                                    <c:otherwise><span class="status-badge" style="background:#fee2e2; color:#991b1b">Chờ Renter xác nhận</span></c:otherwise>
                                 </c:choose>
                             </div>
                         </div>
@@ -202,6 +201,7 @@
                                     <tr>
                                         <th>STT</th>
                                         <th>Diện tích</th>
+                                        <th>Số lượng</th>
                                         <th>Đơn giá / tháng</th>
                                         <th>Thời hạn thuê</th>
                                     </tr>
@@ -211,6 +211,7 @@
                                         <tr>
                                             <td>${st.index + 1}</td>
                                             <td>${u.area} m²</td>
+                                            <td>${u.quantity}</td>
                                             <td><fmt:formatNumber value="${u.price}" type="number"/> VNĐ</td>
                                             <td>
                                                 <fmt:formatDate value="${u.startDate}" pattern="dd/MM/yyyy"/> 
@@ -225,10 +226,10 @@
                             <div class="summary-box">
                                 <div>
                                     <p style="margin:0; color:#64748b;">Phương thức thanh toán:</p>
-                                    <strong>Chuyển khoản định kỳ</strong>
+                                    <strong>Chuyển khoản Toàn phần</strong>
                                 </div>
                                 <div style="text-align: right;">
-                                    <p style="margin:0; color:#64748b;">Tổng cộng (Giá thuê/tháng):</p>
+                                    <p style="margin:0; color:#64748b;">Tổng cộng (Giá thuê + VAT):</p>
                                     <span class="price-tag"><fmt:formatNumber value="${contract.price}" type="number"/> VNĐ</span>
                                 </div>
                             </div>
@@ -260,7 +261,7 @@
 
                             <div class="actions">
                                 <a href="${pageContext.request.contextPath}/contract" class="btn btn-back"> Quay lại danh sách</a>
-                                <c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1}">
+                                <c:if test="${sessionScope.userType eq 'RENTER' and contract.status == 1 and contract.paymentStatus == 0}">
                                     <form action="${pageContext.request.contextPath}/payment" method="post" style="display:inline;">
                                         <input type="hidden" name="contractId" value="${contract.contractId}"/>
                                         <button type="submit" name="action" value="agree" class="btn btn-agree">Ký kết & Thanh toán</button>

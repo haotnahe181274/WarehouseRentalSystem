@@ -79,6 +79,7 @@
 
         <body>
             <jsp:include page="/Common/Layout/header.jsp" />
+            <jsp:include page="/message/popupMessage.jsp" />
             <div class="layout">
                 <jsp:include page="/Common/Layout/sidebar.jsp" />
                 <div class="container">
@@ -112,9 +113,14 @@
                             <label>Incident Type</label>
                             <select name="type" required ${empty whId ? 'disabled' : '' }>
                                 <option value="">-- Select Type --</option>
-                                <option>Inventory Issue</option>
-                                <option>Damaged Goods</option>
-                                <option>Security Issue</option>
+                                <option>Inventory Report</option>
+                                <option>Check-in / Check-out Report</option>
+                                <option>Stocktaking / Audit Report</option>
+                                <option>Equipment / Asset Report</option>
+                                <option>Daily Task Report</option>
+                                <option>Incident Report</option>
+                                <option>Pending / Delayed Report</option>
+                                <option>Other Report</option>
                             </select>
                         </div>
 
