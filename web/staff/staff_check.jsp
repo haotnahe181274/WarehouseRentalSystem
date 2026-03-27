@@ -266,7 +266,7 @@
                                            class="input-qty"
                                            name="processed_${i.id}" 
                                            min="0" 
-                                           max="${i.quantity}" 
+                                           max="${i.quantity - (i.processedQuantity != null ? i.processedQuantity : 0)}" 
                                            value="${i.processedQuantity != null ? i.processedQuantity : 0}">
                                 </div>
                             </div>
