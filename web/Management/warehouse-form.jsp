@@ -125,24 +125,23 @@
 
             <div class="mb-3">
                 <label class="form-label">
-                    Total Area (m²) <span class="text-danger">*</span>
+                    Total Area (m³) <span class="text-danger">*</span>
                     <small class="text-muted fw-normal">— Tổng diện tích của kho</small>
                 </label>
                 <input type="number" name="totalArea" class="form-control"
                        min="1" step="0.1"
                        value="${warehouse.totalArea > 0 ? warehouse.totalArea : ''}" required>
-                <div class="invalid-feedback">Total area is required and must be at least 1 m².</div>
+                <div class="invalid-feedback">Total area is required and must be at least 1 m³.</div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">
-                    Price per m² (VNĐ) <span class="text-danger">*</span>
-                    <small class="text-muted fw-normal">— Giá thuê mỗi mét vuông</small>
+                    Price per m³ (VNĐ) <span class="text-danger">*</span>
                 </label>
                 <input type="number" name="pricePerArea" class="form-control"
                        min="10000" step="1"
                        value="${warehouse.pricePerArea > 0 ? warehouse.pricePerArea : ''}" required>
-                <div class="invalid-feedback">Price per m² must be at least 10,000 VNĐ.</div>
+                <div class="invalid-feedback">Price per m³ must be at least 10,000 VNĐ.</div>
             </div>
 
             <div class="mb-3">
