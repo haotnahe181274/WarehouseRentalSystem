@@ -34,7 +34,7 @@ public class ContractDAO extends DBContext {
                 rr.renter_id,
                 rr.warehouse_id,
                 rr.request_id,
-                SUM(ru.rent_price)
+                SUM(ru.rent_price)* 1.1
             FROM Rent_request rr
             JOIN rent_request_unit ru
                 ON rr.request_id = ru.request_id

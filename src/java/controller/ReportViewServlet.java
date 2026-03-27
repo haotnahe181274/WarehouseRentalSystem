@@ -103,7 +103,8 @@ public class ReportViewServlet extends HttpServlet {
         UserView user = (session != null) ? (UserView) session.getAttribute("user") : null;
 
         // 1. Kiểm tra quyền Manager
-        if (user == null || !user.getRole().equalsIgnoreCase("Manager")) {
+        if (user == null || !(user.getRole().equalsIgnoreCase("Manager") 
+                      || user.getRole().equalsIgnoreCase("Admin"))) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }

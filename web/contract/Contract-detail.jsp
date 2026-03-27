@@ -173,6 +173,7 @@
                                         <p><b>Điện thoại:</b> ${contract.managerPhone}</p>
                                         <p><b>Email:</b> ${contract.managerEmail}</p>
                                         <p><b>Địa chỉ:</b> Sơn Tây, Hà Nội</p>
+                                        <p><b>Mã số thuế:</b> 0318745621</p>
                                     </div>
                                 </div>
 
@@ -184,6 +185,9 @@
                                         <p><b>Điện thoại:</b> ${contract.renterPhone}</p>
                                         <p><b>Email:</b> ${contract.renterEmail}</p>
                                         <p><b>Địa chỉ liên hệ:</b> Thông tin tài khoản</p>
+                                        <p><b></b> </p>
+                                        <p><b></b> </p>
+                                        <p><b></b> </p>
                                     </div>
                                 </div>
                             </div>
@@ -201,6 +205,7 @@
                                     <tr>
                                         <th>STT</th>
                                         <th>Diện tích</th>
+                                        <th>Số lượng</th>
                                         <th>Đơn giá / tháng</th>
                                         <th>Thời hạn thuê</th>
                                     </tr>
@@ -210,6 +215,7 @@
                                         <tr>
                                             <td>${st.index + 1}</td>
                                             <td>${u.area} m²</td>
+                                            <td>${u.quantity}</td>
                                             <td><fmt:formatNumber value="${u.price}" type="number"/> VNĐ</td>
                                             <td>
                                                 <fmt:formatDate value="${u.startDate}" pattern="dd/MM/yyyy"/> 
@@ -227,7 +233,7 @@
                                     <strong>Chuyển khoản Toàn phần</strong>
                                 </div>
                                 <div style="text-align: right;">
-                                    <p style="margin:0; color:#64748b;">Tổng cộng (Giá thuê):</p>
+                                    <p style="margin:0; color:#64748b;">Tổng cộng (Giá thuê + VAT):</p>
                                     <span class="price-tag"><fmt:formatNumber value="${contract.price}" type="number"/> VNĐ</span>
                                 </div>
                             </div>
