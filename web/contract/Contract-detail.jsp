@@ -173,6 +173,7 @@
                                         <p><b>Điện thoại:</b> ${contract.managerPhone}</p>
                                         <p><b>Email:</b> ${contract.managerEmail}</p>
                                         <p><b>Địa chỉ:</b> Sơn Tây, Hà Nội</p>
+                                        <p><b>Mã số thuế:</b> 0318745621</p>
                                     </div>
                                 </div>
 
@@ -184,6 +185,9 @@
                                         <p><b>Điện thoại:</b> ${contract.renterPhone}</p>
                                         <p><b>Email:</b> ${contract.renterEmail}</p>
                                         <p><b>Địa chỉ liên hệ:</b> Thông tin tài khoản</p>
+                                        <p><b></b> </p>
+                                        <p><b></b> </p>
+                                        <p><b></b> </p>
                                     </div>
                                 </div>
                             </div>

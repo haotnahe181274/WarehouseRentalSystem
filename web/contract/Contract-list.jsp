@@ -73,7 +73,7 @@
             <table class="table table-hover align-middle mb-0" id="contractTable">
                 <thead>
                     <tr>
-                        <th class="text-center py-3">Mã HĐ</th>
+                        <th class="text-center py-3">No.</th>
                         <th class="renter-col">Renter</th>
                         <th class="text-center">Start Date</th>
                         <th class="text-center">End Date</th>
