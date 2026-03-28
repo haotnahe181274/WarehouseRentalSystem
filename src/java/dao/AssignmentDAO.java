@@ -211,7 +211,7 @@ public class AssignmentDAO extends DBContext {
             "SELECT sa.assignment_id, sa.assigned_to, sa.warehouse_id, sa.unit_id, " +
             "       sa.assignment_type, sa.check_request_id, sa.description, " +
             "       sa.started_date, sa.due_date, sa.completed_at, " +
-            "       u.full_name  AS staff_name, " +
+            "       u.user_name  AS staff_name, " +
             "       w.name       AS warehouse_name, " +
             "       su.unit_code AS unit_code " +
             "FROM Staff_assignment sa " +

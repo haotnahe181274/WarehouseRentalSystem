@@ -4,6 +4,7 @@
 <html>
 <head>
     <title>Hợp đồng cho thuê nhà xưởng và kho bãi</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -89,12 +90,13 @@
             border-collapse: separate; 
             border-spacing: 0; 
             margin: 20px 0; 
-            border-radius: 10px; 
+            border-radius: 12px; 
             overflow: hidden; 
-            border: 1px solid var(--border-color);
+            border: 1px solid #e5e7eb;
         }
-        .custom-table th { background: #f1f5f9; color: var(--secondary-color); padding: 15px; text-align: left; }
-        .custom-table td { padding: 15px; border-top: 1px solid var(--border-color); }
+        .custom-table th { background: #f9fafb; color: #4b5563; font-weight: 600; font-size: 14px; padding: 12px 16px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        .custom-table td { padding: 12px 16px; border-top: 1px solid #f3f4f6; font-size: 14px; color: #374151; }
+        .custom-table tbody tr:hover { background: #f9fafb; }
 
         .summary-box {
             background: #f0f9ff;

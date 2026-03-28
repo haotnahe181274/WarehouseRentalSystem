@@ -6,14 +6,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Incident Report List</title>
-    <link rel="stylesheet"
-              href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
 
     <style>
         /* Page-specific styles only — shared styles in management-layout.css */
@@ -76,13 +74,13 @@
 
                 <table id="itemTable">
                     <thead>
-                        <tr>   
+                        <tr>
                             <th>Staff</th>
                             <th>Type</th>
                             <th>Warehouse</th>
                             <th>Date</th>
                             <th>Status</th>
-                            <th>Action</th> </tr>
+                            <th>Action</th>
                         </tr>
                     </thead>
 
@@ -122,11 +120,17 @@
             </div> <!-- End main-content -->
         </div> <!-- End layout -->
         <jsp:include page="/Common/Layout/footer.jsp" />
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <script>
             $(document).ready(function () {
                 $('#itemTable').DataTable({
-                    pageLength: 5
-                    
+                    pageLength: 5,
+                    dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',
+                    language: {
+                        search: "Search:",
+                        lengthMenu: "_MENU_ entries per page"
+                    }
                 });
             });
         </script>
