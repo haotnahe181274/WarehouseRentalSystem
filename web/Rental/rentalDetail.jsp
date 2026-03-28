@@ -26,10 +26,15 @@
              data-context-path="${pageContext.request.contextPath}"
              data-mode="${mode}">
 
+            <c:if test="${not empty sessionScope.rentalError}">
+                <div class="rental-error-box">${sessionScope.rentalError}</div>
+                <c:remove var="rentalError" scope="session" />
+            </c:if>
+
             <h2><c:choose><c:when test="${isCreate}">New Rent Request</c:when><c:otherwise>Rent Request Detail</c:otherwise></c:choose></h2>
 
             <c:if test="${isForm}">
-                <form action="${pageContext.request.contextPath}/${isCreate ? 'createRentRequest' : 'rentDetail'}" method="post" id="detailForm">
+                <form action="${pageContext.request.contextPath}/${isCreate ? 'createRentRequest' : 'rentDetail'}" method="post" id="detailForm" onsubmit="return validateForm()">
                     <c:if test="${isCreate}">
                         <input type="hidden" name="warehouseId" value="${rr.warehouse.warehouseId}" />
                     </c:if>
@@ -268,7 +273,7 @@
                 <div class="action-buttons">
                     <c:choose>
                         <c:when test="${isForm}">
-                            <button type="submit" class="btn btn-update" onclick="return validateForm()">
+                            <button type="submit" class="btn btn-update">
                                 <c:choose><c:when test="${isCreate}">Submit Request</c:when><c:otherwise>Save Changes</c:otherwise></c:choose>
                                     </button>
                             <c:if test="${isEdit}">
@@ -323,6 +328,15 @@
                 border-radius: 12px;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.1);
                 padding: 30px;
+            }
+            .rental-error-box {
+                margin-bottom: 16px;
+                padding: 12px 14px;
+                border-radius: 8px;
+                border: 1px solid #fecaca;
+                background: #fef2f2;
+                color: #b91c1c;
+                font-weight: 600;
             }
             .section-title {
                 font-size: 18px;
@@ -852,13 +866,27 @@
                     alert("You must have at least one item.");
                     return false;
                 }
+                var hasAtLeastOneCompletedItem = false;
                 for (var i = 0; i < itemRows.length; i++) {
                     var nameInput = itemRows[i].querySelector("input[name='itemName']");
                     var descInput = itemRows[i].querySelector("input[name='description']");
-                    if (nameInput && descInput && (nameInput.value.trim() === "" || descInput.value.trim() === "")) {
+                    if (!nameInput || !descInput) {
+                        continue;
+                    }
+                    var itemName = nameInput.value.trim();
+                    var itemDescription = descInput.value.trim();
+                    if (itemName === "" && itemDescription === "") {
+                        continue;
+                    }
+                    if (itemName === "" || itemDescription === "") {
                         alert("All item fields must be filled.");
                         return false;
                     }
+                    hasAtLeastOneCompletedItem = true;
+                }
+                if (!hasAtLeastOneCompletedItem) {
+                    alert("Please add at least one item before submitting.");
+                    return false;
                 }
                 return true;
             }

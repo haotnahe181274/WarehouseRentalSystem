@@ -159,6 +159,31 @@ public class CreateRentRequest extends HttpServlet {
             }
         }
 
+        // Server-side validation: require at least one complete item and reject partial item rows.
+        boolean hasValidItem = false;
+        if (names != null && descriptions != null) {
+            int itemLength = Math.min(names.length, descriptions.length);
+            for (int i = 0; i < itemLength; i++) {
+                String itemName = names[i] == null ? "" : names[i].trim();
+                String itemDescription = descriptions[i] == null ? "" : descriptions[i].trim();
+
+                if (itemName.isEmpty() && itemDescription.isEmpty()) {
+                    continue;
+                }
+                if (itemName.isEmpty() || itemDescription.isEmpty()) {
+                    session.setAttribute("rentalError", "All item fields must be filled.");
+                    response.sendRedirect(request.getContextPath() + "/createRentRequest?id=" + warehouseId);
+                    return;
+                }
+                hasValidItem = true;
+            }
+        }
+        if (!hasValidItem) {
+            session.setAttribute("rentalError", "Please add at least one item before submitting.");
+            response.sendRedirect(request.getContextPath() + "/createRentRequest?id=" + warehouseId);
+            return;
+        }
+
         int renterId = user.getId();
         RentRequestDAO rrDao = new RentRequestDAO();
         ItemDAO itemDao = new ItemDAO();

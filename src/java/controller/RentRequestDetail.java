@@ -175,56 +175,80 @@ public class RentRequestDetail extends HttpServlet {
 
         int renterId = x.getRenter().getRenterId();
         int warehouseId = x.getWarehouse().getWarehouseId();
-        if (startDates != null && endDates != null && areas != null && prices != null && quantities != null
-                && (startDates.length != endDates.length || startDates.length != areas.length
-                || startDates.length != prices.length || startDates.length != quantities.length)) {
+        if (startDates == null || endDates == null || areas == null || prices == null || quantities == null
+                || startDates.length == 0 || endDates.length == 0 || areas.length == 0 || prices.length == 0 || quantities.length == 0) {
             session.setAttribute("rentalError", "Invalid unit data.");
             response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
             return;
         }
-        if (startDates != null && endDates != null && areas != null && prices != null && quantities != null) {
-            WarehouseDAO warehouseDao = new WarehouseDAO();
-            Set<String> areaSet = new HashSet<>();
-            for (int i = 0; i < startDates.length; i++) {
-                try {
-                    java.sql.Date sd = java.sql.Date.valueOf(startDates[i].trim());
-                    java.sql.Date ed = java.sql.Date.valueOf(endDates[i].trim());
-                    String areaRaw = areas[i].trim();
-                    if (!areaSet.add(areaRaw)) {
-                        session.setAttribute("rentalError", "Area cannot be selected more than once.");
-                        response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
-                        return;
-                    }
-                    double area = Double.parseDouble(areaRaw);
-                    int quantity = Integer.parseInt(quantities[i].trim());
-                    Map<Double, Integer> availableMap = warehouseDao.getAvailableAreaQuantityByWarehouse(warehouseId, sd, ed);
-                    int maxQty = availableMap.getOrDefault(area, 0);
-                    if (quantity <= 0 || quantity > maxQty) {
-                        session.setAttribute("rentalError", "Quantity exceeds available units for selected area.");
-                        response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
-                        return;
-                    }
-                } catch (Exception ex) {
-                    session.setAttribute("rentalError", "Invalid unit data.");
+        if (startDates.length != endDates.length || startDates.length != areas.length
+                || startDates.length != prices.length || startDates.length != quantities.length) {
+            session.setAttribute("rentalError", "Invalid unit data.");
+            response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
+            return;
+        }
+        WarehouseDAO warehouseDao = new WarehouseDAO();
+        Set<String> areaSet = new HashSet<>();
+        for (int i = 0; i < startDates.length; i++) {
+            try {
+                java.sql.Date sd = java.sql.Date.valueOf(startDates[i].trim());
+                java.sql.Date ed = java.sql.Date.valueOf(endDates[i].trim());
+                String areaRaw = areas[i].trim();
+                if (!areaSet.add(areaRaw)) {
+                    session.setAttribute("rentalError", "Area cannot be selected more than once.");
                     response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
                     return;
                 }
+                double area = Double.parseDouble(areaRaw);
+                int quantity = Integer.parseInt(quantities[i].trim());
+                Map<Double, Integer> availableMap = warehouseDao.getAvailableAreaQuantityByWarehouse(warehouseId, sd, ed);
+                int maxQty = availableMap.getOrDefault(area, 0);
+                if (quantity <= 0 || quantity > maxQty) {
+                    session.setAttribute("rentalError", "Quantity exceeds available units for selected area.");
+                    response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
+                    return;
+                }
+            } catch (Exception ex) {
+                session.setAttribute("rentalError", "Invalid unit data.");
+                response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
+                return;
             }
         }
 
-        if (startDates != null && endDates != null && areas != null && prices != null && quantities != null
-                && startDates.length > 0 && endDates.length > 0 && areas.length > 0 && prices.length > 0 && quantities.length > 0) {
-            dao.deleteUnitsByRequestId(requestId);
-            for (int i = 0; i < startDates.length; i++) {
-                try {
-                    java.sql.Date sd = java.sql.Date.valueOf(startDates[i].trim());
-                    java.sql.Date ed = java.sql.Date.valueOf(endDates[i].trim());
-                    double a = Double.parseDouble(areas[i].trim());
-                    double pr = Double.parseDouble(prices[i].trim());
-                    int qty = Integer.parseInt(quantities[i].trim());
-                    dao.insertRentRequestUnit(requestId, sd, ed, a, pr, qty);
-                } catch (IllegalArgumentException ignored) {
+        boolean hasValidItem = false;
+        if (names != null && descriptions != null) {
+            int itemLength = Math.min(names.length, descriptions.length);
+            for (int i = 0; i < itemLength; i++) {
+                String itemName = names[i] == null ? "" : names[i].trim();
+                String itemDescription = descriptions[i] == null ? "" : descriptions[i].trim();
+
+                if (itemName.isEmpty() && itemDescription.isEmpty()) {
+                    continue;
                 }
+                if (itemName.isEmpty() || itemDescription.isEmpty()) {
+                    session.setAttribute("rentalError", "All item fields must be filled.");
+                    response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
+                    return;
+                }
+                hasValidItem = true;
+            }
+        }
+        if (!hasValidItem) {
+            session.setAttribute("rentalError", "Please add at least one item before submitting.");
+            response.sendRedirect(request.getContextPath() + "/rentDetail?id=" + requestId + "&action=edit");
+            return;
+        }
+
+        dao.deleteUnitsByRequestId(requestId);
+        for (int i = 0; i < startDates.length; i++) {
+            try {
+                java.sql.Date sd = java.sql.Date.valueOf(startDates[i].trim());
+                java.sql.Date ed = java.sql.Date.valueOf(endDates[i].trim());
+                double a = Double.parseDouble(areas[i].trim());
+                double pr = Double.parseDouble(prices[i].trim());
+                int qty = Integer.parseInt(quantities[i].trim());
+                dao.insertRentRequestUnit(requestId, sd, ed, a, pr, qty);
+            } catch (IllegalArgumentException ignored) {
             }
         }
 
