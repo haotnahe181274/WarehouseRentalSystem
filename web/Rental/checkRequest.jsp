@@ -6,9 +6,6 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Check In / Check Out Request</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
         <style>
             body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #111; }
             .error-banner{
@@ -27,6 +24,9 @@
             .section { margin-bottom: 20px; }
             label { font-weight: bold; color: #222; }
             select, input[type="number"] { padding: 6px 8px; border-radius: 4px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
+            .table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+            .table th, .table td { padding: 8px 10px; border-bottom: 1px solid #e5e5e5; text-align: left; }
+            .table thead { background: #111; color: #fff; }
             .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
             .btn-approve { background-color: #111; color: #fff; }
             .btn-approve:hover { background-color: #222; }

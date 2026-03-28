@@ -99,7 +99,7 @@
                                     <fmt:formatDate value="${rr.requestDate}" pattern="dd-MM-yyyy HH:mm"/>
                                 </td>
 
-                                <td data-search="${rr.status}" data-order="${rr.status}">
+                                <td data-order="${rr.status}">
                                     <c:choose>
                                         <c:when test="${rr.status == 0}">Pending</c:when>
                                         <c:when test="${rr.status == 1}">Approved</c:when>

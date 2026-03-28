@@ -10,11 +10,6 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Rent Request</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
     </head>
     <body>
         <jsp:include page="/Common/Layout/header.jsp"/>
@@ -388,6 +383,23 @@
                 font-size: 16px;
                 margin-top: 5px;
             }
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+            .table thead {
+                background: #1e293b;
+                color: white;
+            }
+            .table th, .table td {
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .table tbody tr:hover {
+                background-color: #f1f5f9;
+            }
             .action-buttons {
                 margin-top: 25px;
                 text-align: right;
@@ -451,6 +463,15 @@
             }
             .units-table {
                 margin-bottom: 15px;
+            }
+            .units-table th {
+                background: #1e293b;
+                color: white;
+                padding: 10px;
+            }
+            .units-table td {
+                padding: 8px;
+                vertical-align: middle;
             }
             .unit-row input[type="date"], .unit-row select {
                 width: 100%;
