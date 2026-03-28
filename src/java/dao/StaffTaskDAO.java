@@ -277,24 +277,46 @@ public class StaffTaskDAO extends DBContext {
     
     public void completeAssignment(int assignmentId) {
 
-    String sql = """
-        UPDATE Staff_assignment
-        SET completed_at = NOW()
-        WHERE assignment_id = ?
-    """;
+        String sql = """
+            UPDATE Staff_assignment
+            SET completed_at = NOW()
+            WHERE assignment_id = ?
+        """;
 
-    try {
+        try {
 
-        PreparedStatement ps = connection.prepareStatement(sql);
+            PreparedStatement ps = connection.prepareStatement(sql);
 
-        ps.setInt(1, assignmentId);
+            ps.setInt(1, assignmentId);
 
-        ps.executeUpdate();
+            ps.executeUpdate();
 
-    } catch (Exception e) {
-        e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
+    public void updateCheckRequestInternal(int requestId, int assignmentId) {
+        String sql = """
+            UPDATE check_request 
+            SET internal_user_id = (
+                SELECT assigned_to 
+                FROM staff_assignment 
+                WHERE assignment_id = ?
+            ),
+            processed_date = NOW()
+            WHERE id = ?
+        """;
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, assignmentId);
+            ps.setInt(2, requestId);
+            ps.executeUpdate();
+            ps.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 public int getTotalInventoryLogQty(int checkRequestItemId, int checkRequestId) {
     String sql = """
         SELECT SUM(quantity) AS total
