@@ -173,7 +173,7 @@
             <div class="mb-4">
                 <label class="form-label fw-semibold">
                     Warehouse Images
-                    <small class="text-muted fw-normal ms-1">— Tối đa 10 ảnh · .jpg .jpeg .png · max 5 MB/ảnh</small>
+                    <small class="text-muted fw-normal ms-1">— Maximum 10 pics · .jpg .jpeg .png · max 5 MB/picture</small>
                 </label>
 
                 <div id="summaryBar" class="mb-2" style="font-size:0.82rem; color:#6c757d;"></div>
@@ -182,12 +182,12 @@
                 
                 
                 <button type="button" id="btnAddSlot" class="btn btn-outline-primary btn-sm mt-1">
-                    <i class="fa-solid fa-plus me-1"></i> Thêm ảnh
+                    <i class="fa-solid fa-plus me-1"></i> Add more
                 </button>
 
                 <div class="form-text text-danger mt-2">
                     <i class="fa-solid fa-star fa-xs"></i>
-                    Ảnh <strong>số 1</strong> sẽ là thumbnail chính.
+                    First <strong> picture</strong> will be thumbnail.
                 </div>
 
                 <div id="imageGlobalError" class="text-danger mt-1" style="font-size:0.85rem; display:none;"></div>

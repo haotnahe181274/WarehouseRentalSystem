@@ -97,6 +97,7 @@ public class StaffCheckServlet extends HttpServlet {
             }
 
             if ("complete".equalsIgnoreCase(action)) {
+                dao.updateCheckRequestInternal(requestId, assignmentId);
                 dao.completeAssignment(assignmentId);
                 response.sendRedirect("staffTask?status=success");
             } else {

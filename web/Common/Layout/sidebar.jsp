@@ -120,6 +120,7 @@
                 <li><a href="${pageContext.request.contextPath}/contract"><i class="fa-solid fa-file-signature"></i> Contracts Management</a></li>
                 <li><a href="${pageContext.request.contextPath}/feedbackManagement"><i class="fa-solid fa-comments"></i> Feedback Management</a></li>
                 <li><a href="${pageContext.request.contextPath}/incident"><i class="fa-solid fa-triangle-exclamation"></i> Reports Management</a></li>
+                <li><a href="${pageContext.request.contextPath}/taskBoard"><i class="fa-solid fa-list-check"></i> Tasks</a></li>
                 <li><a href="${pageContext.request.contextPath}/category-management"><i class="fa-solid fa-tags"></i> Blog Categories</a></li>
             </c:if>
 
@@ -132,7 +133,9 @@
                 <li><a href="${pageContext.request.contextPath}/contract"><i class="fa-solid fa-file-signature"></i> Contracts Management</a></li>
                 <li><a href="${pageContext.request.contextPath}/feedbackManagement"><i class="fa-solid fa-comments"></i> Feedback Management</a></li>
                 <li><a href="${pageContext.request.contextPath}/incident"><i class="fa-solid fa-triangle-exclamation"></i> Reports Management</a></li>
+                <li><a href="${pageContext.request.contextPath}/taskBoard"><i class="fa-solid fa-list-check"></i> Tasks</a></li>
                 <li><a href="${pageContext.request.contextPath}/category-management"><i class="fa-solid fa-tags"></i> Blog Categories</a></li>
+
             </c:if>
 
             <c:if test="${sessionScope.role == 'Staff'}">
