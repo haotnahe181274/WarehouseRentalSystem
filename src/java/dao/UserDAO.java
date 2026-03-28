@@ -245,7 +245,13 @@ public class UserDAO extends DBContext {
     }
 
     public boolean isUsernameExists(String username) {
-        String sql = "select 1 from internal_user where user_name= ?";
+        String sql = """
+                select 1 from (
+                    select user_name from internal_user
+                    union all
+                    select user_name from renter
+                ) u where LOWER(u.user_name) = LOWER(?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
@@ -374,7 +380,13 @@ public class UserDAO extends DBContext {
     }
 
     public boolean isRenterUsernameExists(String username) {
-        String sql = "select 1 from renter where user_name= ?";
+        String sql = """
+                select 1 from (
+                    select user_name from internal_user
+                    union all
+                    select user_name from renter
+                ) u where LOWER(u.user_name) = LOWER(?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
