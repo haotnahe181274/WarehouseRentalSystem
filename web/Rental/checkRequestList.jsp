@@ -8,15 +8,12 @@
     <meta charset="UTF-8">
     <title>Check Request History</title>
 
-    <!-- GIỐNG RENT REQUEST -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
-
-    <!-- DataTables -->
-    <link rel="stylesheet"
-          href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
     <style>
         .btn { padding: 6px 12px; border-radius: 4px; }

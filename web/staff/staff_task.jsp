@@ -6,8 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Staff Task Board</title>
-
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/Staff-tasks.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-stats.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
 
     <style>
         body {
@@ -15,82 +18,54 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background: #f5f7fb;
         }
 
-        .layout {
+        .staff-task-layout {
             display: flex;
             flex: 1;
         }
 
-        .main-content {
+        .staff-task-main {
             flex: 1;
             padding: 24px;
+            background-color: var(--mgmt-bg);
         }
 
-        /* HEADER */
         .header {
             margin-bottom: 25px;
         }
 
-        .header h1 {
+        .header h3 {
             margin: 0;
+            font-weight: 700;
+            color: #111827;
+            font-size: 20px;
         }
 
-        /* STAT CARD */
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
+        .header span {
+            color: #6b7280;
+            font-size: 14px;
         }
 
-        .stat-card {
-            flex: 1;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        .staff-task-main .btn-row {
+            display: inline-block;
         }
 
-        /* CARD */
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        /* TABLE */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #f1f3f7;
-            text-align: left;
-            padding: 12px;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
-        /* BUTTON */
-        .btn {
-            background: #4CAF50;
+        .staff-task-main .btn-row .btn {
+            background: #111827;
             color: white;
             padding: 6px 14px;
-            border-radius: 6px;
+            border-radius: 8px;
             text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        .btn:hover {
-            background: #3d9140;
+        .staff-task-main .btn-row .btn:hover {
+            background: #374151;
+            color: white;
         }
 
-        /* FOOTER */
         footer {
             margin-top: auto;
         }
@@ -103,28 +78,24 @@
 <!-- HEADER -->
 <jsp:include page="/Common/Layout/header.jsp"/>
 <jsp:include page="/message/popupMessage.jsp" />
-<div class="layout">
+<div class="staff-task-layout">
 
     <!-- SIDEBAR -->
     <jsp:include page="/Common/Layout/sidebar.jsp"/>
 
     <!-- MAIN CONTENT -->
-    <div class="main-content">
-
-        
+    <div class="staff-task-main">
 
         <!-- PAGE HEADER -->
         <div class="header">
-            <h1>Staff Task Board</h1>
+            <h3>Staff Task Board</h3>
             <span>Today's Assigned Tasks</span>
         </div>
 
         <!-- TASK TABLE -->
-        <div class="card">
-            <h3>Assigned Tasks</h3>
-
+        <div class="management-card">
             <c:if test="${empty taskList}">
-                <p>No tasks assigned.</p>
+                <p class="page-subtitle" style="margin-bottom: 0;">No tasks assigned.</p>
             </c:if>
 
             <table>
@@ -150,7 +121,7 @@
                             <td>${t.requestDate}</td>
                             <td>${t.dueDate}</td>
                             <td>
-                                <a class="btn"
+                                <a class="btn btn-row"
                                    href="${pageContext.request.contextPath}/staffCheck?assignmentId=${t.assignmentId}">
                                     Check
                                 </a>

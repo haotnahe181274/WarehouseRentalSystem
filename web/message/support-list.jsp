@@ -12,74 +12,55 @@
 <head>
     <meta charset="UTF-8">
     <title>Support Conversations</title>
-
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style-utils.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/management-layout.css">
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            margin: 0;
-            background: #f1f5f9;
-        }
-
-        /* HEADER */
-        .chat-header {
-            background: #0d6efd;
-            color: white;
-            padding: 12px;
-            font-weight: bold;
-        }
-
-        /* LIST */
-        .conversation-list {
+        .support-list-panel {
             height: 440px;
             overflow-y: auto;
-            background: #f8fafc;
-            padding: 10px;
+            background: var(--mgmt-bg, #f5f7fb);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--mgmt-border, #e2e8f0);
         }
-
         .conversation-box {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
+            background: var(--mgmt-card-bg, #ffffff);
+            padding: 12px 14px;
+            border-radius: var(--mgmt-radius, 12px);
             margin-bottom: 10px;
-            border: 1px solid #ddd;
-            transition: 0.2s;
+            border: 1px solid var(--mgmt-border, #e2e8f0);
+            box-shadow: var(--mgmt-shadow, 0 1px 3px rgba(0, 0, 0, 0.06));
+            transition: background 0.15s ease;
         }
-
         .conversation-box:hover {
-            background: #eef2ff;
+            background: #f9fafb;
         }
-
         .conversation-box a {
             text-decoration: none;
-            color: black;
+            color: #111827;
             display: block;
         }
-
         .subject {
-            font-weight: bold;
+            font-weight: 600;
             font-size: 14px;
+            color: #111827;
         }
-
         .meta {
-            color: gray;
+            color: #6b7280;
             font-size: 12px;
-            margin-top: 4px;
+            margin-top: 6px;
         }
-
         .no-data {
             padding: 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
-
-
-<div class="conversation-list">
+<div class="support-list-panel">
     <%
         if (conversationList != null && !conversationList.isEmpty()) {
             for (SupportConversation c : conversationList) {
@@ -98,7 +79,7 @@
         } else {
     %>
         <div class="no-data">
-            No conversations found.
+            No conversations yet.
         </div>
     <%
         }
