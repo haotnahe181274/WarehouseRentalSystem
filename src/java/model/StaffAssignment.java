@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
 import java.sql.Date;
@@ -10,153 +6,92 @@ import java.util.List;
 
 public class StaffAssignment {
 
+    // Columns that actually exist in Staff_assignment table
     private int assignmentId;
-    private Date assignedDate;
     private int assignedTo;
     private int warehouseId;
-    private int assignedBy;
-    private int assignmentType;
+    private Integer unitId;           // nullable
+    private int assignmentType;       // 1=check-in, 2=check-out
+    private Integer checkRequestId;   // nullable
     private String description;
-    private Timestamp assignedAt;
-    private Timestamp dueDate;
-    private Timestamp startedAt;
-    private Timestamp completedAt;
-    private int status;
-    private int isOverdue;
+    private Date startedDate;
+    private Date dueDate;
+    private Timestamp completedAt;    // null = not yet completed
 
-    // Quan hệ 1-N
+    // Joined display fields (not in DB, populated by DAO query)
+    private String staffName;
+    private String warehouseName;
+    private String unitCode;
+
+    // One-to-many relationship
     private List<StaffAssignmentItem> items;
 
-    public StaffAssignment() {
+    public StaffAssignment() {}
+
+    // ── Getters & Setters ──────────────────────────────────────
+
+    public int getAssignmentId()                    { return assignmentId; }
+    public void setAssignmentId(int assignmentId)   { this.assignmentId = assignmentId; }
+
+    public int getAssignedTo()                      { return assignedTo; }
+    public void setAssignedTo(int assignedTo)       { this.assignedTo = assignedTo; }
+
+    public int getWarehouseId()                     { return warehouseId; }
+    public void setWarehouseId(int warehouseId)     { this.warehouseId = warehouseId; }
+
+    public Integer getUnitId()                      { return unitId; }
+    public void setUnitId(Integer unitId)           { this.unitId = unitId; }
+
+    public int getAssignmentType()                  { return assignmentType; }
+    public void setAssignmentType(int assignmentType) { this.assignmentType = assignmentType; }
+
+    public Integer getCheckRequestId()              { return checkRequestId; }
+    public void setCheckRequestId(Integer id)       { this.checkRequestId = id; }
+
+    public String getDescription()                  { return description; }
+    public void setDescription(String description)  { this.description = description; }
+
+    public Date getStartedDate()                    { return startedDate; }
+    public void setStartedDate(Date startedDate)    { this.startedDate = startedDate; }
+
+    public Date getDueDate()                        { return dueDate; }
+    public void setDueDate(Date dueDate)            { this.dueDate = dueDate; }
+
+    public Timestamp getCompletedAt()               { return completedAt; }
+    public void setCompletedAt(Timestamp completedAt) { this.completedAt = completedAt; }
+
+    public String getStaffName()                    { return staffName; }
+    public void setStaffName(String staffName)      { this.staffName = staffName; }
+
+    public String getWarehouseName()                { return warehouseName; }
+    public void setWarehouseName(String warehouseName) { this.warehouseName = warehouseName; }
+
+    public String getUnitCode()                     { return unitCode; }
+    public void setUnitCode(String unitCode)        { this.unitCode = unitCode; }
+
+    public List<StaffAssignmentItem> getItems()     { return items; }
+    public void setItems(List<StaffAssignmentItem> items) { this.items = items; }
+
+    // ── Helpers for JSP ───────────────────────────────────────
+
+    /** Returns true if the assignment has not been completed yet. */
+    public boolean isPending() {
+        return completedAt == null;
     }
 
-    public StaffAssignment(int assignmentId, Date assignedDate, int assignedTo, int warehouseId, int assignedBy, int assignmentType, String description, Timestamp assignedAt, Timestamp dueDate, Timestamp startedAt, Timestamp completedAt, int status, int isOverdue, List<StaffAssignmentItem> items) {
-        this.assignmentId = assignmentId;
-        this.assignedDate = assignedDate;
-        this.assignedTo = assignedTo;
-        this.warehouseId = warehouseId;
-        this.assignedBy = assignedBy;
-        this.assignmentType = assignmentType;
-        this.description = description;
-        this.assignedAt = assignedAt;
-        this.dueDate = dueDate;
-        this.startedAt = startedAt;
-        this.completedAt = completedAt;
-        this.status = status;
-        this.isOverdue = isOverdue;
-        this.items = items;
-    }
-    
-    public int getAssignmentId() {
-        return assignmentId;
+    /** Returns human-readable assignment type label. */
+    public String getAssignmentTypeLabel() {
+        switch (assignmentType) {
+            case 1: return "Check-in";
+            case 2: return "Check-out";
+            default: return "General";
+        }
     }
 
-    public void setAssignmentId(int assignmentId) {
-        this.assignmentId = assignmentId;
-    }
-
-    public Date getAssignedDate() {
-        return assignedDate;
-    }
-
-    public void setAssignedDate(Date assignedDate) {
-        this.assignedDate = assignedDate;
-    }
-
-    public int getAssignedTo() {
-        return assignedTo;
-    }
-
-    public void setAssignedTo(int assignedTo) {
-        this.assignedTo = assignedTo;
-    }
-
-    public int getWarehouseId() {
-        return warehouseId;
-    }
-
-    public void setWarehouseId(int warehouseId) {
-        this.warehouseId = warehouseId;
-    }
-
-    public int getAssignedBy() {
-        return assignedBy;
-    }
-
-    public void setAssignedBy(int assignedBy) {
-        this.assignedBy = assignedBy;
-    }
-
-    public int getAssignmentType() {
-        return assignmentType;
-    }
-
-    public void setAssignmentType(int assignmentType) {
-        this.assignmentType = assignmentType;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Timestamp getAssignedAt() {
-        return assignedAt;
-    }
-
-    public void setAssignedAt(Timestamp assignedAt) {
-        this.assignedAt = assignedAt;
-    }
-
-    public Timestamp getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(Timestamp dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public Timestamp getStartedAt() {
-        return startedAt;
-    }
-
-    public void setStartedAt(Timestamp startedAt) {
-        this.startedAt = startedAt;
-    }
-
-    public Timestamp getCompletedAt() {
-        return completedAt;
-    }
-
-    public void setCompletedAt(Timestamp completedAt) {
-        this.completedAt = completedAt;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public int getIsOverdue() {
-        return isOverdue;
-    }
-
-    public void setIsOverdue(int isOverdue) {
-        this.isOverdue = isOverdue;
-    }
-
-    public List<StaffAssignmentItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<StaffAssignmentItem> items) {
-        this.items = items;
+    /** Returns true if past due date and not yet completed. */
+    public boolean isOverdue() {
+        if (completedAt != null) return false;
+        if (dueDate == null) return false;
+        return dueDate.before(new java.util.Date());
     }
 }
-
