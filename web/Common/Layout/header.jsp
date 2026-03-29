@@ -39,18 +39,18 @@
         <c:if test="${sessionScope.userType == 'INTERNAL'}">
             <c:if test="${sessionScope.role == 'Admin'}">
                 <li class="app-header__menu-item">
-                    <a class="app-header__menu-link" href="dashboard">Admin</a>
+                    <a class="app-header__menu-link" href="${pageContext.request.contextPath}/dashboard">Admin</a>
                 </li>
             </c:if>
             <c:if test="${sessionScope.role == 'Staff'}">
                 <li class="app-header__menu-item">
-                    <a class="app-header__menu-link" href="staffTask">Staff</a>
+                    <a class="app-header__menu-link" href="${pageContext.request.contextPath}/staffTask">Staff</a>
                 </li>
                 
             </c:if>
             <c:if test="${sessionScope.role == 'Manager'}">
                 <li class="app-header__menu-item">
-                    <a class="app-header__menu-link" href="dashboard">Manager</a>
+                    <a class="app-header__menu-link" href="${pageContext.request.contextPath}/dashboard">Manager</a>
                 </li>
                
             </c:if>
