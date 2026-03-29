@@ -26,11 +26,13 @@ public class VnpayReturn extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
 
             // Thu thập tất cả fields từ VNPay callback
-            Map fields = new HashMap();
-            for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
-                String fieldName  = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());
-                String fieldValue = URLEncoder.encode(request.getParameter(fieldName), StandardCharsets.US_ASCII.toString());
-                if (fieldValue != null && fieldValue.length() > 0) {
+            Map<String, String> fields = new HashMap<>();
+
+            for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
+                String fieldName = params.nextElement(); // giữ nguyên
+                String fieldValue = request.getParameter(fieldName); // lấy value chuẩn
+
+                if (fieldValue != null && !fieldValue.isEmpty()) {
                     fields.put(fieldName, fieldValue);
                 }
             }
@@ -39,8 +41,12 @@ public class VnpayReturn extends HttpServlet {
 
             // Xác thực chữ ký VNPay
             String vnp_SecureHash = request.getParameter("vnp_SecureHash");
-            if (fields.containsKey("vnp_SecureHashType")) fields.remove("vnp_SecureHashType");
-            if (fields.containsKey("vnp_SecureHash"))     fields.remove("vnp_SecureHash");
+            if (fields.containsKey("vnp_SecureHashType")) {
+                fields.remove("vnp_SecureHashType");
+            }
+            if (fields.containsKey("vnp_SecureHash")) {
+                fields.remove("vnp_SecureHash");
+            }
 
             String signValue = Config.hashAllFields(fields);
 
@@ -60,7 +66,7 @@ public class VnpayReturn extends HttpServlet {
                         // Lấy thông tin đầy đủ của payment (có contractId, renterId, amount)
                         Payment fullPayment = paymentDao.getPaymentById(paymentId);
 
-                        if (fullPayment != null && fullPayment.getContract().getRenter().getRenterId()> 0) {
+                        if (fullPayment != null && fullPayment.getContract().getRenter().getRenterId() > 0) {
                             String amountStr = String.format("%,.0f", fullPayment.getAmount());
 
                             Notification noti = new Notification();

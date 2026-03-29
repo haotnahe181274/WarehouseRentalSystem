@@ -14,6 +14,8 @@ import java.util.Random;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
+
 
 /**
  *
@@ -76,7 +78,11 @@ public class Config {
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
                 sb.append(fieldName);
                 sb.append("=");
-                sb.append(fieldValue);
+                try {
+                sb.append(URLEncoder.encode(fieldValue, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             }
             if (itr.hasNext()) {
                 sb.append("&");
