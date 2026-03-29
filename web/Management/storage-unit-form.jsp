@@ -129,16 +129,16 @@
                         <div class="area-stat">
                             <div class="area-stat-row">
                                 <span>Warehouse total area</span>
-                                <span><fmt:formatNumber value="${warehouseArea}" pattern="#,##0.#"/> m²</span>
+                                <span><fmt:formatNumber value="${warehouseArea}" pattern="#,##0.#"/> m³</span>
                             </div>
                             <div class="area-stat-row">
                                 <span>Already allocated</span>
-                                <span style="color: #3b82f6;"><fmt:formatNumber value="${usedArea}" pattern="#,##0.#"/> m²</span>
+                                <span style="color: #3b82f6;"><fmt:formatNumber value="${usedArea}" pattern="#,##0.#"/> m³</span>
                             </div>
                             <div class="area-stat-row">
                                 <span>Remaining available</span>
                                 <span style="color: ${remainingArea <= 0 ? '#dc2626' : '#16a34a'};">
-                                    <fmt:formatNumber value="${remainingArea}" pattern="#,##0.#"/> m²
+                                    <fmt:formatNumber value="${remainingArea}" pattern="#,##0.#"/> m³
                                 </span>
                             </div>
 
@@ -185,7 +185,7 @@
                         <div class="row mb-4">
                             <div class="col-md-12">
                                 <label class="form-label fw-bold text-dark">
-                                    Area (m²) <span class="text-danger">*</span>
+                                    Area (m³) <span class="text-danger">*</span>
                                     <c:if test="${warehouseArea > 0}">
                                         <small class="text-muted fw-normal">
                                             (max <fmt:formatNumber value="${remainingArea}" pattern="#,##0.#"/>)
@@ -208,7 +208,7 @@
         <span id="estimatedPrice" class="fs-4 fw-bold text-success">0 ₫</span>
     </div>
     <div class="text-end text-muted" style="font-size: 12px;">
-        (Base price: <fmt:formatNumber value="${warehousePrice}" pattern="#,##0"/> ₫/m²)
+        (Base price: <fmt:formatNumber value="${warehousePrice}" pattern="#,##0"/> ₫/m³)
     </div>
 </div>
                             </div>
@@ -261,7 +261,7 @@
 
     <jsp:include page="/Common/Layout/footer.jsp" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <<script>
+    <script>
     // Đã bọc dấu nháy đơn và dùng parseFloat/parseInt kèm giá trị mặc định || 0
     // Cách này đảm bảo không bao giờ bị lỗi SyntaxError dù backend gửi xuống giá trị null
     var warehouseArea  = parseFloat('${empty warehouseArea ? 0 : warehouseArea}') || 0;
@@ -296,11 +296,11 @@
 
         if (newArea > remainingArea) {
             hint.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>'
-                + 'Vượt quá diện tích cho phép (' + remainingArea.toFixed(1) + 'm² còn lại)</span>';
+                + 'Vượt quá diện tích cho phép (' + remainingArea.toFixed(1) + 'm³ còn lại)</span>';
             newBar.style.background = '#dc2626';
         } else {
             hint.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-1"></i>'
-                + (remainingArea - newArea).toFixed(1) + 'm² sẽ còn lại sau khi thêm ô này</span>';
+                + (remainingArea - newArea).toFixed(1) + 'm³ sẽ còn lại sau khi thêm ô này</span>';
             newBar.style.background = '#f59e0b';
         }
     }

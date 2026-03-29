@@ -44,7 +44,7 @@
                     <c:if test="${w.minArea > 0}">
                         <div class="warehouse-area">
                             <i class="fa-solid fa-ruler-combined"></i>
-                            From ${w.minArea} m²
+                            From ${w.minArea} m³
                         </div>
                     </c:if>
 

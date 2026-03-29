@@ -216,7 +216,7 @@
                                     <c:forEach var="u" items="${unitList}" varStatus="st">
                                         <tr>
                                             <td>${st.index + 1}</td>
-                                            <td>${u.area} m²</td>
+                                            <td>${u.area} m³</td>
                                             <td>${u.quantity}</td>
                                             <td><fmt:formatNumber value="${u.price}" type="number"/> VNĐ</td>
                                             <td>

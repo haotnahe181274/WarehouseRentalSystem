@@ -106,7 +106,7 @@
                                         <th>#</th>
                                         <th>Start Date</th>
                                         <th><c:choose><c:when test="${isCreate || isEdit}">Duration (Month)</c:when><c:otherwise>End Date</c:otherwise></c:choose></th>
-                                        <th>Area (m²)</th>
+                                        <th>Area (m³)</th>
                                         <th>Quantity</th>
                                         <th>Price (VND)</th>
                                         <th></th>
@@ -133,7 +133,7 @@
                                                     <td>
                                                         <select name="unitArea" class="unit-area">
                                                             <c:forEach items="${areaPriceMap}" var="entry">
-                                                                <option value="${entry.key}" data-price="${entry.value}" data-quantity="${areaQtyMap[entry.key]}" <c:if test="${entry.key == u.area}">selected</c:if>>${entry.key} m²</option>
+                                                                <option value="${entry.key}" data-price="${entry.value}" data-quantity="${areaQtyMap[entry.key]}" <c:if test="${entry.key == u.area}">selected</c:if>>${entry.key} m³</option>
                                                             </c:forEach>
                                                         </select>
                                                     </td>
@@ -162,7 +162,7 @@
                                                     <select name="unitArea" class="unit-area">
                                                         <option value="">-- Chọn ngày trước --</option>
                                                         <c:forEach items="${areaPriceMap}" var="entry">
-                                                            <option value="${entry.key}" data-price="${entry.value}" data-quantity="${areaQtyMap[entry.key]}">${entry.key} m²</option>
+                                                            <option value="${entry.key}" data-price="${entry.value}" data-quantity="${areaQtyMap[entry.key]}">${entry.key} m³</option>
                                                         </c:forEach>
                                                     </select>
                                                 </td>
@@ -191,7 +191,7 @@
                                                 <td>${vs.index + 1}</td>
                                                 <td><fmt:formatDate value="${u.startDate}" pattern="dd-MM-yyyy"/></td>
                                                 <td><fmt:formatDate value="${u.endDate}" pattern="dd-MM-yyyy"/></td>
-                                                <td>${u.area} m²</td>
+                                                <td>${u.area} m³</td>
                                                 <td>${u.quantity}</td>
                                                 <td><fmt:formatNumber value="${u.rentPrice}" groupingUsed="true"/></td>
                                             </tr>
@@ -524,11 +524,11 @@
                                 var opt = document.createElement("option");
                                 if (typeof areas[i] === "object" && areas[i] !== null) {
                                     opt.value = areas[i].area;
-                                    opt.textContent = areas[i].area + " m² (available: " + areas[i].quantity + ")";
+                                    opt.textContent = areas[i].area + " m³ (available: " + areas[i].quantity + ")";
                                     opt.setAttribute("data-quantity", areas[i].quantity);
                                 } else {
                                     opt.value = areas[i];
-                                    opt.textContent = areas[i] + " m²";
+                                    opt.textContent = areas[i] + " m³";
                                 }
                                 areaSelect.appendChild(opt);
                             }

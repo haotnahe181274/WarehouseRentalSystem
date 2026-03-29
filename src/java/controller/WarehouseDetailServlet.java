@@ -37,13 +37,14 @@ public class WarehouseDetailServlet extends HttpServlet {
             String generatedCode    = suDao.generateUnitCode(warehouseId);
             double warehouseArea    = suDao.getWarehouseTotalArea(warehouseId);
             double usedArea         = suDao.getTotalUsedArea(warehouseId);
+            Warehouse w = Dao.getWarehouseById(warehouseId);
             double remainingArea    = warehouseArea - usedArea;
             request.setAttribute("warehouseId",    warehouseId);
             request.setAttribute("generatedCode",  generatedCode);
             request.setAttribute("warehouseArea",  warehouseArea);
             request.setAttribute("usedArea",       usedArea);
             request.setAttribute("remainingArea",  remainingArea);
-
+            request.setAttribute("warehousePrice", w.getPricePerArea());
             request.getRequestDispatcher("/Management/storage-unit-form.jsp").forward(request, response);
             return;
         }

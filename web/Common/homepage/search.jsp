@@ -64,7 +64,7 @@
 
         <!-- AREA -->
         <div class="filter-group">
-            <label>Area (m²)</label>
+            <label>Area (m³)</label>
             <div class="filter-row">
                 <input type="number" step="0.01" name="minArea"
                        placeholder="Min" value="${param.minArea}">

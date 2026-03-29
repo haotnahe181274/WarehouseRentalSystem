@@ -279,7 +279,7 @@
                                                                                     <fmt:formatNumber
                                                                                         value="${u.area}" /> <span
                                                                                         class="fs-6 text-muted">
-                                                                                        m²</span>
+                                                                                        m³</span>
                                                                                 </h5>
                                                                             </div>
                                                                             <div
