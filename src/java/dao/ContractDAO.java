@@ -489,23 +489,25 @@ public class ContractDAO extends DBContext {
 
         String findUnitSQL = """
             SELECT su.unit_id
-            FROM Storage_unit su
-            JOIN Warehouse w ON su.warehouse_id = w.warehouse_id
-            WHERE su.warehouse_id = ?
-            AND su.area = ?
-            AND w.status = 1
-            AND su.unit_id NOT IN (
-                SELECT csu.unit_id
-                FROM Contract_Storage_unit csu
-                JOIN Payment p ON csu.contract_id = p.contract_id
-                WHERE p.status = 1
-                AND NOT (
-                    csu.end_date < ?
-                    OR csu.start_date > ?
-                )
-            )
-            ORDER BY su.unit_id
-            LIMIT ?
+                FROM Storage_unit su
+                JOIN Warehouse w ON su.warehouse_id = w.warehouse_id
+                LEFT JOIN Contract_Storage_unit csu 
+                       ON su.unit_id = csu.unit_id
+                       AND NOT (
+                            csu.end_date < ?
+                            OR csu.start_date > ?
+                       )
+                LEFT JOIN Payment p 
+                       ON csu.contract_id = p.contract_id
+                WHERE su.warehouse_id = ?
+                AND su.area = ?
+                AND w.status = 1
+                GROUP BY su.unit_id
+                HAVING SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END) = 0
+                ORDER BY 
+                    COUNT(csu.unit_id) ASC,
+                    su.unit_id ASC
+                LIMIT 1
         """;
 
         String insertSQL = """
@@ -527,26 +529,27 @@ public class ContractDAO extends DBContext {
                 int warehouseId = rs1.getInt("warehouse_id");
 
                 // SELECT list unit đủ quantity
-                PreparedStatement ps2 = connection.prepareStatement(findUnitSQL);
-                ps2.setInt(1, warehouseId);
-                ps2.setDouble(2, area);
-                ps2.setDate(3, new java.sql.Date(endDate.getTime()));
-                ps2.setDate(4, new java.sql.Date(startDate.getTime()));
-                ps2.setInt(5, quantity);
+                for (int i = 0; i < quantity; i++) {
 
-                ResultSet rs2 = ps2.executeQuery();
+    PreparedStatement ps2 = connection.prepareStatement(findUnitSQL);
+    ps2.setDate(1, new java.sql.Date(startDate.getTime()));
+    ps2.setDate(2, new java.sql.Date(endDate.getTime()));
+    ps2.setInt(3, warehouseId);
+    ps2.setDouble(4, area);
 
-                // INSERT từng unit
-                while (rs2.next()) {
-                    int unitId = rs2.getInt("unit_id");
+    ResultSet rs2 = ps2.executeQuery();
 
-                    PreparedStatement ps3 = connection.prepareStatement(insertSQL);
-                    ps3.setInt(1, contractId);
-                    ps3.setInt(2, unitId);
-                    ps3.setDate(3, new java.sql.Date(startDate.getTime()));
-                    ps3.setDate(4, new java.sql.Date(endDate.getTime()));
-                    ps3.executeUpdate();
-                }
+    if (rs2.next()) {
+        int unitId = rs2.getInt("unit_id");
+
+        PreparedStatement ps3 = connection.prepareStatement(insertSQL);
+        ps3.setInt(1, contractId);
+        ps3.setInt(2, unitId);
+        ps3.setDate(3, new java.sql.Date(startDate.getTime()));
+        ps3.setDate(4, new java.sql.Date(endDate.getTime()));
+        ps3.executeUpdate();
+    }
+}
             }
         } catch (Exception e) {
             e.printStackTrace();
