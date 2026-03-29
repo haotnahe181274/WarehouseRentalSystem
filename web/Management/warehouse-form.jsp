@@ -247,9 +247,9 @@ function updateSummary() {
         summaryBar.innerHTML = '';
     } else {
         var parts = [];
-        if (valid   > 0) parts.push('<span class="text-success fw-semibold">' + valid   + ' hop le</span>');
-        if (invalid > 0) parts.push('<span class="text-danger fw-semibold">'  + invalid + ' loi</span>');
-        if (empty   > 0) parts.push('<span class="text-muted">'               + empty   + ' chua chon</span>');
+        if (valid   > 0) parts.push('<span class="text-success fw-semibold">' + valid   + ' legit</span>');
+        if (invalid > 0) parts.push('<span class="text-danger fw-semibold">'  + invalid + ' error</span>');
+        if (empty   > 0) parts.push('<span class="text-muted">'               + empty   + ' no image</span>');
         summaryBar.innerHTML = '<i class="fa-solid fa-images me-1"></i> ' + parts.join(' &nbsp;&middot;&nbsp; ');
     }
 
@@ -260,10 +260,10 @@ function updateSummary() {
 /* ── Validate 1 file, tra ve chuoi loi hoac rong ── */
 function validateFile(file) {
     if (!ALLOWED_EXT_RE.test(file.name) || !ALLOWED_TYPES.includes(file.type)) {
-        return 'Dinh dang khong hop le - chi .jpg, .jpeg, .png.';
+        return 'Wrong file, please insert .jpg, .jpeg, .png.';
     }
     if (file.size > MAX_SIZE_BYTES) {
-        return 'Dung luong ' + formatBytes(file.size) + ' vuot qua gioi han 5 MB.';
+        return 'File ' + formatBytes(file.size) + ' bigger than 5 MB.';
     }
     return '';
 }
@@ -283,7 +283,7 @@ function addSlot() {
     var badge = document.createElement('div');
     badge.className = 'slot-index' + (idx === 0 ? ' is-primary' : '');
     badge.textContent = idx + 1;
-    badge.title = idx === 0 ? 'Thumbnail chinh' : 'Anh ' + (idx + 1);
+    badge.title = idx === 0 ? 'Thumbnail' : 'Anh ' + (idx + 1);
 
     /* Cot trai: input + feedback */
     var colLeft = document.createElement('div');
@@ -311,7 +311,7 @@ function addSlot() {
 
     var dot = document.createElement('div');
     dot.className = 'primary-dot' + (idx === 0 ? ' visible' : '');
-    dot.title = 'Thumbnail chinh';
+    dot.title = 'Thumbnail';
 
     thumbWrap.appendChild(thumb);
     thumbWrap.appendChild(dot);
@@ -320,7 +320,7 @@ function addSlot() {
     var removeBtn = document.createElement('button');
     removeBtn.type = 'button';
     removeBtn.className = 'btn-remove-slot';
-    removeBtn.title = 'Xoa anh nay';
+    removeBtn.title = 'Delete';
     removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
 
     row.appendChild(badge);
@@ -400,7 +400,7 @@ function rebuildIndices() {
         var b = rows[i].querySelector('.slot-index');
         b.textContent = i + 1;
         b.className   = 'slot-index' + (i === 0 ? ' is-primary' : '');
-        b.title       = i === 0 ? 'Thumbnail chinh' : 'Anh ' + (i + 1);
+        b.title       = i === 0 ? 'Thumbnail' : 'Anh ' + (i + 1);
 
         var d = rows[i].querySelector('.primary-dot');
         if (i === 0) d.classList.add('visible');
@@ -433,7 +433,7 @@ form.addEventListener('submit', function(e) {
         globalError.style.display = '';
         globalError.innerHTML =
             '<i class="fa-solid fa-triangle-exclamation me-1"></i>'
-            + 'Vui long sua cac anh bi loi truoc khi luu.';
+            + 'Change file before insert again.';
         slotList.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
         globalError.style.display = 'none';
