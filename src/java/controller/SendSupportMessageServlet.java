@@ -129,24 +129,6 @@
                     message.setRenterId(user.getId());
                     message.setInternalUserId(null);
 
-                    // Gửi notification cho Staff/Manager đang phụ trách conversation
-                    try {
-                        Integer assignedStaffId = conversation.getAssignedInternalUserId();
-                        if (assignedStaffId != null && assignedStaffId > 0) {
-                            Notification noti = new Notification();
-                            noti.setTitle("New support message");
-                            noti.setMessage("Renter sent a message in " + subject + ": \"" + preview + "\"");
-                            noti.setType("INFO");
-                            noti.setLinkUrl("?openChat=true&conversationId=" + conversationId);
-                            noti.setInternalUserId(assignedStaffId);
-                            new NotificationDAO().insertNotification(noti);
-                        }
-                        // Nếu chưa có staff phụ trách thì không gửi
-                        // (staff sẽ thấy conversation trong danh sách unassigned)
-                    } catch (Exception e) {
-                        System.err.println("Failed to insert notification (renter→staff): " + e.getMessage());
-                    }
-
                 } else {
                     // ── Staff / Manager reply ─────────────────────────────────
                     message.setSenderType("INTERNAL_USER");
